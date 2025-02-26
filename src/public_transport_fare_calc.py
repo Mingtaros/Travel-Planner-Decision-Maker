@@ -73,6 +73,10 @@ if __name__ == "__main__":
             First Trip Fare: $1.93
             Second Trip Fare: $0.41
             Total Fare: $2.34
+        Distance:
+            First Trip Distance: 13.9 km
+            Second Trip Distance: 14.2 km
+            Total Distance: 28.1 km
     """
 
     first_trip = calculate_mrt_fare(
@@ -88,12 +92,22 @@ if __name__ == "__main__":
     )
 
     # fares are returned as string, need to convert first
-    # fares are returned with dollars and cents not separated
+    # fares are returned in cents
     first_trip_fare = int(first_trip["fare"]) / 100
     second_trip_fare = int(second_trip["fare"]) / 100
     total_fare = first_trip_fare +  second_trip_fare
 
+    # distances are also returned as string, which we need to convert
+    # same as fares, returned in decameters, which needs to be converted to kilometers
+    first_trip_distance = int(first_trip['distance']) / 100
+    second_trip_distance = int(second_trip['distance']) / 100
+    total_distance = first_trip_distance + second_trip_distance
+
     print("Fares:\n" \
           f"    First Trip Fare: ${first_trip_fare}\n" \
           f"    Second Trip Fare: ${second_trip_fare}\n" \
-          f"    Total Fare: ${total_fare}")
+          f"    Total Fare: ${total_fare}\n" \
+          "Distance:\n" \
+          f"    First Trip Distance: {first_trip_distance} km\n" \
+          f"    Second Trip Distance: {second_trip_distance} km\n" \
+          f"    Total Distance: {total_distance} km")
