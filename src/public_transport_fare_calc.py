@@ -13,19 +13,25 @@ fare_type = {
     "Student": '40',
 }
 
+with open("data/bus_stop_to_id.json", 'r') as f:
+    bus_stop_to_id = json.load(f)
+
+with open("data/mrt_stop_to_id.json", 'r') as g:
+    mrt_stop_to_id = json.load(g)
+
 def calculate_mrt_fare(source, destination, rider_type="Adult", tripInfo="", addTripInfo=""):
     # create payload
     payload = {
         "fare": fare_type[rider_type],
-        "from": source,
-        "to": destination,
+        "from": mrt_stop_to_id[source],
+        "to": mrt_stop_to_id[destination],
     }
 
     # trip info can include previous rides that the customer did before this ride, so it's considered single trip, the price accumulated.
     payload["tripInfo"] = tripInfo if tripInfo else "usiAccumulatedDistance1=0-usiAccumulatedDistance2=0-usiAccumulatedDistance3=0-usiAccumulatedDistance4=0-usiAccumulatedDistance5=0-usiAccumulatedDistance6=0-usiAccumulatedFare1=0-usiAccumulatedFare2=0-usiAccumulatedFare3=0-usiAccumulatedFare4=0-usiAccumulatedFare5=0-usiAccumulatedFare6=0",
     payload["addTripInfo"] = addTripInfo if addTripInfo else "0",
 
-    # make request
+    # make requestx
     response = requests.post(
         url=mrt_base_url,
         data=payload,
@@ -38,8 +44,8 @@ def calculate_bus_fare(source, destination, bus_number, rider_type="Adult", trip
     # create payload
     payload = {
         "fare": fare_type[rider_type],
-        "from": source,
-        "to": destination,
+        "from": bus_stop_to_id[source],
+        "to": bus_stop_to_id[destination],
         "bus": bus_number,
     }
 
@@ -57,8 +63,29 @@ def calculate_bus_fare(source, destination, bus_number, rider_type="Adult", trip
 
 
 if __name__ == "__main__":
-    first_trip = calculate_mrt_fare('10', '101') # TODO: find mapping of station & bus stop names to alightID and boardID
-    second_trip = calculate_bus_fare('5704', '5120', '858', tripInfo=first_trip["tripInfo"], addTripInfo=first_trip["addTripInfo"])
+    """
+    Suppose case where a user is going from Dhoby Ghaut to Changi Airport Terminal 1
+    transit at Punggol. The trip starts from Dhoby Ghaut MRT, and ends at Changi
+    Airport Terminal 1 Bus Stop. Therefore there are 2 trips, 1 MRT trip, 1 bus trip.
+    
+    Expected Output:
+        Fares:
+            First Trip Fare: $1.93
+            Second Trip Fare: $0.41
+            Total Fare: $2.34
+    """
+
+    first_trip = calculate_mrt_fare(
+        source="Dhoby Ghaut (NS24 / NE6 / CC1)",
+        destination="Punggol (NE17 / PTC)",
+    )
+    second_trip = calculate_bus_fare(
+        source="65199 - Aft Punggol Rd",
+        destination="95029 - Changi Airport Ter 1",
+        bus_number='858',
+        tripInfo=first_trip["tripInfo"],
+        addTripInfo=first_trip["addTripInfo"],
+    )
 
     # fares are returned as string, need to convert first
     # fares are returned with dollars and cents not separated
