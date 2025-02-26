@@ -5,19 +5,16 @@ import requests
 mrt_base_url = "https://www.lta.gov.sg/content/ltagov/en/map/fare-calculator/jcr:content/map2-content/farecalculator.mrtget.html"
 bus_base_url = "https://www.lta.gov.sg/content/ltagov/en/map/fare-calculator/jcr:content/map2-content/farecalculator.busget.html"
 
-fare_type = {
-    "Adult": '30',
-    "Disabled": '37',
-    "Workfare Concession": '38',
-    "Senior Citizen": '39',
-    "Student": '40',
-}
 
-with open("data/bus_stop_to_id.json", 'r') as f:
-    bus_stop_to_id = json.load(f)
+with open("data/fare_type.json", 'r') as fare_type_f:
+    fare_type = json.load(fare_type_f)
 
-with open("data/mrt_stop_to_id.json", 'r') as g:
-    mrt_stop_to_id = json.load(g)
+with open("data/bus_stop_to_id.json", 'r') as bus_stop_to_id_f:
+    bus_stop_to_id = json.load(bus_stop_to_id_f)
+
+with open("data/mrt_stop_to_id.json", 'r') as mrt_stop_to_id_f:
+    mrt_stop_to_id = json.load(mrt_stop_to_id_f)
+
 
 def calculate_mrt_fare(source, destination, rider_type="Adult", tripInfo="", addTripInfo=""):
     # create payload
@@ -64,9 +61,10 @@ def calculate_bus_fare(source, destination, bus_number, rider_type="Adult", trip
 
 if __name__ == "__main__":
     """
-    Suppose case where a user is going from Dhoby Ghaut to Changi Airport Terminal 1
-    transit at Punggol. The trip starts from Dhoby Ghaut MRT, and ends at Changi
-    Airport Terminal 1 Bus Stop. Therefore there are 2 trips, 1 MRT trip, 1 bus trip.
+    Suppose you are an adult, in case where you are going from Dhoby Ghaut to Changi
+    Airport Terminal 1, transit at Punggol. The trip starts from Dhoby Ghaut MRT, and
+    ends at Changi Airport Terminal 1 Bus Stop. Therefore there are 2 trips, 1 MRT
+    trip, 1 bus trip.
     
     Expected Output:
         Fares:

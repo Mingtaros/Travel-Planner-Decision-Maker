@@ -12,17 +12,19 @@ Data Required:
         <td>Bus Stop IDs</td><td>Bus Stop IDs that is used by LTA fare calculator API.</td><td>https://www.lta.gov.sg/content/ltagov/en/map/fare-calculator.html</td><td>data/bus_stop_to_id.json</td>
     </tr><tr>
         <td>MRT Station IDs</td><td>MRT Station IDs that is used by LTA fare calculator API.</td><td>https://www.lta.gov.sg/content/ltagov/en/map/fare-calculator.html</td><td>data/mrt_stop_to_id.json</td>
-    </tr>
+    </tr><tr>
+        <td>Fare Type</td><td>Singapore Public Transport Prices differ based on whether the rider is an Adult, or a Student, or a Senior or Disabled, etc.</td><td>https://www.lta.gov.sg/content/ltagov/en/map/fare-calculator.html</td><td>data/fare_type.json</td>
 </table>
 
 Features:
-- Multiple-trips, (therefore trip 2 can continue pricing from trip 1)
+- Different pricing for different fare types.
+- Multiple-trips, (therefore trip 2 can continue pricing from trip 1).
 
-Source from: https://www.lta.gov.sg/content/ltagov/en/map/fare-calculator.html
+Source: https://www.lta.gov.sg/content/ltagov/en/map/fare-calculator.html
 
 ## Members
-- Daniel James
-- Leonardo
-- Tai Jing Shen
-- Valerian Yap
-- Yuan Shengbo
+- Daniel James (https://github.com/danieljames96)
+- Leonardo (https://github.com/Mingtaros)
+- Tai Jing Shen (https://github.com/sciencenerd880)
+- Valerian Yap (https://github.com/valerianyap)
+- Yuan Shengbo (https://github.com/CKAB693Yuan)
