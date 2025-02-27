@@ -12,9 +12,11 @@ Creating a Travel Planner mainly using Constraint Satisfaction Problem (CSP) for
     </tr><tr>
         <td>Fare Type</td><td>Singapore Public Transport Prices differ based on whether the rider is an Adult, or a Student, or a Senior or Disabled, etc.</td><td>https://www.lta.gov.sg/content/ltagov/en/map/fare-calculator.html</td><td>data/fare_type.json</td>
     </tr><tr>
-        <td>Singapore MRT Station Geolocation</td><td>Geolocation of MRT Stations in Singapore</td><td>https://www.kaggle.com/datasets/shengjunlim/singapore-mrt-lrt-stations-with-coordinates</td><td>data/MRT Stations.csv</td>
+        <td>Singapore MRT Station Geolocation</td><td>Geolocation of MRT Stations in Singapore</td><td>https://www.kaggle.com/datasets/shengjunlim/singapore-mrt-lrt-stations-with-coordinates</td><td>data/mrt_stations.csv</td>
     </tr><tr>
-        <td>Singapore Bus Stops Geolocation</td><td>Geolocation of Bus Stops in Singapore</td><td>https://datamall2.mytransport.sg/ltaodataservice/BusStops</td><td>data/Bus Stops.csv</td>
+        <td>Singapore Bus Stops Geolocation</td><td>Geolocation of Bus Stops in Singapore</td><td>https://datamall2.mytransport.sg/ltaodataservice/BusStops</td><td>data/bus_stops.csv</td>
+    </tr><tr>
+        <td>Singapore Travel Destinations</td><td>Geolocation and descriptions of Travel Destinations in Singapore</td><td>https://data.gov.sg/datasets/d_0f2f47515425404e6c9d2a040dd87354/view</td><td>data/attractions.csv</td>
     </tr>
 </table>
 
