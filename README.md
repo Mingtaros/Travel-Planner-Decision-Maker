@@ -18,11 +18,11 @@ Creating a Travel Planner mainly using Constraint Satisfaction Problem (CSP) for
     </tr><tr>
         <td>Singapore Bus Stops Geolocation</td><td>Geolocation of Bus Stops in Singapore</td><td>https://datamall2.mytransport.sg/ltaodataservice/BusStops</td><td>data/bus_stops.csv</td>
     </tr><tr>
-        <td>Singapore Travel Destinations</td><td>Geolocation and descriptions of Travel Destinations in Singapore</td><td>https://data.gov.sg/datasets/d_0f2f47515425404e6c9d2a040dd87354/view</td><td>data/attractions.csv</td>
+        <td>Singapore Travel Destinations</td><td>Geolocation and descriptions of Travel Destinations in Singapore. Entrance fee and costs are obtained using LLMs.</td><td>https://data.gov.sg/datasets/d_0f2f47515425404e6c9d2a040dd87354/view</td><td>data/attractions.csv</td>
     </tr><tr>
         <td>Singapore Hawker Centers</td><td>Geolocation and names of Hawker Centers in Singapore</td><td>https://data.gov.sg/datasets/d_4a086da0a5553be1d89383cd90d07ecd/view</td><td>data/hawker_centers.csv</td>
     </tr><tr>
-        <td>Singapore Hotels</td><td>Geolocation and names of Hotels in Singapore</td><td>https://data.gov.sg/datasets/d_654e22f14e5bb817423f0e0c9ac4f632/view</td><td>data/hotels.csv</td>
+        <td>Singapore Hotels</td><td>Geolocation and names of Hotels in Singapore. Per-night costs are obtained using LLMs</td><td>https://data.gov.sg/datasets/d_654e22f14e5bb817423f0e0c9ac4f632/view</td><td>data/hotels.csv</td>
     </tr>
 </table>
 
