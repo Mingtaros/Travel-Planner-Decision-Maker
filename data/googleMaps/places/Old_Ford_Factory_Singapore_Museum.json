@@ -1,0 +1,110 @@
+{
+  "name": "Former Ford Factory",
+  "address": "351 Upper Bukit Timah Rd, Singapore 588192",
+  "phone": "6462 6724",
+  "website": "https://corporate.nas.gov.sg/former-ford-factory/overview/",
+  "price_level": 0,
+  "current_opening_hours": {
+    "open_now": true,
+    "periods": [
+      {
+        "close": {
+          "date": "2025-03-02",
+          "day": 0,
+          "time": "1730"
+        },
+        "open": {
+          "date": "2025-03-02",
+          "day": 0,
+          "time": "0900"
+        }
+      },
+      {
+        "close": {
+          "date": "2025-03-04",
+          "day": 2,
+          "time": "1730"
+        },
+        "open": {
+          "date": "2025-03-04",
+          "day": 2,
+          "time": "0900"
+        }
+      },
+      {
+        "close": {
+          "date": "2025-03-05",
+          "day": 3,
+          "time": "1730"
+        },
+        "open": {
+          "date": "2025-03-05",
+          "day": 3,
+          "time": "0900"
+        }
+      },
+      {
+        "close": {
+          "date": "2025-02-27",
+          "day": 4,
+          "time": "1730"
+        },
+        "open": {
+          "date": "2025-02-27",
+          "day": 4,
+          "time": "0900"
+        }
+      },
+      {
+        "close": {
+          "date": "2025-02-28",
+          "day": 5,
+          "time": "1730"
+        },
+        "open": {
+          "date": "2025-02-28",
+          "day": 5,
+          "time": "0900"
+        }
+      },
+      {
+        "close": {
+          "date": "2025-03-01",
+          "day": 6,
+          "time": "1730"
+        },
+        "open": {
+          "date": "2025-03-01",
+          "day": 6,
+          "time": "0900"
+        }
+      }
+    ],
+    "weekday_text": [
+      "Monday: Closed",
+      "Tuesday: 9:00\u202fAM\u2009\u2013\u20095:30\u202fPM",
+      "Wednesday: 9:00\u202fAM\u2009\u2013\u20095:30\u202fPM",
+      "Thursday: 9:00\u202fAM\u2009\u2013\u20095:30\u202fPM",
+      "Friday: 9:00\u202fAM\u2009\u2013\u20095:30\u202fPM",
+      "Saturday: 9:00\u202fAM\u2009\u2013\u20095:30\u202fPM",
+      "Sunday: 9:00\u202fAM\u2009\u2013\u20095:30\u202fPM"
+    ]
+  },
+  "rating": 4.5,
+  "location": {
+    "lat": 1.3527256,
+    "lng": 103.7688464
+  },
+  "opening_hours": {
+    "open_now": true,
+    "weekday_text": [
+      "Monday: Closed",
+      "Tuesday: 9:00\u202fAM\u2009\u2013\u20095:30\u202fPM",
+      "Wednesday: 9:00\u202fAM\u2009\u2013\u20095:30\u202fPM",
+      "Thursday: 9:00\u202fAM\u2009\u2013\u20095:30\u202fPM",
+      "Friday: 9:00\u202fAM\u2009\u2013\u20095:30\u202fPM",
+      "Saturday: 9:00\u202fAM\u2009\u2013\u20095:30\u202fPM",
+      "Sunday: 9:00\u202fAM\u2009\u2013\u20095:30\u202fPM"
+    ]
+  }
+}

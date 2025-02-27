@@ -1,0 +1,13 @@
+{
+  "name": "HarbourFront",
+  "address": "HarbourFront, Singapore",
+  "phone": "",
+  "website": "",
+  "price_level": 0,
+  "current_opening_hours": "",
+  "rating": 0,
+  "location": {
+    "lat": 1.265485,
+    "lng": 103.8239325
+  }
+}

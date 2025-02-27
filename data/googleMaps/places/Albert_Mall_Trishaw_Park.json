@@ -1,0 +1,13 @@
+{
+  "name": "Albert Mall Walking Street",
+  "address": "Albert St, Singapore",
+  "phone": "",
+  "website": "",
+  "price_level": 0,
+  "current_opening_hours": "",
+  "rating": 1,
+  "location": {
+    "lat": 1.3010556,
+    "lng": 103.853463
+  }
+}

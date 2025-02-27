@@ -1,0 +1,13 @@
+{
+  "name": "SAM at 8Q",
+  "address": "8 Queen St, Singapore 188535",
+  "phone": "6697 9730",
+  "website": "https://www.singaporeartmuseum.sg/visit",
+  "price_level": 0,
+  "current_opening_hours": "",
+  "rating": 4.3,
+  "location": {
+    "lat": 1.2971866,
+    "lng": 103.8519481
+  }
+}

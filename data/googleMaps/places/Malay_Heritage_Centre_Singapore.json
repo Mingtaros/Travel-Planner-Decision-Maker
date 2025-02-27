@@ -1,0 +1,13 @@
+{
+  "name": "Malay Heritage Centre",
+  "address": "85 Sultan Gate, Singapore 198501",
+  "phone": "6391 0450",
+  "website": "http://malayheritage.org.sg/",
+  "price_level": 0,
+  "current_opening_hours": "",
+  "rating": 4.3,
+  "location": {
+    "lat": 1.3027993,
+    "lng": 103.8599265
+  }
+}

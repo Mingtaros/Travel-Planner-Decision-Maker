@@ -1,0 +1,13 @@
+{
+  "name": "Sun Yat Sen Nanyang Memorial Hall",
+  "address": "12 Tai Gin Rd, Singapore 327874",
+  "phone": "6256 7377",
+  "website": "https://www.sysnmh.org.sg/",
+  "price_level": 0,
+  "current_opening_hours": "",
+  "rating": 4.5,
+  "location": {
+    "lat": 1.3280736,
+    "lng": 103.8471167
+  }
+}
