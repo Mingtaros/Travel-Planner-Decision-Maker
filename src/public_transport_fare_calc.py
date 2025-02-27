@@ -10,11 +10,12 @@ bus_base_url = "https://www.lta.gov.sg/content/ltagov/en/map/fare-calculator/jcr
 with open("data/fare_type.json", 'r') as fare_type_f:
     fare_type = json.load(fare_type_f)
 
+# stop name from description and stop name aligns with google maps data.
 bus_stops = pd.read_csv("data/bus_stops.csv")
-bus_stop_to_id = {fullname: ltaid for fullname, ltaid in bus_stops[["FullName", "LTAID"]].values}
+bus_stop_to_id = {stopname: str(ltaid) for stopname, ltaid in bus_stops[["Description", "LTAID"]].values}
 
 mrt_stops = pd.read_csv("data/mrt_stations.csv")
-mrt_stop_to_id = {fullname: ltaid for fullname, ltaid in mrt_stops[["FullName", "LTAID"]].values}
+mrt_stop_to_id = {stopname: str(ltaid) for stopname, ltaid in mrt_stops[["MRTStopName", "LTAID"]].values}
 
 
 def calculate_mrt_fare(source, destination, rider_type="Adult", tripInfo="", addTripInfo=""):

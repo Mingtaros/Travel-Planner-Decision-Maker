@@ -1,0 +1,76 @@
+[
+    {
+        "price_sgd": 1.5,
+        "distance_km": 6.641,
+        "duration_minutes": 29.1,
+        "departure_time": "4:57 PM",
+        "arrival_time": "5:26 PM",
+        "steps": [
+            {
+                "travel_mode": "WALKING",
+                "instructions": "Walk to Paya Lebar",
+                "distance": "0.3 km",
+                "duration": "4 mins"
+            },
+            {
+                "travel_mode": "TRANSIT",
+                "instructions": "Subway towards Tuas Link",
+                "distance": "5.7 km",
+                "duration": "10 mins",
+                "departure_stop": "Paya Lebar",
+                "departure_time": "5:07\u202fPM",
+                "arrival_stop": "City Hall",
+                "arrival_time": "5:17\u202fPM",
+                "line": {
+                    "name": "East West Line",
+                    "short_name": "EW",
+                    "vehicle_type": "SUBWAY"
+                },
+                "num_stops": 5
+            },
+            {
+                "travel_mode": "WALKING",
+                "instructions": "Walk to 81 Victoria St, Singapore 188065",
+                "distance": "0.6 km",
+                "duration": "9 mins"
+            }
+        ]
+    },
+    {
+        "price_sgd": 1.59,
+        "distance_km": 7.17,
+        "duration_minutes": 27.25,
+        "departure_time": "4:57 PM",
+        "arrival_time": "5:24 PM",
+        "steps": [
+            {
+                "travel_mode": "WALKING",
+                "instructions": "Walk to Paya Lebar",
+                "distance": "0.4 km",
+                "duration": "6 mins"
+            },
+            {
+                "travel_mode": "TRANSIT",
+                "instructions": "Subway towards Dhoby Ghaut",
+                "distance": "6.7 km",
+                "duration": "14 mins",
+                "departure_stop": "Paya Lebar",
+                "departure_time": "5:09\u202fPM",
+                "arrival_stop": "Bras Basah",
+                "arrival_time": "5:23\u202fPM",
+                "line": {
+                    "name": "Circle Line",
+                    "short_name": "CC",
+                    "vehicle_type": "SUBWAY"
+                },
+                "num_stops": 7
+            },
+            {
+                "travel_mode": "WALKING",
+                "instructions": "Walk to 81 Victoria St, Singapore 188065",
+                "distance": "0.1 km",
+                "duration": "2 mins"
+            }
+        ]
+    }
+]
