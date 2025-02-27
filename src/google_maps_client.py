@@ -23,9 +23,9 @@ class GoogleMapsClient:
         # Initialize the Google Maps client
         self.gmaps = googlemaps.Client(key=api_key)
     
-    def get_public_transport_directions(self, origin, destination, departure_time=None):
+    def get_route_directions(self, origin, destination, departure_time=None):
         """
-        Get public transport directions between two addresses
+        Get public transport and driving directions between two addresses
         
         Args:
             origin (str): Starting address
@@ -41,13 +41,23 @@ class GoogleMapsClient:
         
         try:
             # Make the directions request
-            directions = self.gmaps.directions(
+            transit_directions = self.gmaps.directions(
                 origin=origin,
                 destination=destination,
                 mode="transit",
                 departure_time=departure_time,
                 alternatives=True
             )
+            
+            driving_directions = self.gmaps.directions(
+                origin=origin,
+                destination=destination,
+                mode="driving",
+                departure_time=departure_time,
+                alternatives=False
+            )
+            
+            directions = transit_directions + driving_directions
             
             return directions
             
@@ -216,7 +226,7 @@ class GoogleMapsClient:
         
         return parsed_place
     
-    def get_route_and_place_details(self, origin, destination, save_to_file=True, output_dir="./"):
+    def get_route_and_place_details(self, origin, destination, departure_time=None, save_to_file=True, output_dir="./"):
         """
         Get both route directions and destination place details in one call
         
@@ -232,7 +242,7 @@ class GoogleMapsClient:
         print(f"Fetching public transport directions from '{origin}' to '{destination}'...")
         
         # Get directions
-        routes = self.get_public_transport_directions(origin, destination)
+        routes = self.get_route_directions(origin, destination, departure_time)
         
         if not routes:
             print("Error: Could not get directions.")
