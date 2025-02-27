@@ -1,20 +1,30 @@
 # Travel Planner & Decision Maker
 Creating a Travel Planner mainly using Constraint Satisfaction Problem (CSP) for AI Planning and Decision Making
 
-## Public Transport Fare Calculator
-Provided Starting station / bus stop, and ending station / bus stop, get fares and distances.
-
-Data Required:
+## Datasets
 <table>
     <tr>
-        <th>Data Type</th><th>Definition</th><th>Source</th><th>Path</th>
+        <th>Data Type</th><th>Description</th><th>Source</th><th>Path</th>
     </tr><tr>
         <td>Bus Stop IDs</td><td>Bus Stop IDs that is used by LTA fare calculator API.</td><td>https://www.lta.gov.sg/content/ltagov/en/map/fare-calculator.html</td><td>data/bus_stop_to_id.json</td>
     </tr><tr>
         <td>MRT Station IDs</td><td>MRT Station IDs that is used by LTA fare calculator API.</td><td>https://www.lta.gov.sg/content/ltagov/en/map/fare-calculator.html</td><td>data/mrt_stop_to_id.json</td>
     </tr><tr>
         <td>Fare Type</td><td>Singapore Public Transport Prices differ based on whether the rider is an Adult, or a Student, or a Senior or Disabled, etc.</td><td>https://www.lta.gov.sg/content/ltagov/en/map/fare-calculator.html</td><td>data/fare_type.json</td>
+    </tr><tr>
+        <td>Singapore MRT Station Geolocation</td><td>Geolocation of MRT Stations in Singapore</td><td>https://www.kaggle.com/datasets/shengjunlim/singapore-mrt-lrt-stations-with-coordinates</td><td>data/MRT Stations.csv</td>
+    </tr><tr>
+        <td>Singapore Bus Stops Geolocation</td><td>Geolocation of Bus Stops in Singapore</td><td>https://datamall2.mytransport.sg/ltaodataservice/BusStops</td><td>data/Bus Stops.csv</td>
+    </tr>
 </table>
+
+## Public Transport Fare Calculator
+Provided Starting station / bus stop, and ending station / bus stop, get fares and distances.
+
+Data Required:
+- Bus Stop IDs
+- MRT Station IDs
+- Fare Type
 
 Features:
 - Different pricing for different fare types.
