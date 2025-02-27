@@ -21,8 +21,9 @@ def main():
         # Get transit directions
         origin = sys.argv[2]
         destination = sys.argv[3]
+        departure_time = None
         
-        get_transit_directions(origin, destination)
+        get_transit_directions(origin, destination, departure_time)
     
     elif command == "places" and len(sys.argv) >= 3:
         # Get place details from a file listing places

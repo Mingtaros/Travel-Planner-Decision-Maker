@@ -3,7 +3,7 @@ import json
 from datetime import datetime
 from google_maps_client import GoogleMapsClient
 
-def get_transit_directions(origin, destination, output_dir="../data/googleMaps/"):
+def get_transit_directions(origin, destination, departure_time=None, output_dir="../data/googleMaps/"):
     """
     Get transit directions between origin and destination and save to JSON
     
@@ -22,7 +22,7 @@ def get_transit_directions(origin, destination, output_dir="../data/googleMaps/"
         print(f"Fetching public transport directions from '{origin}' to '{destination}'...")
         
         # Get directions
-        routes = maps_client.get_public_transport_directions(origin, destination)
+        routes = maps_client.get_route_directions(origin, destination, departure_time)
         
         if not routes:
             print("Error: Could not get directions.")
@@ -52,5 +52,6 @@ if __name__ == "__main__":
     # Example usage when run directly
     origin = 'Singpost Centre, 10 Eunos Rd 8, Singapore 408600'
     destination = 'Singapore Management University, 81 Victoria St, Singapore 188065'
+    departure_time = None
     
-    get_transit_directions(origin, destination)
+    get_transit_directions(origin, destination, departure_time)
