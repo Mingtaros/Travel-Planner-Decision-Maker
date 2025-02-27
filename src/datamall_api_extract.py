@@ -11,7 +11,7 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler("bus_routes_fetch.log"),
+        logging.FileHandler("../log/bus_routes_fetch.log"),
         logging.StreamHandler()
     ]
 )
