@@ -26,7 +26,8 @@ Creating a Travel Planner mainly using Constraint Satisfaction Problem (CSP) for
     </tr>
 </table>
 
-## Public Transport Fare Calculator
+## Features
+### Public Transport Fare Calculator
 Provided Starting station / bus stop, and ending station / bus stop, get fares and distances.
 
 Data Required:
@@ -39,6 +40,10 @@ Features:
 - Multiple-trips, (therefore trip 2 can continue pricing from trip 1).
 
 Source: https://www.lta.gov.sg/content/ltagov/en/map/fare-calculator.html
+
+## Notes and Assumptions
+- Routes data is obtained through Google Maps API.
+- Assume that Hotel Prices and Entrance fee prices are static.
 
 ## Members
 - Daniel James (https://github.com/danieljames96)
