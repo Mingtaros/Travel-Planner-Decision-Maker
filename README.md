@@ -35,7 +35,12 @@ Features:
 - Different pricing for different rider types.
 - Supports multi-trips, (therefore trip 2 can continue pricing from trip 1).
 
-Source: https://www.lta.gov.sg/content/ltagov/en/map/fare-calculator.html
+### Trip Details
+Given the origin location and destination location of where the user is going to go, return the possible routes (trips) including their price and arrival time
+
+Modules required:
+- Public Transport Fare Calculator
+- Google Maps Get Direction
 
 ## Notes and Assumptions
 - Routes data is obtained through Google Maps API.
