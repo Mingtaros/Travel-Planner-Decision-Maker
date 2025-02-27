@@ -35,12 +35,8 @@ def get_trip_details(route_data, rider_type="Adult", sort_priority="price", depa
             # we assume use of grab / taxi
             accumulated_price = calculate_car_fare(route["distance"]["value"], flag_down=4.8)
             # departure time defaults to N/A, so put departure time as current time
-            arriving_time = departure_time
+            arriving_time = departure_time + datetime.timedelta(seconds=route["duration"]["value"])
             route["departure_time"] = departure_time.strftime("%-I:%M %p")
-            for step in route["steps"]:
-                duration = int(re.findall("(.*) min", step["duration"])[0])
-                arriving_time += datetime.timedelta(minutes=duration)
-            
             route["arrival_time"] = arriving_time.strftime("%-I:%M %p")
 
         else:
