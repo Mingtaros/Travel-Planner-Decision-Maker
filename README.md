@@ -26,18 +26,18 @@ Creating a Travel Planner mainly using Constraint Satisfaction Problem (CSP) for
     </tr>
 </table>
 
-## Features
+## Modules
 ### Public Transport Fare Calculator
 Provided Starting station / bus stop, and ending station / bus stop, get fares and distances.
 
 Data Required:
 - Bus Stop IDs
 - MRT Station IDs
-- Fare Type
+- Fare Type (Rider types)
 
 Features:
-- Different pricing for different fare types.
-- Multiple-trips, (therefore trip 2 can continue pricing from trip 1).
+- Different pricing for different rider types.
+- Supports multi-trips, (therefore trip 2 can continue pricing from trip 1).
 
 Source: https://www.lta.gov.sg/content/ltagov/en/map/fare-calculator.html
 
