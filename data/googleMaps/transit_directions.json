@@ -1,0 +1,190 @@
+{
+  "query": {
+    "origin": "Singpost Centre, 10 Eunos Rd 8, Singapore 408600",
+    "destination": "Singapore Management University, 81 Victoria St, Singapore 188065",
+    "time": "2025-02-27 15:39:39"
+  },
+  "num_routes": 4,
+  "routes": [
+    {
+      "route_number": 1,
+      "origin": "10 Eunos Rd 8, Singapore 408600",
+      "destination": "81 Victoria St, Singapore 188065",
+      "distance": {
+        "text": "7.2 km",
+        "value": 7170
+      },
+      "duration": {
+        "text": "27 mins",
+        "value": 1635
+      },
+      "departure_time": "3:39\u202fPM",
+      "arrival_time": "4:06\u202fPM",
+      "steps": [
+        {
+          "travel_mode": "WALKING",
+          "instructions": "Walk to Paya Lebar",
+          "distance": "0.4 km",
+          "duration": "6 mins"
+        },
+        {
+          "travel_mode": "TRANSIT",
+          "instructions": "Subway towards Dhoby Ghaut",
+          "distance": "6.7 km",
+          "duration": "14 mins",
+          "departure_stop": "Paya Lebar",
+          "departure_time": "3:51\u202fPM",
+          "arrival_stop": "Bras Basah",
+          "arrival_time": "4:05\u202fPM",
+          "line": {
+            "name": "Circle Line",
+            "short_name": "CC",
+            "vehicle_type": "SUBWAY"
+          },
+          "num_stops": 7
+        },
+        {
+          "travel_mode": "WALKING",
+          "instructions": "Walk to 81 Victoria St, Singapore 188065",
+          "distance": "0.1 km",
+          "duration": "2 mins"
+        }
+      ]
+    },
+    {
+      "route_number": 2,
+      "origin": "10 Eunos Rd 8, Singapore 408600",
+      "destination": "81 Victoria St, Singapore 188065",
+      "distance": {
+        "text": "6.6 km",
+        "value": 6641
+      },
+      "duration": {
+        "text": "29 mins",
+        "value": 1746
+      },
+      "departure_time": "3:39\u202fPM",
+      "arrival_time": "4:08\u202fPM",
+      "steps": [
+        {
+          "travel_mode": "WALKING",
+          "instructions": "Walk to Paya Lebar",
+          "distance": "0.3 km",
+          "duration": "4 mins"
+        },
+        {
+          "travel_mode": "TRANSIT",
+          "instructions": "Subway towards Tuas Link",
+          "distance": "5.7 km",
+          "duration": "10 mins",
+          "departure_stop": "Paya Lebar",
+          "departure_time": "3:50\u202fPM",
+          "arrival_stop": "City Hall",
+          "arrival_time": "4:00\u202fPM",
+          "line": {
+            "name": "East West Line",
+            "short_name": "EW",
+            "vehicle_type": "SUBWAY"
+          },
+          "num_stops": 5
+        },
+        {
+          "travel_mode": "WALKING",
+          "instructions": "Walk to 81 Victoria St, Singapore 188065",
+          "distance": "0.6 km",
+          "duration": "9 mins"
+        }
+      ]
+    },
+    {
+      "route_number": 3,
+      "origin": "10 Eunos Rd 8, Singapore 408600",
+      "destination": "81 Victoria St, Singapore 188065",
+      "distance": {
+        "text": "7.7 km",
+        "value": 7667
+      },
+      "duration": {
+        "text": "41 mins",
+        "value": 2450
+      },
+      "departure_time": "3:41\u202fPM",
+      "arrival_time": "4:22\u202fPM",
+      "steps": [
+        {
+          "travel_mode": "WALKING",
+          "instructions": "Walk to City Plaza",
+          "distance": "0.8 km",
+          "duration": "11 mins"
+        },
+        {
+          "travel_mode": "TRANSIT",
+          "instructions": "Bus towards Clementi",
+          "distance": "6.8 km",
+          "duration": "28 mins",
+          "departure_stop": "City Plaza",
+          "departure_time": "3:52\u202fPM",
+          "arrival_stop": "SMU",
+          "arrival_time": "4:20\u202fPM",
+          "line": {
+            "name": "7",
+            "short_name": "",
+            "vehicle_type": "BUS"
+          },
+          "num_stops": 17
+        },
+        {
+          "travel_mode": "WALKING",
+          "instructions": "Walk to 81 Victoria St, Singapore 188065",
+          "distance": "0.2 km",
+          "duration": "2 mins"
+        }
+      ]
+    },
+    {
+      "route_number": 4,
+      "origin": "10 Eunos Rd 8, Singapore 408600",
+      "destination": "81 Victoria St, Singapore 188065",
+      "distance": {
+        "text": "6.3 km",
+        "value": 6307
+      },
+      "duration": {
+        "text": "38 mins",
+        "value": 2261
+      },
+      "departure_time": "3:58\u202fPM",
+      "arrival_time": "4:35\u202fPM",
+      "steps": [
+        {
+          "travel_mode": "WALKING",
+          "instructions": "Walk to City Plaza",
+          "distance": "0.8 km",
+          "duration": "11 mins"
+        },
+        {
+          "travel_mode": "TRANSIT",
+          "instructions": "Bus towards Spooner Rd",
+          "distance": "5.2 km",
+          "duration": "21 mins",
+          "departure_stop": "City Plaza",
+          "departure_time": "4:08\u202fPM",
+          "arrival_stop": "Bras Basah Cplx",
+          "arrival_time": "4:29\u202fPM",
+          "line": {
+            "name": "2",
+            "short_name": "",
+            "vehicle_type": "BUS"
+          },
+          "num_stops": 14
+        },
+        {
+          "travel_mode": "WALKING",
+          "instructions": "Walk to 81 Victoria St, Singapore 188065",
+          "distance": "0.4 km",
+          "duration": "6 mins"
+        }
+      ]
+    }
+  ]
+}
