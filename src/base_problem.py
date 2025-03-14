@@ -1,11 +1,5 @@
 import numpy as np
-from pymoo.algorithms.moo.nsga2 import NSGA2
-from pymoo.operators.crossover.pntx import TwoPointCrossover
-from pymoo.operators.mutation.bitflip import BitflipMutation
-from pymoo.operators.sampling.rnd import BinaryRandomSampling
-from pymoo.optimize import minimize
 from pymoo.core.problem import ElementwiseProblem
-from pymoo.termination import get_termination
 
 class TravelItineraryProblem(ElementwiseProblem):
 
@@ -20,7 +14,8 @@ class TravelItineraryProblem(ElementwiseProblem):
         super().__init__(
             n_var=3 * 2 * self.num_destinations, # [day][use taxi / public transport][destination]
             n_obj=3,
-            n_constr=23,
+            n_ieq_constr=25,
+            n_eq_constr=0,
             xl=0,
             xu=1
         )
@@ -31,12 +26,13 @@ class TravelItineraryProblem(ElementwiseProblem):
         #   - index 1: day
         #   - index 2: whether to use taxi or not
         #   - index 3: destination
-        total_cost = 0
+        total_cost = 3 * 50  # Hotel cost for 3 nights
         total_time = 0
         total_satisfaction = 0
         visited = np.zeros(self.num_destinations)
         current_time = 9 * 60  # Start at 9 AM
         current_location = 0  # Start at the hotel
+        end_time_per_day = []
 
         for day in range(3):  # Iterate over 3 days
             current_time = 9 * 60  # Start each day at 9 AM
@@ -85,9 +81,11 @@ class TravelItineraryProblem(ElementwiseProblem):
                 total_cost += travel_cost
 
             # Check if the return time is around 9 PM
-            out["G"] = [total_cost - self.budget, np.sum(visited) - self.num_destinations, current_time - 21 * 60]
+            end_time_per_day.append(current_time - 21 * 60)
 
-        total_cost += 3 * 50  # Hotel cost for 3 nights
+        # inequality constraints
+        out["G"] = [total_cost - self.budget, np.sum(visited) - self.num_destinations]
+        out["G"].extend(end_time_per_day)
 
         # visited constraint (each destination should only be visited once)
         visited_count = np.sum(x, axis=(0, 1))  # Sum over all days and transport modes
@@ -98,6 +96,10 @@ class TravelItineraryProblem(ElementwiseProblem):
         conflicting_transport = np.sum(x, axis=1) - 1 # Should be <= 0 (sum per day should be at most 1)
         out["G"].extend(conflicting_transport.flatten().tolist())
 
-        # print(out["G"])
+        # equality constraints
+        out["H"] = []
 
+        # <ADD ADDITIONAL CONSTRAINTS HERE>
+
+        # objectives
         out["F"] = [total_cost, total_time, -total_satisfaction]
