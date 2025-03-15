@@ -1,0 +1,5 @@
+route_id,origin,origin_type,destination,destination_type,distance_km,duration_minutes,price_sgd,travel_modes
+A1_to_H1_transit,Gardens by the Bay,attraction,Lau Pa Sat,hawker,2.753,22.083333333333332,1.19,WALKING-TRANSIT-WALKING
+H1_to_A1_transit,Lau Pa Sat,hawker,Gardens by the Bay,attraction,2.768,22.266666666666666,1.19,WALKING-TRANSIT-WALKING
+A1_to_H1_driving,Gardens by the Bay,attraction,Lau Pa Sat,hawker,3.37,7.483333333333333,4.5,DRIVING
+H1_to_A1_driving,Lau Pa Sat,hawker,Gardens by the Bay,attraction,1.885,4.683333333333334,3.69,DRIVING

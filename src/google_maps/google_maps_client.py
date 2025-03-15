@@ -3,6 +3,7 @@ import json
 from datetime import datetime
 import googlemaps
 from dotenv import load_dotenv
+import requests
 
 class GoogleMapsClient:
     def __init__(self, api_key=None):
@@ -15,21 +16,125 @@ class GoogleMapsClient:
         # Load from environment if not provided
         if api_key is None:
             load_dotenv()
-            api_key = os.getenv("GOOGLE_MAPS_API_KEY")
+            self.api_key = os.getenv("GOOGLE_MAPS_API_KEY")
             
-        if not api_key:
+        if not self.api_key:
             raise ValueError("Google Maps API key is required")
             
         # Initialize the Google Maps client
-        self.gmaps = googlemaps.Client(key=api_key)
+        self.gmaps = googlemaps.Client(key=self.api_key)
     
-    def get_route_directions(self, origin, destination, departure_time=None):
+    def compute_route_matrix(self, waypoints, mode="transit", departure_time=None):
+        """
+        Compute a route matrix using the Google Maps Routes API
+        
+        Args:
+            waypoints (list): List of [lat, lng] coordinates or [name, lat, lng] tuples
+            mode (str): Travel mode, "transit" or "driving"
+            departure_time (datetime): Departure time
+            
+        Returns:
+            dict: Raw API response
+        """
+        
+        # If no departure time specified, use current time
+        if departure_time is None:
+            departure_time = datetime.now()
+            
+        # Convert mode to the format expected by the API
+        travel_mode = mode.upper()
+        
+        # Format waypoints for the API
+        formatted_waypoints = []
+        for point in waypoints:
+            # Handle both [lat, lng] and [name, lat, lng] formats
+            if len(point) == 2:
+                lat, lng = point
+            elif len(point) == 3:
+                _, lat, lng = point
+            else:
+                print(f"Invalid waypoint format: {point}")
+                continue
+                
+            formatted_waypoints.append({
+                "waypoint": {
+                    "location": {
+                        "latLng": {
+                            "latitude": lat,
+                            "longitude": lng
+                        }
+                    }
+                }
+            })
+        
+        # Prepare request payload
+        payload = {
+            "origins": formatted_waypoints,
+            "destinations": formatted_waypoints,
+            "travelMode": travel_mode,
+        }
+        
+        # Add departure time for transit mode
+        if travel_mode == "TRANSIT":
+            payload["departureTime"] = departure_time.strftime("%Y-%m-%dT%H:%M:%SZ")
+        
+        # Define the API endpoint
+        url = 'https://routes.googleapis.com/distanceMatrix/v2:computeRouteMatrix'
+        
+        # Define required headers
+        headers = {
+            'Content-Type': 'application/json',
+            'X-Goog-Api-Key': self.api_key,
+            # 'X-Goog-FieldMask': 'originIndex,destinationIndex,duration,distanceMeters,status,condition,travelAdvisory'
+            'X-Goog-FieldMask': '*'  # Get all fields
+        }
+        
+        try:
+            # Make the API request
+            response = requests.post(url, headers=headers, data=json.dumps(payload))
+            
+            # Check if the request was successful
+            if response.status_code == 200:
+                return response.json()
+            else:
+                print(f"Error computing route matrix: {response.status_code} - {response.text}")
+                return None
+                
+        except Exception as e:
+            print(f"Error computing route matrix: {e}")
+            return None
+    
+    def compute_distance_matrix(self, origins, destinations, mode="transit", departure_time=None):
+        """
+        Get a distance matrix between multiple origins and destinations
+        """
+        # If no departure time specified, use current time
+        if departure_time is None:
+            departure_time = datetime.now()
+        
+        try:
+            # Make the distance matrix request
+            matrix = self.gmaps.distance_matrix(
+                origins=origins,
+                destinations=destinations,
+                mode=mode,
+                departure_time=departure_time
+            )
+            
+            return matrix
+            
+        except Exception as e:
+            print(f"Error getting distance matrix: {e}")
+            return None
+    
+    def get_route_directions(self, origin, destination, mode="transit", departure_time=None):
         """
         Get public transport and driving directions between two addresses
         
         Args:
             origin (str): Starting address
             destination (str): Destination address
+            mode (str): Travel mode, either "transit" or "driving"
             departure_time (datetime, optional): Departure time. Defaults to now.
         
         Returns:
@@ -41,23 +146,13 @@ class GoogleMapsClient:
         
         try:
             # Make the directions request
-            transit_directions = self.gmaps.directions(
+            directions = self.gmaps.directions(
                 origin=origin,
                 destination=destination,
-                mode="transit",
-                departure_time=departure_time,
-                alternatives=True
-            )
-            
-            driving_directions = self.gmaps.directions(
-                origin=origin,
-                destination=destination,
-                mode="driving",
+                mode=mode,
                 departure_time=departure_time,
                 alternatives=False
             )
-            
-            directions = transit_directions + driving_directions
             
             return directions
             
@@ -226,7 +321,7 @@ class GoogleMapsClient:
         
         return parsed_place
     
-    def get_route_and_place_details(self, origin, destination, departure_time=None, save_to_file=True, output_dir="./"):
+    def get_route_and_place_details(self, origin, destination, mode, departure_time=None, save_to_file=True, output_dir="./"):
         """
         Get both route directions and destination place details in one call
         
@@ -242,7 +337,7 @@ class GoogleMapsClient:
         print(f"Fetching public transport directions from '{origin}' to '{destination}'...")
         
         # Get directions
-        routes = self.get_route_directions(origin, destination, departure_time)
+        routes = self.get_route_directions(origin, destination, mode, departure_time)
         
         if not routes:
             print("Error: Could not get directions.")

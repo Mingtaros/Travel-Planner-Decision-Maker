@@ -1,8 +1,8 @@
 # main.py
 import sys
 import json
-from get_directions import get_transit_directions
-from get_places import get_places_details
+from google_maps.get_directions import get_transit_directions
+from google_maps.get_places import get_places_details
 
 def main():
     """

@@ -1,0 +1,188 @@
+[
+  {
+    "originIndex": 2,
+    "destinationIndex": 0,
+    "status": {},
+    "distanceMeters": 8681,
+    "duration": "729s",
+    "staticDuration": "729s",
+    "travelAdvisory": {},
+    "condition": "ROUTE_EXISTS",
+    "localizedValues": {
+      "distance": {
+        "text": "8.7 km"
+      },
+      "duration": {
+        "text": "12 mins"
+      },
+      "staticDuration": {
+        "text": "12 mins"
+      }
+    }
+  },
+  {
+    "originIndex": 2,
+    "destinationIndex": 1,
+    "status": {},
+    "distanceMeters": 9172,
+    "duration": "797s",
+    "staticDuration": "797s",
+    "travelAdvisory": {},
+    "condition": "ROUTE_EXISTS",
+    "localizedValues": {
+      "distance": {
+        "text": "9.2 km"
+      },
+      "duration": {
+        "text": "13 mins"
+      },
+      "staticDuration": {
+        "text": "13 mins"
+      }
+    }
+  },
+  {
+    "originIndex": 1,
+    "destinationIndex": 2,
+    "status": {},
+    "distanceMeters": 9594,
+    "duration": "944s",
+    "staticDuration": "944s",
+    "travelAdvisory": {},
+    "condition": "ROUTE_EXISTS",
+    "localizedValues": {
+      "distance": {
+        "text": "9.6 km"
+      },
+      "duration": {
+        "text": "16 mins"
+      },
+      "staticDuration": {
+        "text": "16 mins"
+      }
+    }
+  },
+  {
+    "originIndex": 1,
+    "destinationIndex": 1,
+    "status": {},
+    "duration": "0s",
+    "staticDuration": "0s",
+    "travelAdvisory": {},
+    "condition": "ROUTE_EXISTS",
+    "localizedValues": {
+      "distance": {
+        "text": "1 m"
+      },
+      "duration": {
+        "text": "1 min"
+      },
+      "staticDuration": {
+        "text": "1 min"
+      }
+    }
+  },
+  {
+    "originIndex": 0,
+    "destinationIndex": 2,
+    "status": {},
+    "distanceMeters": 9005,
+    "duration": "838s",
+    "staticDuration": "838s",
+    "travelAdvisory": {},
+    "condition": "ROUTE_EXISTS",
+    "localizedValues": {
+      "distance": {
+        "text": "9.0 km"
+      },
+      "duration": {
+        "text": "14 mins"
+      },
+      "staticDuration": {
+        "text": "14 mins"
+      }
+    }
+  },
+  {
+    "originIndex": 1,
+    "destinationIndex": 0,
+    "status": {},
+    "distanceMeters": 2048,
+    "duration": "368s",
+    "staticDuration": "368s",
+    "travelAdvisory": {},
+    "condition": "ROUTE_EXISTS",
+    "localizedValues": {
+      "distance": {
+        "text": "2.0 km"
+      },
+      "duration": {
+        "text": "6 mins"
+      },
+      "staticDuration": {
+        "text": "6 mins"
+      }
+    }
+  },
+  {
+    "originIndex": 0,
+    "destinationIndex": 1,
+    "status": {},
+    "distanceMeters": 2571,
+    "duration": "436s",
+    "staticDuration": "436s",
+    "travelAdvisory": {},
+    "condition": "ROUTE_EXISTS",
+    "localizedValues": {
+      "distance": {
+        "text": "2.6 km"
+      },
+      "duration": {
+        "text": "7 mins"
+      },
+      "staticDuration": {
+        "text": "7 mins"
+      }
+    }
+  },
+  {
+    "originIndex": 0,
+    "destinationIndex": 0,
+    "status": {},
+    "duration": "0s",
+    "staticDuration": "0s",
+    "travelAdvisory": {},
+    "condition": "ROUTE_EXISTS",
+    "localizedValues": {
+      "distance": {
+        "text": "1 m"
+      },
+      "duration": {
+        "text": "1 min"
+      },
+      "staticDuration": {
+        "text": "1 min"
+      }
+    }
+  },
+  {
+    "originIndex": 2,
+    "destinationIndex": 2,
+    "status": {},
+    "duration": "0s",
+    "staticDuration": "0s",
+    "travelAdvisory": {},
+    "condition": "ROUTE_EXISTS",
+    "localizedValues": {
+      "distance": {
+        "text": "1 m"
+      },
+      "duration": {
+        "text": "1 min"
+      },
+      "staticDuration": {
+        "text": "1 min"
+      }
+    }
+  }
+]

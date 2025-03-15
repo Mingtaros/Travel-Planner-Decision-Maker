@@ -2,7 +2,7 @@
 import re
 import json
 import datetime
-from get_directions import get_transit_directions
+from google_maps.get_directions import get_transit_directions
 from public_transport_fare_calc import calculate_bus_fare, calculate_mrt_fare
 
 

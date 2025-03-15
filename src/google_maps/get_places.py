@@ -1,7 +1,7 @@
 import os
 import json
 import time
-from google_maps_client import GoogleMapsClient
+from google_maps.google_maps_client import GoogleMapsClient
 
 def get_places_details(place_list, output_dir="../data/googleMaps/places/"):
     """

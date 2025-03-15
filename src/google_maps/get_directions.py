@@ -1,7 +1,7 @@
 import os
 import json
 from datetime import datetime
-from google_maps_client import GoogleMapsClient
+from google_maps.google_maps_client import GoogleMapsClient
 
 def get_transit_directions(origin, destination, departure_time=None, output_dir="../data/googleMaps/"):
     """
