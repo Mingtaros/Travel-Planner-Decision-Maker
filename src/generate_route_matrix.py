@@ -1,28 +1,34 @@
+#!/usr/bin/env python3
 """
-Generate a matrix of routes between attractions and hawker centers in Singapore
+Generate a comprehensive route matrix for Singapore attractions and food centers
+using cached waypoints from the database
 
 This script:
-1. Connects to the MySQL database to fetch attractions and hawker centers
-2. Uses Google Maps API to calculate routes between each pair for both transit and driving
-3. Saves the route matrix as JSON for use in the optimization algorithm
+1. Fetches waypoints directly from the database instead of geocoding each time
+2. Processes waypoints in batches to handle the 100-element limitation of the Google Maps API
+3. Computes route matrices for both transit and driving modes
+4. Calculates fares based on transit data or driving distance formula
+5. Combines all information into a single comprehensive matrix
+6. Stores the results in both JSON files and a database table
+7. Supports multiple departure dates/times for more accurate transit planning
 """
 
 import os
 import json
-import time
 import logging
-import traceback
+import math
+import time
 import mysql.connector
-from datetime import datetime
+from datetime import datetime, timedelta
 from dotenv import load_dotenv
-from tqdm import tqdm
-from google_maps.google_maps_client import GoogleMapsClient
-from get_trip_detail import get_trip_details
+from utils.google_maps_client import GoogleMapsClient
+from store_waypoints import fetch_waypoints
 
 # Set up logging
+os.makedirs("log", exist_ok=True)
 logging.basicConfig(
-    level=logging.DEBUG,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
         logging.FileHandler("log/route_matrix_generator.log"),
         logging.StreamHandler()
@@ -33,14 +39,35 @@ logger = logging.getLogger("route_matrix")
 # Load environment variables
 load_dotenv()
 
+db_user = os.getenv("MYSQL_USER")
+db_port = os.getenv("MYSQL_PORT")
+db_pwd = os.getenv("MYSQL_PASSWORD")
+db_database = os.getenv("MYSQL_DATABASE")
+db_host = os.getenv("MYSQL_HOST")
 # Database connection parameters
 DB_CONFIG = {
-    'host': 'localhost',
-    'port': 3306,
-    'user': 'planner',
-    'password': 'plannerpassword',
-    'database': 'ai_planning_project'
+    'host': db_host,
+    'port': db_port,
+    'user': db_user,
+    'password': db_pwd,
+    'database': db_database
 }
+
+# Define departure dates/times for route calculations
+# Format: (description, datetime_object)
+DEPARTURE_TIMES = [
+    # ("Morning", datetime(2025, 5, 17, 8, 0, 0)), 
+    # ("Midday", datetime(2025, 5, 17, 12, 0, 0)), 
+    # ("Evening", datetime(2025, 5, 17, 16, 0, 0)), 
+    ("Night", datetime(2025, 5, 17, 20, 0, 0)),  
+]
+
+# API limitations
+MAX_ELEMENTS_PER_REQUEST = 100  # Google Maps API limit (origins × destinations)
+BATCH_SIZE = 10  # Number of origins per batch (10×10=100 elements)
+API_RATE_LIMIT_DELAY = 2  # Delay between API calls (seconds)
+
+waypoint_limit = None
 
 def connect_to_database():
     """Connect to the MySQL database"""
@@ -52,441 +79,506 @@ def connect_to_database():
         logger.error(f"Error connecting to MySQL database: {e}")
         return None
 
-def fetch_attractions(connection, limit=None):
-    """Fetch all attractions from the database"""
+def fetch_transit_fare_data(connection):
+    """Fetch transit fare data from the database"""
     cursor = connection.cursor(dictionary=True)
-    query = "SELECT * FROM attractions"
-    if limit:
-        query += f" LIMIT {limit}"
-    logger.debug(f"Executing query: {query}")
-    cursor.execute(query)
-    attractions = cursor.fetchall()
-    cursor.close()
-    logger.info(f"Fetched {len(attractions)} attractions")
     
-    # # Log the first attraction to verify structure
-    # if attractions:
-    #     logger.debug(f"Sample attraction: {attractions[0]}")
-    
-    return attractions
-
-def fetch_hawker_centers(connection, limit=None):
-    """Fetch all hawker centers from the database"""
-    cursor = connection.cursor(dictionary=True)
-    query = "SELECT * FROM foodcentre"
-    if limit:
-        query += f" LIMIT {limit}"
-    logger.debug(f"Executing query: {query}")
-    cursor.execute(query)
-    hawker_centers = cursor.fetchall()
-    cursor.close()
-    logger.info(f"Fetched {len(hawker_centers)} hawker centers")
-    
-    # # Log the first hawker center to verify structure
-    # if hawker_centers:
-    #     logger.debug(f"Sample hawker center: {hawker_centers[0]}")
-    
-    return hawker_centers
-
-def generate_location_pairs(attractions, hawker_centers):
-    """Generate all pairs of locations that need routes"""
-    locations = []
-    
-    # Add all attractions with their information
-    for attraction in attractions:
-        try:
-            location = {
-                'id': f"A{attraction['aid']}",
-                'name': attraction['aname'],
-                'type': 'attraction',
-                'expenditure': attraction.get('expenditure', 0),
-                'timespent': attraction.get('timespent', 0)
-            }
-            locations.append(location)
-        except KeyError as e:
-            logger.error(f"Missing key in attraction: {e}")
-            logger.debug(f"Problematic attraction data: {attraction}")
-    
-    # Add all hawker centers with their information
-    for hawker in hawker_centers:
-        try:
-            location = {
-                'id': f"H{hawker['fid']}",
-                'name': hawker['name'],
-                'type': 'hawker',
-                'expenditure': hawker.get('expenditure', 0),
-                'timespent': hawker.get('timespent', 0),
-                'rating': hawker.get('rating', 0),
-                'food_type': hawker.get('type', ''),
-                'best_for': hawker.get('bestfor', ''),
-                'address': hawker.get('address', '')
-            }
-            locations.append(location)
-        except KeyError as e:
-            logger.error(f"Missing key in hawker center: {e}")
-            logger.debug(f"Problematic hawker center data: {hawker}")
-    
-    # Generate all pairs (we need routes from every location to every other)
-    pairs = []
-    for i, origin in enumerate(locations):
-        for destination in locations[i+1:]:  # Avoid self-loops and duplicates
-            pairs.append((origin, destination))
-    
-    logger.info(f"Generated {len(pairs)} location pairs to route")
-    if pairs:
-        logger.debug(f"First pair: {pairs[0][0]['name']} to {pairs[0][1]['name']}")
-    
-    return locations, pairs
-
-def get_transit_route_for_pair(maps_client, origin, destination, departure_time=None):
-    """Get transit route information for a pair of locations"""
+    # Try to fetch from transit_fare table if it exists
     try:
-        # Prepare location names
-        origin_name = f"{origin['name']}, Singapore"
-        destination_name = f"{destination['name']}, Singapore"
-        
-        # Use address if available (for hawker centers)
-        if origin['type'] == 'hawker' and origin.get('address'):
-            origin_name = origin['address']
-        if destination['type'] == 'hawker' and destination.get('address'):
-            destination_name = destination['address']
-        
-        logger.debug(f"Getting transit route from '{origin_name}' to '{destination_name}'")
-        
-        # Get the routes with transit mode
-        routes = maps_client.get_route_directions(
-            origin_name, 
-            destination_name,
-            mode="transit",
-            departure_time=departure_time
-        )
-        
-        if not routes:
-            logger.warning(f"No transit routes found from {origin_name} to {destination_name}")
-            return None
-        
-        logger.debug(f"Found {len(routes)} transit route options")
-        
-        # Parse the routes
-        route_data = maps_client.parse_routes_to_json(
-            routes, 
-            origin_name, 
-            destination_name
-        )
-        
-        logger.debug(f"Transit route data parsed with {route_data.get('num_routes', 0)} routes")
-        
-        # Get detailed trip information including fares
-        try:
-            trip_details = get_trip_details(
-                route_data, 
-                rider_type="Adult", 
-                sort_priority="price",
-                departure_time=departure_time
-            )
-            logger.debug(f"Successfully processed transit trip details, found {len(trip_details) if trip_details else 0} options")
-        except Exception as e:
-            logger.error(f"Error in get_trip_details for transit: {e}")
-            logger.error(traceback.format_exc())
-            return None
-        
-        # Take the cheapest route
-        if trip_details and len(trip_details) > 0:
-            cheapest_route = trip_details[0]
+        cursor.execute("SELECT * FROM transit_fare")
+        transit_fares = cursor.fetchall()
+        if transit_fares:
+            logger.info(f"Fetched {len(transit_fares)} transit fare records from transit_fare table")
+            return transit_fares
+    except mysql.connector.Error as e:
+        logger.warning(f"Error fetching transit fare data: {e}")
+        return []
+
+def get_transit_fare(distance_km, fare_table):
+    """Get transit fare based on distance from the fare table"""
+    for fare_info in fare_table:
+        if fare_info['lower_distance'] <= round(distance_km, 1) <= fare_info['upper_distance']:
+            return fare_info['basic_fare']
+    
+    # Default fare for very long distances
+    return None
+
+def calculate_car_fare(distance_m, flag_down=4.8):
+    """Calculate Singapore grab/taxi fare based on distance in meters"""
+    
+    # Start with flag-down fare (covers first 1km)
+    fare = flag_down
+    
+    # Calculate distance charge
+    if distance_m > 1000:
+        remaining_m = distance_m - 1000  # First 1 km is covered in flag-down
+
+        if remaining_m <= 9000:
+            # Charge $0.26 per 400m up to 10km total
+            fare += (remaining_m // 400) * 0.26
+            # Add partial unit if there's a remainder
+            if remaining_m % 400 > 0:
+                fare += 0.26
+        else:
+            # First 9km after flag-down
+            fare += (9000 // 400) * 0.26
             
-            # Create a compact route entry
-            try:
-                route_entry = {
-                    "origin_id": origin['id'],
-                    "destination_id": destination['id'],
-                    "mode": "transit",
-                    "distance_km": cheapest_route["distance_km"],
-                    "duration_minutes": cheapest_route["duration_minutes"],
-                    "price_sgd": cheapest_route["price_sgd"],
-                    "departure_time": cheapest_route.get("departure_time", "N/A"),
-                    "arrival_time": cheapest_route.get("arrival_time", "N/A"),
-                    "route_summary": [
-                        {
-                            "mode": step.get("travel_mode", "UNKNOWN"),
-                            "line": step.get("line", {}).get("name", "") if step.get("travel_mode") == "TRANSIT" else "",
-                            "vehicle_type": step.get("line", {}).get("vehicle_type", "") if step.get("travel_mode") == "TRANSIT" else "",
-                            "duration": step.get("duration", "")
-                        }
-                        for step in cheapest_route["steps"]
-                    ]
-                }
-                
-                logger.debug(f"Successfully created transit route entry from {origin['name']} to {destination['name']}")
-                return route_entry
-            except KeyError as e:
-                logger.error(f"Missing key in transit cheapest_route: {e}")
-                logger.debug(f"Problematic transit cheapest_route: {cheapest_route}")
-                return None
-        else:
-            logger.warning(f"No transit trip details found for route from {origin_name} to {destination_name}")
-        
-        return None
-        
-    except Exception as e:
-        logger.error(f"Error getting transit route from {origin.get('name', 'unknown')} to {destination.get('name', 'unknown')}: {e}")
-        logger.error(traceback.format_exc())
-        return None
+            # Calculate remaining distance after 10km total
+            ultra_remaining = remaining_m - 9000
+            
+            # Beyond 10km, charge $0.26 per 350m
+            fare += (ultra_remaining // 350) * 0.26
+            # Add partial unit if there's a remainder
+            if ultra_remaining % 350 > 0:
+                fare += 0.26
+    
+    return round(fare, 2)
 
-def get_driving_route_for_pair(maps_client, origin, destination, departure_time=None):
-    """Get driving route information for a pair of locations"""
-    try:
-        # Prepare location names
-        origin_name = f"{origin['name']}, Singapore"
-        destination_name = f"{destination['name']}, Singapore"
+def compute_route_matrix_batch(maps_client, origin_waypoints, dest_waypoints, mode, departure_time):
+    """
+    Compute route matrix for a single batch of origins and destinations
+    
+    Args:
+        maps_client: GoogleMapsClient instance
+        origin_waypoints: List of origin waypoints for this batch
+        dest_waypoints: List of destination waypoints for this batch
+        mode: "transit" or "drive"
+        departure_time: Departure datetime
         
-        # Use address if available (for hawker centers)
-        if origin['type'] == 'hawker' and origin.get('address'):
-            origin_name = origin['address']
-        if destination['type'] == 'hawker' and destination.get('address'):
-            destination_name = destination['address']
-        
-        logger.debug(f"Getting driving route from '{origin_name}' to '{destination_name}'")
-        
-        # Get the routes with driving mode
-        routes = maps_client.get_route_directions(
-            origin_name, 
-            destination_name,
-            mode="driving",
-            departure_time=departure_time
-        )
-        
-        if not routes:
-            logger.warning(f"No driving routes found from {origin_name} to {destination_name}")
-            return None
-        
-        logger.debug(f"Found {len(routes)} driving route options")
-        
-        # Parse the routes
-        route_data = maps_client.parse_routes_to_json(
-            routes, 
-            origin_name, 
-            destination_name
-        )
-        
-        logger.debug(f"Driving route data parsed with {route_data.get('num_routes', 0)} routes")
-        
-        # For driving mode, we calculate the cost based on distance
-        try:
-            if 'routes' in route_data and len(route_data['routes']) > 0:
-                route = route_data['routes'][0]  # Take the first (fastest) driving route
-                
-                # Extract distance and duration
-                distance_km = route['distance']['value'] / 1000
-                duration_minutes = route['duration']['value'] / 60
-                
-                # Calculate car fare based on distance (simplified Singapore taxi fare)
-                # Base fare of $3.20 + $0.22 per 400m for first 10km + $0.22 per 350m after 10km
-                price_sgd = 3.20  # Base fare
-                
-                if distance_km > 1:
-                    remaining_km = distance_km - 1  # First 1 km is included in base fare
-                    
-                    if remaining_km <= 9:
-                        # $0.22 per 400m for first 10km
-                        price_sgd += (remaining_km * 1000 / 400) * 0.22
-                    else:
-                        # First 9km after base fare
-                        price_sgd += (9 * 1000 / 400) * 0.22
-                        
-                        # Remaining distance after 10km at $0.22 per 350m
-                        price_sgd += ((remaining_km - 9) * 1000 / 350) * 0.22
-                
-                # Create route entry for driving
-                route_entry = {
-                    "origin_id": origin['id'],
-                    "destination_id": destination['id'],
-                    "mode": "driving",
-                    "distance_km": distance_km,
-                    "duration_minutes": duration_minutes,
-                    "price_sgd": round(price_sgd, 2),
-                    "departure_time": "N/A",  # Driving mode doesn't have fixed departure times
-                    "arrival_time": "N/A",    # Driving mode doesn't have fixed arrival times
-                    "route_summary": [
-                        {
-                            "mode": "DRIVING",
-                            "line": "",
-                            "vehicle_type": "CAR",
-                            "duration": route['duration']['text']
-                        }
-                    ]
-                }
-                
-                logger.debug(f"Successfully created driving route entry from {origin['name']} to {destination['name']}")
-                return route_entry
-            else:
-                logger.warning(f"No driving route found from {origin_name} to {destination_name}")
-                return None
-                
-        except Exception as e:
-            logger.error(f"Error processing driving route: {e}")
-            logger.error(traceback.format_exc())
-            return None
-        
-    except Exception as e:
-        logger.error(f"Error getting driving route from {origin.get('name', 'unknown')} to {destination.get('name', 'unknown')}: {e}")
-        logger.error(traceback.format_exc())
-        return None
+    Returns:
+        List of route elements from the API
+    """
+    # Log the batch size
+    logger.info(f"Computing {mode} route matrix batch: {len(origin_waypoints)} origins × {len(dest_waypoints)} destinations")
+    
+    # Make the API request
+    response = maps_client.compute_route_matrix(
+        origins=origin_waypoints,
+        destinations=dest_waypoints,  # Enable separate destinations parameter
+        mode=mode,
+        departure_time=departure_time
+    )
+    
+    if response:
+        logger.info(f"Successfully computed {mode} matrix batch with {len(response)} routes")
+        return response
+    else:
+        logger.error(f"Failed to compute {mode} route matrix batch")
+        return []
 
-def generate_route_matrix(attractions, hawker_centers, output_file="route_matrix.json"):
-    """Generate a matrix of routes between all locations for both transit and driving"""
-    logger.info("Starting route matrix generation")
+def compute_route_matrices(maps_client, all_waypoints, departure_time):
+    """
+    Compute route matrices for both transit and driving modes in batches
+    to handle the 100-element limitation
+    """
+    transit_matrix = []
+    driving_matrix = []
     
-    # Initialize Google Maps client
-    try:
-        maps_client = GoogleMapsClient()
-        logger.info("Google Maps client initialized")
-    except Exception as e:
-        logger.error(f"Failed to initialize Google Maps client: {e}")
-        return None
+    # Calculate how many batches we need
+    num_locations = len(all_waypoints)
+    num_batches = math.ceil(num_locations / BATCH_SIZE)
     
-    # Set a default departure time (e.g., 10 AM on a weekday)
-    departure_time = datetime(2025, 3, 20, 10, 0, 0)  # Saturday, 10 AM
-    logger.info(f"Using departure time: {departure_time}")
+    logger.info(f"Processing {num_locations} locations in {num_batches}×{num_batches} batches")
     
-    # Get all locations and pairs
-    locations, pairs = generate_location_pairs(attractions, hawker_centers)
+    # Process in batches
+    for i in range(num_batches):
+        # Get origin batch
+        origin_start = i * BATCH_SIZE
+        origin_end = min((i + 1) * BATCH_SIZE, num_locations)
+        origin_batch = all_waypoints[origin_start:origin_end]
+        
+        # For each origin batch, we need to process all destination batches
+        for j in range(num_batches):
+            # Get destination batch
+            dest_start = j * BATCH_SIZE
+            dest_end = min((j + 1) * BATCH_SIZE, num_locations)
+            dest_batch = all_waypoints[dest_start:dest_end]
+            
+            # Calculate offset indices for this batch
+            origin_offset = origin_start
+            dest_offset = dest_start
+            
+            logger.info(f"Processing batch for origins {origin_start}-{origin_end-1}, destinations {dest_start}-{dest_end-1}")
+            
+            # Compute transit matrix for this batch
+            logger.info(f"Computing transit route matrix batch for {departure_time.strftime('%Y-%m-%d %H:%M')}...")
+            batch_transit = compute_route_matrix_batch(
+                maps_client, origin_batch, dest_batch, "transit", departure_time
+            )
+            
+            # Add origin/destination indices to make global indices
+            for route in batch_transit:
+                # Adjust the indices to be global instead of batch-local
+                route['originIndex'] = route['originIndex'] + origin_offset
+                route['destinationIndex'] = route['destinationIndex'] + dest_offset
+            
+            # Add to complete transit matrix
+            transit_matrix.extend(batch_transit)
+            
+            # Sleep to avoid hitting rate limits
+            time.sleep(API_RATE_LIMIT_DELAY)
+            
+            # Compute driving matrix for this batch
+            logger.info(f"Computing driving route matrix batch for {departure_time.strftime('%Y-%m-%d %H:%M')}...")
+            batch_driving = compute_route_matrix_batch(
+                maps_client, origin_batch, dest_batch, "drive", departure_time
+            )
+            
+            # Add origin/destination indices to make global indices
+            for route in batch_driving:
+                # Adjust the indices to be global instead of batch-local
+                route['originIndex'] = route['originIndex'] + origin_offset
+                route['destinationIndex'] = route['destinationIndex'] + dest_offset
+            
+            # Add to complete driving matrix
+            driving_matrix.extend(batch_driving)
+            
+            # Sleep to avoid hitting rate limits
+            time.sleep(API_RATE_LIMIT_DELAY)
     
-    # Store location details
-    location_details = {loc['id']: loc for loc in locations}
+    # Return the complete matrices
+    matrices = {}
+    if transit_matrix:
+        matrices['transit'] = transit_matrix
+        logger.info(f"Successfully computed complete transit matrix with {len(transit_matrix)} routes")
     
-    # Initialize route matrix
-    route_matrix = {}
+    if driving_matrix:
+        matrices['drive'] = driving_matrix
+        logger.info(f"Successfully computed complete driving matrix with {len(driving_matrix)} routes")
     
-    # Process each pair and get route information
-    logger.info("Generating route matrix...")
-    for i, (origin, destination) in enumerate(tqdm(pairs)):
-        logger.info(f"Processing pair {i+1}/{len(pairs)}: {origin['name']} to {destination['name']}")
-        
-        # Get transit route from origin to destination
-        transit_forward_route = get_transit_route_for_pair(
-            maps_client, 
-            origin, 
-            destination, 
-            departure_time
-        )
-        
-        # Get transit route from destination to origin
-        transit_backward_route = get_transit_route_for_pair(
-            maps_client, 
-            destination, 
-            origin, 
-            departure_time
-        )
-        
-        # Get driving route from origin to destination
-        driving_forward_route = get_driving_route_for_pair(
-            maps_client, 
-            origin, 
-            destination, 
-            departure_time
-        )
-        
-        # Get driving route from destination to origin
-        driving_backward_route = get_driving_route_for_pair(
-            maps_client, 
-            destination, 
-            origin, 
-            departure_time
-        )
-        
-        # Store transit routes in the matrix
-        if transit_forward_route:
-            route_id = f"{origin['id']}_to_{destination['id']}_transit"
-            route_matrix[route_id] = transit_forward_route
-            logger.debug(f"Added forward transit route: {route_id}")
-        else:
-            logger.warning(f"Could not get forward transit route from {origin['name']} to {destination['name']}")
-        
-        if transit_backward_route:
-            route_id = f"{destination['id']}_to_{origin['id']}_transit"
-            route_matrix[route_id] = transit_backward_route
-            logger.debug(f"Added backward transit route: {route_id}")
-        else:
-            logger.warning(f"Could not get backward transit route from {destination['name']} to {origin['name']}")
-        
-        # Store driving routes in the matrix
-        if driving_forward_route:
-            route_id = f"{origin['id']}_to_{destination['id']}_driving"
-            route_matrix[route_id] = driving_forward_route
-            logger.debug(f"Added forward driving route: {route_id}")
-        else:
-            logger.warning(f"Could not get forward driving route from {origin['name']} to {destination['name']}")
-        
-        if driving_backward_route:
-            route_id = f"{destination['id']}_to_{origin['id']}_driving"
-            route_matrix[route_id] = driving_backward_route
-            logger.debug(f"Added backward driving route: {route_id}")
-        else:
-            logger.warning(f"Could not get backward driving route from {destination['name']} to {origin['name']}")
-        
-        # Sleep to avoid hitting API rate limits
-        time.sleep(0.5)
+    return matrices
+
+def process_route_matrices(matrices, locations, waypoints, fare_table, departure_time, time_description):
+    """
+    Process route matrices to create a comprehensive route matrix
+    with both transit and driving information
+    """
+    # Extract waypoint names for reference
+    waypoint_names = [wp[0] for wp in waypoints]
     
-    # Create the final matrix data structure
-    matrix_data = {
+    # Create the comprehensive matrix structure
+    comprehensive_matrix = {
         "metadata": {
             "generated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "num_locations": len(locations),
-            "num_routes": len(route_matrix)
+            "departure_time": departure_time.strftime("%Y-%m-%d %H:%M:%S"),
+            "time_description": time_description,
+            "num_locations": len(waypoints),
+            "num_routes": 0
         },
-        "locations": location_details,
-        "routes": route_matrix
+        "locations": {
+            location['id']: {
+                "id": location['id'],
+                "name": location['name'],
+                "type": location['type'],
+                "lat": location['lat'],
+                "lng": location['lng']
+            }
+            for location in locations
+        },
+        "routes": {}
     }
     
-    # Create directory if it doesn't exist
-    os.makedirs(os.path.dirname(output_file), exist_ok=True)
+    # Check if we have both matrices
+    if 'transit' not in matrices or 'drive' not in matrices:
+        logger.error("Missing transit or driving matrix data")
+        return comprehensive_matrix
     
-    # Save to file
-    try:
-        with open(output_file, 'w') as f:
-            json.dump(matrix_data, f, indent=2)
-        logger.info(f"Route matrix saved to {output_file}")
-    except Exception as e:
-        logger.error(f"Error saving route matrix to file: {e}")
+    # Process all possible routes between locations
+    for i, origin in enumerate(locations):
+        for j, destination in enumerate(locations):
+            # Skip self-routes
+            if i == j:
+                continue
+                
+            # Create route ID
+            route_id = f"{origin['id']}_to_{destination['id']}"
+            
+            # Initialize route data
+            route_data = {
+                "origin_id": origin['id'],
+                "destination_id": destination['id'],
+                "origin_name": origin['name'],
+                "destination_name": destination['name'],
+                "departure_time": departure_time.strftime("%Y-%m-%d %H:%M:%S"),
+                "time_description": time_description,
+                "transit": {
+                    "distance_km": 0,
+                    "duration_minutes": 0,
+                    "fare_sgd": 0
+                },
+                "drive": {
+                    "distance_km": 0,
+                    "duration_minutes": 0,
+                    "fare_sgd": 0
+                }
+            }
+            
+            # Find and process transit route
+            transit_route = None
+            for route in matrices['transit']:
+                if (route.get('originIndex') == i and 
+                    route.get('destinationIndex') == j and
+                    route.get('condition') == 'ROUTE_EXISTS'):
+                    transit_route = route
+                    break
+            
+            if transit_route:
+                # Extract distance and duration
+                distance_meters = transit_route.get('distanceMeters', 0)
+                distance_km = distance_meters / 1000
+                
+                duration_seconds = 0
+                if 'duration' in transit_route:
+                    duration_str = transit_route['duration']
+                    if duration_str.endswith('s'):
+                        duration_seconds = int(duration_str[:-1])
+                
+                fare = get_transit_fare(distance_km, fare_table)
+                
+                # Update transit route data
+                route_data['transit'] = {
+                    "distance_km": round(distance_km, 2),
+                    "duration_minutes": round(duration_seconds / 60, 2),
+                    "fare_sgd": round(fare, 2)
+                }
+            
+            # Find and process driving route
+            driving_route = None
+            for route in matrices['drive']:
+                if (route.get('originIndex') == i and 
+                    route.get('destinationIndex') == j and
+                    route.get('condition') == 'ROUTE_EXISTS'):
+                    driving_route = route
+                    break
+            
+            if driving_route:
+                # Extract distance and duration
+                distance_meters = driving_route.get('distanceMeters', 0)
+                distance_km = distance_meters / 1000
+                
+                duration_seconds = 0
+                if 'duration' in driving_route:
+                    duration_str = driving_route['duration']
+                    if duration_str.endswith('s'):
+                        duration_seconds = int(duration_str[:-1])
+                
+                # Calculate driving fare
+                fare = calculate_car_fare(distance_meters)
+                
+                # Update driving route data
+                route_data['drive'] = {
+                    "distance_km": round(distance_km, 2),
+                    "duration_minutes": round(duration_seconds / 60, 2),
+                    "fare_sgd": fare
+                }
+            
+            # Add route to comprehensive matrix
+            comprehensive_matrix['routes'][route_id] = route_data
+            comprehensive_matrix['metadata']['num_routes'] += 1
     
-    return matrix_data
+    return comprehensive_matrix
 
-def main():
-    """Main function to generate the route matrix"""
-    logger.info("=== Starting route matrix generation script ===")
+def save_matrix_to_file(matrix, file_path):
+    """Save the comprehensive matrix to a JSON file"""
+    try:
+        # Create directory if it doesn't exist
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+        
+        # Write to file
+        with open(file_path, 'w') as f:
+            json.dump(matrix, f, indent=2)
+        
+        logger.info(f"Matrix saved to {file_path}")
+        return True
+    except Exception as e:
+        logger.error(f"Error saving matrix to file: {e}")
+        return False
+
+def create_route_matrix_table(connection):
+    """Create the route_matrix table in the database if it doesn't exist"""
+    try:
+        cursor = connection.cursor()
+        
+        # Create table
+        create_table_query = """
+        CREATE TABLE IF NOT EXISTS route_matrix (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            origin_id VARCHAR(50) NOT NULL,
+            destination_id VARCHAR(50) NOT NULL,
+            origin_name VARCHAR(255) NOT NULL,
+            destination_name VARCHAR(255) NOT NULL,
+            departure_time DATETIME NOT NULL,
+            time_description VARCHAR(50) NOT NULL,
+            transit_distance_km FLOAT NOT NULL,
+            transit_duration_minutes FLOAT NOT NULL,
+            transit_fare_sgd DECIMAL(10, 2) NOT NULL,
+            driving_distance_km FLOAT NOT NULL,
+            driving_duration_minutes FLOAT NOT NULL,
+            driving_fare_sgd DECIMAL(10, 2) NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE KEY unique_route (origin_id, destination_id, departure_time)
+        )
+        """
+        cursor.execute(create_table_query)
+        connection.commit()
+        cursor.close()
+        
+        logger.info("route_matrix table created or already exists")
+        return True
+    except mysql.connector.Error as e:
+        logger.error(f"Error creating route_matrix table: {e}")
+        return False
+
+def save_matrix_to_database(connection, matrix):
+    """Save the comprehensive matrix to the database"""
+    try:
+        # Create the table if it doesn't exist
+        if not create_route_matrix_table(connection):
+            return False
+        
+        # Prepare data for insertion
+        routes_data = []
+        departure_time = datetime.strptime(
+            matrix['metadata']['departure_time'], 
+            "%Y-%m-%d %H:%M:%S"
+        )
+        time_description = matrix['metadata']['time_description']
+        
+        for route_id, route in matrix['routes'].items():
+            # Prepare row data
+            route_data = (
+                route['origin_id'],
+                route['destination_id'],
+                route['origin_name'],
+                route['destination_name'],
+                departure_time,
+                time_description,
+                route['transit']['distance_km'],
+                route['transit']['duration_minutes'],
+                route['transit']['fare_sgd'],
+                route['drive']['distance_km'],
+                route['drive']['duration_minutes'],
+                route['drive']['fare_sgd']
+            )
+            routes_data.append(route_data)
+        
+        # Insert data
+        cursor = connection.cursor()
+        
+        # Use REPLACE INTO to update existing routes or insert new ones
+        insert_query = """
+        REPLACE INTO route_matrix (
+            origin_id, destination_id, origin_name, destination_name,
+            departure_time, time_description,
+            transit_distance_km, transit_duration_minutes, transit_fare_sgd,
+            driving_distance_km, driving_duration_minutes, driving_fare_sgd
+        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """
+        
+        cursor.executemany(insert_query, routes_data)
+        connection.commit()
+        
+        logger.info(f"Saved {len(routes_data)} routes to database")
+        return True
+    except mysql.connector.Error as e:
+        logger.error(f"Error saving matrix to database: {e}")
+        return False
+
+def generate_comprehensive_matrix(departure_time, time_description, output_file=None):
+    """
+    Generate a comprehensive route matrix with transit and driving information
+    for attractions and hawker centers
+    """
+    logger.info(f"Starting comprehensive route matrix generation for {time_description}...")
     
-    # Connect to the database
+    # Connect to database
     connection = connect_to_database()
     if not connection:
-        logger.error("Failed to connect to database. Exiting.")
-        return
+        return None
     
     try:
-        # Fetch data from database
-        attractions = fetch_attractions(connection, limit=1)
-        hawker_centers = fetch_hawker_centers(connection, limit=1)
+        # Initialize Google Maps client
+        maps_client = GoogleMapsClient()
+        logger.info("Google Maps client initialized")
         
-        if not attractions:
-            logger.error("No attractions found in database")
-            return
-            
-        if not hawker_centers:
-            logger.error("No hawker centers found in database")
-            return
+        # Fetch waypoints from database
+        locations, waypoints = fetch_waypoints(connection, waypoint_limit)
+        if not locations or not waypoints:
+            logger.error("No waypoints found in database")
+            return None
         
-        # Generate route matrix
-        generate_route_matrix(attractions, hawker_centers, "data/route_matrix.json")
+        # Fetch transit fare data
+        fare_table = fetch_transit_fare_data(connection)
+        
+        # Compute route matrices in batches
+        matrices = compute_route_matrices(maps_client, waypoints, departure_time)
+        if not matrices:
+            logger.error("Failed to compute route matrices")
+            return None
+        
+        # Process route matrices into a comprehensive matrix
+        comprehensive_matrix = process_route_matrices(
+            matrices, locations, waypoints, fare_table, 
+            departure_time, time_description
+        )
+        
+        # Save the comprehensive matrix to file if output file is specified
+        if output_file:
+            save_matrix_to_file(comprehensive_matrix, output_file)
+        
+        # Save the comprehensive matrix to database
+        save_matrix_to_database(connection, comprehensive_matrix)
+        
+        return comprehensive_matrix
         
     except Exception as e:
-        logger.error(f"Unexpected error in main function: {e}")
+        logger.error(f"Error generating comprehensive matrix: {e}")
+        import traceback
         logger.error(traceback.format_exc())
+        return None
     finally:
         # Close database connection
         if connection and connection.is_connected():
             connection.close()
             logger.info("Database connection closed")
+
+def main():
+    """Main function to demonstrate the script"""
+    # Create output directory
+    os.makedirs("data/routeData", exist_ok=True)
     
-    logger.info("=== Route matrix generation script completed ===")
+    # Generate matrices for each departure time
+    for time_description, departure_time in DEPARTURE_TIMES:
+        # Define output file path
+        output_file = f"data/routeData/route_matrix_{time_description.lower().replace(' ', '_')}.json"
+        
+        # Generate comprehensive matrix
+        comprehensive_matrix = generate_comprehensive_matrix(
+            departure_time=departure_time,
+            time_description=time_description,
+            output_file=output_file
+        )
+        
+        if comprehensive_matrix:
+            # Print a summary
+            num_locations = len(comprehensive_matrix['locations'])
+            num_routes = comprehensive_matrix['metadata']['num_routes']
+            logger.info(f"Generated comprehensive matrix for {time_description} with {num_locations} locations and {num_routes} routes")
+            
+            # Print a sample route
+            if comprehensive_matrix['routes']:
+                sample_route = next(iter(comprehensive_matrix['routes'].values()))
+                logger.info(f"Sample route for {time_description}:")
+                logger.info(f"  From: {sample_route['origin_name']} ({sample_route['origin_id']})")
+                logger.info(f"  To: {sample_route['destination_name']} ({sample_route['destination_id']})")
+                logger.info(f"  Transit: {sample_route['transit']['distance_km']:.2f} km, " +
+                           f"{sample_route['transit']['duration_minutes']:.0f} min, " +
+                           f"${sample_route['transit']['fare_sgd']:.2f}")
+                logger.info(f"  Driving: {sample_route['drive']['distance_km']:.2f} km, " + 
+                           f"{sample_route['drive']['duration_minutes']:.0f} min, " +
+                           f"${sample_route['drive']['fare_sgd']:.2f}")
+        else:
+            logger.error(f"Failed to generate comprehensive matrix for {time_description}")
 
 if __name__ == "__main__":
     main()

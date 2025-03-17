@@ -1,5 +1,13 @@
-# Travel Planner & Decision Maker
-Creating a Travel Planner mainly using Constraint Satisfaction Problem (CSP) for AI Planning and Decision Making
+# Singapore Travel Itinerary Project
+
+Creating a Travel Planner mainly using Constraint Satisfaction Problem (CSP) for AI Planning and Decision Making.
+
+## Prerequisites
+
+- [Docker](https://docs.docker.com/get-docker/)
+- [Docker Compose](https://docs.docker.com/compose/install/)
+- Python 3.8+
+- Google Maps API key
 
 ## Datasets
 <table>
@@ -21,6 +29,132 @@ Creating a Travel Planner mainly using Constraint Satisfaction Problem (CSP) for
         <td>Singapore Hotels</td><td>Geolocation and names of Hotels in Singapore. Per-night costs are obtained using LLMs</td><td>https://data.gov.sg/datasets/d_654e22f14e5bb817423f0e0c9ac4f632/view</td><td>data/hotels.csv</td>
     </tr>
 </table>
+
+## Directory Structure
+
+```
+travel-planner-decision-maker/
+├── docker-compose.yml
+├── init/
+│   └── init.sql
+├── data/
+│   ├── attractions.csv
+│   ├── tourists.csv
+│   ├── foodcentre.csv
+│   ├── preference.csv
+│   └── routeData/  (will be created automatically)
+├── mysql-data/  (will be created automatically)
+├── src/
+│   ├── load_data.py
+│   ├── store_waypoints.py
+│   ├── generate_route_matrix.py
+│   └── utils/
+│       └── google_maps_client.py
+└── log/  (will be created automatically)
+```
+
+## Setup Instructions
+
+1. Clone this repository
+2. Place your CSV files in the `data` directory
+3. Create a `.env` file in the root directory with the following variables:
+   ```
+   MYSQL_USER=<user>
+   MYSQL_PASSWORD=<password>
+   MYSQL_DATABASE=<database>
+   MYSQL_HOST=<host>
+   MYSQL_PORT=<port>
+   GOOGLE_MAPS_API_KEY=your_api_key_here
+   ```
+4. Start the database container:
+   ```bash
+   docker-compose up -d
+   ```
+5. Verify the database is running:
+   ```bash
+   docker-compose ps
+   ```
+6. Connect to the database:
+   ```bash
+   docker exec -it <container_name> mysql -u <user> -p<password>
+   ```
+7. Run the data loading script:
+   ```bash
+   python ./src/load_data.py
+   ```
+8. Verify data was loaded:
+   ```sql
+   USE ai_planning_project;
+   SELECT * FROM attractions LIMIT 5;
+   SELECT * FROM foodcentre LIMIT 5;
+   ```
+
+## Route Matrix Generation
+
+The route matrix generation process involves two main steps:
+
+1. **Store waypoint data** (geocoding locations - only needs to be done once)
+2. **Generate route matrices** (can be run for different times of day)
+
+### Step 1: Store Waypoints
+
+Run the following command to geocode all locations and store them in the database:
+
+```bash
+python ./src/store_waypoints.py
+```
+
+This script:
+- Fetches attractions and foodcentres from the database
+- Geocodes them using the Google Maps API
+- Stores the coordinates in a `waypoints` table
+- Only needs to be run once (unless new locations are added)
+
+Verify the waypoints were stored:
+```sql
+SELECT * FROM waypoints LIMIT 5;
+```
+
+### Step 2: Generate Route Matrix
+
+Run the following command to generate route matrices for different times of day:
+
+```bash
+python ./src/generate_route_matrix.py
+```
+
+This script:
+- Fetches waypoints from the database
+- Processes them in batches to comply with Google Maps API limits (100 elements per request)
+- Computes transit and driving routes between all locations
+- Calculates fares for each route type
+- Saves the results in JSON files (`data/routeData/route_matrix_*.json`)
+- Stores the results in the database (`route_matrix` table)
+
+You can modify the departure times in the script to generate matrices for different times of day.
+
+Verify the route matrix was stored:
+```sql
+SELECT * FROM route_matrix LIMIT 5;
+```
+
+## Exporting and Importing the Database
+
+### Exporting the Database (for sharing with collaborators)
+
+1. Export as SQL dump file:
+   ```bash
+   docker exec -i ai_planning_project_db sh -c 'mysqldump --no-tablespaces -u planner -p"plannerpassword" ai_planning_project' > ai_planning_project_dump.sql
+   ```
+
+### Importing the Database
+
+Import a SQL dump file:
+   ```bash
+    docker exec -i ai_planning_project_db sh -c 'mysql -u planner -p"plannerpassword" -e "CREATE DATABASE IF NOT EXISTS ai_planning_project;"'
+
+    docker exec -i ai_planning_project_db sh -c 'mysql -u planner -p"plannerpassword" ai_planning_project' < ai_planning_project_dump.sql
+   ```
 
 ## Modules
 ### Public Transport Fare Calculator

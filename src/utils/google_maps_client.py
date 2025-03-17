@@ -24,12 +24,13 @@ class GoogleMapsClient:
         # Initialize the Google Maps client
         self.gmaps = googlemaps.Client(key=self.api_key)
     
-    def compute_route_matrix(self, waypoints, mode="transit", departure_time=None):
+    def compute_route_matrix(self, origins, destinations=None, mode="transit", departure_time=None):
         """
         Compute a route matrix using the Google Maps Routes API
         
         Args:
-            waypoints (list): List of [lat, lng] coordinates or [name, lat, lng] tuples
+            origins (list): List of origin [lat, lng] coordinates or [name, lat, lng] tuples
+            destinations (list, optional): List of destination waypoints. If None, uses waypoints for both origins and destinations
             mode (str): Travel mode, "transit" or "driving"
             departure_time (datetime): Departure time
             
@@ -41,22 +42,49 @@ class GoogleMapsClient:
         if departure_time is None:
             departure_time = datetime.now()
             
+        # If destinations not provided, use same waypoints for both origins and destinations
+        if destinations is None:
+            destinations = origins
+            
         # Convert mode to the format expected by the API
         travel_mode = mode.upper()
         
-        # Format waypoints for the API
-        formatted_waypoints = []
-        for point in waypoints:
+        # Format origin waypoints for the API
+        formatted_origins = []
+        for point in origins:
             # Handle both [lat, lng] and [name, lat, lng] formats
             if len(point) == 2:
                 lat, lng = point
             elif len(point) == 3:
                 _, lat, lng = point
             else:
-                print(f"Invalid waypoint format: {point}")
+                print(f"Invalid origin waypoint format: {point}")
                 continue
                 
-            formatted_waypoints.append({
+            formatted_origins.append({
+                "waypoint": {
+                    "location": {
+                        "latLng": {
+                            "latitude": lat,
+                            "longitude": lng
+                        }
+                    }
+                }
+            })
+        
+        # Format destination waypoints for the API
+        formatted_destinations = []
+        for point in destinations:
+            # Handle both [lat, lng] and [name, lat, lng] formats
+            if len(point) == 2:
+                lat, lng = point
+            elif len(point) == 3:
+                _, lat, lng = point
+            else:
+                print(f"Invalid destination waypoint format: {point}")
+                continue
+                
+            formatted_destinations.append({
                 "waypoint": {
                     "location": {
                         "latLng": {
@@ -69,8 +97,8 @@ class GoogleMapsClient:
         
         # Prepare request payload
         payload = {
-            "origins": formatted_waypoints,
-            "destinations": formatted_waypoints,
+            "origins": formatted_origins,
+            "destinations": formatted_destinations,
             "travelMode": travel_mode,
         }
         

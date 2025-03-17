@@ -41,6 +41,16 @@ CREATE TABLE foodcentre (
     address VARCHAR(1000),
     CONSTRAINT foodcentre_pk PRIMARY KEY (fid)
 );
+
+CREATE TABLE transit_fare (
+    id INT NOT NULL,
+    lower_distance FLOAT,
+    upper_distance FLOAT,
+    basic_fare FLOAT,
+    express_fare FLOAT,
+    CONSTRAINT transit_fare_pk PRIMARY KEY (id)
+);
+
 # check the path to local postition
 LOAD DATA INFILE 'C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/PROJECT/attractions.csv' 
 INTO TABLE attractions 

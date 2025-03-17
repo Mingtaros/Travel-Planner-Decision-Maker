@@ -38,6 +38,15 @@ CREATE TABLE foodcentre (
     CONSTRAINT foodcentre_pk PRIMARY KEY (fid)
 );
 
+CREATE TABLE transit_fare (
+    id INT NOT NULL,
+    lower_distance FLOAT,
+    upper_distance FLOAT,
+    basic_fare FLOAT,
+    express_fare FLOAT,
+    CONSTRAINT transit_fare_pk PRIMARY KEY (id)
+);
+
 -- Setting global variables to allow file loading
 SET GLOBAL local_infile = 1;
 

@@ -4,10 +4,10 @@ services:
     container_name: ai_planning_project_db
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: ai_planning_project
-      MYSQL_USER: planner
-      MYSQL_PASSWORD: plannerpassword
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpassword}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-ai_planning_project}
+      MYSQL_USER: ${MYSQL_USER:-planner}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-plannerpassword}
     ports:
       - "3306:3306"
     volumes:

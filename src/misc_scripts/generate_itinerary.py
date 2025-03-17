@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Generate optimized travel itineraries for Singapore
 
