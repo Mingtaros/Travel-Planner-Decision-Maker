@@ -3,7 +3,6 @@ import re
 import json
 import datetime
 from google_maps.get_directions import get_transit_directions
-from public_transport_fare_calc import calculate_bus_fare, calculate_mrt_fare
 
 
 def calculate_car_fare(distance_m, flag_down=4.8):
@@ -26,8 +25,26 @@ def calculate_car_fare(distance_m, flag_down=4.8):
 
     return fare
 
+def calculate_public_transport_fare(distance_km):
+    fare_table_brackets = [
+        (3.2, 1.19), (4.2, 1.29), (5.2, 1.40), (6.2, 1.50), (7.2, 1.59),
+        (8.2, 1.66), (9.2, 1.73), (10.2, 1.77), (11.2, 1.81), (12.2, 1.85),
+        (13.2, 1.89), (14.2, 1.93), (15.2, 1.98), (16.2, 2.02), (17.2, 2.06),
+        (18.2, 2.10), (19.2, 2.14), (20.2, 2.17), (21.2, 2.20), (22.2, 2.23),
+        (23.2, 2.26), (24.2, 2.28), (25.2, 2.30), (26.2, 2.32), (27.2, 2.33),
+        (28.2, 2.34), (29.2, 2.35), (30.2, 2.36), (31.2, 2.37), (32.2, 2.38),
+        (33.2, 2.39), (34.2, 2.40), (35.2, 2.41), (36.2, 2.42), (37.2, 2.43),
+        (38.2, 2.44), (39.2, 2.45), (40.2, 2.46), (float('inf'), 2.47)
+    ]
+    
+    for limit, fare in fare_table_brackets:
+        if distance_km <= limit:
+            return fare
+    
+    return None  # Should never reach here
 
-def get_trip_details(route_data, rider_type="Adult", sort_priority="price", departure_time=datetime.datetime.now()):
+
+def get_trip_details(route_data, sort_priority="price", departure_time=datetime.datetime.now()):
     trip_details = []
     for route in route_data["routes"]:
         # accumulate the fares for the total price of this trip
@@ -41,31 +58,11 @@ def get_trip_details(route_data, rider_type="Adult", sort_priority="price", depa
 
         else:
             accumulated_price = 0
-            tripInfo = ""
-            addTripInfo = ""
             for step in route["steps"]:
+                # doesn't need to pay when walking...
                 if step["travel_mode"] == "TRANSIT":
-                    departure_stop = step["departure_stop"]
-                    arrival_stop = step["arrival_stop"]
-                    if step["line"]["vehicle_type"] == "BUS":
-                        bus_number = step["line"]["name"]
-
-                        bus_fare = calculate_bus_fare(departure_stop, arrival_stop, bus_number, rider_type, tripInfo, addTripInfo)
-
-                        # update tripInfo and addTripInfo if the trip is continuous
-                        tripInfo = bus_fare["tripInfo"]
-                        addTripInfo = bus_fare["addTripInfo"]
-
-                        accumulated_price += int(bus_fare["fare"]) / 100
-                    
-                    elif step["line"]["vehicle_type"] == "SUBWAY":
-                        mrt_fare = calculate_mrt_fare(departure_stop, arrival_stop, rider_type, tripInfo, addTripInfo)
-                    
-                        # update tripInfo and addTripInfo if the trip is continuous
-                        tripInfo = mrt_fare["tripInfo"]
-                        addTripInfo = mrt_fare["addTripInfo"]
-
-                        accumulated_price += int(mrt_fare["fare"]) / 100
+                    distance_km = float(step["distance"].split()[0])
+                    accumulated_price += calculate_public_transport_fare(distance_km)
         
         trip_details.append({
             "price_sgd": accumulated_price,
@@ -81,7 +78,6 @@ def get_trip_details(route_data, rider_type="Adult", sort_priority="price", depa
 
 if __name__ == "__main__":
     BASE_PATH = "data/googleMaps/trip_detail"
-    RIDER_TYPE = "Adult"
     # sort priority:
     # - price: minimum price possible
     # - earliest: the earliest arrival
@@ -94,7 +90,7 @@ if __name__ == "__main__":
     route_data = get_transit_directions(origin, destination, output_dir=BASE_PATH, departure_time=DEPARTURE_TIME)
     # with open(f"{BASE_PATH}/transit_directions.json", 'r') as f:
     #     route_data = json.load(f)
-    trip_details = get_trip_details(route_data, rider_type=RIDER_TYPE, sort_priority=SORT_PRIORITY, departure_time=DEPARTURE_TIME)
+    trip_details = get_trip_details(route_data, sort_priority=SORT_PRIORITY, departure_time=DEPARTURE_TIME)
 
     save_path = f"{BASE_PATH}/priced_trip_details.json"
     with open(save_path, 'w') as f:
