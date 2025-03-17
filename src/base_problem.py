@@ -141,18 +141,21 @@ class TravelItineraryProblem(ElementwiseProblem):
             # IF last_place is already the hotel, then get the second last
             if last_place == 0:
                 last_place = np.argsort(u_var[i, :])[-2]
-            latest_hour = get_transport_hour(u_var[i, last_place])
-            # MUST go back to hotel at the end of the day
-            out["H"].append(np.sum(x_var[i, :, last_place, 0]) - 1)
-            # go back to hotel
-            # choose whether to use which transport type
-            for j in range(self.num_transport_types):
-                if x_var[i, j, last_place, 0]:
-                    # pull from google maps to get the transport details if the decision is here.
-                    gohome_value = self.transport_matrix[(self.locations[last_place]["name"], self.locations[0]["name"], latest_hour)][self.transport_types[j]]
-                    total_travel_time += gohome_value["duration"]
-                    total_cost += gohome_value["price"]
-                    break
+                latest_hour = get_transport_hour(u_var[i, last_place])
+                out["H"].append(np.sum(x_var[i, :, last_place, 0]) - 1)
+            else:
+                latest_hour = get_transport_hour(u_var[i, last_place])
+                # MUST go back to hotel at the end of the day
+                out["H"].append(np.sum(x_var[i, :, last_place, 0]) - 1)
+                # go back to hotel
+                # choose whether to use which transport type
+                for j in range(self.num_transport_types):
+                    if x_var[i, j, last_place, 0]:
+                        # pull from google maps to get the transport details if the decision is here.
+                        gohome_value = self.transport_matrix[(self.locations[last_place]["name"], self.locations[0]["name"], latest_hour)][self.transport_types[j]]
+                        total_travel_time += gohome_value["duration"]
+                        total_cost += gohome_value["price"]
+                        break
 
         for i in range(self.NUM_DAYS):
             hawker_sum = 0
