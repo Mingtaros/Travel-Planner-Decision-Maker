@@ -1,9 +1,12 @@
 import numpy as np
 from pymoo.core.problem import ElementwiseProblem
 
+from utils.transport_utility import get_transport_hour
+
+
 class TravelItineraryProblem(ElementwiseProblem):
 
-    def __init__(self, budget, destinations, public_transport_prices, taxi_prices, public_transport_durations, taxi_durations):
+    def __init__(self, budget, locations, transport_matrix):
         # constants
         self.NUM_DAYS = 3
         self.HOTEL_COST = 50
@@ -13,22 +16,21 @@ class TravelItineraryProblem(ElementwiseProblem):
         # hard limit money spent
         self.budget = budget
         # list of destinations
-        self.places = destinations
-        self.num_destinations = len(destinations)
-        self.num_attractions = len([place for place in self.places if place["type"] == "attraction"])
-        self.num_hawkers = len([place for place in self.places if place["type"] == "hawker"])
+        self.locations = locations
+        self.num_locations = len(locations)
+        self.num_attractions = len([loc for loc in self.locations if loc["type"] == "attraction"])
+        self.num_hawkers = len([loc for loc in self.locations if loc["type"] == "hawker"])
+        self.num_hotels = 1 # always 1
 
         # transportation option prices and durations. The size MUST BE num_dest * num_dest, for 24 hours
-        self.transport_types = 2
-        self.transport_prices = np.array(public_transport_prices + taxi_prices) \
-            .reshape(self.transport_types, self.num_destinations, self.num_destinations, 24)
-        self.transport_durations = np.array(public_transport_durations + taxi_durations) \
-            .reshape(self.transport_types, self.num_destinations, self.num_destinations, 24)
+        self.transport_types = ["transit", "drive"]
+        self.num_transport_types = len(self.transport_types)
+        self.transport_matrix = transport_matrix
 
         # x_ijkl = BINARY VAR, if the route goes in day i, use transport type j, from location k, to location l
-        self.x_shape = self.NUM_DAYS * self.transport_types * self.num_destinations * self.num_destinations
+        self.x_shape = self.NUM_DAYS * self.num_transport_types * self.num_locations * self.num_locations
         # u_ik  = CONTINUOUS VAR, tracking FINISH time of the person in day i, location k
-        self.u_shape = self.NUM_DAYS * self.num_destinations
+        self.u_shape = self.NUM_DAYS * self.num_locations
 
         num_vars = self.x_shape + self.u_shape
 
@@ -47,10 +49,10 @@ class TravelItineraryProblem(ElementwiseProblem):
         num_inequality_constraints = \
             self.num_attractions + \
             self.num_attractions + \
-            self.NUM_DAYS * self.transport_types * (self.num_destinations - 1) + \
-            self.NUM_DAYS * self.transport_types * (self.num_destinations - 1) * (self.num_destinations - 2) + \
+            self.NUM_DAYS * self.num_transport_types * (self.num_locations - 1) + \
+            self.NUM_DAYS * self.num_transport_types * (self.num_locations - 1) * (self.num_locations - 2) + \
             self.NUM_DAYS + \
-            self.NUM_DAYS * self.num_destinations * self.num_destinations + \
+            self.NUM_DAYS * self.num_locations * self.num_locations + \
             1
 
         # equality constraints
@@ -73,8 +75,8 @@ class TravelItineraryProblem(ElementwiseProblem):
 
     def _evaluate(self, x, out, *args, **kwargs):
         # they're ensured to be integers
-        x_var = x[:self.x_shape].reshape(self.NUM_DAYS, self.transport_types, self.num_destinations, self.num_destinations)
-        u_var = x[self.x_shape:].reshape(self.NUM_DAYS, self.num_destinations)
+        x_var = x[:self.x_shape].reshape(self.NUM_DAYS, self.num_transport_types, self.num_locations, self.num_locations)
+        u_var = x[self.x_shape:].reshape(self.NUM_DAYS, self.num_locations)
 
         # initialize constraints
         # equality constraints
@@ -89,8 +91,8 @@ class TravelItineraryProblem(ElementwiseProblem):
         # for every attraction, must be a source at most once
         # for every attraction, must be a destination at most once
         # NOTE that this doesn't apply to hawkers
-        for k in range(self.num_destinations):
-            if self.places[k]["type"] == "attraction":
+        for k in range(self.num_locations):
+            if self.locations[k]["type"] == "attraction":
                 out["G"].append(np.sum(x_var[:, :, k, :]) - 1)
                 out["G"].append(np.sum(x_var[:, :, :, k]) - 1)
 
@@ -101,9 +103,9 @@ class TravelItineraryProblem(ElementwiseProblem):
             # every day, for every attraction, if it's selected as source, it must be selected as destination
             out["H"].append(np.sum(x_var[i, :, :, k]) - np.sum(x_var[i, :, k, :]))
 
-            for j in range(self.transport_types):
-                for k in range(self.num_destinations):
-                    for l in range(1, self.num_destinations): # NOTE here that hotel (index 0) isn't included in destination. It will be computed later
+            for j in range(self.num_transport_types):
+                for k in range(self.num_locations):
+                    for l in range(1, self.num_locations): # NOTE here that hotel (index 0) isn't included in destination. It will be computed later
                         if k == l: continue
                         # every day, if the route is chosen, the time of finishing in this place is this
 
@@ -113,51 +115,57 @@ class TravelItineraryProblem(ElementwiseProblem):
                         #   - time to transport from k to l, using transport method j +
                         #   - time to play at l
                         time_finish_l = u_var[i, l]
-                        transport_hour = u_var[i, k] // 60
-                        time_should_finish_l = u_var[i, k] + self.transport_durations[j][k][l][transport_hour] + self.places[l]["duration"]
+                        transport_hour = get_transport_hour(u_var[i, k])
+                        transport_value = self.transport_matrix[(self.locations[k]["name"], self.locations[l]["name"], transport_hour)][self.transport_types[j]]
+                        time_should_finish_l = u_var[i, k] + transport_value["duration"] + self.locations[l]["duration"]
                         # if x_var[i, j, k, l] is not chosen, then this constraint don't matter
                         out["G"].append(x_var[i, j, k, l] * time_finish_l - time_should_finish_l)
                         
                         # append to total travel time spent
                         if x_var[i, j, k, l] == 1:
                             # calculate the travel
-                            total_travel_time += self.transport_durations[j][k][l][transport_hour]
-                            total_cost += self.transport_prices[j][k][l][transport_hour]
+                            total_travel_time += transport_value["duration"]
+                            total_cost += transport_value["price"]
 
                             # calculate cost and satisfaction, based on what they come to
                             # Note: not counting anything for hotel.
-                            if self.places[l]["type"] == "attraction":
-                                total_cost += self.places[l]["entrance_fee"]
-                                total_satisfaction += self.places[l]["satisfaction"]
-                            elif self.places[l]["type"] == "hawker":
+                            if self.locations[l]["type"] == "attraction":
+                                total_cost += self.locations[l]["entrance_fee"]
+                                total_satisfaction += self.locations[l]["satisfaction"]
+                            elif self.locations[l]["type"] == "hawker":
                                 total_cost += 10 # ASSUME eating in a hawker is ALWAYS $10
-                                total_satisfaction += self.places[l]["ratings"]
+                                total_satisfaction += self.locations[l]["rating"]
 
             # from last place, return to hotel.
             last_place = np.argmax(u_var[i, :])
-            latest_hour = u_var[i, last_place] // 60
+            # IF last_place is already the hotel, then get the second last
+            if last_place == 0:
+                last_place = np.argsort(u_var[i, :])[-2]
+            latest_hour = get_transport_hour(u_var[i, last_place])
             # MUST go back to hotel at the end of the day
             out["H"].append(np.sum(x_var[i, :, last_place, 0]) - 1)
             # go back to hotel
             # choose whether to use which transport type
-            for j in range(self.transport_types):
+            for j in range(self.num_transport_types):
                 if x_var[i, j, last_place, 0]:
-                    total_travel_time += self.transport_durations[j][last_place][0][latest_hour]
-                    total_cost += self.transport_prices[j][last_place][0][latest_hour]
+                    # pull from google maps to get the transport details if the decision is here.
+                    gohome_value = self.transport_matrix[(self.locations[last_place]["name"], self.locations[0]["name"], latest_hour)][self.transport_types[j]]
+                    total_travel_time += gohome_value["duration"]
+                    total_cost += gohome_value["price"]
                     break
 
         for i in range(self.NUM_DAYS):
             hawker_sum = 0
-            for k in range(self.num_destinations):
-                if self.places[k]["type"] == "hawker":
+            for k in range(self.num_locations):
+                if self.locations[k]["type"] == "hawker":
                     hawker_sum += np.sum(x_var[i, :, k, :])
 
             # every day, must go to hawkers at least twice (lunch & dinner. Can go more times if they want to)
             out["G"].append(2 - hawker_sum)
 
         for i in range(self.NUM_DAYS):
-            for k in range(self.num_destinations):
-                for l in range(self.num_destinations):
+            for k in range(self.num_locations):
+                for l in range(self.num_locations):
                     # for every day, if public transportation is chosen, taxi can't be chosen, and vice versa
                     # (sum j in transport_types x_ijkl <= 1) for all days, for all sources, for all destinations
                     out["G"].append(np.sum(x_var[i, :, k, l]) - 1)

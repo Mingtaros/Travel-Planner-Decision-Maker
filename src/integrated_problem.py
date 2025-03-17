@@ -7,6 +7,9 @@ from pymoo.operators.sampling.rnd import IntegerRandomSampling
 from pymoo.optimize import minimize
 from pymoo.termination import get_termination
 
+from utils.transport_utility import get_transport_matrix, get_all_locations
+
+np.random.seed(42)
 
 def count_indentation(line_of_code):
     # given line of code, get the indentation to replicate in added constraints
@@ -18,85 +21,129 @@ def count_indentation(line_of_code):
     
     return num_indent
 
+def integrate_problem(base_problem_str, inequality_constraints, equality_constraints):
+    # update the number of constraints in class initialization
+    base_problem_str[69] = base_problem_str[69].replace(",", " + " + str(len(inequality_constraints)) + ",")
+    base_problem_str[70] = base_problem_str[70].replace(",", " + " + str(len(equality_constraints)) + ",")
 
-with open("src/base_problem.py", 'r') as base_problem_file:
-    base_problem_str = base_problem_file.readlines()
+    # add additional constraints
+    # known location of <ADD ADDITIONAL CONSTRAINTS HERE> is in this line
+    num_indent = count_indentation(base_problem_str[175]) # see indentation there, match in every added constraints
+    for constraint in inequality_constraints: # inequality constraints
+        # add indent for each line
+        constraint = [" " * num_indent + constraint_line.strip() for constraint_line in constraint.split("\n")]
+        constraint = "\n".join(constraint) # re-join to make new constraint
+        # add the constraint to the code
+        base_problem_str.insert(176, constraint)
+
+    for constraint in equality_constraints: # equality constraints
+        # add indent for each line
+        constraint = [" " * num_indent + constraint_line.strip() for constraint_line in constraint.split("\n")]
+        constraint = "\n".join(constraint) # re-join to make new constraint
+        # add the constraint to the code
+        base_problem_str.insert(176, constraint)
+    
+    return base_problem_str
 
 
-inequality_constraints = [
-    """
-    day_one_attraction_limit = np.sum(x_var[0, :, :, :]) - 3 # should be <= 3
-    out["G"].append(day_one_attraction_limit)
-    """,
-]
-equality_constraints = [
-    """out["H"].append(np.sum(x_var) - 5) # should be == 5""",
-]
+if __name__ == "__main__":
+    with open("src/base_problem.py", 'r') as base_problem_file:
+        base_problem_str = base_problem_file.readlines()
 
-# update the number of constraints in class initialization
-base_problem_str[67] = base_problem_str[67].replace(",", " + " + str(len(inequality_constraints)) + ",")
-base_problem_str[68] = base_problem_str[68].replace(",", " + " + str(len(equality_constraints)) + ",")
 
-# add additional constraints
-# known location of <ADD ADDITIONAL CONSTRAINTS HERE> is in this line
-num_indent = count_indentation(base_problem_str[167]) # see indentation there, match in every added constraints
-for constraint in inequality_constraints: # inequality constraints
-    # add indent for each line
-    constraint = [" " * num_indent + constraint_line.strip() for constraint_line in constraint.split("\n")]
-    constraint = "\n".join(constraint) # re-join to make new constraint
-    # add the constraint to the code
-    base_problem_str.insert(168, constraint)
+    inequality_constraints = [
+        """
+        day_one_attraction_limit = np.sum(x_var[0, :, :, :]) - 3 # should be <= 3
+        out["G"].append(day_one_attraction_limit)
+        """,
+    ]
+    equality_constraints = [
+        """out["H"].append(np.sum(x_var) - 5) # should be == 5""",
+    ]
 
-for constraint in equality_constraints: # equality constraints
-    # add indent for each line
-    constraint = [" " * num_indent + constraint_line.strip() for constraint_line in constraint.split("\n")]
-    constraint = "\n".join(constraint) # re-join to make new constraint
-    # add the constraint to the code
-    base_problem_str.insert(168, constraint)
+    base_problem_str = integrate_problem(base_problem_str, inequality_constraints, equality_constraints)
 
-# have base problem set as None for defaulting in case of error
-class TravelItineraryProblem():
-    def __init__(self, **kwargs):
-        pass
+    # have base problem set as None for defaulting in case of error
+    class TravelItineraryProblem():
+        def __init__(self, **kwargs):
+            pass
 
-# with open("src/test_integrated.py", 'w') as f:
-#     f.writelines(base_problem_str)
-# execute the code inside base_problem_str, importing the Problem class.
-exec("".join(base_problem_str))
+    with open("src/test_integrated.py", 'w') as f:
+        f.writelines(base_problem_str)
+    # execute the code inside base_problem_str, importing the Problem class.
+    exec("".join(base_problem_str))
 
-# make the problemset and solve it.
-problem = TravelItineraryProblem(
-    budget=300,
-    destinations=[
-        {"type": "hotel"},
-        {"type": "attraction", "duration": 120, "entrance_fee": 20, "satisfaction": 8},
-        {"type": "attraction", "duration": 90, "entrance_fee": 15, "satisfaction": 7},
-        {"type": "hawker", "ratings": 4.3, "duration": 60},
-        {"type": "hawker", "ratings": 3.4, "duration": 60},
-    ],
-    public_transport_prices=np.random.rand(5, 5, 24).tolist(),
-    taxi_prices=np.random.rand(5, 5, 24).tolist(),
-    public_transport_durations=(np.random.rand(5, 5, 24) * 120).tolist(),
-    taxi_durations=(np.random.rand(5, 5, 24) * 120).tolist()
-)
+    all_locations = get_all_locations()
 
-algorithm = NSGA2(
-    pop_size=100,
-    sampling=IntegerRandomSampling(),
-    crossover=TwoPointCrossover(),
-    mutation=BitflipMutation(),
-    eliminate_duplicates=True
-)
+    # for all locations, get necessary data
+    for loc in all_locations:
+        if loc["type"] == "hawker":
+            loc["rating"] = np.random.uniform(0, 5)
+            loc["avg_food_price"] = np.random.uniform(5, 15)
+            loc["duration"] = 60 # just standardize 60 mins
+        elif loc["type"] == "attraction":
+            loc["satisfaction"] = np.random.uniform(0, 10)
+            loc["entrance_fee"] = np.random.uniform(5, 100)
+            loc["duration"] = np.random.randint(30, 90)
 
-termination = get_termination("n_gen", 200)
+    dummy_hotel = {
+        "type": "hotel",
+        "name": "DUMMY HOTEL",
+        "lat": 1.2852044,
+        "lng": 103.8610313,
+    }
+    transport_matrix = get_transport_matrix()
+    # add dummy hotel to transport_matrix
+    for loc in all_locations:
+        time_brackets = [8, 12, 16, 20]
+        for time_ in time_brackets:
+            transport_matrix[(dummy_hotel["name"], loc["name"], time_)] = {
+                "transit": {
+                    "duration": 50,
+                    "price": 1.93,
+                },
+                "drive": {
+                    "duration": 20,
+                    "price": 10.1,
+                }
+            }
+            transport_matrix[(loc["name"], dummy_hotel["name"], time_)] = {
+                "transit": {
+                    "duration": 50,
+                    "price": 1.93,
+                },
+                "drive": {
+                    "duration": 20,
+                    "price": 10.1,
+                }
+            }
 
-res = minimize(
-    problem,
-    algorithm,
-    termination,
-    seed=1,
-    save_history=True,
-    verbose=True
-)
+    locations = [dummy_hotel] + all_locations
 
-print("Best solution found: \nX = %s\nF = %s" % (res.X, res.F))
+    # make the problemset and solve it.
+    problem = TravelItineraryProblem(
+        budget=300,
+        locations=locations,
+        transport_matrix=transport_matrix,
+    )
+
+    algorithm = NSGA2(
+        pop_size=100,
+        sampling=IntegerRandomSampling(),
+        crossover=TwoPointCrossover(),
+        mutation=BitflipMutation(),
+        eliminate_duplicates=True
+    )
+
+    termination = get_termination("n_gen", 200)
+
+    res = minimize(
+        problem,
+        algorithm,
+        termination,
+        seed=1,
+        save_history=True,
+        verbose=True
+    )
+
+    print("Best solution found: \nX = %s\nF = %s" % (res.X, res.F))
