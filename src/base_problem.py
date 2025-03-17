@@ -57,11 +57,11 @@ class TravelItineraryProblem(ElementwiseProblem):
 
         # equality constraints
         #   - everyday, hotel must be starting
-        #   - everyday, for every attraction, if selected as source, must be selected as destination
+        #   - everyday, for every location, if selected as source, must be selected as destination
         #   - everyday, must return to hotel from last destination
         num_equality_constraints = \
             self.NUM_DAYS + \
-            self.NUM_DAYS + \
+            self.NUM_DAYS * self.num_locations + \
             self.NUM_DAYS
 
         super().__init__(
@@ -100,11 +100,9 @@ class TravelItineraryProblem(ElementwiseProblem):
             # u_var[i, 0] must be the smallest of u_var[i]
             out["H"].append(np.min(u_var[i, :]) - u_var[i, 0])
 
-            # every day, for every attraction, if it's selected as source, it must be selected as destination
-            out["H"].append(np.sum(x_var[i, :, :, k]) - np.sum(x_var[i, :, k, :]))
-
             for j in range(self.num_transport_types):
                 for k in range(self.num_locations):
+
                     for l in range(1, self.num_locations): # NOTE here that hotel (index 0) isn't included in destination. It will be computed later
                         if k == l: continue
                         # every day, if the route is chosen, the time of finishing in this place is this
@@ -138,8 +136,8 @@ class TravelItineraryProblem(ElementwiseProblem):
 
             # from last place, return to hotel.
             last_place = np.argmax(u_var[i, :])
-            # IF last_place is already the hotel, then get the second last
-            if last_place == 0:
+            # THIS SHOULD NEVER HAPPEN: if last_place is already the hotel, then get the second last
+            if last_place == 0: # doesn't make sense, because the first constraint is u[i, 0] must be the smallest (it's starting point)
                 last_place = np.argsort(u_var[i, :])[-2]
                 latest_hour = get_transport_hour(u_var[i, last_place])
                 out["H"].append(np.sum(x_var[i, :, last_place, 0]) - 1)
@@ -160,6 +158,9 @@ class TravelItineraryProblem(ElementwiseProblem):
         for i in range(self.NUM_DAYS):
             hawker_sum = 0
             for k in range(self.num_locations):
+                # every day, for every location, if it's selected as source, it must be selected as destination
+                out["H"].append(np.sum(x_var[i, :, :, k]) - np.sum(x_var[i, :, k, :]))
+
                 if self.locations[k]["type"] == "hawker":
                     hawker_sum += np.sum(x_var[i, :, k, :])
 
