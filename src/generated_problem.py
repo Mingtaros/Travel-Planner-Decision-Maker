@@ -67,8 +67,8 @@ class TravelItineraryProblem(ElementwiseProblem):
         super().__init__(
             n_var=num_vars,
             n_obj=3,
-            n_ieq_constr=num_inequality_constraints,
-            n_eq_constr=num_equality_constraints,
+            n_ieq_constr=num_inequality_constraints + 1,
+            n_eq_constr=num_equality_constraints + 1,
             xl=lower_bound,
             xu=upper_bound,
         )
@@ -189,7 +189,10 @@ class TravelItineraryProblem(ElementwiseProblem):
         out["G"].append(self.budget - total_cost)
 
         # <ADD ADDITIONAL CONSTRAINTS HERE>
-
+        out["H"].append(np.sum(x_var) - 5) # should be == 5        
+        day_one_attraction_limit = np.sum(x_var[0, :, :, :]) - 3 # should be <= 3
+        out["G"].append(day_one_attraction_limit)
+        
         # objectives
         out["F"] = [total_cost, total_travel_time, -total_satisfaction]
 

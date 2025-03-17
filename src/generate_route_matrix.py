@@ -56,9 +56,9 @@ DB_CONFIG = {
 # Define departure dates/times for route calculations
 # Format: (description, datetime_object)
 DEPARTURE_TIMES = [
-    # ("Morning", datetime(2025, 5, 17, 8, 0, 0)), 
-    # ("Midday", datetime(2025, 5, 17, 12, 0, 0)), 
-    # ("Evening", datetime(2025, 5, 17, 16, 0, 0)), 
+    ("Morning", datetime(2025, 5, 17, 8, 0, 0)), 
+    ("Midday", datetime(2025, 5, 17, 12, 0, 0)), 
+    ("Evening", datetime(2025, 5, 17, 16, 0, 0)), 
     ("Night", datetime(2025, 5, 17, 20, 0, 0)),  
 ]
 
