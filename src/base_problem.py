@@ -95,8 +95,8 @@ class TravelItineraryProblem(ElementwiseProblem):
                 out["G"].append(np.sum(x_var[:, :, :, k]) - 1)
 
         for i in range(self.NUM_DAYS):
-            # every day, hotel must be starting
-            out["H"].append(self.START_TIME - u_var[i, 0])
+            # u_var[i, 0] must be the smallest of u_var[i]
+            out["H"].append(np.min(u_var[i, :]) - u_var[i, 0])
 
             # every day, for every attraction, if it's selected as source, it must be selected as destination
             out["H"].append(np.sum(x_var[i, :, :, k]) - np.sum(x_var[i, :, k, :]))

@@ -180,7 +180,6 @@ def get_transit_route_for_pair(maps_client, origin, destination, departure_time=
         try:
             trip_details = get_trip_details(
                 route_data, 
-                rider_type="Adult", 
                 sort_priority="price",
                 departure_time=departure_time
             )
