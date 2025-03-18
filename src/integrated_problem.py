@@ -1,5 +1,7 @@
 import re
 import os
+import pickle
+import hashlib
 import numpy as np
 import logging
 from datetime import datetime
@@ -15,6 +17,10 @@ from utils.transport_utility import get_transport_matrix, get_all_locations
 from utils.google_maps_client import GoogleMapsClient
 from utils.get_trip_detail import calculate_public_transport_fare, calculate_car_fare
 
+# Global cache for hotel routes
+HOTEL_ROUTES_CACHE = {}
+CACHE_DIRECTORY = "data/cache"
+
 # Set up logging
 os.makedirs("log", exist_ok=True)
 logging.basicConfig(
@@ -29,6 +35,127 @@ logger = logging.getLogger("integrated_problem")
 
 np.random.seed(42)
 
+def get_cache_key(hotel):
+    """Generate a unique cache key for a hotel"""
+    # Use hotel name and coordinates to create a unique key
+    key_str = f"{hotel['name']}_{hotel['lat']}_{hotel['lng']}"
+    return hashlib.md5(key_str.encode()).hexdigest()
+
+def save_hotel_routes_to_cache(hotel, hotel_routes):
+    """Save hotel routes to disk cache"""
+    # Create cache directory if it doesn't exist
+    os.makedirs(CACHE_DIRECTORY, exist_ok=True)
+    
+    # Generate cache key and file path
+    cache_key = get_cache_key(hotel)
+    cache_file = os.path.join(CACHE_DIRECTORY, f"hotel_routes_{cache_key}.pkl")
+    
+    # Save to file
+    with open(cache_file, 'wb') as f:
+        pickle.dump(hotel_routes, f)
+    
+    # Also store in memory cache
+    HOTEL_ROUTES_CACHE[cache_key] = hotel_routes
+    
+    logger.info(f"Saved hotel routes to cache: {cache_file}")
+    return cache_key
+
+def load_hotel_routes_from_cache(hotel, locations=None):
+    """
+    Load hotel routes from cache if available and valid
+    
+    Args:
+        hotel: Hotel location information
+        locations: List of all locations to validate cache against (optional)
+        
+    Returns:
+        dict: Cached hotel routes if available and valid, None otherwise
+    """
+    cache_key = get_cache_key(hotel)
+    
+    # Function to validate cached routes against current locations
+    def validate_cached_routes(hotel_routes, locations):
+        """Validate that cached routes are compatible with current locations"""
+        if not hotel_routes:
+            return False
+        
+        # Get non-hotel location names
+        location_names = [loc["name"] for loc in locations if loc["type"] != "hotel"]
+        
+        # Check if all required location pairs are in the cache
+        time_brackets = [8, 12, 16, 20]  # The time brackets used in the system
+        
+        for location_name in location_names:
+            # Check hotel to location routes
+            hotel_to_loc_exists = False
+            # Check location to hotel routes
+            loc_to_hotel_exists = False
+            
+            for hour in time_brackets:
+                # Check hotel -> location route
+                if (hotel["name"], location_name, hour) in hotel_routes:
+                    hotel_to_loc_exists = True
+                
+                # Check location -> hotel route
+                if (location_name, hotel["name"], hour) in hotel_routes:
+                    loc_to_hotel_exists = True
+            
+            # If either direction is missing for this location, cache is invalid
+            if not hotel_to_loc_exists or not loc_to_hotel_exists:
+                logger.warning(f"Missing routes between hotel and location '{location_name}' in cached data")
+                return False
+        
+        logger.info("Cached hotel routes validated successfully")
+        return True
+    
+    # Check memory cache first
+    if cache_key in HOTEL_ROUTES_CACHE:
+        hotel_routes = HOTEL_ROUTES_CACHE[cache_key]
+        
+        # Validate if locations are provided
+        if locations and not validate_cached_routes(hotel_routes, locations):
+            logger.warning(f"Memory-cached routes for {hotel['name']} don't match current locations, cache invalid")
+            return None
+        
+        logger.info(f"Loaded hotel routes from memory cache for {hotel['name']}")
+        return hotel_routes
+    
+    # Check disk cache
+    cache_file = os.path.join(CACHE_DIRECTORY, f"hotel_routes_{cache_key}.pkl")
+    if os.path.exists(cache_file):
+        try:
+            with open(cache_file, 'rb') as f:
+                hotel_routes = pickle.load(f)
+            
+            # Validate if locations are provided
+            if locations and not validate_cached_routes(hotel_routes, locations):
+                logger.warning(f"Disk-cached routes for {hotel['name']} don't match current locations, cache invalid")
+                return None
+            
+            # Store in memory cache for faster access next time
+            HOTEL_ROUTES_CACHE[cache_key] = hotel_routes
+            
+            logger.info(f"Loaded hotel routes from disk cache: {cache_file}")
+            return hotel_routes
+        except Exception as e:
+            logger.error(f"Error loading hotel routes from cache: {e}")
+    
+    # Cache miss
+    return None
+
+
+def clear_hotel_routes_cache():
+    """Clear all cached hotel routes"""
+    global HOTEL_ROUTES_CACHE
+    HOTEL_ROUTES_CACHE = {}
+    
+    if os.path.exists(CACHE_DIRECTORY):
+        for file in os.listdir(CACHE_DIRECTORY):
+            if file.startswith("hotel_routes_"):
+                os.remove(os.path.join(CACHE_DIRECTORY, file))
+    
+    logger.info("Cleared hotel routes cache")
+
 def count_indentation(line_of_code):
     # given line of code, get the indentation to replicate in added constraints
     num_indent = 0
@@ -39,27 +166,113 @@ def count_indentation(line_of_code):
     
     return num_indent
 
+def debug_problem(problem, locations, transport_matrix):
+    """Debug the optimization problem"""
+    print("\n===== DEBUGGING OPTIMIZATION PROBLEM =====")
+    
+    # Check location data
+    print(f"Total locations: {len(locations)}")
+    type_counts = {}
+    for loc in locations:
+        loc_type = loc.get("type", "unknown")
+        type_counts[loc_type] = type_counts.get(loc_type, 0) + 1
+    
+    for loc_type, count in type_counts.items():
+        print(f" - {loc_type}: {count}")
+    
+    # Check transport matrix
+    print(f"\nTransport matrix entries: {len(transport_matrix)}")
+    
+    # Sample a few transport matrix entries
+    print("\nSample transport entries:")
+    keys = list(transport_matrix.keys())
+    for i in range(min(3, len(keys))):
+        key = keys[i]
+        value = transport_matrix[key]
+        print(f" - {key}: {value}")
+    
+    # Check constraint counts match
+    print("\nConstraint counts:")
+    print(f" - Inequality constraints (G): {problem.n_ieq_constr}")
+    print(f" - Equality constraints (H): {problem.n_eq_constr}")
+    
+    # Print optimization bounds
+    print("\nVariable bounds:")
+    print(f" - Number of variables: {problem.n_var}")
+    print(f" - Lower bounds: min={min(problem.xl)}, max={max(problem.xl)}")
+    print(f" - Upper bounds: min={min(problem.xu)}, max={max(problem.xu)}")
+    
+    # Print lunch/dinner windows
+    print("\nTime windows:")
+    lunch_start_time = (problem.LUNCH_START / 60)
+    lunch_end_time = (problem.LUNCH_END / 60)
+    dinner_start_time = (problem.DINNER_START / 60)
+    dinner_end_time = (problem.DINNER_END / 60)
+    
+    print(f" - Lunch: {lunch_start_time:.1f} to {lunch_end_time:.1f}")
+    print(f" - Dinner: {dinner_start_time:.1f} to {dinner_end_time:.1f}")
+    
+    # Try to evaluate a random solution to see if there are errors
+    print("\nTesting random solution evaluation:")
+    try:
+        # Create a random solution
+        x = np.random.random(problem.n_var)
+        # Ensure x is within bounds
+        x = np.minimum(np.maximum(x, problem.xl), problem.xu)
+        
+        # Try to evaluate it
+        out = {}
+        problem._evaluate(x, out)
+        
+        print(" - Random solution evaluation successful")
+        print(f" - Objectives: {out['F']}")
+        print(f" - Equality constraints: {len(out['H'])}")
+        print(f" - Inequality constraints: {len(out['G'])}")
+        
+        # Check constraint violations
+        eq_violations = np.abs(out['H'])
+        ineq_violations = np.maximum(0, out['G'])
+        
+        if np.max(eq_violations) > 0.001:
+            print(f" - WARNING: Equality constraints violated (max: {np.max(eq_violations):.4f})")
+        
+        if np.max(ineq_violations) > 0.001:
+            print(f" - WARNING: Inequality constraints violated (max: {np.max(ineq_violations):.4f})")
+        
+    except Exception as e:
+        print(f" - ERROR evaluating random solution: {str(e)}")
+        import traceback
+        print(traceback.format_exc())
+    
+    print("=========================================\n")
+
 def integrate_problem(base_problem_str, inequality_constraints, equality_constraints):
+    
+    INEQUALITY_CONSTRAINT_LINE = 223
+    EQUALITY_CONSTRAINT_LINE = INEQUALITY_CONSTRAINT_LINE + 1
+    INDENTATION_COUNT_LINE = 381
+    ADD_CONSTRAINT_LINE = INDENTATION_COUNT_LINE + 1
+    
     # update the number of constraints in class initialization
-    base_problem_str[69] = base_problem_str[69].replace(",", " + " + str(len(inequality_constraints)) + ",")
-    base_problem_str[70] = base_problem_str[70].replace(",", " + " + str(len(equality_constraints)) + ",")
+    base_problem_str[INEQUALITY_CONSTRAINT_LINE] = base_problem_str[INEQUALITY_CONSTRAINT_LINE].replace(",", " + " + str(len(inequality_constraints)) + ",")
+    base_problem_str[EQUALITY_CONSTRAINT_LINE] = base_problem_str[EQUALITY_CONSTRAINT_LINE].replace(",", " + " + str(len(equality_constraints)) + ",")
 
     # add additional constraints
     # known location of <ADD ADDITIONAL CONSTRAINTS HERE> is in this line
-    num_indent = count_indentation(base_problem_str[190]) # see indentation there, match in every added constraints
+    num_indent = count_indentation(base_problem_str[INDENTATION_COUNT_LINE]) # see indentation there, match in every added constraints
     for constraint in inequality_constraints: # inequality constraints
         # add indent for each line
         constraint = [" " * num_indent + constraint_line.strip() for constraint_line in constraint.split("\n")]
         constraint = "\n".join(constraint) # re-join to make new constraint
         # add the constraint to the code
-        base_problem_str.insert(191, constraint)
+        base_problem_str.insert(ADD_CONSTRAINT_LINE, constraint)
 
     for constraint in equality_constraints: # equality constraints
         # add indent for each line
         constraint = [" " * num_indent + constraint_line.strip() for constraint_line in constraint.split("\n")]
         constraint = "\n".join(constraint) # re-join to make new constraint
         # add the constraint to the code
-        base_problem_str.insert(191, constraint)
+        base_problem_str.insert(ADD_CONSTRAINT_LINE, constraint)
     
     return base_problem_str
 
@@ -129,6 +342,7 @@ def get_hotel_waypoint(hotel_name):
 def compute_hotel_routes(hotel, locations):
     """
     Compute routes between the hotel and all other locations using route matrix batch method
+    Uses cache if available for the same hotel
     
     Args:
         hotel: Hotel location information
@@ -137,6 +351,12 @@ def compute_hotel_routes(hotel, locations):
     Returns:
         dict: Route matrix entries for the hotel
     """
+    
+    # Try to load from cache first
+    cached_routes = load_hotel_routes_from_cache(hotel, locations)
+    if cached_routes is not None:
+        return cached_routes
+    
     try:
         # Initialize Google Maps client
         maps_client = GoogleMapsClient()
@@ -354,6 +574,10 @@ def compute_hotel_routes(hotel, locations):
                             }
         
         logger.info(f"Successfully computed {len(hotel_routes)} hotel route entries across {len(time_brackets)} time periods")
+        
+        # Save to cache before returning
+        save_hotel_routes_to_cache(hotel, hotel_routes)
+        
         return hotel_routes
         
     except Exception as e:
@@ -405,7 +629,7 @@ def integrate_hotel_with_locations(hotel, locations, transport_matrix):
     
     return locations, updated_matrix
 
-def main(hotel_name=None):
+def main(hotel_name=None, budget=300, num_days=3):
     """
     Main function to run the integrated problem with a specified hotel
     
@@ -423,15 +647,15 @@ def main(hotel_name=None):
         base_problem_str = base_problem_file.readlines()
 
     # Define constraints
-    inequality_constraints = [
-        """
-        day_one_attraction_limit = np.sum(x_var[0, :, :, :]) - 3 # should be <= 3
-        out["G"].append(day_one_attraction_limit)
-        """,
-    ]
-    equality_constraints = [
-        """out["H"].append(np.sum(x_var) - 5) # should be == 5""",
-    ]
+    inequality_constraints = []
+        # """
+        # day_one_attraction_limit = np.sum(x_var[0, :, :, :]) - 3 # should be <= 3
+        # out["G"].append(day_one_attraction_limit)
+        # """
+    # ]
+    equality_constraints = []
+        # """out["H"].append(np.sum(x_var) - 5) # should be == 5""",
+    # ]
 
     # Get user-specified hotel or use default
     logger.info("Getting hotel information...")
@@ -450,9 +674,6 @@ def main(hotel_name=None):
     updated_locations, updated_matrix = integrate_hotel_with_locations(
         hotel, all_locations, transport_matrix
     )
-    
-    logger.info(f"Matrix Record 0: {list(updated_matrix.keys())[0]}")
-    logger.info(f"Matrix Record 1: {list(updated_matrix.keys())[1]}")
 
     # For all locations, get necessary data (only if not already present)
     for loc in updated_locations:
@@ -497,6 +718,7 @@ def main(hotel_name=None):
     # make the problemset and solve it.
     logger.info("Creating and solving the optimization problem...")
     problem = TravelItineraryProblem(
+        num_days=3,
         budget=300,
         locations=updated_locations,
         transport_matrix=updated_matrix,
@@ -517,6 +739,16 @@ def main(hotel_name=None):
     missing_attrs = [attr for attr in required_attrs if not hasattr(problem, attr)]
     if missing_attrs:
         logger.error(f"Problem is missing required attributes: {missing_attrs}")
+        
+    # After creating the problem but before running optimization
+    problem.test_feasibility()
+    debug_problem(problem, updated_locations, updated_matrix)
+
+    # You might want to add an option to exit after debugging
+    debug_only = False  # Set to True to exit after debugging
+    if debug_only:
+        logger.info("Debug mode only, exiting before optimization")
+        return None, problem, updated_locations
 
     res = minimize(
         problem,
