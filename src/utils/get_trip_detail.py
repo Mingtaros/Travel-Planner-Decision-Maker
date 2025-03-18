@@ -2,28 +2,55 @@
 import re
 import json
 import datetime
-from google_maps.get_directions import get_transit_directions
+# from google_maps.get_directions import get_transit_directions
 
 
 def calculate_car_fare(distance_m, flag_down=4.8):
-    # calculate Singapore grab/taxi fare based on distance in meters.
-    fare = flag_down  # Start with flag-down fare
+    # # calculate Singapore grab/taxi fare based on distance in meters.
+    # fare = flag_down  # Start with flag-down fare
     
+    # if distance_m > 1000:
+    #     remaining_m = distance_m - 1000  # First 1 km is covered in flag-down
+
+    #     if remaining_m <= 9000:
+    #         # Charge $0.22 per 400m
+    #         fare += (remaining_m // 400) * 0.22
+    #     else:
+    #         # First 9km after flag-down
+    #         fare += (9000 // 400) * 0.22
+    #         remaining_m -= 9000  # Reduce 9km
+            
+    #         # Beyond 10km, charge $0.22 per 350m
+    #         fare += (remaining_m // 350) * 0.22
+
+    # return fare
+    # Start with flag-down fare (covers first 1km)
+    fare = flag_down
+    
+    # Calculate distance charge
     if distance_m > 1000:
         remaining_m = distance_m - 1000  # First 1 km is covered in flag-down
 
         if remaining_m <= 9000:
-            # Charge $0.22 per 400m
-            fare += (remaining_m // 400) * 0.22
+            # Charge $0.26 per 400m up to 10km total
+            fare += (remaining_m // 400) * 0.26
+            # Add partial unit if there's a remainder
+            if remaining_m % 400 > 0:
+                fare += 0.26
         else:
             # First 9km after flag-down
-            fare += (9000 // 400) * 0.22
-            remaining_m -= 9000  # Reduce 9km
+            fare += (9000 // 400) * 0.26
             
-            # Beyond 10km, charge $0.22 per 350m
-            fare += (remaining_m // 350) * 0.22
-
-    return fare
+            # Calculate remaining distance after 10km total
+            ultra_remaining = remaining_m - 9000
+            
+            # Beyond 10km, charge $0.26 per 350m
+            fare += (ultra_remaining // 350) * 0.26
+            # Add partial unit if there's a remainder
+            if ultra_remaining % 350 > 0:
+                fare += 0.26
+    
+    return round(fare, 2)
 
 def calculate_public_transport_fare(distance_km):
     fare_table_brackets = [
@@ -76,24 +103,24 @@ def get_trip_details(route_data, sort_priority="price", departure_time=datetime.
     return sorted(trip_details, key=lambda x: (x["price_sgd"], x["arrival_time"]) if sort_priority == "price" else x["arrival_time"])
 
 
-if __name__ == "__main__":
-    BASE_PATH = "data/googleMaps/trip_detail"
-    # sort priority:
-    # - price: minimum price possible
-    # - earliest: the earliest arrival
-    SORT_PRIORITY = "price"
-    DEPARTURE_TIME = datetime.datetime(2025, 2, 28, 10, 0, 0)
+# if __name__ == "__main__":
+#     BASE_PATH = "data/googleMaps/trip_detail"
+#     # sort priority:
+#     # - price: minimum price possible
+#     # - earliest: the earliest arrival
+#     SORT_PRIORITY = "price"
+#     DEPARTURE_TIME = datetime.datetime(2025, 2, 28, 10, 0, 0)
 
-    origin = 'Singpost Centre, 10 Eunos Rd 8, Singapore 408600'
-    destination = 'Singapore Management University, 81 Victoria St, Singapore 188065'
+#     origin = 'Singpost Centre, 10 Eunos Rd 8, Singapore 408600'
+#     destination = 'Singapore Management University, 81 Victoria St, Singapore 188065'
 
-    route_data = get_transit_directions(origin, destination, output_dir=BASE_PATH, departure_time=DEPARTURE_TIME)
-    # with open(f"{BASE_PATH}/transit_directions.json", 'r') as f:
-    #     route_data = json.load(f)
-    trip_details = get_trip_details(route_data, sort_priority=SORT_PRIORITY, departure_time=DEPARTURE_TIME)
+#     route_data = get_transit_directions(origin, destination, output_dir=BASE_PATH, departure_time=DEPARTURE_TIME)
+#     # with open(f"{BASE_PATH}/transit_directions.json", 'r') as f:
+#     #     route_data = json.load(f)
+#     trip_details = get_trip_details(route_data, sort_priority=SORT_PRIORITY, departure_time=DEPARTURE_TIME)
 
-    save_path = f"{BASE_PATH}/priced_trip_details.json"
-    with open(save_path, 'w') as f:
-        json.dump(trip_details, f, indent=4)
+#     save_path = f"{BASE_PATH}/priced_trip_details.json"
+#     with open(save_path, 'w') as f:
+#         json.dump(trip_details, f, indent=4)
 
-    print(f"Trip Details saved at {save_path}")
+#     print(f"Trip Details saved at {save_path}")
