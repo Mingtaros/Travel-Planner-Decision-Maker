@@ -1,8 +1,9 @@
 """
 Level 2: Intelligent agents with memory and reasoning capabilities. (SINGLE AGENT EXAMPLE)
+A Hybrid Retrieval agent that does both internal rag and external web search.
 A JSON compliant agent indeed ;) 
 
-These agents utilize a vector database that has stored knowledge, enabling them to perform Retrieval-Augmented Generation (RAG).
+The agents here utilizes a vector database that has stored knowledge, enabling them to perform Retrieval-Augmented Generation (RAG).
 
 By default, Agno agents employ Agentic RAG, where they query their knowledge base for specific details required to complete tasks. 
 For this example, the RAG process uses a connected PDF URL as the data source and specified chunking strategy.
@@ -72,6 +73,7 @@ class HawkerRecommendation(BaseModel):
     sources: List[str] = Field(..., description="List of sources where information was retrieved.")
 
 class HawkerResponse(BaseModel):
+    # QUERY: str = Field(..., description="The user's original query for hawker recommendations.")
     HAWKER_RECOMMENDATIONS: List[HawkerRecommendation] = Field(..., description="List of recommended hawker food options.")
 
 # ========================================================
@@ -172,11 +174,14 @@ if hawker_agent.knowledge is not None:
 # ========================================================
 # Generate Response and Ensure Valid JSON
 # ========================================================
-# query = "I love organs type of food as I'm pretty adventurous, what do you recommend me to eat on my first day in Singapore because I'm staying at town area?"
+query = "I love organs type of food as I'm pretty adventurous, what do you recommend me to eat on my first day in Singapore because I'm staying at town area?"
 # query = "recommend me food places as i have sweet tooth."
-# query = "I hate bland food, but something spicy would be nice. what do you think its nice in Sg?"
-# query = "I will be in Singapore for 5D4N with my wife who is a vegetarian" #this is very bad
-query = "I am from the states, surprise me."
+# query = "I'm on a budget. What are the cheapest but best hawker foods in Singapore?"
+# query = "I love spicy food! Which hawker dishes are a must-try?"
+# query = "Where can I find the best Hainanese Chicken Rice in Singapore?"
+# query = "Where can I find halal-certified hawker food in Singapore?"
+# query = "Where should I go for late-night hawker food in Singapore?"
+
 response = hawker_agent.run(query,
                      stream=False)  # Streaming disabled to capture full response
 
@@ -205,6 +210,9 @@ try:
         json_response = response.content.model_dump()  
     else:
         json_response = response.content  
+    
+    # Inject the user query into the JSON response
+    json_response["query"] = query  
 
     # Pretty-print JSON response in console
     print("\n✅ Successful JSON Response:")

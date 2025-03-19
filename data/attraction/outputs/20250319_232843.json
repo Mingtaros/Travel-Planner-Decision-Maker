@@ -1,0 +1,50 @@
+{
+    "ATTRACTION_RECOMMENDATIONS": [
+        {
+            "attraction_name": "ArtScience Museum",
+            "description": "The ArtScience Museum combines art, science, and technology, offering immersive exhibits. It's a great place for cultural enthusiasts and families.",
+            "average_price": 19.0,
+            "ratings": 4.5,
+            "sources": [
+                "https://www.viator.com/Singapore-tours/Attraction-Tickets/d18-g8-c29"
+            ]
+        },
+        {
+            "attraction_name": "National Gallery Singapore",
+            "description": "National Gallery Singapore houses the world's largest collection of modern Southeast Asian art, making it a paradise for art lovers and cultural enthusiasts.",
+            "average_price": 20.0,
+            "ratings": 4.6,
+            "sources": [
+                "https://www.viator.com/Singapore-tours/Attraction-Tickets/d18-g8-c29"
+            ]
+        },
+        {
+            "attraction_name": "National Museum of Singapore",
+            "description": "The National Museum of Singapore is the country's oldest museum, providing deep insights into Singapore's history and culture.",
+            "average_price": 15.0,
+            "ratings": 4.4,
+            "sources": [
+                "https://wanderlog.com/list/geoCategory/102594/best-places-to-visit-for-arts-and-culture-in-singapore"
+            ]
+        },
+        {
+            "attraction_name": "Peranakan Museum",
+            "description": "Peranakan Museum showcases the vibrant Peranakan culture with exquisite artifacts and exhibitions, making it a must-visit for cultural enthusiasts.",
+            "average_price": 10.0,
+            "ratings": 4.3,
+            "sources": [
+                "https://www.viator.com/Singapore-tours/Attraction-Tickets/d18-g8-c29"
+            ]
+        },
+        {
+            "attraction_name": "Asian Civilisations Museum",
+            "description": "The Asian Civilisations Museum explores the diverse heritage of Asia through historical artifacts, ideal for history buffs and cultural explorers.",
+            "average_price": 12.0,
+            "ratings": 4.5,
+            "sources": [
+                "https://www.viator.com/Singapore-tours/Attraction-Tickets/d18-g8-c29"
+            ]
+        }
+    ],
+    "QUERY": "I love exploring arts and culture. I’ll be in Singapore for a week as a solo traveler. What museums, galleries, or historical places should I visit?"
+}

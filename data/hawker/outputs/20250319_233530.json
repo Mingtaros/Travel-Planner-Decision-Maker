@@ -1,0 +1,56 @@
+{
+    "HAWKER_RECOMMENDATIONS": [
+        {
+            "hawker_name": "Tian Tian Hainanese Chicken Rice",
+            "dish_name": "Hainanese Chicken Rice",
+            "description": "Tian Tian is renowned for its succulent chicken and fragrant rice, making it a must-try for anyone visiting Singapore.",
+            "average_price": 5.0,
+            "ratings": 4.5,
+            "sources": [
+                "https://secretsingapore.co/best-chicken-rice-singapore/",
+                "https://www.thebestsingapore.com/eat-and-drink/the-best-5-hainanese-chicken-rice/"
+            ]
+        },
+        {
+            "hawker_name": "Ah Tai Hainanese Chicken Rice",
+            "dish_name": "Hainanese Chicken Rice",
+            "description": "Located at Maxwell Food Centre, Ah Tai offers a delicious alternative to Tian Tian with its tender chicken and flavorful rice.",
+            "average_price": 5.0,
+            "ratings": 4.2,
+            "sources": [
+                "https://www.thebestsingapore.com/eat-and-drink/the-best-5-hainanese-chicken-rice/"
+            ]
+        },
+        {
+            "hawker_name": "Liao Fan Hong Kong Soya Sauce Chicken Rice & Noodle",
+            "dish_name": "Soya Sauce Chicken Rice",
+            "description": "This stall gained fame as the first Michelin-starred hawker stall, offering a unique twist on the traditional chicken rice with its soya sauce chicken.",
+            "average_price": 5.0,
+            "ratings": 4.3,
+            "sources": [
+                "https://www.thebestsingapore.com/eat-and-drink/the-best-5-hainanese-chicken-rice/"
+            ]
+        },
+        {
+            "hawker_name": "Tiong Bahru Hainanese Boneless Chicken Rice",
+            "dish_name": "Hainanese Boneless Chicken Rice",
+            "description": "Known for its boneless chicken rice, Tiong Bahru offers a convenient and tasty option for chicken rice lovers.",
+            "average_price": 5.0,
+            "ratings": 4.0,
+            "sources": [
+                "https://www.lifestyleasia.com/sg/dining/food/best-hainanese-chicken-rice-in-singapore/"
+            ]
+        },
+        {
+            "hawker_name": "Five Star Hainanese Chicken Rice",
+            "dish_name": "Hainanese Chicken Rice",
+            "description": "Five Star is famous for using free-range chicken, resulting in a less fatty and more flavorful dish.",
+            "average_price": 6.0,
+            "ratings": 4.1,
+            "sources": [
+                "https://www.lifestyleasia.com/sg/dining/food/best-hainanese-chicken-rice-in-singapore/"
+            ]
+        }
+    ],
+    "query": "Where can I find the best Hainanese Chicken Rice in Singapore?"
+}

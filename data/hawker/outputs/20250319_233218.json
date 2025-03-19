@@ -1,0 +1,55 @@
+{
+    "HAWKER_RECOMMENDATIONS": [
+        {
+            "hawker_name": "ABC Brickworks Food Centre",
+            "dish_name": "Ice Kachang",
+            "description": "A syrup-flavoured shaved ice dessert with various toppings, perfect for cooling down in Singapore's tropical climate.",
+            "average_price": 3.5,
+            "ratings": 4.2,
+            "sources": [
+                "https://thesmartlocal.com/read/singapore-desserts/"
+            ]
+        },
+        {
+            "hawker_name": "Ghim Moh Market and Food Centre",
+            "dish_name": "Peanut Ice Kachang",
+            "description": "A unique twist on the traditional Ice Kachang, featuring a rich peanut flavour.",
+            "average_price": 3.0,
+            "ratings": 4.0,
+            "sources": [
+                "https://thesmartlocal.com/read/singapore-desserts/"
+            ]
+        },
+        {
+            "hawker_name": "Maxwell Food Centre",
+            "dish_name": "Chendol",
+            "description": "A classic Southeast Asian dessert made with coconut milk, green jelly noodles, and palm sugar syrup.",
+            "average_price": 2.5,
+            "ratings": 4.5,
+            "sources": [
+                "https://ipixel.com.sg/kaobeiking/singapores-best-hawker-desserts-from-ice-kachang-to-chendol/"
+            ]
+        },
+        {
+            "hawker_name": "Tiong Bahru Food Centre",
+            "dish_name": "Orh Nee (Yam Paste)",
+            "description": "A traditional Teochew dessert made from yam paste, often served with ginkgo nuts.",
+            "average_price": 3.0,
+            "ratings": 4.3,
+            "sources": [
+                "https://sethlui.com/10-local-desserts-food-guide-singapore/"
+            ]
+        },
+        {
+            "hawker_name": "Haig Road Market & Food Centre",
+            "dish_name": "Uggli Muffins",
+            "description": "Delicious muffins that are a hit among locals, known for their unique texture and taste.",
+            "average_price": 2.0,
+            "ratings": 4.1,
+            "sources": [
+                "https://eatbook.sg/cheap-hawker-desserts/"
+            ]
+        }
+    ],
+    "query": "recommend me food places as i have sweet tooth."
+}
