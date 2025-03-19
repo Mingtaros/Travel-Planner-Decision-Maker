@@ -57,6 +57,8 @@ import os
 from typing import List
 from pydantic import BaseModel, Field
 
+import datetime
+
 # ========================================================
 # PyDantic Model
 # ========================================================
@@ -81,7 +83,7 @@ os.environ["GROQ_API_KEY"] = os.getenv("GROQ_API_KEY")
 
 pdf_urls = [
     # "https://raw.githubusercontent.com/Mingtaros/Travel-Planner-Decision-Maker/main/data/hawker/Summary_Singapore_Food.pdf",
-    "https://raw.githubusercontent.com/Mingtaros/Travel-Planner-Decision-Maker/main/data/hawker/hawker_centres_singapore.pdf"
+    "https://raw.githubusercontent.com/Mingtaros/Travel-Planner-Decision-Maker/main/data/hawker/inputs/hawker_centres_singapore.pdf"
 ]
 # ========================================================
 # Dynamically Select Chunking Strategy
@@ -132,6 +134,8 @@ print("=======================================\n")
 # Modify Instructions to Require JSON Output
 # ========================================================
 hawker_agent = Agent(
+    name="Query to Hawker Agent",
+    agent_id="query_to_hawker_agent",
     model=OpenAIChat(id="gpt-4o", response_format="json",temperature=0.2,top_p=0.2),  # Hyperparams pre-defined, Ensures OpenAI outputs valid JSON
     # model=Groq(id=groq_model_name), 
     response_model=HawkerResponse, # Strictly enforces structured response
@@ -142,7 +146,8 @@ hawker_agent = Agent(
         "Provide relevant food recommendations from the knowledge base only.",
         "Ensure that the 'ratings' field is always between 1 and 5.",
         "For each of the recommended Hawker Name, provide additional information such as average price and ratings from web.",
-        "Always include sources to where you have found the information from."
+        "Always include sources to where you have found the information from.",
+        "Provide at least 5 recommended Hawker Name." # depending on how much we want, can adjust accordingly, otherwise, its three results.
     ],
     knowledge=PDFUrlKnowledgeBase(
         urls=pdf_urls,
@@ -151,7 +156,9 @@ hawker_agent = Agent(
     ),
     search_knowledge=True,
 
-    tools=[DuckDuckGoTools(search=True,news=True,fixed_max_results=5)],
+    tools=[DuckDuckGoTools(search=True,
+                           news=True,
+                           fixed_max_results=5)],
     show_tool_calls=True,
     debug_mode=True,  # Comment if not needed - added to see the granularity for debug like retrieved context from vectodb
     markdown=True,
@@ -165,28 +172,49 @@ if hawker_agent.knowledge is not None:
 # ========================================================
 # Generate Response and Ensure Valid JSON
 # ========================================================
-query = "I love organs type of food as I'm pretty adventurous, what do you recommend me to eat on my first day in Singapore because I'm staying at town area?"
-query = "recommend me food places as i have sweet tooth."
-query = "I hate bland food, but something spicy would be nice. what do you think its nice in Sg?"
+# query = "I love organs type of food as I'm pretty adventurous, what do you recommend me to eat on my first day in Singapore because I'm staying at town area?"
+# query = "recommend me food places as i have sweet tooth."
+# query = "I hate bland food, but something spicy would be nice. what do you think its nice in Sg?"
+# query = "I will be in Singapore for 5D4N with my wife who is a vegetarian" #this is very bad
+query = "I am from the states, surprise me."
 response = hawker_agent.run(query,
                      stream=False)  # Streaming disabled to capture full response
 
-# Ensure response is valid JSON
+# ========================================================
+# Prepare the folder to save the json into
+# ========================================================
+
+# Generate timestamp in "YYYYMMDD_HHMMSS" format
+timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+
+# Define the directory name using the timestamp
+output_dir = f"data/hawker/outputs/"
+
+# Create the directory if it does not exist
+os.makedirs(output_dir, exist_ok=True)
+
+# Define the output file path inside the timestamped folder
+output_filename = os.path.join(output_dir, f"{timestamp}.json")
+
 print()
-print("User Query:")
-print(query)
-print()
-# print(response)
+print("\nUser Query:", query)
 
 try:
-    # If `response.content` is a Pydantic model (like `HawkerResponse`), use .model_dump()
+    # Convert response.content (Pydantic model) to a dictionary
     if hasattr(response.content, "model_dump"):
-        json_response = response.content.model_dump()  # Convert Pydantic model to a dictionary
+        json_response = response.content.model_dump()  
     else:
-        json_response = response.content  # Already a dictionary
+        json_response = response.content  
 
+    # Pretty-print JSON response in console
     print("\n✅ Successful JSON Response:")
-    print(json.dumps(json_response, indent=4))  # Pretty-print the structured response
+    print(json.dumps(json_response, indent=4))
+
+    # Save JSON response to the timestamped directory
+    with open(output_filename, "w", encoding="utf-8") as json_file:
+        json.dump(json_response, json_file, indent=4, ensure_ascii=False)
+
+    print(f"\n📁 JSON response successfully saved to: {output_filename}")
 
 except Exception as e:
     print("\n❌ Unexpected Error:", e)
