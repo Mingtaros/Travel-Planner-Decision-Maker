@@ -1,0 +1,57 @@
+{
+    "HAWKER_RECOMMENDATIONS": [
+        {
+            "hawker_name": "Koh Brother Pig's Organ Soup",
+            "dish_name": "Pig's Organ Soup",
+            "description": "A traditional Teochew dish featuring a variety of pig organs in a clear, peppery broth. It's a must-try for those who enjoy organ meats.",
+            "average_price": 5.0,
+            "ratings": 4.5,
+            "sources": [
+                "https://danielfooddiary.com/2024/08/09/singaporehawkerfood/",
+                "https://eatbook.sg/best-pig-organ-soup-singapore/",
+                "https://www.travelandleisureasia.com/in/dining/food/tiong-bahru-market-singapore-food/"
+            ]
+        },
+        {
+            "hawker_name": "Heng Kee Bak Kut Teh",
+            "dish_name": "Bak Kut Teh",
+            "description": "A hearty pork rib soup with a rich, peppery broth, often served with a side of rice and youtiao (fried dough sticks).",
+            "average_price": 7.0,
+            "ratings": 4.3,
+            "sources": [
+                "https://guide.michelin.com/sg/en/article/dining-out/6-bib-gourmand-hawker-stalls-in-singapore-that-offer-offal"
+            ]
+        },
+        {
+            "hawker_name": "Tiong Bahru Market",
+            "dish_name": "Kway Chap",
+            "description": "A comforting dish of flat rice noodles in a dark soy sauce broth, served with a variety of braised pig organs and tofu.",
+            "average_price": 6.0,
+            "ratings": 4.2,
+            "sources": [
+                "https://guide.michelin.com/sg/en/article/dining-out/6-bib-gourmand-hawker-stalls-in-singapore-that-offer-offal"
+            ]
+        },
+        {
+            "hawker_name": "Whampoa Drive Food Centre",
+            "dish_name": "Pig's Organ Soup",
+            "description": "Another variant of the classic pig's organ soup, known for its flavorful broth and tender organ meats.",
+            "average_price": 5.0,
+            "ratings": 4.0,
+            "sources": [
+                "https://guide.michelin.com/sg/en/article/dining-out/6-bib-gourmand-hawker-stalls-in-singapore-that-offer-offal"
+            ]
+        },
+        {
+            "hawker_name": "Old Airport Road Food Centre",
+            "dish_name": "Braised Duck Kway Chap",
+            "description": "A delicious combination of braised duck and kway chap, offering a rich and savory taste experience.",
+            "average_price": 6.0,
+            "ratings": 4.4,
+            "sources": [
+                "https://guide.michelin.com/sg/en/article/dining-out/6-bib-gourmand-hawker-stalls-in-singapore-that-offer-offal"
+            ]
+        }
+    ],
+    "query": "I love organs type of food as I'm pretty adventurous, what do you recommend me to eat on my first day in Singapore because I'm staying at town area?"
+}
