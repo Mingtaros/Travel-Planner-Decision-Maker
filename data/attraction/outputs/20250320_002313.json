@@ -1,0 +1,55 @@
+{
+    "ATTRACTION_RECOMMENDATIONS": [
+        {
+            "attraction_name": "Merlion Park",
+            "description": "Merlion Park is home to Singapore's iconic Merlion statue and offers fantastic waterfront views, making it a popular attraction for all tourists. It's a must-visit for those wanting to capture the essence of Singapore in a photo.",
+            "average_price": 0.0,
+            "ratings": 4.5,
+            "sources": [
+                "https://www.visitsingapore.com/neighbourhood/featured-neighbourhood/marina-bay/merlion-park/",
+                "https://www.tripadvisor.com.au/Attraction_Review-g294265-d644919-Reviews-Merlion_Park-Singapore.html"
+            ]
+        },
+        {
+            "attraction_name": "Singapore Flyer",
+            "description": "The Singapore Flyer is one of the world's largest observation wheels, providing a bird's-eye view of the city. It's a must-visit for tourists seeking a unique perspective of Singapore's skyline.",
+            "average_price": 40.0,
+            "ratings": 4.6,
+            "sources": [
+                "https://www.singaporeflyer.com/?srsltid=AfmBOoo6g76O5mdhxahu2L0LshJz8ooMykSE4uxJWhs-XSx3nF03vS9Y",
+                "https://iwandered.net/singapore-flyer/"
+            ]
+        },
+        {
+            "attraction_name": "ArtScience Museum",
+            "description": "The ArtScience Museum is where art meets science through a blend of art, science, design, media, architecture, and technology. It's perfect for those interested in creativity and innovation.",
+            "average_price": 20.0,
+            "ratings": 4.5,
+            "sources": [
+                "https://www.marinabaysands.com/museum.html",
+                "https://tripxcite.com/place/singapore/artscience-museum/"
+            ]
+        },
+        {
+            "attraction_name": "Fort Canning Park",
+            "description": "Fort Canning Park is a historic hilltop park with lush greenery, ancient ruins, and scenic walking trails. Perfect for nature lovers and history buffs, it offers a peaceful escape in the city center.",
+            "average_price": 0.0,
+            "ratings": 4.5,
+            "sources": [
+                "https://www.nparks.gov.sg/visit/parks/park-detail/fort-canning-park",
+                "https://tripxcite.com/place/singapore/fort-canning-park/"
+            ]
+        },
+        {
+            "attraction_name": "Clarke Quay",
+            "description": "Clarke Quay is a lively riverside district known for its bars, restaurants, and nightlife. It's best suited for those looking for entertainment and vibrant nightlife in the heart of the city.",
+            "average_price": 0.0,
+            "ratings": 4.3,
+            "sources": [
+                "https://travelsingapore.info/places/all/all/2-clarke-quay",
+                "https://www.tripadvisor.ca/Attraction_Review-g294265-d324756-Reviews-Clarke_Quay-Singapore.html"
+            ]
+        }
+    ],
+    "QUERY": "I have half a day to explore before my flight. I’d like to visit some iconic attractions near the city center. Where should I go?"
+}

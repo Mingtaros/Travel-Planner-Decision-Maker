@@ -43,6 +43,7 @@ from agno.models.openai import OpenAIChat
 from agno.models.groq import Groq
 
 from agno.tools.duckduckgo import DuckDuckGoTools
+from agno.tools.googlesearch import GoogleSearchTools
 
 from agno.knowledge.pdf_url import PDFUrlKnowledgeBase
 from agno.vectordb.chroma import ChromaDb
@@ -159,7 +160,8 @@ attraction_agent = Agent(
 
     tools=[DuckDuckGoTools(search=True,
                            news=True,
-                           fixed_max_results=5)],
+                           fixed_max_results=5),
+           GoogleSearchTools()],
     show_tool_calls=True,
     debug_mode=True,  # Comment if not needed - added to see the granularity for debug like retrieved context from vectodb
     markdown=True,
