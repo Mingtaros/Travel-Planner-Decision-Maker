@@ -1,5 +1,6 @@
 """
 Level 2: Intelligent agents with memory and reasoning capabilities. (SINGLE AGENT EXAMPLE)
+A JSON compliant agent indeed ;) 
 
 These agents utilize a vector database that has stored knowledge, enabling them to perform Retrieval-Augmented Generation (RAG).
 
@@ -52,6 +53,24 @@ from agno.document.chunking.semantic import SemanticChunking
 
 from dotenv import load_dotenv
 import os
+
+from typing import List
+from pydantic import BaseModel, Field
+
+# ========================================================
+# PyDantic Model
+# ========================================================
+
+class HawkerRecommendation(BaseModel):
+    hawker_name: str = Field(..., description="The name of the Hawker Centre.")
+    dish_name: str = Field(..., description="The name of the dish that is recommended.")
+    description: str = Field(..., description="A short description of the dish and why it's recommended.")
+    average_price: float = Field(..., description="The maximum price in SGD of the dish, retrieved from web sources.")
+    ratings: float = Field(..., description="The Google rating of the Hawker Centre, range from 1 to 5.")
+    sources: List[str] = Field(..., description="List of sources where information was retrieved.")
+
+class HawkerResponse(BaseModel):
+    HAWKER_RECOMMENDATIONS: List[HawkerRecommendation] = Field(..., description="List of recommended hawker food options.")
 
 # ========================================================
 # Load environment variables
@@ -113,28 +132,17 @@ print("=======================================\n")
 # Modify Instructions to Require JSON Output
 # ========================================================
 hawker_agent = Agent(
-    model=OpenAIChat(id="gpt-4o", response_format="json",temperature=0.2,top_p=0.2),  # Ensures OpenAI outputs valid JSON
-    # model=Groq(id=groq_model_name),  # If using Groq, ensure the model understands JSON format
+    model=OpenAIChat(id="gpt-4o", response_format="json",temperature=0.2,top_p=0.2),  # Hyperparams pre-defined, Ensures OpenAI outputs valid JSON
+    # model=Groq(id=groq_model_name), 
+    response_model=HawkerResponse, # Strictly enforces structured response
+    structured_outputs=True, 
     description="You are a Singapore hawker food recommender for foreigners! You are able to understand the traveller's personality and persona.",
     role="Search the internal knowledge base and web for information",
     instructions=[
         "Provide relevant food recommendations from the knowledge base only.",
+        "Ensure that the 'ratings' field is always between 1 and 5.",
         "For each of the recommended Hawker Name, provide additional information such as average price and ratings from web.",
-        "Always include sources to where you have found the information from.",
-        "Respond **strictly** in JSON format with the following structure:",
-        """
-        {
-            "HAWKER_RECOMMENDATIONS": [
-                {   "hawker_name": "<Hawker Centre Name only>",
-                    "dish_name": "<Dish Name>",
-                    "description": "<Short description of the dish>",
-                    "average_price": "<Max price in SGD from web>",
-                    "ratings": "<Google rating from range of 1-5>",
-                    "sources": ["<source1>", "<source2>"]
-                }
-            ]
-        }
-        """
+        "Always include sources to where you have found the information from."
     ],
     knowledge=PDFUrlKnowledgeBase(
         urls=pdf_urls,
@@ -143,7 +151,7 @@ hawker_agent = Agent(
     ),
     search_knowledge=True,
 
-    tools=[DuckDuckGoTools(search=True,news=True,fixed_max_results=10)],
+    tools=[DuckDuckGoTools(search=True,news=True,fixed_max_results=5)],
     show_tool_calls=True,
     debug_mode=True,  # Comment if not needed - added to see the granularity for debug like retrieved context from vectodb
     markdown=True,
@@ -165,16 +173,22 @@ response = hawker_agent.run(query,
 
 # Ensure response is valid JSON
 print()
+print("User Query:")
 print(query)
 print()
+# print(response)
+
 try:
-    json_response = json.loads(response.content)
-    print()
-    print(f"✅ Successful json") 
-    print(json.dumps(json_response, indent=4))  # Pretty-print the JSON response
-    print()
-except json.JSONDecodeError:
-    print()
-    print("⚠️ Invalid JSON response received:")
-    print()
+    # If `response.content` is a Pydantic model (like `HawkerResponse`), use .model_dump()
+    if hasattr(response.content, "model_dump"):
+        json_response = response.content.model_dump()  # Convert Pydantic model to a dictionary
+    else:
+        json_response = response.content  # Already a dictionary
+
+    print("\n✅ Successful JSON Response:")
+    print(json.dumps(json_response, indent=4))  # Pretty-print the structured response
+
+except Exception as e:
+    print("\n❌ Unexpected Error:", e)
+    print("⚠️ Invalid response received:")
     print(response.content)
