@@ -1,5 +1,6 @@
 import json
 import random
+import numpy as np
 from docplex.mp.model import Model
 
 
@@ -47,7 +48,8 @@ class TravelItineraryProblem(object):
             budget,
             locations,
             transport_matrix,
-            num_days=3
+            num_days=3,
+            priority_weights=[0.3, 0.3, 0.4],
         ):
 
         # constants
@@ -76,6 +78,12 @@ class TravelItineraryProblem(object):
         self.num_transport_types = len(self.transport_types)
         self.transport_matrix = transport_matrix
         self.time_brackets = [8, 12, 16, 20]
+
+        # add weighting priority for objective function
+        self.priority_weights = priority_weights
+        # the goal here is to make the objective work in the same axis, price $
+        self.travel_time_penalty_per_minute = 0.1 # for every minute spent in transit, the "cost" is this in $
+        self.satisfaction_offset = 10 # for the satisfaction, every point in satisfaction, offset the cost by this in $
 
         # define models and variables
         self.define_model()
@@ -414,7 +422,11 @@ class TravelItineraryProblem(object):
         # return, get solution
         self.define_constraints()
         # minimizing
-        self.mdl.minimize(self.cost_var + self.travel_time_var * 0.1 - self.satisfaction_var * 80)
+        self.mdl.minimize(
+            self.priority_weights[0] * self.cost_var +
+            self.priority_weights[1] * self.travel_time_var * self.travel_time_penalty_per_minute -
+            self.priority_weights[2] * self.satisfaction_var * self.satisfaction_offset
+        )
 
         self.solution = self.mdl.solve(log_output=True)
         # store the solution inside self.solution
@@ -431,7 +443,7 @@ class TravelItineraryProblem(object):
             hotel = self.locations[0]
             start_location = hotel["name"]
             start_time = round(self.u_var[(day, start_location)].solution_value)
-            print(f"- Start at {start_location} by {int(start_time // 60):02d}:{int(start_time % 60):02d}")
+            print(f"{int(start_time // 60):02d}:{int(start_time % 60):02d} - Start from {start_location}")
 
             current_location = start_location
             while True:
@@ -442,6 +454,8 @@ class TravelItineraryProblem(object):
                 entrance_fee = None
                 duration = None
                 food_price = None
+                satisfaction_score = None
+                rating = None
 
                 # Find the next location and transport used
                 for transport_type in self.transport_types:
@@ -458,6 +472,8 @@ class TravelItineraryProblem(object):
                                 entrance_fee = dest.get("entrance_fee", 0) if dest["type"] == "attraction" else None
                                 duration = (dest.get("duration", 0) // 60, dest.get("duration", 0) % 60)
                                 food_price = dest.get("avg_food_price", 0) if dest["type"] == "hawker" else None
+                                satisfaction_score = dest.get("satisfaction", 0) if dest["type"] == "attraction" else None
+                                rating = dest.get("rating", 0) if dest["type"] == "hawker" else None
                                 break
                         if next_location:
                             break
@@ -468,34 +484,55 @@ class TravelItineraryProblem(object):
                     break  # No more locations for the day
 
                 # Arrival time
-                arrival_time = self.u_var[(day, next_location)].solution_value
+                arrival_time = self.u_var[(day, current_location)].solution_value
 
                 # Print movement details
-                print(f"- Go to {next_location} using {chosen_transport}, travel time is {travel_time} min, price is ${price:.2f}", end="")
-
-                if entrance_fee:
-                    print(f", entrance fee is ${entrance_fee:.2f}", end="")
-                if duration and next_location != hotel["name"]:
-                    print(f", you'll be there for {duration[0]} hours {duration[1]} minutes", end="")
-                if food_price:
-                    print(f", average food price is ${food_price:.2f}", end="")
-
-                if next_location != hotel["name"]: print(f", finish by {int(arrival_time // 60):02d}:{int(arrival_time % 60):02d}.")
+                print(f"{int(arrival_time // 60):02d}:{int(arrival_time % 60):02d} - From {current_location}, go to {next_location}")
+                print("        Details:")
+                print(f"         - use {chosen_transport}, price = ${price:.2f}, duration = {travel_time // 60} hours {travel_time % 60} minutes")
+                
+                if entrance_fee is not None:
+                    print(f"         - {next_location} entrance fee = ${entrance_fee:.2f}")
+                if duration is not None:
+                    print(f"         - {next_location} duration = {duration[0]} hours {duration[1]} minutes")
+                if satisfaction_score is not None:
+                    print(f"         - {next_location} satisfaction score = {satisfaction_score:.2f} / 10")
+                if food_price is not None:
+                    print(f"         - {next_location} average food price = ${food_price:.2f}")
+                if rating is not None:
+                    print(f"         - {next_location} Rating = {rating:.2f} / 5")
 
                 if next_location == hotel["name"]:
-                    # stop because reach hotel already
+                    print(f"{int(arrival_time // 60):02d}:{int(arrival_time % 60):02d} - Go back to hotel")
+                    print("        Details:")
+                    print(f"         - use {chosen_transport}, price = ${price:.2f}, duration = {travel_time // 60} hours {travel_time % 60} minutes")
                     break
 
                 current_location = next_location
 
             print()  # Blank line between days
+        travel_time_total = self.travel_time_var.solution_value
+        travel_time_hm = (travel_time_total//60, travel_time_total%60)
+        print("Overall:")
+        print(f"    Total Cost             = ${self.cost_var.solution_value:.2f}")
+        print("    Total Travel Time      =", travel_time_hm[0], "hours", travel_time_hm[1], "minutes")
+        print("    Estimated Satisfaction =", self.satisfaction_var.solution_value)
+
 
 if __name__ == "__main__":
-    import sys
-    print(sys.path)
     random.seed(42)
     # load locations
     all_locations = get_all_locations()
+    # for all locations, get satisfaction and rating
+    for loc in all_locations:
+        if loc["type"] == "hawker":
+            loc["rating"] = np.random.uniform(0, 5)
+            loc["avg_food_price"] = np.random.uniform(5, 15)
+            loc["duration"] = 60 # just standardize 60 mins
+        elif loc["type"] == "attraction":
+            loc["satisfaction"] = np.random.uniform(0, 10)
+            loc["entrance_fee"] = np.random.uniform(5, 100)
+            loc["duration"] = np.random.randint(30, 90)
     # get hotel, add it to selected locations
     dummy_hotel = {
         "type": "hotel",
@@ -547,9 +584,9 @@ if __name__ == "__main__":
         locations=locations,
         # locations=selected_locations,
         transport_matrix=transport_matrix,
-        num_days=3
+        num_days=3,
+        priority_weights=[0.3, 0.3, 0.4],
     )
 
     problem.solve()
-    
     problem.print_solution()
