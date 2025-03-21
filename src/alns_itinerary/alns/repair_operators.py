@@ -1293,3 +1293,50 @@ def repair_random(problem, solution):
     solution[problem.x_shape:] = u_var.flatten()
     
     return solution
+
+def repair_time_consistent(problem, solution):
+    """
+    Repair solution with strict time consistency checks
+    """
+    # Reshape solution into x_var and u_var
+    x_var = solution[:problem.x_shape].reshape(problem.NUM_DAYS, problem.num_transport_types, 
+                                            problem.num_locations, problem.num_locations)
+    u_var = solution[problem.x_shape:].reshape(problem.NUM_DAYS, problem.num_locations)
+    
+    # Ensure time-based route consistency
+    for day in range(problem.NUM_DAYS):
+        for j in range(problem.num_transport_types):
+            for k in range(problem.num_locations):
+                for l in range(problem.num_locations):
+                    if k == l or x_var[day, j, k, l] == 0:
+                        continue
+                    
+                    try:
+                        # Get transport time
+                        transport_hour = problem.get_transport_hour(u_var[day, k])
+                        transport_key = (problem.locations[k]["name"], 
+                                         problem.locations[l]["name"], 
+                                         transport_hour)
+                        
+                        transport_value = problem.transport_matrix[transport_key][problem.transport_types[j]]
+                        
+                        # Calculate required finish time
+                        time_should_finish_l = (
+                            u_var[day, k] +  # Start time at origin
+                            transport_value["duration"] +  # Transport duration
+                            problem.locations[l]["duration"]  # Location duration
+                        )
+                        
+                        # Adjust destination time if it's earlier than required
+                        if u_var[day, l] < time_should_finish_l:
+                            u_var[day, l] = time_should_finish_l
+                    
+                    except KeyError:
+                        # Handle missing transport data
+                        continue
+    
+    # Flatten and return updated solution
+    solution[:problem.x_shape] = x_var.flatten()
+    solution[problem.x_shape:] = u_var.flatten()
+    
+    return solution

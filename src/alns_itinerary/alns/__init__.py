@@ -5,14 +5,16 @@ from .destroy_operators import (
     destroy_random_attractions,
     destroy_worst_attractions,
     destroy_random_meals,
-    destroy_random_routes
+    destroy_random_routes,
+    destroy_time_aware_routes
 )
 from .repair_operators import (
     repair_greedy,
     repair_random,
     repair_regret,
     repair_satisfaction_based,
-    repair_time_based
+    repair_time_based,
+    repair_time_consistent  
 )
 
 # Specify which symbols to export when using "from alns import *"

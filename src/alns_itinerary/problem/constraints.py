@@ -228,8 +228,8 @@ class ConstraintValidator:
                         "day": day,
                         "location": k,
                         "location_name": problem.locations[k]["name"],
-                        "incoming": incoming,
-                        "outgoing": outgoing
+                        "incoming": float(incoming),
+                        "outgoing": float(outgoing)
                     })
         
         return violations
@@ -264,7 +264,16 @@ class ConstraintValidator:
                 violations.append({
                     "type": "hotel_not_starting_point",
                     "day": day,
-                    "outgoing_routes": hotel_outgoing
+                    "outgoing_routes": float(hotel_outgoing)
+                })
+            
+            # Check hotel start time constraint - must start at or after START_TIME
+            if u_var[day, hotel_idx] < problem.START_TIME:
+                violations.append({
+                    "type": "hotel_start_time_violation",
+                    "day": day,
+                    "start_time": float(u_var[day, hotel_idx]),
+                    "required_time": problem.START_TIME
                 })
         
         # Check that each day returns to the hotel
@@ -285,9 +294,191 @@ class ConstraintValidator:
                         "last_location": last_loc,
                         "last_location_name": problem.locations[last_loc]["name"]
                     })
+            
+            # Check hotel return time - must be before HARD_LIMIT_END_TIME
+            if u_var[day, hotel_idx] > problem.HARD_LIMIT_END_TIME:
+                violations.append({
+                    "type": "hotel_end_time_violation",
+                    "day": day,
+                    "end_time": float(u_var[day, hotel_idx]),
+                    "limit_time": problem.HARD_LIMIT_END_TIME
+                })
         
         return violations
     
+    @staticmethod
+    def validate_transport_exclusivity(problem, solution):
+        """
+        Validate that only one transport type is used for each route
+        
+        Args:
+            problem: TravelItineraryProblem instance
+            solution: Solution vector to validate
+        
+        Returns:
+            list: List of transport exclusivity violations
+        """
+        violations = []
+        
+        # Reshape solution into x_var
+        x_var = solution[:problem.x_shape].reshape(problem.NUM_DAYS, problem.num_transport_types, 
+                                                problem.num_locations, problem.num_locations)
+        
+        # Check each day, source and destination
+        for day in range(problem.NUM_DAYS):
+            for k in range(problem.num_locations):
+                for l in range(problem.num_locations):
+                    if k == l:  # Skip self-routes
+                        continue
+                    
+                    # Count how many transport types are used for this route
+                    transport_count = sum(x_var[day, j, k, l] for j in range(problem.num_transport_types))
+                    
+                    # If more than one transport type is used, it's a violation
+                    if transport_count > 1:
+                        violations.append({
+                            "type": "multiple_transport_types",
+                            "day": day,
+                            "from": k,
+                            "to": l,
+                            "from_name": problem.locations[k]["name"],
+                            "to_name": problem.locations[l]["name"],
+                            "transport_count": float(transport_count)
+                        })
+        
+        return violations
+    
+    @staticmethod
+    def validate_visits_per_day(problem, solution):
+        """
+        Validate the number of visits per day is within acceptable range (2-6)
+        
+        Args:
+            problem: TravelItineraryProblem instance
+            solution: Solution vector to validate
+        
+        Returns:
+            list: List of daily visit count violations
+        """
+        violations = []
+        
+        # Reshape solution into x_var
+        x_var = solution[:problem.x_shape].reshape(problem.NUM_DAYS, problem.num_transport_types, 
+                                                problem.num_locations, problem.num_locations)
+        
+        # Minimum and maximum visits per day
+        min_visits = 2  # Minimum: lunch and dinner
+        max_visits = 6  # Maximum reasonable visits per day
+        
+        # Check each day's visit count
+        for day in range(problem.NUM_DAYS):
+            # Count trips to non-hotel destinations
+            visits = 0
+            for j in range(problem.num_transport_types):
+                for k in range(problem.num_locations):
+                    for l in range(1, problem.num_locations):  # Start from 1 to skip hotel as destination
+                        if k != l and x_var[day, j, k, l] > 0:
+                            visits += 1
+            
+            # Check minimum visits
+            if visits < min_visits:
+                violations.append({
+                    "type": "insufficient_daily_visits",
+                    "day": day,
+                    "visits": visits,
+                    "minimum": min_visits
+                })
+            
+            # Check maximum visits
+            if visits > max_visits:
+                violations.append({
+                    "type": "excessive_daily_visits",
+                    "day": day,
+                    "visits": visits,
+                    "maximum": max_visits
+                })
+        
+        return violations
+    
+    @staticmethod
+    def validate_time_brackets(problem, solution):
+        """
+        Validate that times for activities fall into appropriate time brackets
+        and sequential visits have appropriate timing
+        
+        Args:
+            problem: TravelItineraryProblem instance
+            solution: Solution vector to validate
+        
+        Returns:
+            list: List of time bracket violations
+        """
+        violations = []
+        
+        # Reshape solution into x_var and u_var
+        x_var = solution[:problem.x_shape].reshape(problem.NUM_DAYS, problem.num_transport_types, 
+                                                problem.num_locations, problem.num_locations)
+        u_var = solution[problem.x_shape:].reshape(problem.NUM_DAYS, problem.num_locations)
+        
+        # For each day, check time sequential logic
+        for day in range(problem.NUM_DAYS):
+            for j in range(problem.num_transport_types):
+                for k in range(problem.num_locations):
+                    for l in range(problem.num_locations):
+                        if k == l or x_var[day, j, k, l] == 0:
+                            continue
+                        
+                        # This route is used
+                        try:
+                            # Get transport hour
+                            transport_hour = problem.get_transport_hour(u_var[day, k])
+                            
+                            # Get transport data
+                            transport_key = (problem.locations[k]["name"], 
+                                           problem.locations[l]["name"], 
+                                           transport_hour)
+                            
+                            transport_data = problem.transport_matrix[transport_key][problem.transport_types[j]]
+                            
+                            # Calculate expected arrival time
+                            departure_time = u_var[day, k]
+                            expected_arrival = departure_time + transport_data["duration"]
+                            
+                            # Calculate minimum time needed for the activity
+                            activity_duration = problem.locations[l]["duration"]
+                            
+                            # Calculate expected finish time
+                            expected_finish = expected_arrival + activity_duration
+                            
+                            # Get actual finish time in solution
+                            actual_finish = u_var[day, l]
+                            
+                            # Check if actual finish time is too early (impossible)
+                            if actual_finish < expected_finish:
+                                violations.append({
+                                    "type": "sequential_time_violation",
+                                    "day": day,
+                                    "from": k,
+                                    "to": l,
+                                    "from_name": problem.locations[k]["name"],
+                                    "to_name": problem.locations[l]["name"],
+                                    "actual_finish": float(actual_finish),
+                                    "expected_finish": float(expected_finish)
+                                })
+                        
+                        except KeyError:
+                            # Missing transport data, add a violation
+                            violations.append({
+                                "type": "missing_transport_data",
+                                "day": day,
+                                "from": k,
+                                "to": l,
+                                "from_name": problem.locations[k]["name"],
+                                "to_name": problem.locations[l]["name"]
+                            })
+        
+        return violations
+        
     @classmethod
     def validate_solution(cls, problem, solution):
         """
@@ -307,7 +498,10 @@ class ConstraintValidator:
             "attraction_violations": cls.validate_attraction_constraints(problem, solution),
             "budget_violations": cls.validate_budget_constraint(problem, solution),
             "flow_conservation_violations": cls.validate_flow_conservation(problem, solution),
-            "hotel_violations": cls.validate_hotel_constraints(problem, solution)
+            "hotel_violations": cls.validate_hotel_constraints(problem, solution),
+            "transport_exclusivity_violations": cls.validate_transport_exclusivity(problem, solution),
+            "visits_per_day_violations": cls.validate_visits_per_day(problem, solution),
+            "time_bracket_violations": cls.validate_time_brackets(problem, solution)
         }
         
         # Determine overall validity
@@ -317,7 +511,10 @@ class ConstraintValidator:
             len(validation_results["attraction_violations"]) == 0 and
             len(validation_results["budget_violations"]) == 0 and
             len(validation_results["flow_conservation_violations"]) == 0 and
-            len(validation_results["hotel_violations"]) == 0
+            len(validation_results["hotel_violations"]) == 0 and
+            len(validation_results["transport_exclusivity_violations"]) == 0 and
+            len(validation_results["visits_per_day_violations"]) == 0 and
+            len(validation_results["time_bracket_violations"]) == 0
         )
         
         return validation_results

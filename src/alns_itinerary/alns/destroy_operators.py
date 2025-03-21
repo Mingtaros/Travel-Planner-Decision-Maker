@@ -299,3 +299,66 @@ def destroy_random_routes(problem, solution, removal_percentage=0.4):
     solution[problem.x_shape:] = u_var.flatten()
     
     return solution
+
+def destroy_time_aware_routes(problem, solution):
+    """
+    Destroy routes while attempting to maintain time sequences
+    """
+    # Similar to existing destroy_random_routes, but:
+    # 1. Prefer removing routes that don't break critical time constraints
+    # 2. Maintain sequence of locations for each day
+    x_var = solution[:problem.x_shape].reshape(problem.NUM_DAYS, problem.num_transport_types, 
+                                            problem.num_locations, problem.num_locations)
+    u_var = solution[problem.x_shape:].reshape(problem.NUM_DAYS, problem.num_locations)
+    
+    # Identify routes with less critical time dependencies
+    time_sensitive_routes = []
+    less_sensitive_routes = []
+    
+    for day in range(problem.NUM_DAYS):
+        for j in range(problem.num_transport_types):
+            for k in range(problem.num_locations):
+                for l in range(problem.num_locations):
+                    if x_var[day, j, k, l] == 0:
+                        continue
+                    
+                    # Assess time sensitivity
+                    try:
+                        transport_hour = problem.get_transport_hour(u_var[day, k])
+                        transport_key = (problem.locations[k]["name"], 
+                                         problem.locations[l]["name"], 
+                                         transport_hour)
+                        
+                        transport_value = problem.transport_matrix[transport_key][problem.transport_types[j]]
+                        
+                        # Calculate time requirements
+                        time_should_finish_l = (
+                            u_var[day, k] + 
+                            transport_value["duration"] + 
+                            problem.locations[l]["duration"]
+                        )
+                        
+                        # Classify routes
+                        if abs(u_var[day, l] - time_should_finish_l) > 30:  # 30 minutes threshold
+                            less_sensitive_routes.append((day, j, k, l))
+                        else:
+                            time_sensitive_routes.append((day, j, k, l))
+                    
+                    except KeyError:
+                        # Less sensitive if transport data is missing
+                        less_sensitive_routes.append((day, j, k, l))
+    
+    # Prioritize removing less time-sensitive routes
+    routes_to_remove = less_sensitive_routes
+    
+    # Remove selected routes
+    for day, j, k, l in routes_to_remove:
+        x_var[day, j, k, l] = 0
+        # Optionally reset time for this location
+        u_var[day, l] = 0
+    
+    # Flatten and return
+    solution[:problem.x_shape] = x_var.flatten()
+    solution[problem.x_shape:] = u_var.flatten()
+    
+    return solution

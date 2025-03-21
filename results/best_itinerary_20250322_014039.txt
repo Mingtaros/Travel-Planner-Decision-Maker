@@ -7,8 +7,8 @@ TRIP SUMMARY
 Duration: 3 days
 Total Budget: $500.00 SGD
 Actual Expenditure: $220.71 SGD
-Total Travel Time: 182.1 minutes
-Total Satisfaction Rating: 22.0
+Total Travel Time: 181.7 minutes
+Total Satisfaction Rating: 4.4
 Starting Hotel: Marina Bay Sands Singapore
 
 Attractions Visited (0):
@@ -17,39 +17,21 @@ DAY 1
 -------------------------------------------------
 17:24 - Arrive at Marina Bay Sands Singapore
 
-11:00 - Arrive at Amoy Street Food Centre (hawker) via Transit transport
+11:00 - Arrive at Chinatown Complex Food Centre (hawker) via Transit transport
        Details:
          - Lunch Meal
          - Duration: 60 minutes
          - Estimated Meal Cost: $10.00
-         - Food Rating: 2.2/5
+         - Food Rating: 0.4/5
 
 17:00 - Arrive at Maxwell Food Centre (hawker) via Transit transport
        Details:
          - Dinner Meal
          - Duration: 60 minutes
          - Estimated Meal Cost: $10.00
-         - Food Rating: 4.2/5
+         - Food Rating: 1.1/5
 
 DAY 2
--------------------------------------------------
-17:18 - Arrive at Marina Bay Sands Singapore
-
-11:00 - Arrive at Maxwell Food Centre (hawker) via Transit transport
-       Details:
-         - Lunch Meal
-         - Duration: 60 minutes
-         - Estimated Meal Cost: $10.00
-         - Food Rating: 4.2/5
-
-17:00 - Arrive at Chinatown Complex Food Centre (hawker) via Transit transport
-       Details:
-         - Dinner Meal
-         - Duration: 60 minutes
-         - Estimated Meal Cost: $10.00
-         - Food Rating: 3.6/5
-
-DAY 3
 -------------------------------------------------
 17:24 - Arrive at Marina Bay Sands Singapore
 
@@ -58,14 +40,32 @@ DAY 3
          - Lunch Meal
          - Duration: 60 minutes
          - Estimated Meal Cost: $10.00
-         - Food Rating: 3.6/5
+         - Food Rating: 0.4/5
 
 17:00 - Arrive at Maxwell Food Centre (hawker) via Transit transport
        Details:
          - Dinner Meal
          - Duration: 60 minutes
          - Estimated Meal Cost: $10.00
-         - Food Rating: 4.2/5
+         - Food Rating: 1.1/5
+
+DAY 3
+-------------------------------------------------
+17:18 - Arrive at Marina Bay Sands Singapore
+
+11:00 - Arrive at Maxwell Food Centre (hawker) via Transit transport
+       Details:
+         - Lunch Meal
+         - Duration: 60 minutes
+         - Estimated Meal Cost: $10.00
+         - Food Rating: 1.1/5
+
+17:00 - Arrive at Chinatown Complex Food Centre (hawker) via Transit transport
+       Details:
+         - Dinner Meal
+         - Duration: 60 minutes
+         - Estimated Meal Cost: $10.00
+         - Food Rating: 0.4/5
 
 BUDGET BREAKDOWN
 -------------------------------------------------
