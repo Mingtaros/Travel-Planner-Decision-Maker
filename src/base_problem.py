@@ -128,18 +128,21 @@ class TravelItineraryProblem(ElementwiseProblem):
 
         num_vars = self.x_shape + self.u_shape
 
-        lower_bound = np.concatenate([np.zeros(self.x_shape), np.full(self.u_shape, self.START_TIME)])
+        lower_bound = np.concatenate([np.zeros(self.x_shape), np.full(self.u_shape, 0)])
         upper_bound = np.concatenate([np.ones(self.x_shape), np.full(self.u_shape, self.HARD_LIMIT_END_TIME)])
         
         def calculate_constraints():
-            # For counting actual inequality constraints
+            ### For counting actual inequality constraints
             g_count = 0
             
             # For each attraction, must be visited at most once as source and at most once as destination
             g_count += 2 * self.num_attractions
-            
-            # For each hawker, must be visited at most once per day as source and destination
-            g_count += 2 * self.num_hawkers * self.NUM_DAYS
+
+            # For each hawker everyday, must be visited at most once as source and at most once as destination
+            g_count += 2 * self.NUM_DAYS * self.num_hawkers
+
+            # Every day, go from hotel at least START_TIME
+            g_count += self.NUM_DAYS
             
             # For time constraints when a route is chosen
             g_count += self.NUM_DAYS * self.num_transport_types * (self.num_locations - 1)
@@ -154,26 +157,20 @@ class TravelItineraryProblem(ElementwiseProblem):
             # Min/max total visits constraints
             g_count += 2
             
-            # For equality constraints
+            ### For equality constraints
             h_count = 0
-            
-            # Exactly 2 hawker visits per day (was inequality, now equality)
-            h_count += self.NUM_DAYS
-            
-            # Exactly 1 hawker visit during lunch and 1 during dinner (were inequalities, now equalities)
-            h_count += self.NUM_DAYS * 2
-            
-            # Hotel must be starting point each day
-            h_count += self.NUM_DAYS
             
             # Flow conservation (in = out)
             h_count += self.NUM_DAYS * self.num_locations
+            
+            # Hotel must be starting point each day
+            h_count += self.NUM_DAYS
             
             # Return to hotel constraint
             h_count += self.NUM_DAYS
             
             # If attraction is visited as source, it must be visited as destination
-            h_count += self.num_attractions
+            h_count += self.NUM_DAYS * self.num_locations
             
             return g_count, h_count
 
@@ -215,20 +212,33 @@ class TravelItineraryProblem(ElementwiseProblem):
         total_travel_time = 0
         total_satisfaction = 0
 
-        # for every attraction, must be a source at most once
-        # for every attraction, must be a destination at most once
+        # for every attraction, must be a source & destination at most once
         # NOTE that this doesn't apply to hawkers
         for k in range(self.num_locations):
             if self.locations[k]["type"] == "attraction":
                 out["G"].append(np.sum(x_var[:, :, k, :]) - 1)
                 out["G"].append(np.sum(x_var[:, :, :, k]) - 1)
+        
+        # for hawkers, every day must be a source & destination at most once
+        for i in range(self.NUM_DAYS):
+            for k in range(self.num_locations):
+                if self.locations[k]["type"] == "hawker":
+                    out["G"].append(np.sum(x_var[i, :, k, :]) - 1)
+                    out["G"].append(np.sum(x_var[i, :, :, k]) - 1)
                 
                 # If attraction is a source, it must also be a destination
                 out["H"].append(np.sum(x_var[:, :, k, :]) - np.sum(x_var[:, :, :, k]))
 
         for i in range(self.NUM_DAYS):
             # u_var[i, 0] must be the smallest of u_var[i]
-            out["H"].append(np.min(u_var[i, :]) - u_var[i, 0])
+            non_zero_elements = u_var[i, u_var[i, :] > 0]
+            if len(non_zero_elements) > 0:
+                out["H"].append(np.min(non_zero_elements) - u_var[i, 0])
+            else: # if everything is zero, this is violated already
+                out["H"].append(-1)
+
+            # day start must be 8 AM or more
+            out["G"].append((self.START_TIME - u_var[i, 0]))
 
             for j in range(self.num_transport_types):
                 for k in range(self.num_locations):
@@ -247,7 +257,7 @@ class TravelItineraryProblem(ElementwiseProblem):
                         transport_value = self.transport_matrix[(self.locations[k]["name"], self.locations[l]["name"], transport_hour)][self.transport_types[j]]
                         time_should_finish_l = u_var[i, k] + transport_value["duration"] + self.locations[l]["duration"]
                         # if x_var[i, j, k, l] is not chosen, then this constraint don't matter
-                        out["G"].append(x_var[i, j, k, l] * time_finish_l - time_should_finish_l)
+                        out["G"].append(x_var[i, j, k, l] * (time_should_finish_l - time_finish_l))
                         
                         # append to total travel time spent
                         if x_var[i, j, k, l] == 1:

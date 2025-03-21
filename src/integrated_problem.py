@@ -244,9 +244,9 @@ def debug_optimization_problem(problem):
 
 def integrate_problem(base_problem_str, inequality_constraints, equality_constraints):
     
-    INEQUALITY_CONSTRAINT_LINE = 185
+    INEQUALITY_CONSTRAINT_LINE = 187
     EQUALITY_CONSTRAINT_LINE = INEQUALITY_CONSTRAINT_LINE + 1
-    INDENTATION_COUNT_LINE = 346
+    INDENTATION_COUNT_LINE = 391
     ADD_CONSTRAINT_LINE = INDENTATION_COUNT_LINE + 1
     
     # update the number of constraints in class initialization
@@ -729,7 +729,7 @@ def main(hotel_name=None, budget=300, num_days=3):
     logger.info("Creating and solving the optimization problem...")
     problem = TravelItineraryProblem(
         num_days=3,
-        budget=300,
+        budget=1000,
         locations=updated_locations,
         transport_matrix=updated_matrix,
     )
