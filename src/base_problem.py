@@ -90,7 +90,7 @@ class TravelItineraryProblem(ElementwiseProblem):
         else:
             logging.info(f"Budget check passed: {budget} >= minimum {min_cost} for hotel and food")
     
-    def __init__(self, budget, locations, transport_matrix, num_days=1):
+    def __init__(self, budget, locations, transport_matrix, num_days=3):
         
         # Add validation checks before setup
         self.validate_inputs(budget, locations, transport_matrix, num_days)
@@ -131,6 +131,7 @@ class TravelItineraryProblem(ElementwiseProblem):
         lower_bound = np.concatenate([np.zeros(self.x_shape), np.full(self.u_shape, 0)])
         upper_bound = np.concatenate([np.ones(self.x_shape), np.full(self.u_shape, self.HARD_LIMIT_END_TIME)])
         
+        # Count constraints
         def calculate_constraints():
             ### For counting actual inequality constraints
             g_count = 0
@@ -147,6 +148,12 @@ class TravelItineraryProblem(ElementwiseProblem):
             # For time constraints when a route is chosen
             g_count += self.NUM_DAYS * self.num_transport_types * (self.num_locations - 1)
             g_count += self.NUM_DAYS * self.num_transport_types * (self.num_locations - 1) * (self.num_locations - 2)
+            
+            # For hawker visits (at least twice per day)
+            g_count += self.NUM_DAYS
+            
+            # For lunch and dinner time constraints
+            g_count += self.NUM_DAYS * 2
             
             # For transport type constraints (can't use both transit and drive for the same route)
             g_count += self.NUM_DAYS * self.num_locations * self.num_locations
@@ -185,6 +192,46 @@ class TravelItineraryProblem(ElementwiseProblem):
             xl=lower_bound,
             xu=upper_bound,
         )
+        
+    def test_feasibility(self):
+        """Test if the problem has any feasible solutions"""
+        logging.info("Testing problem feasibility...")
+        
+        # Check if we have enough hawkers for lunch and dinner every day
+        if self.num_hawkers == 0:
+            logging.error("Infeasible: No hawker centers available for meals")
+            return False
+        
+        # Check if we can meet the time constraints
+        # This is a simplified check - minimum time would be:
+        # - Start at hotel
+        # - Travel to lunch hawker
+        # - Eat lunch (60 min)
+        # - Travel to attraction 
+        # - Visit attraction
+        # - Travel to dinner hawker
+        # - Eat dinner (60 min)
+        # - Travel back to hotel
+        
+        # Check if there's enough time in the day for this minimum itinerary
+        available_time = self.HARD_LIMIT_END_TIME - self.START_TIME  # Minutes available
+        logging.info(f"Available time per day: {available_time} minutes")
+        
+        # Simple feasibility test on time windows 
+        lunch_window = self.LUNCH_END - self.LUNCH_START
+        dinner_window = self.DINNER_END - self.DINNER_START
+        logging.info(f"Lunch window: {lunch_window} minutes, Dinner window: {dinner_window} minutes")
+        
+        # Check if we can satisfy hawker constraints 
+        if lunch_window < 60:
+            logging.error(f"Infeasible: Lunch window ({lunch_window} min) too short for a 60 min meal")
+            return False
+        
+        if dinner_window < 60:
+            logging.error(f"Infeasible: Dinner window ({dinner_window} min) too short for a 60 min meal")
+            return False
+        
+        return True
 
     def get_transport_hour(self, transport_time):
         # because the transport_matrix is only bracketed to 4 groups, we find the earliest it happens
@@ -308,9 +355,6 @@ class TravelItineraryProblem(ElementwiseProblem):
                 if self.locations[k]["type"] == "hawker":
                     hawker_sum += np.sum(x_var[i, :, k, :])
                     
-                    out["G"].append(np.sum(x_var[i, :, k, :]) - 1)  # At most once as source per day
-                    out["G"].append(np.sum(x_var[i, :, :, k]) - 1)  # At most once as destination per day
-                    
                     # For each route ending at this hawker, check if it's during lunch time or dinner time
                     for src in range(self.num_locations):
                         if src == k:
@@ -322,15 +366,15 @@ class TravelItineraryProblem(ElementwiseProblem):
                             if u_var[i, k] >= self.DINNER_START and u_var[i, k] <= self.DINNER_END:
                                 dinner_hawker_visit += x_var[i, j_transport, src, k]
 
-            # every day, must go to hawkers exactly twice (lunch & dinner. Can go more times if they want to)
-            out["H"].append(hawker_sum - 2)
+            # every day, must go to hawkers at least twice (lunch & dinner. Can go more times if they want to)
+            out["G"].append(2 - hawker_sum)
             
             # every day, must visit a hawker during lunch time (at least one hawker visit with arrival/stay during lunch hours)
             if self.num_hawkers > 0:  # Only add constraint if there are hawkers available
-                out["H"].append(lunch_hawker_visit - 1)
+                out["G"].append(1 - lunch_hawker_visit)
                 
                 # every day, must visit a hawker during dinner time (at least one hawker visit with arrival/stay during dinner hours)
-                out["H"].append(dinner_hawker_visit - 1)
+                out["G"].append(1 - dinner_hawker_visit)
 
         for i in range(self.NUM_DAYS):
             for k in range(self.num_locations):

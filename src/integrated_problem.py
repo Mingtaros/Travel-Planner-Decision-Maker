@@ -16,8 +16,6 @@ from generate_route_matrix import save_matrix_to_file
 from utils.transport_utility import get_transport_matrix, get_all_locations
 from utils.google_maps_client import GoogleMapsClient
 from utils.get_trip_detail import calculate_public_transport_fare, calculate_car_fare
-from utils.generate_init_solution import HeuristicInitialization
-from debug_problem import DebugTravelItineraryProblem
 
 # Global cache for hotel routes
 HOTEL_ROUTES_CACHE = {}
@@ -691,20 +689,6 @@ def main(hotel_name=None, budget=300, num_days=3):
             # Set hotel duration to 0 (no time spent at hotel for activities)
             loc["duration"] = 0
 
-    debug_only = False  # Set to True to exit after debugging
-    if debug_only:
-        
-        problem = DebugTravelItineraryProblem(
-            num_days=3,
-            budget=300,
-            locations=updated_locations,
-            transport_matrix=updated_matrix,
-        )
-        
-        debug_optimization_problem(problem)
-        logger.info("Debug mode only, exiting before optimization")
-        return None, problem, updated_locations
-    
     # Integrate the problem with constraints
     base_problem_str = integrate_problem(base_problem_str, inequality_constraints, equality_constraints)
 
