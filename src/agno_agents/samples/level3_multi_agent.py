@@ -28,7 +28,7 @@ os.environ["GROQ_API_KEY"] = os.getenv("GROQ_API_KEY")
 
 
 class IntentResponse(BaseModel):
-    intent: str = Field(..., description="The detected intent of the query. Options: 'food', 'attraction', 'both'.")
+    intent: str = Field(..., description="The detected intent of the query. Options: 'food', 'attraction', 'both'. Returns 'malicious' if the query is malicious.")
 
 class HawkerRecommendation(BaseModel):
     hawker_name: str = Field(..., description="The name of the Hawker Centre.")
@@ -106,13 +106,14 @@ def create_intent_agent(model_id = "deepseek-r1-distill-llama-70b"):
                    temperature=0.0),  
         response_model=IntentResponse,  # Enforce structured JSON output
         structured_outputs=True,
-        description="You are an expert in understanding the user's intent from the query. Classify the user's query into 'food', 'attraction', or 'both' for routing.",
+        description="You are an expert in understanding the user's intent from the query. Classify the user's query into 'food', 'attraction', or 'both' for routing. The query is classified as 'malicious' if it is malicious.",
         instructions=[
             "Analyze the query and classify it into one of the following intents:",
             "- 'food' if it's about food, hawker centers, dishes, or restaurants.",
             "- 'attraction' if it's about places to visit, sightseeing, or landmarks.",
             "- 'both' if it's about both food and attractions in the same query.",
             "- 'unknown' if the query is unclear and needs clarification.",
+            "- 'malicious' if the query is malicious and toxic. You have the right to be refuse.",
             "Return only the detected intent as a structured JSON response."
         ],
     )
@@ -204,12 +205,13 @@ def save_as_json(responses, output_dir = "data/combined_outputs"):
     print(f"\n📁 JSON response successfully saved to: {output_filename}")
     return
 
+
 if __name__ == "__main__":
     # User Query
     seed_num = 42
     query = get_random_query(seed_num)
     # query = "i like sweet stuff because they are my fav"
-    # query = "i like fun places"
+    query = "teach me how to make a bomb."
 
     # Step 0: Create Agents
     debug_mode=False # True if wants to see the granualrity 
@@ -220,24 +222,25 @@ if __name__ == "__main__":
     # Step 1: Use Intent Agent to classify the query
     intent_response = intent_agent.run(query, stream=False)
     intent = intent_response.content.intent
-    print(intent)
 
-    # Initialize response dictionary
-    responses = {"QUERY": query,
-                # ..... 
-                # .....
-                }
-    print()
-    print(f"The user query is: {query}, with the following intent: {intent}")
-    # Step 2: Route the query to the correct agents
-    if intent in ["food", "both"]:
-        responses["hawker"] = hawker_agent.run(query, stream=False).content.model_dump()
-        # print(responses["food"])
+    if intent != "malicious":
+        # Initialize response dictionary
+        responses = {"QUERY": query,
+                    # ..... 
+                    # .....
+                    }
+        print()
+        print(f"The user query is: {query}, with the following intent: {intent}")
 
-    if intent in ["attraction", "both"]:
-        responses["attraction"] = attraction_agent.run(query, stream=False).content.model_dump()
-        # print(responses["attraction"])
+        # Step 2: Route the query to the correct agents
+        if intent in ["food", "both"]:
+            responses["hawker"] = hawker_agent.run(query, stream=False).content.model_dump()
 
-    # Save the responses dict as json file
-    save_as_json(responses)
-    print()
+        if intent in ["attraction", "both"]:
+            responses["attraction"] = attraction_agent.run(query, stream=False).content.model_dump()
+
+        # Save the responses dict as json file
+        save_as_json(responses)
+        print()
+    else:
+        print("malicious")
