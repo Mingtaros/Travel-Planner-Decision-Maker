@@ -18,6 +18,7 @@ from utils.transport_utility import get_transport_matrix, get_all_locations
 from utils.google_maps_client import GoogleMapsClient
 from utils.get_trip_detail import calculate_public_transport_fare, calculate_car_fare
 from utils.generate_init_solution import HeuristicInitialization
+from utils.export_itinerary import export_itinerary
 
 # Global cache for hotel routes
 HOTEL_ROUTES_CACHE = {}
@@ -763,7 +764,11 @@ def main(hotel_name=None, budget=1000, num_days=2, max_attractions=12, max_hawke
 
     i = decomp.do(nF, 1/weights).argmin()
 
-    pymoo_solution = best_solution[i]
+    pymoo_solution = res.X[i]
+
+    # Export the optimized itinerary
+    itinerary_file = export_itinerary(problem, pymoo_solution, "results/singapore_itinerary.txt")
+    print(f"Itinerary saved to {itinerary_file}")
     
     return pymoo_solution, res, problem, updated_locations
 

@@ -1,0 +1,94 @@
+=================================================
+           SINGAPORE TRAVEL ITINERARY            
+=================================================
+
+TRIP SUMMARY
+-------------------------------------------------
+Duration: 2 days
+Total Cost: $455.37 SGD
+Total Travel Time: 84.6 minutes (1.4 hours)
+Satisfaction Rating: 36.3
+Hotel: DEFAULT HOTEL
+
+Attractions Visited (4):
+  1. Fort Canning Park
+  2. National Museum of Singapore
+  3. Merlion Park
+  4. Marina Bay Sands SkyPark Observation Deck
+
+DAY 1
+-------------------------------------------------
+09:00 - Start at DEFAULT HOTEL
+
+12:00 - Arrive at Hill Street Tai Hwa Pork Noodle (hawker)
+       Transport: drive (180 min, $6.62)
+       Activity: Lunch (60 min)
+       Cost: $10.00 (estimated)
+       Food Rating: 4.8/5
+
+13:40 - Arrive at Fort Canning Park (attraction)
+       Transport: drive (40 min, $6.00)
+       Activity: Visit attraction (64 min)
+       Cost: $84.15
+       Satisfaction Rating: 6.1/10
+
+15:06 - Arrive at National Museum of Singapore (attraction)
+       Transport: drive (22 min, $5.00)
+       Activity: Visit attraction (69 min)
+       Cost: $54.48
+       Satisfaction Rating: 5.7/10
+
+18:00 - Arrive at Lau Pa Sat (hawker)
+       Transport: drive (105 min, $6.00)
+       Activity: Dinner (60 min)
+       Cost: $10.00 (estimated)
+       Food Rating: 4.2/5
+
+
+DAY 2
+-------------------------------------------------
+09:00 - Start at DEFAULT HOTEL
+
+12:00 - Arrive at Odette (hawker)
+       Transport: drive (180 min, $5.32)
+       Activity: Lunch (60 min)
+       Cost: $10.00 (estimated)
+       Food Rating: 0.8/5
+
+13:20 - Arrive at Merlion Park (attraction)
+       Transport: drive (20 min, $5.00)
+       Activity: Visit attraction (65 min)
+       Cost: $94.25
+       Satisfaction Rating: 7.8/10
+
+14:26 - Arrive at Marina Bay Sands SkyPark Observation Deck (attraction)
+       Transport: drive (1 min, $7.00)
+       Activity: Visit attraction (47 min)
+       Cost: $22.56
+       Satisfaction Rating: 5.5/10
+
+18:00 - Arrive at Chinatown Complex Food Centre (hawker)
+       Transport: drive (167 min, $6.00)
+       Activity: Dinner (60 min)
+       Cost: $10.00 (estimated)
+       Food Rating: 1.4/5
+
+
+BUDGET BREAKDOWN
+-------------------------------------------------
+Hotel Accommodation (2 nights): $100.00
+Public Transport: $0.00
+Taxi/Ride-sharing: $59.92
+Attraction Entrance Fees: $255.45
+Food (Hawker Centers): $40.00
+-------------------------------------------------
+TOTAL: $455.37
+
+
+TRAVEL TIPS
+-------------------------------------------------
+1. Always keep your EZ-Link card topped up for public transit
+2. Bring an umbrella as Singapore can have sudden rain showers
+3. Stay hydrated in the tropical climate
+4. Most hawker centers and attractions accept cash and cards
+5. Download Grab or GoJek app for convenient taxi booking
