@@ -1,0 +1,116 @@
+{
+    "QUERY": "Give me an itinerary for a 5D4N trip with my family, we love to eat spicy food",
+    "food": {
+        "HAWKER_RECOMMENDATIONS": [
+            {
+                "hawker_name": "Haig Road Market & Food Centre",
+                "dish_name": "Haron Satay",
+                "description": "Haron Satay offers delicious Malaysian Muslim-style satay, known for its tender and juicy meat grilled to perfection.",
+                "average_price": 10.0,
+                "ratings": 4.5,
+                "sources": [
+                    "https://www.foodadvisor.com.sg/restaurant/haig-road-market-food-centre/",
+                    "https://haronsatay.oddle.me/en_SG/",
+                    "https://www.thebestsingapore.com/biz-review/haron-satay/"
+                ]
+            },
+            {
+                "hawker_name": "Haig Road Market & Food Centre",
+                "dish_name": "Song Kee Fried Oyster",
+                "description": "Song Kee Fried Oyster is famous for its crispy fried oyster omelette, topped with fresh oysters and served with a tangy chili sauce.",
+                "average_price": 10.0,
+                "ratings": 4.2,
+                "sources": [
+                    "https://www.foodadvisor.com.sg/restaurant/song-kee-fried-oyster-east-coast-lagoon-food-village/",
+                    "https://ivanteh-runningman.blogspot.com/2023/05/best-of-singapore-oyster.html",
+                    "https://the.fat.guide/singapore/eat/song-kee-fried-oyster/"
+                ]
+            },
+            {
+                "hawker_name": "Geylang Serai Market & Food Centre",
+                "dish_name": "Hajjah Mona Nasi Padang",
+                "description": "Hajjah Mona Nasi Padang offers a variety of traditional Malay dishes, with a focus on rich and spicy flavors.",
+                "average_price": 10.0,
+                "ratings": 4.3,
+                "sources": [
+                    "https://www.timeout.com/singapore/restaurants/hawker-spotlight-hajjah-mona-nasi-padang",
+                    "https://ivanteh-runningman.blogspot.com/2012/06/street-food-economic-rice-malay-nasi.html",
+                    "https://www.burpple.com/hajjah-mona-nasi-padang-geylang-serai"
+                ]
+            },
+            {
+                "hawker_name": "Old Airport Road Food Centre",
+                "dish_name": "Famous Old Airport Fried Oyster",
+                "description": "This stall is renowned for its flavorful fried oyster omelette, featuring fresh, briny oysters paired with a spicy chili sauce.",
+                "average_price": 10.0,
+                "ratings": 4.4,
+                "sources": [
+                    "https://www.foodadvisor.com.sg/restaurant/famous-old-airport-fried-oyster-old-airport-road-food-centre/",
+                    "https://www.burpple.com/famous-old-airport-fried-oyster-0154",
+                    "https://eatbook.sg/old-airport-road-food/"
+                ]
+            },
+            {
+                "hawker_name": "Maxwell Food Centre",
+                "dish_name": "Tian Tian Hainanese Chicken Rice",
+                "description": "Tian Tian is famous for its Hainanese Chicken Rice, a must-try dish with tender chicken and flavorful rice cooked in chicken broth.",
+                "average_price": 5.0,
+                "ratings": 4.6,
+                "sources": [
+                    "https://www.foodadvisor.com.sg/post/tian-tian-hainanese-chicken-rice-location-price-in-singapore",
+                    "https://ordinarypatrons.com/2023/07/20/tian-tian-chicken-rice/",
+                    "https://www.thebestsingapore.com/biz-review/tian-tian-hainanese-chicken-rice/"
+                ]
+            }
+        ]
+    },
+    "attraction": {
+        "ATTRACTION_RECOMMENDATIONS": [
+            {
+                "attraction_name": "Gardens by the Bay",
+                "description": "A futuristic garden featuring massive Supertrees and conservatories filled with diverse plant life. Perfect for families and nature lovers.",
+                "average_price": 28.0,
+                "ratings": 4.7,
+                "sources": [
+                    "https://www.gardensbythebay.com.sg"
+                ]
+            },
+            {
+                "attraction_name": "Marina Bay Sands SkyPark Observation Deck",
+                "description": "Offers breathtaking panoramic views of Singapore's skyline. Ideal for families, business travelers, and photographers.",
+                "average_price": 23.0,
+                "ratings": 4.5,
+                "sources": [
+                    "https://www.marinabaysands.com"
+                ]
+            },
+            {
+                "attraction_name": "Singapore Flyer",
+                "description": "One of the world's largest observation wheels, providing a bird's-eye view of the city. A must-visit for tourists seeking a unique perspective.",
+                "average_price": 33.0,
+                "ratings": 4.6,
+                "sources": [
+                    "https://www.singaporeflyer.com"
+                ]
+            },
+            {
+                "attraction_name": "ArtScience Museum",
+                "description": "Combines art, science, and technology, offering immersive exhibits. A great place for cultural enthusiasts and families.",
+                "average_price": 19.0,
+                "ratings": 4.4,
+                "sources": [
+                    "https://www.marinabaysands.com/museum.html"
+                ]
+            },
+            {
+                "attraction_name": "Little India",
+                "description": "A vibrant neighborhood showcasing Indian culture, authentic cuisine, and colorful markets. Top choice for cultural enthusiasts and food lovers.",
+                "average_price": 0.0,
+                "ratings": 4.3,
+                "sources": [
+                    "https://www.visitsingapore.com"
+                ]
+            }
+        ]
+    }
+}
