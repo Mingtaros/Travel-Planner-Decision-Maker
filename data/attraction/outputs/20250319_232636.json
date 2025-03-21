@@ -1,0 +1,55 @@
+{
+    "ATTRACTION_RECOMMENDATIONS": [
+        {
+            "attraction_name": "Gardens by the Bay",
+            "description": "A futuristic garden featuring massive Supertrees and conservatories filled with diverse plant life. Perfect for nature lovers and those seeking a unique experience.",
+            "average_price": 28.0,
+            "ratings": 4.7,
+            "sources": [
+                "https://travelpug.net/20-best-spots-in-singapore-for-nature-enthusiasts/",
+                "https://touristplaces.guide/top-10-places-to-visit-in-singapore-nature-adventure-and-history/"
+            ]
+        },
+        {
+            "attraction_name": "Marina Bay Sands SkyPark Observation Deck",
+            "description": "Offers breathtaking panoramic views of Singapore's skyline. Ideal for adventure seekers and photographers.",
+            "average_price": 23.0,
+            "ratings": 4.6,
+            "sources": [
+                "https://touristplaces.guide/top-10-places-to-visit-in-singapore-nature-adventure-and-history/",
+                "https://www.timeout.com/singapore/things-to-do/the-best-natural-landmarks-in-singapore"
+            ]
+        },
+        {
+            "attraction_name": "Fort Canning Park",
+            "description": "A historic hilltop park with lush greenery, ancient ruins, and scenic walking trails. Perfect for nature lovers and history buffs.",
+            "average_price": 0.0,
+            "ratings": 4.5,
+            "sources": [
+                "https://reachingsingapore.com/nature-attractions-singapore",
+                "https://www.activesgcircle.gov.sg/read/outdoor-activities-singapore/"
+            ]
+        },
+        {
+            "attraction_name": "Singapore Botanic Gardens",
+            "description": "A UNESCO World Heritage Site featuring a wide variety of plant species and beautiful landscapes. Ideal for a peaceful nature walk.",
+            "average_price": 0.0,
+            "ratings": 4.7,
+            "sources": [
+                "https://travelpug.net/20-best-spots-in-singapore-for-nature-enthusiasts/",
+                "https://reachingsingapore.com/nature-attractions-singapore"
+            ]
+        },
+        {
+            "attraction_name": "MacRitchie Reservoir Park",
+            "description": "Offers a range of outdoor activities including hiking trails and a treetop walk. Perfect for adventure enthusiasts and nature lovers.",
+            "average_price": 0.0,
+            "ratings": 4.6,
+            "sources": [
+                "https://www.timeout.com/singapore/things-to-do/the-best-natural-landmarks-in-singapore",
+                "https://www.activesgcircle.gov.sg/read/outdoor-activities-singapore/"
+            ]
+        }
+    ],
+    "QUERY": "I’m a solo traveler visiting Singapore for 3 days. I love adventure and nature. What are some must-visit places for an exciting experience?"
+}

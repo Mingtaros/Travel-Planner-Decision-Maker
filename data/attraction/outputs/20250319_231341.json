@@ -1,0 +1,51 @@
+{
+    "QUERY": "nature and iconic attractions in Singapore for families",
+    "ATTRACTION_RECOMMENDATIONS": [
+        {
+            "attraction_name": "Gardens by the Bay",
+            "description": "Gardens by the Bay is a futuristic garden featuring massive Supertrees and conservatories filled with diverse plant life. It is perfect for families and nature lovers.",
+            "average_price": 32.0,
+            "ratings": 4.6,
+            "sources": [
+                "https://www.headout.com/gardens-by-the-bay-tickets/gardens-by-the-bay-tickets-combo-e-17237/"
+            ]
+        },
+        {
+            "attraction_name": "Marina Bay Sands SkyPark Observation Deck",
+            "description": "The Marina Bay Sands SkyPark Observation Deck offers breathtaking panoramic views of Singapore's skyline. Ideal for families, business travelers, and photographers.",
+            "average_price": 23.4,
+            "ratings": 4.7,
+            "sources": [
+                "https://travlists.com/singapore/marina-bay-sands-skypark-observation-deck-ticket/"
+            ]
+        },
+        {
+            "attraction_name": "Singapore Flyer",
+            "description": "The Singapore Flyer is one of the world's largest observation wheels, providing a bird's-eye view of the city. It's a must-visit for tourists seeking a unique perspective.",
+            "average_price": 33.0,
+            "ratings": 4.6,
+            "sources": [
+                "https://iwandered.net/singapore-flyer/"
+            ]
+        },
+        {
+            "attraction_name": "ArtScience Museum",
+            "description": "ArtScience Museum combines art, science, and technology, offering immersive exhibits. A great place for cultural enthusiasts and families.",
+            "average_price": 20.0,
+            "ratings": 4.5,
+            "sources": [
+                "https://tripxcite.com/place/singapore/artscience-museum/"
+            ]
+        },
+        {
+            "attraction_name": "Singapore Botanic Gardens",
+            "description": "Singapore Botanic Gardens, a UNESCO World Heritage Site, features stunning trees and plants. It's a perfect spot for nature lovers and families to explore.",
+            "average_price": 0.0,
+            "ratings": 4.7,
+            "sources": [
+                "https://www.thebestsingapore.com/biz-review/singapore-botanic-gardens/"
+            ]
+        }
+    ],
+    "query": "I am visiting Singapore for 4 days with my family, including young kids. We love nature and iconic attractions. Can you suggest the best places to visit?"
+}

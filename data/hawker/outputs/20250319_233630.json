@@ -1,0 +1,56 @@
+{
+    "HAWKER_RECOMMENDATIONS": [
+        {
+            "hawker_name": "Maxwell Food Centre",
+            "dish_name": "Tian Tian Hainanese Chicken Rice",
+            "description": "While not traditionally spicy, you can add chili sauce to this iconic dish to give it a spicy kick. It's a must-try for its tender chicken and flavorful rice.",
+            "average_price": 5.0,
+            "ratings": 4.5,
+            "sources": [
+                "https://sgwarrior.com/michelin-star-hawker-dishes-singapore/",
+                "https://guide.michelin.com/sg/en/article/travel/must-try-hawker-food-in-singapore"
+            ]
+        },
+        {
+            "hawker_name": "Haig Road Market & Food Centre",
+            "dish_name": "Haron Satay",
+            "description": "Known for its spicy peanut sauce, Haron Satay offers a delightful mix of sweet and spicy flavors that are perfect for spice lovers.",
+            "average_price": 10.0,
+            "ratings": 4.2,
+            "sources": [
+                "https://tasteofsg.com/blog/feel-the-burn-from-singapores-spiciest-dishes/"
+            ]
+        },
+        {
+            "hawker_name": "Old Airport Road Food Centre",
+            "dish_name": "Famous Old Airport Fried Oyster",
+            "description": "This dish is known for its spicy chili sauce that complements the savory fried oysters, making it a spicy treat.",
+            "average_price": 8.0,
+            "ratings": 4.3,
+            "sources": [
+                "https://danielfooddiary.com/2024/08/09/singaporehawkerfood/"
+            ]
+        },
+        {
+            "hawker_name": "Amoy Street Food Centre",
+            "dish_name": "Xiang Ji Lor Mee",
+            "description": "A spicy noodle dish that combines rich flavors with a spicy broth, perfect for those who love a bit of heat in their meals.",
+            "average_price": 6.0,
+            "ratings": 4.4,
+            "sources": [
+                "https://achefstour.com/blog/the-ultimate-guide-to-food-in-singapore"
+            ]
+        },
+        {
+            "hawker_name": "Tiong Bahru Food Centre",
+            "dish_name": "Liao Fan Hong Kong Soya Sauce Chicken Rice & Noodle",
+            "description": "Add some spicy chili sauce to this Michelin-starred dish for an extra kick. The combination of tender chicken and spicy sauce is irresistible.",
+            "average_price": 5.0,
+            "ratings": 4.6,
+            "sources": [
+                "https://sgwarrior.com/michelin-star-hawker-dishes-singapore/"
+            ]
+        }
+    ],
+    "query": "I love spicy food! Which hawker dishes are a must-try?"
+}

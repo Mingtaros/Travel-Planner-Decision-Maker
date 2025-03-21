@@ -1,0 +1,55 @@
+{
+    "HAWKER_RECOMMENDATIONS": [
+        {
+            "hawker_name": "Maxwell Food Centre",
+            "dish_name": "Tian Tian Hainanese Chicken Rice",
+            "description": "Famous for its Hainanese Chicken Rice, a must-try dish in Singapore.",
+            "average_price": 5.0,
+            "ratings": 4.5,
+            "sources": [
+                "https://www.havehalalwilltravel.com/best-halal-hawker-stalls-in-singapore"
+            ]
+        },
+        {
+            "hawker_name": "Haig Road Market & Food Centre",
+            "dish_name": "Haron Satay",
+            "description": "Enjoy a beachside hawker experience with delicious satay skewers.",
+            "average_price": 10.0,
+            "ratings": 4.2,
+            "sources": [
+                "https://www.havehalalwilltravel.com/best-halal-hawker-stalls-in-singapore"
+            ]
+        },
+        {
+            "hawker_name": "Tiong Bahru Food Centre",
+            "dish_name": "Liao Fan Hong Kong Soya Sauce Chicken Rice & Noodle",
+            "description": "Home to the first Michelin-starred hawker stall, offering a unique taste of Hong Kong-style chicken rice.",
+            "average_price": 8.0,
+            "ratings": 4.3,
+            "sources": [
+                "https://www.havehalalwilltravel.com/best-halal-hawker-stalls-in-singapore"
+            ]
+        },
+        {
+            "hawker_name": "Geylang Serai Market",
+            "dish_name": "Hajjah Mona Nasi Padang",
+            "description": "A cultural hub offering traditional Malay dishes with rich spices and flavors.",
+            "average_price": 12.0,
+            "ratings": 4.4,
+            "sources": [
+                "https://www.havehalalwilltravel.com/best-halal-hawker-stalls-in-singapore"
+            ]
+        },
+        {
+            "hawker_name": "Adam Road Food Centre",
+            "dish_name": "Geylang Briyani Stall",
+            "description": "Known for its flavorful biryani, a popular choice among locals and tourists alike.",
+            "average_price": 10.0,
+            "ratings": 4.5,
+            "sources": [
+                "https://www.havehalalwilltravel.com/best-halal-hawker-stalls-in-singapore"
+            ]
+        }
+    ],
+    "query": "Where can I find halal-certified hawker food in Singapore?"
+}

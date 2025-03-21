@@ -1,0 +1,59 @@
+{
+    "HAWKER_RECOMMENDATIONS": [
+        {
+            "hawker_name": "Koh Brother Pig's Organ Soup",
+            "dish_name": "Pig's Organ Soup",
+            "description": "A traditional Teochew dish featuring a flavorful broth with various pig organs, tofu, and salted vegetables. It's a must-try for those who enjoy offal dishes.",
+            "average_price": 5.0,
+            "ratings": 4.5,
+            "sources": [
+                "https://guide.michelin.com/sg/en/article/dining-out/singapore-bib-gourmand-offal-dishes-hawkers",
+                "https://eatbook.sg/best-pig-organ-soup-singapore/"
+            ]
+        },
+        {
+            "hawker_name": "Kelantan Kway Chap",
+            "dish_name": "Kway Chap",
+            "description": "A comforting dish with flat rice noodles served in a herbal broth, accompanied by braised pig offal, tofu, and eggs. Perfect for adventurous eaters.",
+            "average_price": 6.0,
+            "ratings": 4.2,
+            "sources": [
+                "https://guide.michelin.com/en/singapore-region/singapore/restaurant/kelantan-kway-chap-pig-organ-soup",
+                "https://guide.michelin.com/sg/en/article/dining-out/6-bib-gourmand-hawker-stalls-in-singapore-that-offer-offal"
+            ]
+        },
+        {
+            "hawker_name": "Ri Tao Fu Teochew Pig Organ Soup",
+            "dish_name": "Teochew Pig Organ Soup",
+            "description": "Known for its clear and savory broth, this dish includes a variety of pig organs, making it a delight for those who appreciate organ meats.",
+            "average_price": 5.0,
+            "ratings": 5.0,
+            "sources": [
+                "https://sethlui.com/ri-tao-fu-pig-organ-soup-singapore/"
+            ]
+        },
+        {
+            "hawker_name": "Tiong Bahru Market",
+            "dish_name": "Pig's Organ Soup",
+            "description": "A popular spot for pig's organ soup, offering a rich and hearty bowl filled with various organ meats and vegetables.",
+            "average_price": 5.0,
+            "ratings": 4.3,
+            "sources": [
+                "https://www.travelandleisureasia.com/in/dining/food/tiong-bahru-market-singapore-food/",
+                "https://eatbook.sg/best-pig-organ-soup-singapore/"
+            ]
+        },
+        {
+            "hawker_name": "Old Airport Road Food Centre",
+            "dish_name": "Pig's Organ Soup",
+            "description": "This hawker centre is famous for its pig's organ soup, offering a robust and flavorful experience for those who love organ meats.",
+            "average_price": 5.0,
+            "ratings": 4.4,
+            "sources": [
+                "https://secretsingapore.co/best-hawker-centres-singapore/",
+                "https://eatbook.sg/best-pig-organ-soup-singapore/"
+            ]
+        }
+    ],
+    "query": "I love organs type of food as I'm pretty adventurous, what do you recommend me to eat on my first day in Singapore because I'm staying at town area?"
+}

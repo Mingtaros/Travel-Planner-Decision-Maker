@@ -3,15 +3,23 @@ from agno.models.huggingface import HuggingFace
 
 from agno.models.openai import OpenAIChat
 from agno.models.groq import Groq
+
 from agno.tools.duckduckgo import DuckDuckGoTools
+from agno.tools.sql import SQLTools
+from sqlalchemy import create_engine
+# from agno.storage.sqlite import SqliteStorage
 
 import os
 from dotenv import load_dotenv
 load_dotenv()
 
+# Getting the API key 
 os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
 os.environ["GROQ_API_KEY"] = os.getenv("GROQ_API_KEY")
 # os.environ["HF_TOKEN"] = os.getenv(key="HF_API_KEY")
+
+# Getting the SQL Lite Database
+engine = create_engine("sqlite:///Chinook_Sqlite.sqlite")
 
 # # For Debugging
 # print(dir(HuggingFace))
@@ -33,17 +41,17 @@ hotel_agent = Agent(
 )
 
 # OpenAI also works well
-food_agent = Agent(
-    name = "food",
+sql_agent = Agent(
     model=OpenAIChat(id="gpt-4o"),
-    description="You are a Singapore local food expert in hawker centre that is popular to the locals and tourists.",
-    instructions=[
-        "Search your knowledge base for famous food places in Singapore",
-        "If the quetion is better suited for the web, search the web to fill in the gaps",
-        "Prefer the information in your knowledge base over the web results",
-        ]
-    )
+    markdown=True,
+    show_tool_calls=True,
+    system_message="You are equipped with tools to manage the SQL DATABASE.",
+    tools=[SQLTools(db_engine=engine)],
+    add_history_to_messages=True,
+    retries=3
+)
 
+# Defining the multi agent
 TripMaster = Agent(
     name="Editor",
     team=[hotel_agent, food_agent],
@@ -73,6 +81,13 @@ TripMaster = Agent(
 #     )
 # )
 
-query = "Based on the persona of being adventourous who is single in his 30s, what are some popular places you recommend?"
-TripMaster.print_response(query)
+## Testing the multi agent TripMaster
+# query = "Based on the persona of being adventourous who is single in his 30s, what are some popular places you recommend?"
+# TripMaster.print_response(query)
 
+## Testing the food agent 
+# query = "Based on the persona of being adventourous who is single in his 30s, what are some popular places you recommend?"
+# food_agent.print_response(query)
+
+query = "list the tables"
+food_agent.print_response(query)

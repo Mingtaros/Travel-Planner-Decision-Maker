@@ -1,0 +1,60 @@
+{
+    "ATTRACTION_RECOMMENDATIONS": [
+        {
+            "attraction_name": "Chinatown",
+            "description": "Chinatown in Singapore is a bustling heritage district filled with temples, street markets, and authentic Chinese cuisine. It's ideal for foodies and cultural explorers. You can explore the Chinatown Heritage Centre, which showcases the history of early settlers, and enjoy the vibrant street food scene.",
+            "average_price": 0.0,
+            "ratings": 4.5,
+            "sources": [
+                "https://www.timeout.com/singapore/things-to-do/the-ultimate-guide-to-chinatown",
+                "https://www.visitsingapore.com/neighbourhood/featured-neighbourhood/chinatown/",
+                "https://secretsingapore.co/things-to-do-chinatown-singapore/"
+            ]
+        },
+        {
+            "attraction_name": "Little India",
+            "description": "Little India is a vibrant neighborhood showcasing Indian culture, authentic cuisine, and colorful markets. It's a top choice for cultural enthusiasts and food lovers. You can visit the Sri Veeramakaliamman Temple and enjoy the bustling Little India Arcade.",
+            "average_price": 0.0,
+            "ratings": 4.5,
+            "sources": [
+                "https://theculturetrip.com/asia/singapore/articles/the-top-10-things-to-do-and-see-in-little-india-singapore",
+                "https://www.visitsingapore.com/neighbourhood/featured-neighbourhood/little-india/",
+                "https://thesmartlocal.com/read/things-to-do-little-india/"
+            ]
+        },
+        {
+            "attraction_name": "Clarke Quay",
+            "description": "Clarke Quay is a lively riverside district known for its bars, restaurants, and nightlife. It's best suited for those looking for entertainment and vibrant nightlife. You can enjoy a mix of dining, nightlife, and cultural attractions here.",
+            "average_price": 0.0,
+            "ratings": 4.5,
+            "sources": [
+                "https://preparetravelplans.com/clarke-quay-things-to-do-guide/",
+                "https://bestofsingapore.co/what-to-do-in-clarke-quay-6-top-attractions-and-nightlife-hotspots/",
+                "https://thesmartlocal.com/read/clarke-quay-things-to-do/"
+            ]
+        },
+        {
+            "attraction_name": "Gardens by the Bay",
+            "description": "Gardens by the Bay is a futuristic garden featuring massive Supertrees and conservatories filled with diverse plant life. It's perfect for families and nature lovers. You can explore the Flower Dome, Cloud Forest, and the iconic Supertree Grove.",
+            "average_price": 28.0,
+            "ratings": 4.8,
+            "sources": [
+                "https://www.gardensbythebay.com.sg/en/things-to-do/attractions.html",
+                "https://www.thrillophilia.com/gardens-by-the-bay-singapore-attractions",
+                "https://strictlysingapore.com/gardens-by-the-bay/"
+            ]
+        },
+        {
+            "attraction_name": "Marina Bay Sands SkyPark",
+            "description": "The Marina Bay Sands SkyPark offers breathtaking panoramic views of Singapore's skyline. It's a must-visit for tourists seeking a unique perspective. You can enjoy the scenic view of Singapore's world-class cityscape from 56 storeys high.",
+            "average_price": 25.0,
+            "ratings": 4.7,
+            "sources": [
+                "https://www.marinabaysands.com/attractions/skypark-observation-deck.html",
+                "https://www.singaporetravelhub.com/attractions/marina-bay-sands-skypark/",
+                "https://preparetravelplans.com/marina-bay-things-to-do-guide/"
+            ]
+        }
+    ],
+    "QUERY": "I am visiting Singapore with my partner for 4 days, and we are huge food lovers. Can you suggest attractions near the best hawker centers?"
+}

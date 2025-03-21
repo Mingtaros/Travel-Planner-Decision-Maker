@@ -1,0 +1,55 @@
+{
+    "ATTRACTION_RECOMMENDATIONS": [
+        {
+            "attraction_name": "Gardens by the Bay",
+            "description": "A futuristic garden with Supertree structures and two large greenhouses, offering a unique skywalk experience and a glimpse into diverse plant environments.",
+            "average_price": 28.0,
+            "ratings": 4.7,
+            "sources": [
+                "https://theculturetrip.com/asia/singapore/articles/the-top-10-things-to-do-and-see-in-singapores-city-center",
+                "https://www.timeout.com/singapore/attractions/the-best-singapore-attractions"
+            ]
+        },
+        {
+            "attraction_name": "Marina Bay Sands",
+            "description": "An iconic integrated resort with a stunning rooftop infinity pool, offering panoramic views of Singapore's skyline. It's a must-visit for its architectural marvel and luxury shopping.",
+            "average_price": 23.0,
+            "ratings": 4.6,
+            "sources": [
+                "https://foodandtravelutsav.com/must-visit-attractions-singapore/",
+                "https://www.singaporetravelhub.com/attractions/city-downtown/"
+            ]
+        },
+        {
+            "attraction_name": "Singapore Flyer",
+            "description": "One of the world's largest observation wheels, providing a bird's-eye view of the city. Ideal for those seeking a unique perspective of Singapore.",
+            "average_price": 33.0,
+            "ratings": 4.5,
+            "sources": [
+                "https://www.singaporetravelhub.com/attractions/city-downtown/",
+                "https://awaytothecity.com/best-things-to-do-in-singapore/"
+            ]
+        },
+        {
+            "attraction_name": "Merlion Park",
+            "description": "Home to Singapore's iconic Merlion statue, offering fantastic waterfront views. A popular spot for tourists to capture the essence of Singapore.",
+            "average_price": 0.0,
+            "ratings": 4.4,
+            "sources": [
+                "https://www.singaporetravelhub.com/attractions/city-downtown/",
+                "https://theculturetrip.com/asia/singapore/articles/the-top-10-things-to-do-and-see-in-singapores-city-center"
+            ]
+        },
+        {
+            "attraction_name": "ArtScience Museum",
+            "description": "A museum with a unique lotus-inspired design, offering interactive exhibits that blend art, science, and technology. Perfect for cultural enthusiasts.",
+            "average_price": 19.0,
+            "ratings": 4.3,
+            "sources": [
+                "https://www.timeout.com/singapore/attractions/the-best-singapore-attractions",
+                "https://foodandtravelutsav.com/must-visit-attractions-singapore/"
+            ]
+        }
+    ],
+    "QUERY": "I have half a day to explore before my flight. I’d like to visit some iconic attractions near the city center. Where should I go?"
+}

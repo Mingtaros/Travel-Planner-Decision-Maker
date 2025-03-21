@@ -1,0 +1,60 @@
+{
+    "HAWKER_RECOMMENDATIONS": [
+        {
+            "hawker_name": "Maxwell Food Centre",
+            "dish_name": "Tian Tian Hainanese Chicken Rice",
+            "description": "Famous for its succulent chicken and fragrant rice, Tian Tian Hainanese Chicken Rice is a must-try for anyone visiting Maxwell Food Centre. It's a classic Singaporean dish that's both delicious and affordable.",
+            "average_price": 5.0,
+            "ratings": 4.5,
+            "sources": [
+                "https://thesmartlocal.com/read/cheap-hawker-stalls-singapore/",
+                "https://www.timeout.com/singapore/restaurants/the-best-hawker-centres-in-singapore"
+            ]
+        },
+        {
+            "hawker_name": "Old Airport Road Food Centre",
+            "dish_name": "Xiang Ji Lor Mee",
+            "description": "Known for its rich and flavorful broth, Xiang Ji Lor Mee is a popular choice at Old Airport Road Food Centre. It's a comforting noodle dish that's easy on the wallet.",
+            "average_price": 4.0,
+            "ratings": 4.3,
+            "sources": [
+                "https://sethlui.com/best-hawker-centres-food-guide-singapore/",
+                "https://www.psimonmyway.com/cheap-hawker-food-in-singapore/"
+            ]
+        },
+        {
+            "hawker_name": "Tiong Bahru Food Centre",
+            "dish_name": "Liao Fan Hong Kong Soya Sauce Chicken Rice & Noodle",
+            "description": "This stall gained fame as the first Michelin-starred hawker stall, offering delicious soya sauce chicken rice and noodles at an unbeatable price.",
+            "average_price": 3.0,
+            "ratings": 4.7,
+            "sources": [
+                "https://secretsingapore.co/best-hawker-centres-singapore/",
+                "https://www.timeout.com/singapore/restaurants/the-best-hawker-centres-in-singapore"
+            ]
+        },
+        {
+            "hawker_name": "Changi Village Hawker Centre",
+            "dish_name": "Mizzy Corner Nasi Lemak",
+            "description": "A beloved dish at Changi Village, Mizzy Corner Nasi Lemak offers a fragrant coconut rice dish with a variety of sides, making it a satisfying and affordable meal.",
+            "average_price": 3.5,
+            "ratings": 4.4,
+            "sources": [
+                "https://sethlui.com/best-hawker-centres-food-guide-singapore/",
+                "https://www.psimonmyway.com/cheap-hawker-food-in-singapore/"
+            ]
+        },
+        {
+            "hawker_name": "Amoy Street Food Centre",
+            "dish_name": "Hua Ji XO Fish Head Bee Hoon",
+            "description": "This dish is known for its rich and creamy fish soup, making it a comforting and budget-friendly option at Amoy Street Food Centre.",
+            "average_price": 5.0,
+            "ratings": 4.2,
+            "sources": [
+                "https://thesmartlocal.com/read/cheap-hawker-stalls-singapore/",
+                "https://www.timeout.com/singapore/restaurants/the-best-hawker-centres-in-singapore"
+            ]
+        }
+    ],
+    "query": "I'm on a budget. What are the cheapest but best hawker foods in Singapore?"
+}

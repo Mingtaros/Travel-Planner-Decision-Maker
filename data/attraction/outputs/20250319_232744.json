@@ -1,0 +1,55 @@
+{
+    "ATTRACTION_RECOMMENDATIONS": [
+        {
+            "attraction_name": "Gardens by the Bay",
+            "description": "A futuristic garden featuring massive Supertrees and conservatories filled with diverse plant life. It's perfect for families and nature lovers.",
+            "average_price": 32.0,
+            "ratings": 4.6,
+            "sources": [
+                "https://www.headout.com/gardens-by-the-bay-tickets/gardens-by-the-bay-tickets-combo-e-17237/",
+                "https://www.onceinalifetimejourney.com/lux-singapore/visit-gardens-by-the-bay/"
+            ]
+        },
+        {
+            "attraction_name": "Marina Bay Sands SkyPark Observation Deck",
+            "description": "Offers breathtaking panoramic views of Singapore's skyline. Ideal for families, business travelers, and photographers.",
+            "average_price": 23.4,
+            "ratings": 4.7,
+            "sources": [
+                "https://travlists.com/singapore/marina-bay-sands-skypark-observation-deck-ticket/",
+                "https://www.tripadvisor.com/ShowUserReviews-g294265-d1837767-r240434052-Sands_Skypark_Observation_Deck-Singapore.html"
+            ]
+        },
+        {
+            "attraction_name": "Singapore Flyer",
+            "description": "One of the world's largest observation wheels, providing a bird's-eye view of the city. It's a must-visit for tourists seeking a unique perspective.",
+            "average_price": 33.0,
+            "ratings": 4.6,
+            "sources": [
+                "https://iwandered.net/singapore-flyer/",
+                "https://www.tripadvisor.com/Attraction_Review-g294265-d678639-Reviews-Singapore_Flyer-Singapore.html"
+            ]
+        },
+        {
+            "attraction_name": "ArtScience Museum",
+            "description": "Combines art, science, and technology, offering immersive exhibits. A great place for cultural enthusiasts and families.",
+            "average_price": 21.0,
+            "ratings": 4.5,
+            "sources": [
+                "https://www.marinabaysands.com/museum/ticket/search.html",
+                "https://thesmartlocal.com/read/artscience-museum/"
+            ]
+        },
+        {
+            "attraction_name": "Fort Canning Park",
+            "description": "A historic hilltop park with lush greenery, ancient ruins, and scenic walking trails. Perfect for nature lovers and history buffs.",
+            "average_price": 0.0,
+            "ratings": 4.5,
+            "sources": [
+                "https://www.tripadvisor.com.sg/Attraction_Review-g294265-d324755-Reviews-Fort_Canning_Park-Singapore.html",
+                "https://www.explorebees.com/Singapore/attraction/Fort-Canning-Park/7"
+            ]
+        }
+    ],
+    "QUERY": "I’m traveling with my friends for 5 days, and we are looking for some hidden gems and adventure activities. What should we explore?"
+}

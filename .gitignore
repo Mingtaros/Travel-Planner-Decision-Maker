@@ -1,3 +1,8 @@
+# lancedb and chromadb related files and bins data
+lancedb_data/
+chromadb_data/
+.DS_Store
+
 mysql-data/*
 
 # Byte-compiled / optimized / DLL files
