@@ -1,0 +1,106 @@
+{
+    "QUERY": "Give me an itinerary for a 5D4N trip with my family, we love to eat spicy food",
+    "hawker": {
+        "HAWKER_RECOMMENDATIONS": [
+            {
+                "hawker_name": "Haig Road Market & Food Centre",
+                "dish_name": "Haron Satay",
+                "description": "Enjoy a beachside hawker experience with Haron Satay, known for its spicy and flavorful satay skewers.",
+                "average_price": 10.0,
+                "ratings": 4.5,
+                "sources": [
+                    "https://rambletravelers.com/9-best-hawker-foods-in-singapore/"
+                ]
+            },
+            {
+                "hawker_name": "Maxwell Food Centre",
+                "dish_name": "Tian Tian Hainanese Chicken Rice",
+                "description": "Famous for its spicy chili sauce that accompanies the tender chicken rice, a must-try for spice lovers.",
+                "average_price": 6.0,
+                "ratings": 4.3,
+                "sources": [
+                    "https://sgwarrior.com/michelin-star-hawker-dishes-singapore/"
+                ]
+            },
+            {
+                "hawker_name": "Tiong Bahru Food Centre",
+                "dish_name": "Liao Fan Hong Kong Soya Sauce Chicken Rice & Noodle",
+                "description": "This Michelin-starred stall offers a spicy twist with its chili sauce, enhancing the savory flavors of the dish.",
+                "average_price": 8.0,
+                "ratings": 4.6,
+                "sources": [
+                    "https://singaporefoodie.com/singapore-hawker-food-2023/"
+                ]
+            },
+            {
+                "hawker_name": "People's Park Complex Food Centre",
+                "dish_name": "Ri Ri Hong Mala Xiang Guo",
+                "description": "Known for its mind-numbing spicy Mala Xiang Guo, a stir-fry dish with customizable spice levels.",
+                "average_price": 12.0,
+                "ratings": 4.4,
+                "sources": [
+                    "https://singaporefoodie.com/singapore-hawker-food-2023/"
+                ]
+            },
+            {
+                "hawker_name": "Old Airport Road Food Centre",
+                "dish_name": "Famous Old Airport Fried Oyster",
+                "description": "Offers a spicy version of fried oyster, a local favorite with a kick of chili.",
+                "average_price": 10.0,
+                "ratings": 4.2,
+                "sources": [
+                    "https://www.klook.com/en-AU/blog/best-hawker-food-singapore/"
+                ]
+            }
+        ]
+    },
+    "attraction": {
+        "ATTRACTION_RECOMMENDATIONS": [
+            {
+                "attraction_name": "Gardens by the Bay",
+                "description": "Gardens by the Bay is a futuristic garden featuring massive Supertrees and conservatories filled with diverse plant life. It is perfect for families and nature lovers.",
+                "average_price": 38.5,
+                "ratings": 4.5,
+                "sources": [
+                    "https://www.headout.com/gardens-by-the-bay-tickets/tickets-to-gardens-by-the-bay-e-7358/"
+                ]
+            },
+            {
+                "attraction_name": "Marina Bay Sands SkyPark Observation Deck",
+                "description": "The Marina Bay Sands SkyPark Observation Deck offers breathtaking panoramic views of Singapore's skyline. Ideal for families, business travelers, and photographers.",
+                "average_price": 23.4,
+                "ratings": 4.7,
+                "sources": [
+                    "https://travlists.com/singapore/marina-bay-sands-skypark-observation-deck-ticket/"
+                ]
+            },
+            {
+                "attraction_name": "Singapore Flyer",
+                "description": "The Singapore Flyer is one of the world's largest observation wheels, providing a bird's-eye view of the city. It's a must-visit for tourists seeking a unique perspective.",
+                "average_price": 33.0,
+                "ratings": 4.5,
+                "sources": [
+                    "https://iwandered.net/singapore-flyer/"
+                ]
+            },
+            {
+                "attraction_name": "ArtScience Museum",
+                "description": "ArtScience Museum combines art, science, and technology, offering immersive exhibits. A great place for cultural enthusiasts and families.",
+                "average_price": 20.0,
+                "ratings": 4.5,
+                "sources": [
+                    "https://www.tripadvisor.com/ShowUserReviews-g294265-d2138895-r951142480-ArtScience_Museum_at_Marina_Bay_Sands-Singapore.html"
+                ]
+            },
+            {
+                "attraction_name": "National Gallery Singapore",
+                "description": "National Gallery Singapore houses the world's largest collection of modern Southeast Asian art, making it a paradise for art enthusiasts.",
+                "average_price": 20.0,
+                "ratings": 4.5,
+                "sources": [
+                    "https://www.tripadvisor.com/Attraction_Review-g294265-d8077179-Reviews-National_Gallery_Singapore-Singapore.html"
+                ]
+            }
+        ]
+    }
+}

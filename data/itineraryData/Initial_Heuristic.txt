@@ -1,0 +1,51 @@
+✅ Solution is FEASIBLE
+
+📊 Summary:
+   - Total cost: $389.30
+   - Total travel time: 136.8 minutes
+   - Total satisfaction: 57.5
+
+===== Day 1 Itinerary =====
+09:00 - Start at DEFAULT HOTEL
+12:00 - Arrive at Amoy Street Food Centre (hawker) by drive
+       - Travel time: 180.0 minutes
+       - Stay for 60.0 minutes
+13:39 - Arrive at Fort Canning Park (attraction) by drive
+       - Travel time: 39.1 minutes
+       - Stay for 89.0 minutes
+14:22 - Arrive at Singapore Botanic Gardens (attraction) by drive
+       - Travel time: -45.8 minutes
+       - Stay for 31.0 minutes
+18:00 - Arrive at JAAN by Kirk Westaway (hawker) by drive
+       - Travel time: 186.7 minutes
+       - Stay for 60.0 minutes
+
+===== Day 2 Itinerary =====
+09:00 - Start at DEFAULT HOTEL
+12:00 - Arrive at JAAN by Kirk Westaway (hawker) by drive
+       - Travel time: 180.0 minutes
+       - Stay for 60.0 minutes
+13:24 - Arrive at National Museum of Singapore (attraction) by drive
+       - Travel time: 24.0 minutes
+       - Stay for 80.0 minutes
+14:49 - Arrive at Merlion Park (attraction) by drive
+       - Travel time: 5.4 minutes
+       - Stay for 76.0 minutes
+18:00 - Arrive at Amoy Street Food Centre (hawker) by drive
+       - Travel time: 114.6 minutes
+       - Stay for 60.0 minutes
+
+===== Day 3 Itinerary =====
+09:00 - Start at DEFAULT HOTEL
+12:00 - Arrive at Muthu's Curry - Little India (hawker) by drive
+       - Travel time: 180.0 minutes
+       - Stay for 60.0 minutes
+13:09 - Arrive at Marina Bay Sands SkyPark Observation Deck (attraction) by drive
+       - Travel time: 9.8 minutes
+       - Stay for 57.0 minutes
+13:51 - Arrive at Clarke Quay (attraction) by drive
+       - Travel time: -15.8 minutes
+       - Stay for 32.0 minutes
+18:00 - Arrive at JAAN by Kirk Westaway (hawker) by drive
+       - Travel time: 217.0 minutes
+       - Stay for 60.0 minutes
