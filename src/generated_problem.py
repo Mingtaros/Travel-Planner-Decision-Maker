@@ -90,7 +90,7 @@ class TravelItineraryProblem(ElementwiseProblem):
         else:
             logging.info(f"Budget check passed: {budget} >= minimum {min_cost} for hotel and food")
     
-    def __init__(self, budget, locations, transport_matrix, num_days=3):
+    def __init__(self, budget, locations, transport_matrix, num_days=1):
         
         # Add validation checks before setup
         self.validate_inputs(budget, locations, transport_matrix, num_days)
@@ -182,52 +182,12 @@ class TravelItineraryProblem(ElementwiseProblem):
         
         super().__init__(
             n_var=num_vars,
-            n_obj=1, # INEQUALITY_CONSTRAINT_LINE
+            n_obj=3, # INEQUALITY_CONSTRAINT_LINE
             n_ieq_constr=num_inequality_constraints + 0,
             n_eq_constr=num_equality_constraints + 0,
             xl=lower_bound,
             xu=upper_bound,
         )
-        
-    def test_feasibility(self):
-        """Test if the problem has any feasible solutions"""
-        logging.info("Testing problem feasibility...")
-        
-        # Check if we have enough hawkers for lunch and dinner every day
-        if self.num_hawkers == 0:
-            logging.error("Infeasible: No hawker centers available for meals")
-            return False
-        
-        # Check if we can meet the time constraints
-        # This is a simplified check - minimum time would be:
-        # - Start at hotel
-        # - Travel to lunch hawker
-        # - Eat lunch (60 min)
-        # - Travel to attraction 
-        # - Visit attraction
-        # - Travel to dinner hawker
-        # - Eat dinner (60 min)
-        # - Travel back to hotel
-        
-        # Check if there's enough time in the day for this minimum itinerary
-        available_time = self.HARD_LIMIT_END_TIME - self.START_TIME  # Minutes available
-        logging.info(f"Available time per day: {available_time} minutes")
-        
-        # Simple feasibility test on time windows 
-        lunch_window = self.LUNCH_END - self.LUNCH_START
-        dinner_window = self.DINNER_END - self.DINNER_START
-        logging.info(f"Lunch window: {lunch_window} minutes, Dinner window: {dinner_window} minutes")
-        
-        # Check if we can satisfy hawker constraints 
-        if lunch_window < 60:
-            logging.error(f"Infeasible: Lunch window ({lunch_window} min) too short for a 60 min meal")
-            return False
-        
-        if dinner_window < 60:
-            logging.error(f"Infeasible: Dinner window ({dinner_window} min) too short for a 60 min meal")
-            return False
-        
-        return True
 
     def get_transport_hour(self, transport_time):
         # because the transport_matrix is only bracketed to 4 groups, we find the earliest it happens
@@ -387,5 +347,4 @@ class TravelItineraryProblem(ElementwiseProblem):
         # <ADD ADDITIONAL CONSTRAINTS HERE>
 
         # objectives
-        # out["F"] = [total_cost, total_travel_time, -total_satisfaction]
-        out["F"] = [-total_satisfaction]
+        out["F"] = [total_cost, total_travel_time, -total_satisfaction]

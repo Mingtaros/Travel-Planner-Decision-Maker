@@ -90,7 +90,7 @@ class TravelItineraryProblem(ElementwiseProblem):
         else:
             logging.info(f"Budget check passed: {budget} >= minimum {min_cost} for hotel and food")
     
-    def __init__(self, budget, locations, transport_matrix, num_days=3):
+    def __init__(self, budget, locations, transport_matrix, num_days=1):
         
         # Add validation checks before setup
         self.validate_inputs(budget, locations, transport_matrix, num_days)
@@ -182,7 +182,7 @@ class TravelItineraryProblem(ElementwiseProblem):
         
         super().__init__(
             n_var=num_vars,
-            n_obj=1, # INEQUALITY_CONSTRAINT_LINE
+            n_obj=3, # INEQUALITY_CONSTRAINT_LINE
             n_ieq_constr=num_inequality_constraints,
             n_eq_constr=num_equality_constraints,
             xl=lower_bound,

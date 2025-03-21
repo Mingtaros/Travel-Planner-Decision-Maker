@@ -16,6 +16,8 @@ from generate_route_matrix import save_matrix_to_file
 from utils.transport_utility import get_transport_matrix, get_all_locations
 from utils.google_maps_client import GoogleMapsClient
 from utils.get_trip_detail import calculate_public_transport_fare, calculate_car_fare
+from utils.generate_init_solution import HeuristicInitialization
+from debug_problem import DebugTravelItineraryProblem
 
 # Global cache for hotel routes
 HOTEL_ROUTES_CACHE = {}
@@ -244,7 +246,7 @@ def integrate_problem(base_problem_str, inequality_constraints, equality_constra
     
     INEQUALITY_CONSTRAINT_LINE = 185
     EQUALITY_CONSTRAINT_LINE = INEQUALITY_CONSTRAINT_LINE + 1
-    INDENTATION_COUNT_LINE = 386
+    INDENTATION_COUNT_LINE = 346
     ADD_CONSTRAINT_LINE = INDENTATION_COUNT_LINE + 1
     
     # update the number of constraints in class initialization
@@ -689,6 +691,20 @@ def main(hotel_name=None, budget=300, num_days=3):
             # Set hotel duration to 0 (no time spent at hotel for activities)
             loc["duration"] = 0
 
+    debug_only = False  # Set to True to exit after debugging
+    if debug_only:
+        
+        problem = DebugTravelItineraryProblem(
+            num_days=3,
+            budget=300,
+            locations=updated_locations,
+            transport_matrix=updated_matrix,
+        )
+        
+        debug_optimization_problem(problem)
+        logger.info("Debug mode only, exiting before optimization")
+        return None, problem, updated_locations
+    
     # Integrate the problem with constraints
     base_problem_str = integrate_problem(base_problem_str, inequality_constraints, equality_constraints)
 
@@ -717,10 +733,26 @@ def main(hotel_name=None, budget=300, num_days=3):
         locations=updated_locations,
         transport_matrix=updated_matrix,
     )
+    
+    heuristic_solution = HeuristicInitialization.create_heuristic_solution(problem)
+    
+    # Create the initial population with one heuristic solution
+    initial_population = np.zeros((100, problem.n_var), dtype=heuristic_solution.dtype)
+    initial_population[0] = heuristic_solution  # First individual is our heuristic
+
+    # Generate random values for the rest of the population
+    random_part = np.random.random((100, problem.n_var))
+    # Scale the random part to the bounds, maintaining correct data type
+    xl, xu = problem.xl, problem.xu
+    for i in range(1, 100):
+        # Explicit type conversion to match heuristic solution
+        initial_population[i] = xl + (random_part[i] * (xu - xl)).astype(heuristic_solution.dtype)
+
 
     algorithm = NSGA2(
         pop_size=100,
-        sampling=IntegerRandomSampling(),
+        # sampling=IntegerRandomSampling(),
+        sampling=initial_population,
         crossover=TwoPointCrossover(),
         mutation=BitflipMutation(),
         eliminate_duplicates=True
@@ -733,12 +765,6 @@ def main(hotel_name=None, budget=300, num_days=3):
     missing_attrs = [attr for attr in required_attrs if not hasattr(problem, attr)]
     if missing_attrs:
         logger.error(f"Problem is missing required attributes: {missing_attrs}")
-        
-    debug_only = True  # Set to True to exit after debugging
-    if debug_only:
-        debug_optimization_problem(problem)
-        logger.info("Debug mode only, exiting before optimization")
-        return None, problem, updated_locations
 
     res = minimize(
         problem,

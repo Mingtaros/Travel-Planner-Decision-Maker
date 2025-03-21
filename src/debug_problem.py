@@ -1,4 +1,5 @@
 from base_problem import TravelItineraryProblem
+import numpy as np
 
 class DebugTravelItineraryProblem(TravelItineraryProblem):
     def debug_constraint_violations(self, x, verbose=True):
