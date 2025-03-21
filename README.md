@@ -156,6 +156,63 @@ Import a SQL dump file:
     docker exec -i ai_planning_project_db sh -c 'mysql -u planner -p"plannerpassword" ai_planning_project' < ai_planning_project_dump.sql
    ```
 
+## Constraint Optimization Problem
+
+### Inequality Constraints (G)
+
+1. **Attraction Visit Limits**:
+   - Each attraction must be visited at most once as a source
+   - Each attraction must be visited at most once as a destination
+
+2. **Time Constraints**:
+   - For each route chosen (x_var[i,j,k,l] = 1), the finish time at destination l must be at least the finish time at source k plus transport duration plus activity duration at l
+
+3. **Hawker Visit Requirements**:
+   - Each day must include at least 2 visits to hawker centers
+   - Each day must include at least 1 hawker visit during lunch hours (11 AM to 3 PM)
+   - Each day must include at least 1 hawker visit during dinner hours (5 PM to 9 PM)
+
+4. **Transport Mode Constraints**:
+   - For each route, only one transport type can be chosen (can't use both transit and drive for the same route)
+
+5. **Budget Constraint**:
+   - Total cost of hotel, attractions, hawker meals, and transportation must be within the specified budget
+
+6. **Minimum and Maximum Visits**:
+   - Total visits must be at least the minimum (2 hawker visits per day)
+   - Total visits must be at most the maximum (6 visits per day × number of days)
+
+### Equality Constraints (H)
+
+1. **Hotel Starting Point**:
+   - Each day must start from the hotel (u_var[i,0] must be the smallest time value for each day)
+
+2. **Flow Conservation**:
+   - For each location and each day, the number of incoming routes must equal the number of outgoing routes
+
+3. **Return to Hotel Requirement**:
+   - At the end of each day, must return to the hotel
+
+4. **Attraction Visit Symmetry**:
+   - If an attraction is visited as a source, it must also be visited as a destination (and vice versa)
+
+### Time Windows
+
+The problem also enforces time windows:
+- Daily start time: 9 AM (540 minutes)
+- Hard limit end time: 10 PM (1320 minutes)
+- Lunch window: 11 AM to 3 PM (660-900 minutes)
+- Dinner window: 5 PM to 9 PM (1020-1260 minutes)
+
+### Optimization Objectives
+
+The problem has three objectives being minimized:
+1. Total cost (hotel, attractions, food, transport)
+2. Total travel time
+3. Negative satisfaction (maximizing satisfaction by minimizing its negative)
+
+These constraints collectively ensure a feasible and optimal travel itinerary that respects time windows, budget limitations, and visit requirements while maximizing user satisfaction.
+
 ## Modules
 ### Public Transport Fare Calculator
 Provided Starting station / bus stop, and ending station / bus stop, get fares and distances.

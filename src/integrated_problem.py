@@ -11,11 +11,13 @@ from pymoo.operators.mutation.bitflip import BitflipMutation
 from pymoo.operators.sampling.rnd import IntegerRandomSampling
 from pymoo.optimize import minimize
 from pymoo.termination import get_termination
+from pymoo.decomposition.asf import ASF
 
 from generate_route_matrix import save_matrix_to_file
 from utils.transport_utility import get_transport_matrix, get_all_locations
 from utils.google_maps_client import GoogleMapsClient
 from utils.get_trip_detail import calculate_public_transport_fare, calculate_car_fare
+from utils.generate_init_solution import HeuristicInitialization
 
 # Global cache for hotel routes
 HOTEL_ROUTES_CACHE = {}
@@ -165,86 +167,6 @@ def count_indentation(line_of_code):
         num_indent += 1
     
     return num_indent
-
-def debug_problem(problem, locations, transport_matrix):
-    """Debug the optimization problem"""
-    print("\n===== DEBUGGING OPTIMIZATION PROBLEM =====")
-    
-    # Check location data
-    print(f"Total locations: {len(locations)}")
-    type_counts = {}
-    for loc in locations:
-        loc_type = loc.get("type", "unknown")
-        type_counts[loc_type] = type_counts.get(loc_type, 0) + 1
-    
-    for loc_type, count in type_counts.items():
-        print(f" - {loc_type}: {count}")
-    
-    # Check transport matrix
-    print(f"\nTransport matrix entries: {len(transport_matrix)}")
-    
-    # Sample a few transport matrix entries
-    print("\nSample transport entries:")
-    keys = list(transport_matrix.keys())
-    for i in range(min(3, len(keys))):
-        key = keys[i]
-        value = transport_matrix[key]
-        print(f" - {key}: {value}")
-    
-    # Check constraint counts match
-    print("\nConstraint counts:")
-    print(f" - Inequality constraints (G): {problem.n_ieq_constr}")
-    print(f" - Equality constraints (H): {problem.n_eq_constr}")
-    
-    # Print optimization bounds
-    print("\nVariable bounds:")
-    print(f" - Number of variables: {problem.n_var}")
-    print(f" - Lower bounds: min={min(problem.xl)}, max={max(problem.xl)}")
-    print(f" - Upper bounds: min={min(problem.xu)}, max={max(problem.xu)}")
-    
-    # Print lunch/dinner windows
-    print("\nTime windows:")
-    lunch_start_time = (problem.LUNCH_START / 60)
-    lunch_end_time = (problem.LUNCH_END / 60)
-    dinner_start_time = (problem.DINNER_START / 60)
-    dinner_end_time = (problem.DINNER_END / 60)
-    
-    print(f" - Lunch: {lunch_start_time:.1f} to {lunch_end_time:.1f}")
-    print(f" - Dinner: {dinner_start_time:.1f} to {dinner_end_time:.1f}")
-    
-    # Try to evaluate a random solution to see if there are errors
-    print("\nTesting random solution evaluation:")
-    try:
-        # Create a random solution
-        x = np.random.random(problem.n_var)
-        # Ensure x is within bounds
-        x = np.minimum(np.maximum(x, problem.xl), problem.xu)
-        
-        # Try to evaluate it
-        out = {}
-        problem._evaluate(x, out)
-        
-        print(" - Random solution evaluation successful")
-        print(f" - Objectives: {out['F']}")
-        print(f" - Equality constraints: {len(out['H'])}")
-        print(f" - Inequality constraints: {len(out['G'])}")
-        
-        # Check constraint violations
-        eq_violations = np.abs(out['H'])
-        ineq_violations = np.maximum(0, out['G'])
-        
-        if np.max(eq_violations) > 0.001:
-            print(f" - WARNING: Equality constraints violated (max: {np.max(eq_violations):.4f})")
-        
-        if np.max(ineq_violations) > 0.001:
-            print(f" - WARNING: Inequality constraints violated (max: {np.max(ineq_violations):.4f})")
-        
-    except Exception as e:
-        print(f" - ERROR evaluating random solution: {str(e)}")
-        import traceback
-        print(traceback.format_exc())
-    
-    print("=========================================\n")
 
 def integrate_problem(base_problem_str, inequality_constraints, equality_constraints):
     
@@ -629,7 +551,49 @@ def integrate_hotel_with_locations(hotel, locations, transport_matrix):
     
     return locations, updated_matrix
 
-def main(hotel_name=None, budget=300, num_days=3):
+def filter_locations(locations, max_attractions=None, max_hawkers=None, filter_criteria=None):
+    """
+    Filter locations by type and criteria, limiting the number of attractions and hawkers.
+    
+    Args:
+        locations: List of all location dictionaries
+        max_attractions: Maximum number of attractions to include (None = all)
+        max_hawkers: Maximum number of hawkers to include (None = all)
+        filter_criteria: Optional dict with criteria to prioritize locations
+            (e.g., {'attractions': 'satisfaction', 'hawkers': 'rating'})
+    
+    Returns:
+        list: Filtered list of locations
+    """
+    # Sort hotel(s) to the front of the list
+    hotels = [loc for loc in locations if loc["type"] == "hotel"]
+    attractions = [loc for loc in locations if loc["type"] == "attraction"]
+    hawkers = [loc for loc in locations if loc["type"] == "hawker"]
+    
+    # Default sorting criteria
+    attraction_sort_key = "satisfaction" if not filter_criteria else filter_criteria.get("attractions", "satisfaction")
+    hawker_sort_key = "rating" if not filter_criteria else filter_criteria.get("hawkers", "rating")
+    
+    # Sort attractions and hawkers by criteria (if present in data)
+    if all(attraction_sort_key in loc for loc in attractions):
+        attractions.sort(key=lambda x: x.get(attraction_sort_key, 0), reverse=True)
+    
+    if all(hawker_sort_key in loc for loc in hawkers):
+        hawkers.sort(key=lambda x: x.get(hawker_sort_key, 0), reverse=True)
+    
+    # Limit the number of attractions and hawkers if specified
+    if max_attractions is not None and max_attractions > 0:
+        attractions = attractions[:max_attractions]
+    
+    if max_hawkers is not None and max_hawkers > 0:
+        hawkers = hawkers[:max_hawkers]
+    
+    # Combine filtered locations, ensuring hotels come first
+    filtered_locations = hotels + attractions + hawkers
+    
+    return filtered_locations
+
+def main(hotel_name=None, budget=1000, num_days=2, max_attractions=12, max_hawkers=8): # 16 12
     """
     Main function to run the integrated problem with a specified hotel
     
@@ -668,6 +632,12 @@ def main(hotel_name=None, budget=300, num_days=3):
     logger.info("Loading transport matrix and locations...")
     all_locations = get_all_locations()
     transport_matrix = get_transport_matrix()
+    
+    # Filter locations based on max_attractions and max_hawkers
+    if max_attractions is not None or max_hawkers is not None:
+        logger.info(f"Filtering locations (max attractions: {max_attractions}, max hawkers: {max_hawkers})...")
+        all_locations = filter_locations(all_locations, max_attractions, max_hawkers)
+        logger.info(f"Filtered to {len(all_locations)} locations")
     
     # Integrate hotel with locations and transport matrix
     logger.info("Integrating hotel with transport matrix...")
@@ -718,37 +688,53 @@ def main(hotel_name=None, budget=300, num_days=3):
     # make the problemset and solve it.
     logger.info("Creating and solving the optimization problem...")
     problem = TravelItineraryProblem(
-        num_days=3,
-        budget=1000,
+        num_days=num_days,
+        budget=budget,
         locations=updated_locations,
         transport_matrix=updated_matrix,
     )
+    
+    heuristic_solution = HeuristicInitialization.create_heuristic_solution(problem)
+    logger.info("Generated heuristic initial solution")
+    
+    np.save('results/heuristic_solution.npy', heuristic_solution)
+    
+    HeuristicInitialization.save_solution_to_file(problem, heuristic_solution, "log/heuristic_solution.log")
+    
+    validation_results = HeuristicInitialization.validate_heuristic_solution(problem, heuristic_solution)
+    
+    HeuristicInitialization.print_daily_routes(problem, validation_results)
 
+    # You can also use the validation results to debug your solution
+    if not validation_results["is_feasible"]:
+        logger.info(f"Heuristic solution has {len(validation_results['inequality_violations'])} inequality and "
+                    f"{len(validation_results['equality_violations'])} equality constraint violations")
+    
+    # Create initial population with explicit integer type for binary part
+    initial_population = np.zeros((200, problem.n_var), dtype=np.int64)  # Use float64 for the entire solution
+
+    # Set the first solution to our heuristic
+    initial_population[0] = heuristic_solution
+
+    # For the remaining solutions, create proper random values
+    for i in range(1, 200):
+        # Binary part: Ensure it's integer 0 or 1
+        initial_population[i, :problem.x_shape] = np.random.randint(0, 2, size=problem.x_shape)
+        
+        # Continuous part: Random values within bounds
+        xl_cont, xu_cont = problem.xl[problem.x_shape:], problem.xu[problem.x_shape:]
+        initial_population[i, problem.x_shape:] = np.random.uniform(xl_cont, xu_cont)
+
+    # Set up the NSGA2 algorithm with our initialization
     algorithm = NSGA2(
-        pop_size=100,
-        sampling=IntegerRandomSampling(),
-        crossover=TwoPointCrossover(),
-        mutation=BitflipMutation(),
+        pop_size=200,
+        sampling=initial_population.astype(int),
+        crossover=TwoPointCrossover(prob=0.9),
+        mutation=BitflipMutation(prob=0.05),
         eliminate_duplicates=True
     )
 
     termination = get_termination("n_gen", 200)
-
-    # Test if the problem has all required attributes
-    required_attrs = ['n_var', 'n_obj', 'n_ieq_constr', 'n_eq_constr', '_evaluate']
-    missing_attrs = [attr for attr in required_attrs if not hasattr(problem, attr)]
-    if missing_attrs:
-        logger.error(f"Problem is missing required attributes: {missing_attrs}")
-        
-    # After creating the problem but before running optimization
-    problem.test_feasibility()
-    debug_problem(problem, updated_locations, updated_matrix)
-
-    # You might want to add an option to exit after debugging
-    debug_only = False  # Set to True to exit after debugging
-    if debug_only:
-        logger.info("Debug mode only, exiting before optimization")
-        return None, problem, updated_locations
 
     res = minimize(
         problem,
@@ -766,7 +752,20 @@ def main(hotel_name=None, budget=300, num_days=3):
     np.save("results/best_objectives.npy", res.F)
     logger.info("Best solution and objectives saved to results directory")
     
-    return res, problem, updated_locations
+    weights = np.array([0.3, 0.3, 0.4])
+    
+    decomp = ASF()
+
+    approx_ideal = res.F.min(axis=0)
+    approx_nadir = res.F.max(axis=0)
+
+    nF = (res.F - approx_ideal) / (approx_nadir - approx_ideal)
+
+    i = decomp.do(nF, 1/weights).argmin()
+
+    pymoo_solution = best_solution[i]
+    
+    return pymoo_solution, res, problem, updated_locations
 
 if __name__ == "__main__":
     import sys
