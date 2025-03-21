@@ -11,11 +11,13 @@ from pymoo.operators.mutation.bitflip import BitflipMutation
 from pymoo.operators.sampling.rnd import IntegerRandomSampling
 from pymoo.optimize import minimize
 from pymoo.termination import get_termination
+from pymoo.decomposition.asf import ASF
 
 from generate_route_matrix import save_matrix_to_file
 from utils.transport_utility import get_transport_matrix, get_all_locations
 from utils.google_maps_client import GoogleMapsClient
 from utils.get_trip_detail import calculate_public_transport_fare, calculate_car_fare
+from utils.generate_init_solution import HeuristicInitialization
 
 # Global cache for hotel routes
 HOTEL_ROUTES_CACHE = {}
@@ -165,80 +167,6 @@ def count_indentation(line_of_code):
         num_indent += 1
     
     return num_indent
-
-def debug_optimization_problem(problem):
-    """Run a comprehensive debugging analysis on the problem"""
-    
-    # 1. Check input data
-    print("\n===== CHECKING INPUT DATA =====")
-    print(f"Number of locations: {problem.num_locations}")
-    print(f"  - Hotels: {problem.num_hotels}")
-    print(f"  - Attractions: {problem.num_attractions}")
-    print(f"  - Hawkers: {problem.num_hawkers}")
-    print(f"Budget: {problem.budget}")
-    print(f"Number of days: {problem.NUM_DAYS}")
-    
-    # Verify transport matrix coverage
-    matrix_keys = list(problem.transport_matrix.keys())
-    print(f"Transport matrix entries: {len(matrix_keys)}")
-    print(f"Sample entry: {matrix_keys[0]} -> {problem.transport_matrix[matrix_keys[0]]}")
-    
-    # 3. Run our detailed feasibility analysis
-    analysis = problem.run_feasibility_analysis(num_samples=100)
-    
-    # 4. Try to debug a specific solution (e.g., the best one from analysis)
-    if analysis["best_solution"] is not None:
-        print("\n===== DEBUGGING BEST FOUND SOLUTION =====")
-        problem.debug_constraint_violations(analysis["best_solution"])
-    
-    # 5. Check specific constraints that are frequently violated
-    print("\n===== CONSTRAINT FIXING SUGGESTIONS =====")
-    
-    # Identify the most problematic constraints
-    eq_violations = sorted(analysis["eq_violation_counts"].items(), key=lambda x: x[1], reverse=True)
-    ineq_violations = sorted(analysis["ineq_violation_counts"].items(), key=lambda x: x[1], reverse=True)
-    
-    if eq_violations:
-        print("\nTop equality constraint issues:")
-        for idx, count in eq_violations[:3]:
-            desc = problem.get_constraint_description("H", idx)
-            print(f"  - H[{idx}] ({count} violations): {desc}")
-            print(f"    Suggestion: Check if this constraint is too restrictive or if the data allows satisfying it")
-    
-    if ineq_violations:
-        print("\nTop inequality constraint issues:")
-        for idx, count in ineq_violations[:3]:
-            desc = problem.get_constraint_description("G", idx)
-            print(f"  - G[{idx}] ({count} violations): {desc}")
-            print(f"    Suggestion: Check if this constraint conflicts with others or if the data allows satisfying it")
-    
-    # 6. Overall recommendations
-    print("\n===== OVERALL RECOMMENDATIONS =====")
-    total_constraints = len(analysis["eq_violation_counts"]) + len(analysis["ineq_violation_counts"])
-    print(f"Problematic constraints: {total_constraints} out of {problem.n_ieq_constr + problem.n_eq_constr}")
-    
-    # Suggest potential fixes based on common issues
-    if analysis["avg_eq_violations"] > analysis["avg_ineq_violations"]:
-        print("Focus on fixing equality constraints first - they're more restrictive")
-    else:
-        print("Focus on fixing inequality constraints first - they're more frequently violated")
-    
-    # Check for common issues
-    if any("hawker" in problem.get_constraint_description("H", idx) for idx in analysis["eq_violation_counts"]):
-        print("\nPotential hawker constraint issues:")
-        print("  - Check if you have enough hawkers to satisfy the 'exactly 2 per day' constraint")
-        print("  - Check if the lunch/dinner time windows allow hawker visits")
-        print("  - Consider relaxing the 'exactly 1 lunch and 1 dinner' to 'at least' constraints")
-    
-    if any("flow conservation" in problem.get_constraint_description("H", idx) for idx in analysis["eq_violation_counts"]):
-        print("\nPotential flow conservation issues:")
-        print("  - Check if locations can be both entered and exited")
-        print("  - Ensure transport matrix has routes between all location pairs")
-    
-    if any("Hotel must be starting point" in problem.get_constraint_description("H", idx) for idx in analysis["eq_violation_counts"]):
-        print("\nPotential hotel constraint issues:")
-        print("  - Verify hotel is at index 0 in the locations list")
-        print("  - Check transport matrix coverage from hotel to other locations")
 
 def integrate_problem(base_problem_str, inequality_constraints, equality_constraints):
     
@@ -623,7 +551,49 @@ def integrate_hotel_with_locations(hotel, locations, transport_matrix):
     
     return locations, updated_matrix
 
-def main(hotel_name=None, budget=300, num_days=3):
+def filter_locations(locations, max_attractions=None, max_hawkers=None, filter_criteria=None):
+    """
+    Filter locations by type and criteria, limiting the number of attractions and hawkers.
+    
+    Args:
+        locations: List of all location dictionaries
+        max_attractions: Maximum number of attractions to include (None = all)
+        max_hawkers: Maximum number of hawkers to include (None = all)
+        filter_criteria: Optional dict with criteria to prioritize locations
+            (e.g., {'attractions': 'satisfaction', 'hawkers': 'rating'})
+    
+    Returns:
+        list: Filtered list of locations
+    """
+    # Sort hotel(s) to the front of the list
+    hotels = [loc for loc in locations if loc["type"] == "hotel"]
+    attractions = [loc for loc in locations if loc["type"] == "attraction"]
+    hawkers = [loc for loc in locations if loc["type"] == "hawker"]
+    
+    # Default sorting criteria
+    attraction_sort_key = "satisfaction" if not filter_criteria else filter_criteria.get("attractions", "satisfaction")
+    hawker_sort_key = "rating" if not filter_criteria else filter_criteria.get("hawkers", "rating")
+    
+    # Sort attractions and hawkers by criteria (if present in data)
+    if all(attraction_sort_key in loc for loc in attractions):
+        attractions.sort(key=lambda x: x.get(attraction_sort_key, 0), reverse=True)
+    
+    if all(hawker_sort_key in loc for loc in hawkers):
+        hawkers.sort(key=lambda x: x.get(hawker_sort_key, 0), reverse=True)
+    
+    # Limit the number of attractions and hawkers if specified
+    if max_attractions is not None and max_attractions > 0:
+        attractions = attractions[:max_attractions]
+    
+    if max_hawkers is not None and max_hawkers > 0:
+        hawkers = hawkers[:max_hawkers]
+    
+    # Combine filtered locations, ensuring hotels come first
+    filtered_locations = hotels + attractions + hawkers
+    
+    return filtered_locations
+
+def main(hotel_name=None, budget=1000, num_days=2, max_attractions=12, max_hawkers=8): # 16 12
     """
     Main function to run the integrated problem with a specified hotel
     
@@ -662,6 +632,12 @@ def main(hotel_name=None, budget=300, num_days=3):
     logger.info("Loading transport matrix and locations...")
     all_locations = get_all_locations()
     transport_matrix = get_transport_matrix()
+    
+    # Filter locations based on max_attractions and max_hawkers
+    if max_attractions is not None or max_hawkers is not None:
+        logger.info(f"Filtering locations (max attractions: {max_attractions}, max hawkers: {max_hawkers})...")
+        all_locations = filter_locations(all_locations, max_attractions, max_hawkers)
+        logger.info(f"Filtered to {len(all_locations)} locations")
     
     # Integrate hotel with locations and transport matrix
     logger.info("Integrating hotel with transport matrix...")
@@ -712,43 +688,53 @@ def main(hotel_name=None, budget=300, num_days=3):
     # make the problemset and solve it.
     logger.info("Creating and solving the optimization problem...")
     problem = TravelItineraryProblem(
-        num_days=3,
-        budget=1000,
+        num_days=num_days,
+        budget=budget,
         locations=updated_locations,
         transport_matrix=updated_matrix,
     )
     
     heuristic_solution = HeuristicInitialization.create_heuristic_solution(problem)
+    logger.info("Generated heuristic initial solution")
     
-    # Create the initial population with one heuristic solution
-    initial_population = np.zeros((100, problem.n_var), dtype=heuristic_solution.dtype)
-    initial_population[0] = heuristic_solution  # First individual is our heuristic
+    np.save('results/heuristic_solution.npy', heuristic_solution)
+    
+    HeuristicInitialization.save_solution_to_file(problem, heuristic_solution, "log/heuristic_solution.log")
+    
+    validation_results = HeuristicInitialization.validate_heuristic_solution(problem, heuristic_solution)
+    
+    HeuristicInitialization.print_daily_routes(problem, validation_results)
 
-    # Generate random values for the rest of the population
-    random_part = np.random.random((100, problem.n_var))
-    # Scale the random part to the bounds, maintaining correct data type
-    xl, xu = problem.xl, problem.xu
-    for i in range(1, 100):
-        # Explicit type conversion to match heuristic solution
-        initial_population[i] = xl + (random_part[i] * (xu - xl)).astype(heuristic_solution.dtype)
+    # You can also use the validation results to debug your solution
+    if not validation_results["is_feasible"]:
+        logger.info(f"Heuristic solution has {len(validation_results['inequality_violations'])} inequality and "
+                    f"{len(validation_results['equality_violations'])} equality constraint violations")
+    
+    # Create initial population with explicit integer type for binary part
+    initial_population = np.zeros((200, problem.n_var), dtype=np.int64)  # Use float64 for the entire solution
 
+    # Set the first solution to our heuristic
+    initial_population[0] = heuristic_solution
 
+    # For the remaining solutions, create proper random values
+    for i in range(1, 200):
+        # Binary part: Ensure it's integer 0 or 1
+        initial_population[i, :problem.x_shape] = np.random.randint(0, 2, size=problem.x_shape)
+        
+        # Continuous part: Random values within bounds
+        xl_cont, xu_cont = problem.xl[problem.x_shape:], problem.xu[problem.x_shape:]
+        initial_population[i, problem.x_shape:] = np.random.uniform(xl_cont, xu_cont)
+
+    # Set up the NSGA2 algorithm with our initialization
     algorithm = NSGA2(
-        pop_size=100,
-        # sampling=IntegerRandomSampling(),
-        sampling=initial_population,
-        crossover=TwoPointCrossover(),
-        mutation=BitflipMutation(),
+        pop_size=200,
+        sampling=initial_population.astype(int),
+        crossover=TwoPointCrossover(prob=0.9),
+        mutation=BitflipMutation(prob=0.05),
         eliminate_duplicates=True
     )
 
     termination = get_termination("n_gen", 200)
-
-    # Test if the problem has all required attributes
-    required_attrs = ['n_var', 'n_obj', 'n_ieq_constr', 'n_eq_constr', '_evaluate']
-    missing_attrs = [attr for attr in required_attrs if not hasattr(problem, attr)]
-    if missing_attrs:
-        logger.error(f"Problem is missing required attributes: {missing_attrs}")
 
     res = minimize(
         problem,
@@ -766,7 +752,20 @@ def main(hotel_name=None, budget=300, num_days=3):
     np.save("results/best_objectives.npy", res.F)
     logger.info("Best solution and objectives saved to results directory")
     
-    return res, problem, updated_locations
+    weights = np.array([0.3, 0.3, 0.4])
+    
+    decomp = ASF()
+
+    approx_ideal = res.F.min(axis=0)
+    approx_nadir = res.F.max(axis=0)
+
+    nF = (res.F - approx_ideal) / (approx_nadir - approx_ideal)
+
+    i = decomp.do(nF, 1/weights).argmin()
+
+    pymoo_solution = best_solution[i]
+    
+    return pymoo_solution, res, problem, updated_locations
 
 if __name__ == "__main__":
     import sys

@@ -17,12 +17,12 @@ def get_transport_matrix():
             destination = this_route["destination_name"]
             transport_matrix[(origin, destination, hour)] = {
                 "transit": {
-                    "duration": this_route["transit"]["duration_minutes"],
-                    "price": this_route["transit"]["fare_sgd"],
+                    "duration": int(this_route["transit"]["duration_minutes"]),
+                    "price": int(this_route["transit"]["fare_sgd"]),
                 },
                 "drive": {
-                    "duration": this_route["drive"]["duration_minutes"],
-                    "price": this_route["drive"]["fare_sgd"],
+                    "duration": int(this_route["drive"]["duration_minutes"]),
+                    "price": int(this_route["drive"]["fare_sgd"]),
                 }
             }
     
