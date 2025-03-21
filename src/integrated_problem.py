@@ -41,25 +41,25 @@ def count_indentation(line_of_code):
 
 def integrate_problem(base_problem_str, inequality_constraints, equality_constraints):
     # update the number of constraints in class initialization
-    base_problem_str[69] = base_problem_str[69].replace(",", " + " + str(len(inequality_constraints)) + ",")
-    base_problem_str[70] = base_problem_str[70].replace(",", " + " + str(len(equality_constraints)) + ",")
+    base_problem_str[70] = base_problem_str[70].replace(",", " + " + str(len(inequality_constraints)) + ",")
+    base_problem_str[71] = base_problem_str[71].replace(",", " + " + str(len(equality_constraints)) + ",")
 
     # add additional constraints
     # known location of <ADD ADDITIONAL CONSTRAINTS HERE> is in this line
-    num_indent = count_indentation(base_problem_str[190]) # see indentation there, match in every added constraints
+    num_indent = count_indentation(base_problem_str[197]) # see indentation there, match in every added constraints
     for constraint in inequality_constraints: # inequality constraints
         # add indent for each line
         constraint = [" " * num_indent + constraint_line.strip() for constraint_line in constraint.split("\n")]
         constraint = "\n".join(constraint) # re-join to make new constraint
         # add the constraint to the code
-        base_problem_str.insert(191, constraint)
+        base_problem_str.insert(198, constraint)
 
     for constraint in equality_constraints: # equality constraints
         # add indent for each line
         constraint = [" " * num_indent + constraint_line.strip() for constraint_line in constraint.split("\n")]
         constraint = "\n".join(constraint) # re-join to make new constraint
         # add the constraint to the code
-        base_problem_str.insert(191, constraint)
+        base_problem_str.insert(198, constraint)
     
     return base_problem_str
 

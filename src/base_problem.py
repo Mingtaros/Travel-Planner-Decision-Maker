@@ -38,8 +38,9 @@ class TravelItineraryProblem(ElementwiseProblem):
         upper_bound = np.concatenate([np.ones(self.x_shape), np.full(self.u_shape, self.HARD_LIMIT_END_TIME)])
 
         # inequality constraints
-        #   - for every attraction, must be a source at least once
-        #   - vice versa, for every attraction, must be a destination at least once
+        #   - for every attraction, must be a source at most once
+        #   - vice versa, for every attraction, must be a destination at most once
+        #   - for every hawker, every day, must be a source & destination at most once
         #   - if source k to destination l chosen, make sure the time in var u is correct
         #       - from hotel, it can go to N-1 destinations (exclude hotel)
         #       - from any other destinations, it can go to N-2 destinations (exclude itself AND hotel)
@@ -47,8 +48,8 @@ class TravelItineraryProblem(ElementwiseProblem):
         #   - if public transport is chosen, taxi can't be chosen
         #   - make sure everything is within budget
         num_inequality_constraints = \
-            self.num_attractions + \
-            self.num_attractions + \
+            2 * self.num_attractions + \
+            2 * self.NUM_DAYS * self.num_hawkers + \
             self.NUM_DAYS * self.num_transport_types * (self.num_locations - 1) + \
             self.NUM_DAYS * self.num_transport_types * (self.num_locations - 1) * (self.num_locations - 2) + \
             self.NUM_DAYS + \
@@ -99,13 +100,19 @@ class TravelItineraryProblem(ElementwiseProblem):
         total_travel_time = 0
         total_satisfaction = 0
 
-        # for every attraction, must be a source at most once
-        # for every attraction, must be a destination at most once
+        # for every attraction, must be a source & destination at most once
         # NOTE that this doesn't apply to hawkers
         for k in range(self.num_locations):
             if self.locations[k]["type"] == "attraction":
                 out["G"].append(np.sum(x_var[:, :, k, :]) - 1)
                 out["G"].append(np.sum(x_var[:, :, :, k]) - 1)
+        
+        # for hawkers, every day must be a source & destination at most once
+        for i in range(self.NUM_DAYS):
+            for k in range(self.num_locations):
+                if self.locations[k]["type"] == "hawker":
+                    out["G"].append(np.sum(x_var[i, :, k, :]) - 1)
+                    out["G"].append(np.sum(x_var[i, :, :, k]) - 1)
 
         for i in range(self.NUM_DAYS):
             # u_var[i, 0] must be the smallest of u_var[i]
@@ -128,7 +135,7 @@ class TravelItineraryProblem(ElementwiseProblem):
                         transport_value = self.transport_matrix[(self.locations[k]["name"], self.locations[l]["name"], transport_hour)][self.transport_types[j]]
                         time_should_finish_l = u_var[i, k] + transport_value["duration"] + self.locations[l]["duration"]
                         # if x_var[i, j, k, l] is not chosen, then this constraint don't matter
-                        out["G"].append(x_var[i, j, k, l] * time_finish_l - time_should_finish_l)
+                        out["G"].append(x_var[i, j, k, l] * (time_should_finish_l - time_finish_l))
                         
                         # append to total travel time spent
                         if x_var[i, j, k, l] == 1:
@@ -186,7 +193,7 @@ class TravelItineraryProblem(ElementwiseProblem):
                     out["G"].append(np.sum(x_var[i, :, k, l]) - 1)
 
         # finally, make sure everything is within budget
-        out["G"].append(self.budget - total_cost)
+        out["G"].append(total_cost - self.budget)
 
         # <ADD ADDITIONAL CONSTRAINTS HERE>
 

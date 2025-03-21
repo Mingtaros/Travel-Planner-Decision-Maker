@@ -174,3 +174,4 @@ cython_debug/
 
 # test integration phase will make a new python file that we can just delete
 src/test_integrated.py
+notebooks/*.txt
