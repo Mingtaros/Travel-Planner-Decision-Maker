@@ -166,91 +166,85 @@ def count_indentation(line_of_code):
     
     return num_indent
 
-def debug_problem(problem, locations, transport_matrix):
-    """Debug the optimization problem"""
-    print("\n===== DEBUGGING OPTIMIZATION PROBLEM =====")
+def debug_optimization_problem(problem):
+    """Run a comprehensive debugging analysis on the problem"""
     
-    # Check location data
-    print(f"Total locations: {len(locations)}")
-    type_counts = {}
-    for loc in locations:
-        loc_type = loc.get("type", "unknown")
-        type_counts[loc_type] = type_counts.get(loc_type, 0) + 1
+    # 1. Check input data
+    print("\n===== CHECKING INPUT DATA =====")
+    print(f"Number of locations: {problem.num_locations}")
+    print(f"  - Hotels: {problem.num_hotels}")
+    print(f"  - Attractions: {problem.num_attractions}")
+    print(f"  - Hawkers: {problem.num_hawkers}")
+    print(f"Budget: {problem.budget}")
+    print(f"Number of days: {problem.NUM_DAYS}")
     
-    for loc_type, count in type_counts.items():
-        print(f" - {loc_type}: {count}")
+    # Verify transport matrix coverage
+    matrix_keys = list(problem.transport_matrix.keys())
+    print(f"Transport matrix entries: {len(matrix_keys)}")
+    print(f"Sample entry: {matrix_keys[0]} -> {problem.transport_matrix[matrix_keys[0]]}")
     
-    # Check transport matrix
-    print(f"\nTransport matrix entries: {len(transport_matrix)}")
+    # 3. Run our detailed feasibility analysis
+    analysis = problem.run_feasibility_analysis(num_samples=100)
     
-    # Sample a few transport matrix entries
-    print("\nSample transport entries:")
-    keys = list(transport_matrix.keys())
-    for i in range(min(3, len(keys))):
-        key = keys[i]
-        value = transport_matrix[key]
-        print(f" - {key}: {value}")
+    # 4. Try to debug a specific solution (e.g., the best one from analysis)
+    if analysis["best_solution"] is not None:
+        print("\n===== DEBUGGING BEST FOUND SOLUTION =====")
+        problem.debug_constraint_violations(analysis["best_solution"])
     
-    # Check constraint counts match
-    print("\nConstraint counts:")
-    print(f" - Inequality constraints (G): {problem.n_ieq_constr}")
-    print(f" - Equality constraints (H): {problem.n_eq_constr}")
+    # 5. Check specific constraints that are frequently violated
+    print("\n===== CONSTRAINT FIXING SUGGESTIONS =====")
     
-    # Print optimization bounds
-    print("\nVariable bounds:")
-    print(f" - Number of variables: {problem.n_var}")
-    print(f" - Lower bounds: min={min(problem.xl)}, max={max(problem.xl)}")
-    print(f" - Upper bounds: min={min(problem.xu)}, max={max(problem.xu)}")
+    # Identify the most problematic constraints
+    eq_violations = sorted(analysis["eq_violation_counts"].items(), key=lambda x: x[1], reverse=True)
+    ineq_violations = sorted(analysis["ineq_violation_counts"].items(), key=lambda x: x[1], reverse=True)
     
-    # Print lunch/dinner windows
-    print("\nTime windows:")
-    lunch_start_time = (problem.LUNCH_START / 60)
-    lunch_end_time = (problem.LUNCH_END / 60)
-    dinner_start_time = (problem.DINNER_START / 60)
-    dinner_end_time = (problem.DINNER_END / 60)
+    if eq_violations:
+        print("\nTop equality constraint issues:")
+        for idx, count in eq_violations[:3]:
+            desc = problem.get_constraint_description("H", idx)
+            print(f"  - H[{idx}] ({count} violations): {desc}")
+            print(f"    Suggestion: Check if this constraint is too restrictive or if the data allows satisfying it")
     
-    print(f" - Lunch: {lunch_start_time:.1f} to {lunch_end_time:.1f}")
-    print(f" - Dinner: {dinner_start_time:.1f} to {dinner_end_time:.1f}")
+    if ineq_violations:
+        print("\nTop inequality constraint issues:")
+        for idx, count in ineq_violations[:3]:
+            desc = problem.get_constraint_description("G", idx)
+            print(f"  - G[{idx}] ({count} violations): {desc}")
+            print(f"    Suggestion: Check if this constraint conflicts with others or if the data allows satisfying it")
     
-    # Try to evaluate a random solution to see if there are errors
-    print("\nTesting random solution evaluation:")
-    try:
-        # Create a random solution
-        x = np.random.random(problem.n_var)
-        # Ensure x is within bounds
-        x = np.minimum(np.maximum(x, problem.xl), problem.xu)
-        
-        # Try to evaluate it
-        out = {}
-        problem._evaluate(x, out)
-        
-        print(" - Random solution evaluation successful")
-        print(f" - Objectives: {out['F']}")
-        print(f" - Equality constraints: {len(out['H'])}")
-        print(f" - Inequality constraints: {len(out['G'])}")
-        
-        # Check constraint violations
-        eq_violations = np.abs(out['H'])
-        ineq_violations = np.maximum(0, out['G'])
-        
-        if np.max(eq_violations) > 0.001:
-            print(f" - WARNING: Equality constraints violated (max: {np.max(eq_violations):.4f})")
-        
-        if np.max(ineq_violations) > 0.001:
-            print(f" - WARNING: Inequality constraints violated (max: {np.max(ineq_violations):.4f})")
-        
-    except Exception as e:
-        print(f" - ERROR evaluating random solution: {str(e)}")
-        import traceback
-        print(traceback.format_exc())
+    # 6. Overall recommendations
+    print("\n===== OVERALL RECOMMENDATIONS =====")
+    total_constraints = len(analysis["eq_violation_counts"]) + len(analysis["ineq_violation_counts"])
+    print(f"Problematic constraints: {total_constraints} out of {problem.n_ieq_constr + problem.n_eq_constr}")
     
-    print("=========================================\n")
+    # Suggest potential fixes based on common issues
+    if analysis["avg_eq_violations"] > analysis["avg_ineq_violations"]:
+        print("Focus on fixing equality constraints first - they're more restrictive")
+    else:
+        print("Focus on fixing inequality constraints first - they're more frequently violated")
+    
+    # Check for common issues
+    if any("hawker" in problem.get_constraint_description("H", idx) for idx in analysis["eq_violation_counts"]):
+        print("\nPotential hawker constraint issues:")
+        print("  - Check if you have enough hawkers to satisfy the 'exactly 2 per day' constraint")
+        print("  - Check if the lunch/dinner time windows allow hawker visits")
+        print("  - Consider relaxing the 'exactly 1 lunch and 1 dinner' to 'at least' constraints")
+    
+    if any("flow conservation" in problem.get_constraint_description("H", idx) for idx in analysis["eq_violation_counts"]):
+        print("\nPotential flow conservation issues:")
+        print("  - Check if locations can be both entered and exited")
+        print("  - Ensure transport matrix has routes between all location pairs")
+    
+    if any("Hotel must be starting point" in problem.get_constraint_description("H", idx) for idx in analysis["eq_violation_counts"]):
+        print("\nPotential hotel constraint issues:")
+        print("  - Verify hotel is at index 0 in the locations list")
+        print("  - Check transport matrix coverage from hotel to other locations")
 
 def integrate_problem(base_problem_str, inequality_constraints, equality_constraints):
     
-    INEQUALITY_CONSTRAINT_LINE = 223
+    INEQUALITY_CONSTRAINT_LINE = 185
     EQUALITY_CONSTRAINT_LINE = INEQUALITY_CONSTRAINT_LINE + 1
-    INDENTATION_COUNT_LINE = 381
+    INDENTATION_COUNT_LINE = 386
     ADD_CONSTRAINT_LINE = INDENTATION_COUNT_LINE + 1
     
     # update the number of constraints in class initialization
@@ -740,13 +734,9 @@ def main(hotel_name=None, budget=300, num_days=3):
     if missing_attrs:
         logger.error(f"Problem is missing required attributes: {missing_attrs}")
         
-    # After creating the problem but before running optimization
-    problem.test_feasibility()
-    debug_problem(problem, updated_locations, updated_matrix)
-
-    # You might want to add an option to exit after debugging
-    debug_only = False  # Set to True to exit after debugging
+    debug_only = True  # Set to True to exit after debugging
     if debug_only:
+        debug_optimization_problem(problem)
         logger.info("Debug mode only, exiting before optimization")
         return None, problem, updated_locations
 
