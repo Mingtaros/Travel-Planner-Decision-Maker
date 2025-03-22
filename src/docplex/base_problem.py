@@ -1,7 +1,11 @@
 import json
 import random
 import numpy as np
+import logging
 from docplex.mp.model import Model
+from docplex.mp.context import Context
+
+logger = logging.getLogger("itinerary_problem")
 
 
 def get_transport_matrix():
@@ -41,6 +45,7 @@ def get_all_locations():
     
     locations = [route_matrix["locations"][location_id] for location_id in route_matrix["locations"]]
     return locations
+
 
 class TravelItineraryProblem(object):
     def __init__(
@@ -85,6 +90,9 @@ class TravelItineraryProblem(object):
         self.travel_time_penalty_per_minute = 0.1 # for every minute spent in transit, the "cost" is this in $
         self.satisfaction_offset = 10 # for the satisfaction, every point in satisfaction, offset the cost by this in $
 
+        # check for valid inputs
+        self.validate_inputs(budget, locations, transport_matrix, num_days)
+
         # define models and variables
         self.define_model()
         self.define_variables()
@@ -93,8 +101,91 @@ class TravelItineraryProblem(object):
         self.solution = None
 
 
+    def validate_inputs(self, budget, locations, transport_matrix, num_days):
+        """
+        Validate input data and print warnings/errors
+        
+        Args:
+            budget: Maximum budget
+            locations: List of location dictionaries
+            transport_matrix: Dictionary of transportation options
+            num_days: Number of days for the itinerary
+        """
+        logging.info("Validating optimization inputs...")
+        
+        # Check if we have at least one hotel
+        hotels = [loc for loc in locations if loc["type"] == "hotel"]
+        if not hotels:
+            logging.error("No hotels found in locations data!")
+        else:
+            logging.info(f"Found {len(hotels)} hotels in the data")
+        
+        # Check if we have hawkers for meals
+        hawkers = [loc for loc in locations if loc["type"] == "hawker"]
+        if not hawkers:
+            logging.error("No hawker centers found - meal constraints cannot be satisfied!")
+        else:
+            logging.info(f"Found {len(hawkers)} hawker centers in the data")
+        
+        # Check for attractions
+        attractions = [loc for loc in locations if loc["type"] == "attraction"]
+        logging.info(f"Found {len(attractions)} attractions in the data")
+        
+        # Validate location data completeness
+        for i, loc in enumerate(locations):
+            missing = []
+            if loc["type"] == "attraction":
+                if "entrance_fee" not in loc or loc["entrance_fee"] is None:
+                    missing.append("entrance_fee")
+                if "satisfaction" not in loc or loc["satisfaction"] is None:
+                    missing.append("satisfaction")
+                if "duration" not in loc or loc["duration"] is None:
+                    missing.append("duration")
+            elif loc["type"] == "hawker":
+                if "rating" not in loc or loc["rating"] is None:
+                    missing.append("rating")
+                if "duration" not in loc or loc["duration"] is None:
+                    missing.append("duration")
+            
+            if missing:
+                logging.warning(f"Location '{loc['name']}' is missing required fields: {', '.join(missing)}")
+        
+        # Check transport matrix completeness
+        sample_routes = 0
+        missing_routes = 0
+        for i, src in enumerate(locations):
+            for j, dest in enumerate(locations):
+                if i != j:  # Skip self-routes
+                    for hour in [8, 12, 16, 20]:  # Time brackets
+                        key = (src["name"], dest["name"], hour)
+                        if key not in transport_matrix:
+                            missing_routes += 1
+                            if missing_routes <= 5:  # Only log the first few missing routes
+                                logging.error(f"Missing transport data: {key}")
+                        else:
+                            sample_routes += 1
+        
+        if missing_routes > 0:
+            logging.error(f"Missing {missing_routes} routes in transport matrix!")
+        else:
+            logging.info(f"Transport matrix contains all required routes ({sample_routes} total)")
+        
+        # Check budget feasibility
+        hotel_cost = num_days * self.HOTEL_COST
+        min_food_cost = num_days * 2 * 10  # Minimum 2 meals per day at $10 each
+        
+        min_cost = hotel_cost + min_food_cost
+        if budget < min_cost:
+            logging.error(f"Budget (${budget}) is too low! Minimum needed is ${min_cost} for hotel and food alone")
+        else:
+            logging.info(f"Budget check passed: ${budget} >= minimum ${min_cost} for hotel and food")
+
+
     def define_model(self):
-        self.mdl = Model("MITB-AI")
+        context = Context.make_default_context()
+        context.cplex_parameters.threads = 10
+        self.mdl = Model("MITB-AI", context=context)
+        self.mdl.parameters.timelimit = 120
 
 
     def define_variables(self):
@@ -143,7 +234,8 @@ class TravelItineraryProblem(object):
         self.cost_var = self.mdl.continuous_var(lb=0, name="total_cost")
         self.travel_time_var = self.mdl.continuous_var(lb=0, name="total_travel_time")
         self.satisfaction_var = self.mdl.continuous_var(lb=0, name="total_satisfaction")
-    
+
+
     def define_constraints(self):
         # every day, for every location, the time bracket the guy goes in, must be only 1, cannot go to multiple
         for day in range(self.NUM_DAYS):
@@ -442,10 +534,8 @@ class TravelItineraryProblem(object):
             # Find starting location (hotel) and its start time
             hotel = self.locations[0]
             start_location = hotel["name"]
-            start_time = round(self.u_var[(day, start_location)].solution_value)
-            print(f"{int(start_time // 60):02d}:{int(start_time % 60):02d} - Start from {start_location}")
-
             current_location = start_location
+
             while True:
                 next_location = None
                 chosen_transport = None
@@ -484,39 +574,85 @@ class TravelItineraryProblem(object):
                     break  # No more locations for the day
 
                 # Arrival time
-                arrival_time = self.u_var[(day, current_location)].solution_value
+                arrival_time = round(self.u_var[(day, current_location)].solution_value)
 
                 # Print movement details
                 print(f"{int(arrival_time // 60):02d}:{int(arrival_time % 60):02d} - From {current_location}, go to {next_location}")
                 print("        Details:")
-                print(f"         - use {chosen_transport}, price = ${price:.2f}, duration = {travel_time // 60} hours {travel_time % 60} minutes")
+                print(f"         - use {chosen_transport}, price = ${price:.2f}, duration = {travel_time // 60:.0f} hours {travel_time % 60:.2f} minutes")
                 
                 if entrance_fee is not None:
                     print(f"         - {next_location} entrance fee = ${entrance_fee:.2f}")
                 if duration is not None:
                     print(f"         - {next_location} duration = {duration[0]} hours {duration[1]} minutes")
                 if satisfaction_score is not None:
-                    print(f"         - {next_location} satisfaction score = {satisfaction_score:.2f} / 10")
+                    print(f"         - {next_location} satisfaction score = {satisfaction_score:.1f} / 10")
                 if food_price is not None:
                     print(f"         - {next_location} average food price = ${food_price:.2f}")
                 if rating is not None:
-                    print(f"         - {next_location} Rating = {rating:.2f} / 5")
+                    print(f"         - {next_location} Rating = {rating:.1f} / 5")
 
                 if next_location == hotel["name"]:
-                    print(f"{int(arrival_time // 60):02d}:{int(arrival_time % 60):02d} - Go back to hotel")
-                    print("        Details:")
-                    print(f"         - use {chosen_transport}, price = ${price:.2f}, duration = {travel_time // 60} hours {travel_time % 60} minutes")
                     break
 
-                current_location = next_location
-
+                current_location = next_location # update for next loop
             print()  # Blank line between days
-        travel_time_total = self.travel_time_var.solution_value
+
+        total_cost = self.NUM_DAYS * self.HOTEL_COST + \
+            sum([
+                # only count if destination is chosen
+                self.x_var[(day, transport_type, source["name"], dest["name"])].solution_value *
+                self.bracket_var[(day, dest["name"], time_bracket)].solution_value * (
+                    # calculate the fare to get to this destination
+                    self.transport_matrix[(source["name"], dest["name"], time_bracket)][transport_type]["price"]
+                    # if go there, find the entrance fee / food price
+                    + (dest["entrance_fee"] if dest["type"] == "attraction" else 0)
+                    + (dest["avg_food_price"] if dest["type"] == "hawker" else 0)
+                )
+                for day in range(self.NUM_DAYS)
+                for transport_type in self.transport_types
+                for source in self.locations
+                for dest in self.locations
+                for time_bracket in self.time_brackets
+                if source["name"] != dest["name"]
+            ])
+        
+        travel_time_total = sum(
+            self.x_var[(day, transport_type, source["name"], dest["name"])].solution_value * 
+            self.bracket_var[(day, dest["name"], time_bracket)].solution_value * 
+            self.transport_matrix[(source["name"], dest["name"], time_bracket)][transport_type]["duration"]
+            for day in range(self.NUM_DAYS)
+            for transport_type in self.transport_types
+            for source in self.locations
+            for dest in self.locations
+            for time_bracket in self.time_brackets
+            if source["name"] != dest["name"]
+        )
         travel_time_hm = (travel_time_total//60, travel_time_total%60)
-        print("Overall:")
-        print(f"    Total Cost             = ${self.cost_var.solution_value:.2f}")
-        print("    Total Travel Time      =", travel_time_hm[0], "hours", travel_time_hm[1], "minutes")
-        print("    Estimated Satisfaction =", self.satisfaction_var.solution_value)
+
+        total_satisfaction = sum(
+            self.x_var[(day, transport_type, source["name"], dest["name"])].solution_value * (
+                dest["satisfaction"] if dest["type"] == "attraction" else 0
+            )
+            for day in range(self.NUM_DAYS)
+            for transport_type in self.transport_types
+            for source in self.locations
+            for dest in self.locations
+            if source["name"] != dest["name"]
+        ) + sum(
+            self.x_var[(day, transport_type, source["name"], dest["name"])].solution_value * (
+                dest["rating"] if dest["type"] == "hawker" else 0
+            )
+            for day in range(self.NUM_DAYS)
+            for transport_type in self.transport_types
+            for source in self.locations
+            for dest in self.locations
+            if source["name"] != dest["name"]
+        )
+        print("Overall Summary:")
+        print(f"    Total Cost             = ${total_cost:.2f}")
+        print(f"    Total Travel Time      = {travel_time_hm[0]:.0f} hours {travel_time_hm[1]:.2f} minutes")
+        print(f"    Estimated Satisfaction = {total_satisfaction:.2f} points")
 
 
 if __name__ == "__main__":
