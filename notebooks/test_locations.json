@@ -1,21 +1,25 @@
 [
     {
       "name": "Farrer Park MRT",
+      "description": "Farrer Park MRT Station (NE8) is an underground Mass Rapid Transit (MRT) station on the North East Line in Kallang, Singapore.",
       "lat": 1.3114,
       "lng": 103.8531
     },
     {
       "name": "National Museum of Singapore",
+      "description": "The National Museum of Singapore is a national museum in Singapore and the oldest museum in Singapore. Its history dates back to 1849 when it was started as a section of a library at Singapore Institution.",
       "lat": 1.2966,
       "lng": 103.8485
     },
     {
       "name": "SMU",
+      "description": "Singapore Management University is a public university in Singapore that specialises in business and management studies.",
       "lat": 1.2977,
       "lng": 103.8499
     },
     {
       "name": "Gardens by the Bay",
+      "description": "Gardens by the Bay is a nature park spanning 101 hectares in the Central Region of Singapore, adjacent to the Marina Reservoir.",
       "lat": 1.2816,
       "lng": 103.8636
     }

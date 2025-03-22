@@ -4,6 +4,7 @@ import networkx as nx
 import folium
 from streamlit_folium import st_folium
 from folium.plugins import MarkerCluster
+import json
 
 # Streamlit interface
 st.title("Singapore Attractions Route Optimizer")
@@ -13,11 +14,19 @@ st.sidebar.header("Enter Trip Details")
 
 transport_mode = st.sidebar.selectbox("Choose transport mode", ["walk", "bike", "drive"])
 
-attractions = st.sidebar.text_area("Enter attraction coordinates (lat,lon)",
-                                   "1.3114,103.8531\n1.2977,103.8499\n1.2843,103.8600")
+# Read JSON file (NEW)
+with open(r'C:\Users\Valerian Yap\Travel-Planner-Decision-Maker\Travel-Planner-Decision-Maker\notebooks\test_locations.json', 'r') as f:
+    locations_data = json.load(f)
 
-# Process attractions
-attraction_coords = [tuple(map(float, line.split(','))) for line in attractions.strip().split('\n')]
+# Extract coordinates and names from JSON data
+attraction_coords = [(loc['lat'], loc['lng']) for loc in locations_data]
+attraction_names = [loc['name'] for loc in locations_data]
+
+# attractions = st.sidebar.text_area("Enter attraction coordinates (lat,lon)",
+#                                    "1.3114,103.8531\n1.2977,103.8499\n1.2843,103.8600")
+
+# # Process attractions
+# attraction_coords = [tuple(map(float, line.split(','))) for line in attractions.strip().split('\n')]
 
 # Fetch road network data around the centroid of given attractions
 centroid_lat = sum(lat for lat, lon in attraction_coords) / len(attraction_coords)
@@ -40,7 +49,7 @@ m = folium.Map(location=[centroid_lat, centroid_lon], zoom_start=14)
 # Add Marker Cluster
 marker_cluster = MarkerCluster().add_to(m)
 for idx, coord in enumerate(attraction_coords):
-    folium.Marker(coord, popup=f"Attraction {idx+1}").add_to(marker_cluster)
+    folium.Marker(coord, popup=attraction_names[idx]).add_to(marker_cluster)
 
 # Add route polyline
 folium.PolyLine(route_coords, color="blue", weight=5, opacity=0.8,
