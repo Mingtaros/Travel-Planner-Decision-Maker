@@ -2,6 +2,7 @@ import json
 import random
 import numpy as np
 from docplex.mp.model import Model
+from docplex.mp.context import Context
 
 
 def get_transport_matrix():
@@ -41,6 +42,7 @@ def get_all_locations():
     
     locations = [route_matrix["locations"][location_id] for location_id in route_matrix["locations"]]
     return locations
+
 
 class TravelItineraryProblem(object):
     def __init__(
@@ -94,7 +96,10 @@ class TravelItineraryProblem(object):
 
 
     def define_model(self):
-        self.mdl = Model("MITB-AI")
+        context = Context.make_default_context()
+        context.cplex_parameters.threads = 10
+        self.mdl = Model("MITB-AI", context=context)
+        self.mdl.parameters.timelimit = 120
 
 
     def define_variables(self):
@@ -442,10 +447,8 @@ class TravelItineraryProblem(object):
             # Find starting location (hotel) and its start time
             hotel = self.locations[0]
             start_location = hotel["name"]
-            start_time = round(self.u_var[(day, start_location)].solution_value)
-            print(f"{int(start_time // 60):02d}:{int(start_time % 60):02d} - Start from {start_location}")
-
             current_location = start_location
+
             while True:
                 next_location = None
                 chosen_transport = None
@@ -484,39 +487,82 @@ class TravelItineraryProblem(object):
                     break  # No more locations for the day
 
                 # Arrival time
-                arrival_time = self.u_var[(day, current_location)].solution_value
+                arrival_time = round(self.u_var[(day, current_location)].solution_value)
 
                 # Print movement details
                 print(f"{int(arrival_time // 60):02d}:{int(arrival_time % 60):02d} - From {current_location}, go to {next_location}")
                 print("        Details:")
-                print(f"         - use {chosen_transport}, price = ${price:.2f}, duration = {travel_time // 60} hours {travel_time % 60} minutes")
+                print(f"         - use {chosen_transport}, price = ${price:.2f}, duration = {travel_time // 60:.0f} hours {travel_time % 60:.2f} minutes")
                 
                 if entrance_fee is not None:
                     print(f"         - {next_location} entrance fee = ${entrance_fee:.2f}")
                 if duration is not None:
                     print(f"         - {next_location} duration = {duration[0]} hours {duration[1]} minutes")
                 if satisfaction_score is not None:
-                    print(f"         - {next_location} satisfaction score = {satisfaction_score:.2f} / 10")
+                    print(f"         - {next_location} satisfaction score = {satisfaction_score:.1f} / 10")
                 if food_price is not None:
                     print(f"         - {next_location} average food price = ${food_price:.2f}")
                 if rating is not None:
-                    print(f"         - {next_location} Rating = {rating:.2f} / 5")
+                    print(f"         - {next_location} Rating = {rating:.1f} / 5")
 
                 if next_location == hotel["name"]:
-                    print(f"{int(arrival_time // 60):02d}:{int(arrival_time % 60):02d} - Go back to hotel")
-                    print("        Details:")
-                    print(f"         - use {chosen_transport}, price = ${price:.2f}, duration = {travel_time // 60} hours {travel_time % 60} minutes")
                     break
 
                 current_location = next_location
 
             print()  # Blank line between days
-        travel_time_total = self.travel_time_var.solution_value
+        total_cost = self.NUM_DAYS * self.HOTEL_COST + \
+            sum(
+                self.x_var[(day, transport_type, source["name"], dest["name"])].solution_value * (
+                    self.bracket_var[(day, dest["name"], time_bracket)].solution_value *
+                    self.transport_matrix[(source["name"], dest["name"], time_bracket)][transport_type]["price"] 
+                    + (dest["entrance_fee"] if dest["type"] == "attraction" else 0)
+                    + (dest["avg_food_price"] if dest["type"] == "hawker" else 0)
+                )
+                for day in range(self.NUM_DAYS)
+                for transport_type in self.transport_types
+                for source in self.locations
+                for dest in self.locations
+                for time_bracket in self.time_brackets
+                if source["name"] != dest["name"]
+            )
+        
+        travel_time_total = sum(
+            self.x_var[(day, transport_type, source["name"], dest["name"])].solution_value * 
+            self.bracket_var[(day, dest["name"], time_bracket)].solution_value * 
+            self.transport_matrix[(source["name"], dest["name"], time_bracket)][transport_type]["duration"]
+            for day in range(self.NUM_DAYS)
+            for transport_type in self.transport_types
+            for source in self.locations
+            for dest in self.locations
+            for time_bracket in self.time_brackets
+            if source["name"] != dest["name"]
+        )
         travel_time_hm = (travel_time_total//60, travel_time_total%60)
+
+        total_satisfaction = sum(
+            self.x_var[(day, transport_type, source["name"], dest["name"])].solution_value * (
+                dest["satisfaction"] if dest["type"] == "attraction" else 0
+            )
+            for day in range(self.NUM_DAYS)
+            for transport_type in self.transport_types
+            for source in self.locations
+            for dest in self.locations
+            if source["name"] != dest["name"]
+        ) + sum(
+            self.x_var[(day, transport_type, source["name"], dest["name"])].solution_value * (
+                dest["rating"] if dest["type"] == "hawker" else 0
+            )
+            for day in range(self.NUM_DAYS)
+            for transport_type in self.transport_types
+            for source in self.locations
+            for dest in self.locations
+            if source["name"] != dest["name"]
+        )
         print("Overall:")
-        print(f"    Total Cost             = ${self.cost_var.solution_value:.2f}")
-        print("    Total Travel Time      =", travel_time_hm[0], "hours", travel_time_hm[1], "minutes")
-        print("    Estimated Satisfaction =", self.satisfaction_var.solution_value)
+        print(f"    Total Cost             = ${total_cost:.2f}")
+        print(f"    Total Travel Time      = {travel_time_hm[0]:.0f} hours {travel_time_hm[1]:.2f} minutes")
+        print(f"    Estimated Satisfaction = {total_satisfaction:.2f}")
 
 
 if __name__ == "__main__":
