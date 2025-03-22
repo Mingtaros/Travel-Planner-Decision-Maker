@@ -88,6 +88,14 @@ for i in range(len(attraction_coords) - 1):
     route_segment = [(G.nodes[node]['y'], G.nodes[node]['x']) for node in route]
     route_coords.extend(route_segment)
 
+# # Generate Google Maps Embed URL
+# base_url = "https://www.google.com/maps/embed/v1/directions"
+# api_key = "YOUR_GOOGLE_MAPS_API_KEY"  # Replace with your Google Maps API key
+# origin = f"{attraction_coords[0][0]},{attraction_coords[0][1]}"
+# destination = f"{attraction_coords[-1][0]},{attraction_coords[-1][1]}"
+# waypoints = "|".join([f"{lat},{lon}" for lat, lon in attraction_coords[1:-1]])
+# map_url = f"{base_url}?key={api_key}&origin={origin}&destination={destination}&waypoints={waypoints}&mode={transport_mode}"
+
 # Create columns for layout
 col1, col2 = st.columns([2, 1])
 
