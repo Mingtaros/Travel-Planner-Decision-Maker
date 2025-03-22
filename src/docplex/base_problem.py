@@ -595,14 +595,17 @@ class TravelItineraryProblem(object):
                 if next_location == hotel["name"]:
                     break
 
-                current_location = next_location
-
+                current_location = next_location # update for next loop
             print()  # Blank line between days
+
         total_cost = self.NUM_DAYS * self.HOTEL_COST + \
-            sum(
-                self.x_var[(day, transport_type, source["name"], dest["name"])].solution_value * (
-                    self.bracket_var[(day, dest["name"], time_bracket)].solution_value *
-                    self.transport_matrix[(source["name"], dest["name"], time_bracket)][transport_type]["price"] 
+            sum([
+                # only count if destination is chosen
+                self.x_var[(day, transport_type, source["name"], dest["name"])].solution_value *
+                self.bracket_var[(day, dest["name"], time_bracket)].solution_value * (
+                    # calculate the fare to get to this destination
+                    self.transport_matrix[(source["name"], dest["name"], time_bracket)][transport_type]["price"]
+                    # if go there, find the entrance fee / food price
                     + (dest["entrance_fee"] if dest["type"] == "attraction" else 0)
                     + (dest["avg_food_price"] if dest["type"] == "hawker" else 0)
                 )
@@ -612,7 +615,7 @@ class TravelItineraryProblem(object):
                 for dest in self.locations
                 for time_bracket in self.time_brackets
                 if source["name"] != dest["name"]
-            )
+            ])
         
         travel_time_total = sum(
             self.x_var[(day, transport_type, source["name"], dest["name"])].solution_value * 
