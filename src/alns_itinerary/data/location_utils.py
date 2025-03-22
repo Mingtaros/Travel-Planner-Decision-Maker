@@ -376,6 +376,8 @@ def filter_locations(locations, max_attractions=None, max_hawkers=None, filter_c
     attractions = [loc for loc in locations if loc["type"] == "attraction"]
     hawkers = [loc for loc in locations if loc["type"] == "hawker"]
     
+    logger.info(f"Filtering locations: {len(hotels)} hotels, {len(attractions)} attractions, {len(hawkers)} hawkers")
+    
     # Default sorting criteria
     attraction_sort_key = "satisfaction" if not filter_criteria else filter_criteria.get("attractions", "satisfaction")
     hawker_sort_key = "rating" if not filter_criteria else filter_criteria.get("hawkers", "rating")

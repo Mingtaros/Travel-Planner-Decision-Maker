@@ -1,0 +1,236 @@
+{
+  "trip_summary": {
+    "duration": 3,
+    "total_budget": 500,
+    "actual_expenditure": 221.55,
+    "total_travel_time": 249.5000000000001,
+    "total_satisfaction": 29.03247959052387,
+    "is_feasible": false,
+    "starting_hotel": "Marina Bay Sands Singapore"
+  },
+  "days": [
+    {
+      "day": 1,
+      "date": "2023-01-01",
+      "locations": [
+        {
+          "name": "Marina Bay Sands Singapore",
+          "type": "hotel",
+          "position": "start",
+          "arrival_time": "09:00",
+          "departure_time": "09:00",
+          "transit_from_prev": null,
+          "transit_duration": 0,
+          "transit_cost": 0,
+          "satisfaction": 0,
+          "cost": 0
+        },
+        {
+          "name": "Tekka Centre",
+          "type": "hawker",
+          "position": "middle",
+          "arrival_time": "09:21",
+          "departure_time": "10:21",
+          "transit_from_prev": "transit",
+          "transit_duration": 0,
+          "transit_cost": 0,
+          "duration": 60,
+          "satisfaction": 4.9000053436280435,
+          "cost": 10,
+          "description": "Food center with rating 4.9/5",
+          "meal_cost": 10
+        },
+        {
+          "name": "JAAN by Kirk Westaway",
+          "type": "hawker",
+          "position": "middle",
+          "arrival_time": "11:00",
+          "departure_time": "12:00",
+          "transit_from_prev": "transit",
+          "transit_duration": 38.799999999999955,
+          "transit_cost": 1.19,
+          "duration": 60,
+          "satisfaction": 4.722463131792223,
+          "cost": 10,
+          "meal_type": "lunch",
+          "description": "Food center with rating 4.7/5",
+          "meal_cost": 10
+        },
+        {
+          "name": "Marina Bay Sands Singapore",
+          "type": "hotel",
+          "position": "middle",
+          "arrival_time": "12:27",
+          "departure_time": "12:27",
+          "transit_from_prev": "transit",
+          "transit_duration": 27.100000000000023,
+          "transit_cost": 1.19,
+          "duration": 0,
+          "satisfaction": 0,
+          "cost": 0
+        }
+      ]
+    },
+    {
+      "day": 2,
+      "date": "2023-01-02",
+      "locations": [
+        {
+          "name": "Marina Bay Sands Singapore",
+          "type": "hotel",
+          "position": "start",
+          "arrival_time": "09:00",
+          "departure_time": "09:00",
+          "transit_from_prev": null,
+          "transit_duration": 0,
+          "transit_cost": 0,
+          "satisfaction": 0,
+          "cost": 0
+        },
+        {
+          "name": "Muthu's Curry - Little India",
+          "type": "hawker",
+          "position": "middle",
+          "arrival_time": "09:23",
+          "departure_time": "10:23",
+          "transit_from_prev": "transit",
+          "transit_duration": 0,
+          "transit_cost": 0,
+          "duration": 60,
+          "satisfaction": 4.88753729605529,
+          "cost": 10,
+          "description": "Food center with rating 4.9/5",
+          "meal_cost": 10
+        },
+        {
+          "name": "Tekka Centre",
+          "type": "hawker",
+          "position": "middle",
+          "arrival_time": "11:00",
+          "departure_time": "12:00",
+          "transit_from_prev": "transit",
+          "transit_duration": 36.5,
+          "transit_cost": 1.19,
+          "duration": 60,
+          "satisfaction": 4.9000053436280435,
+          "cost": 10,
+          "meal_type": "lunch",
+          "description": "Food center with rating 4.9/5",
+          "meal_cost": 10
+        },
+        {
+          "name": "Marina Bay Sands Singapore",
+          "type": "hotel",
+          "position": "middle",
+          "arrival_time": "12:21",
+          "departure_time": "12:21",
+          "transit_from_prev": "transit",
+          "transit_duration": 21.200000000000045,
+          "transit_cost": 1.4,
+          "duration": 0,
+          "satisfaction": 0,
+          "cost": 0
+        }
+      ]
+    },
+    {
+      "day": 3,
+      "date": "2023-01-03",
+      "locations": [
+        {
+          "name": "Marina Bay Sands Singapore",
+          "type": "hotel",
+          "position": "start",
+          "arrival_time": "09:00",
+          "departure_time": "09:00",
+          "transit_from_prev": null,
+          "transit_duration": 0,
+          "transit_cost": 0,
+          "satisfaction": 0,
+          "cost": 0
+        },
+        {
+          "name": "JAAN by Kirk Westaway",
+          "type": "hawker",
+          "position": "middle",
+          "arrival_time": "09:27",
+          "departure_time": "10:27",
+          "transit_from_prev": "transit",
+          "transit_duration": 0,
+          "transit_cost": 0,
+          "duration": 60,
+          "satisfaction": 4.722463131792223,
+          "cost": 10,
+          "description": "Food center with rating 4.7/5",
+          "meal_cost": 10
+        },
+        {
+          "name": "Tekka Centre",
+          "type": "hawker",
+          "position": "middle",
+          "arrival_time": "11:00",
+          "departure_time": "12:00",
+          "transit_from_prev": "transit",
+          "transit_duration": 33.0,
+          "transit_cost": 1.19,
+          "duration": 60,
+          "satisfaction": 4.9000053436280435,
+          "cost": 10,
+          "meal_type": "lunch",
+          "description": "Food center with rating 4.9/5",
+          "meal_cost": 10
+        },
+        {
+          "name": "Marina Bay Sands Singapore",
+          "type": "hotel",
+          "position": "middle",
+          "arrival_time": "12:21",
+          "departure_time": "12:21",
+          "transit_from_prev": "transit",
+          "transit_duration": 21.200000000000045,
+          "transit_cost": 1.4,
+          "duration": 0,
+          "satisfaction": 0,
+          "cost": 0
+        }
+      ]
+    }
+  ],
+  "attractions_visited": [],
+  "budget_breakdown": {
+    "hotel": 150,
+    "attractions": 0,
+    "meals": 60,
+    "transportation": 7.5600000000000005
+  },
+  "transport_summary": {
+    "total_duration": 177.80000000000007,
+    "total_cost": 7.5600000000000005
+  },
+  "constraint_violations": [
+    {
+      "type": "hawker_outside_meal_time",
+      "details": "Day 1 visits hawker Tekka Centre outside of meal times"
+    },
+    {
+      "type": "missing_dinner",
+      "details": "Day 1 has no dinner visit"
+    },
+    {
+      "type": "hawker_outside_meal_time",
+      "details": "Day 2 visits hawker Muthu's Curry - Little India outside of meal times"
+    },
+    {
+      "type": "missing_dinner",
+      "details": "Day 2 has no dinner visit"
+    },
+    {
+      "type": "hawker_outside_meal_time",
+      "details": "Day 3 visits hawker JAAN by Kirk Westaway outside of meal times"
+    },
+    {
+      "type": "missing_dinner",
+      "details": "Day 3 has no dinner visit"
+    }
+  ]
+}

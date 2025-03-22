@@ -1,38 +1,42 @@
+"""
+ALNS module for the VRP-based Travel Itinerary Optimizer.
+Implements position-based representation and specialized operators.
+"""
+
 # Import key components for easy access
-from .alns_core import ALNS
-from .destroy_operators import (
-    destroy_random_days,
-    destroy_random_attractions,
+from .vrp_alns import VRPALNS
+from .vrp_solution import VRPSolution
+from .vrp_operators import (
+    # Destroy operators
+    destroy_random_day_subsequence,
     destroy_worst_attractions,
+    destroy_random_attractions,
     destroy_random_meals,
-    destroy_random_routes,
-    destroy_time_aware_routes
-)
-from .repair_operators import (
-    repair_greedy,
-    repair_random,
-    repair_regret,
-    repair_satisfaction_based,
-    repair_time_based,
-    repair_time_consistent  
+    destroy_time_window_violations,
+    destroy_day_shuffle,
+    
+    # Repair operators
+    repair_greedy_insertion,
+    repair_regret_insertion,
+    repair_time_based_insertion
 )
 
 # Specify which symbols to export when using "from alns import *"
 __all__ = [
-    # ALNS Core
-    'ALNS',
+    # Core components
+    'VRPALNS',
+    'VRPSolution',
     
-    # Destroy Operators
-    'destroy_random_days',
-    'destroy_random_attractions', 
+    # Destroy operators
+    'destroy_random_day_subsequence',
     'destroy_worst_attractions',
+    'destroy_random_attractions', 
     'destroy_random_meals',
-    'destroy_random_routes',
+    'destroy_time_window_violations',
+    'destroy_day_shuffle',
     
-    # Repair Operators
-    'repair_greedy',
-    'repair_random',
-    'repair_regret',
-    'repair_satisfaction_based',
-    'repair_time_based'
+    # Repair operators
+    'repair_greedy_insertion',
+    'repair_regret_insertion',
+    'repair_time_based_insertion'
 ]

@@ -102,9 +102,9 @@ def get_all_locations():
             location_type = "attraction"  # Default assumption
             
             # You might want to add more sophisticated type detection logic here
-            if "hotel" in location_data.get("name", "").lower():
+            if "hotel" in location_data.get("type", "").lower():
                 location_type = "hotel"
-            elif "food centre" in location_data.get("name", "").lower() or "hawker" in location_data.get("name", "").lower():
+            elif "food centre" in location_data.get("type", "").lower() or "hawker" in location_data.get("type", "").lower():
                 location_type = "hawker"
             
             # Construct location dictionary

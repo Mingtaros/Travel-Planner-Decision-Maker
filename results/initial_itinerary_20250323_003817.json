@@ -1,0 +1,336 @@
+{
+  "trip_summary": {
+    "duration": 3,
+    "total_budget": 500,
+    "actual_expenditure": 482.42908917258626,
+    "total_travel_time": 326.9000000000002,
+    "total_satisfaction": 79.06214950696473,
+    "is_feasible": false,
+    "starting_hotel": "Marina Bay Sands Singapore"
+  },
+  "days": [
+    {
+      "day": 1,
+      "date": "2023-01-01",
+      "locations": [
+        {
+          "name": "Marina Bay Sands Singapore",
+          "type": "hotel",
+          "position": "start",
+          "arrival_time": "09:00",
+          "departure_time": "09:00",
+          "transit_from_prev": null,
+          "transit_duration": 0,
+          "transit_cost": 0,
+          "satisfaction": 0,
+          "cost": 0
+        },
+        {
+          "name": "Little India",
+          "type": "attraction",
+          "position": "middle",
+          "arrival_time": "09:21",
+          "departure_time": "10:19",
+          "transit_from_prev": "transit",
+          "transit_duration": 0,
+          "transit_cost": 0,
+          "duration": 58,
+          "satisfaction": 9.876094204717635,
+          "cost": 37.23486351782992,
+          "description": "Attraction with satisfaction rating 9.9/10",
+          "entrance_fee": 37.23486351782992
+        },
+        {
+          "name": "Singapore Botanic Gardens",
+          "type": "attraction",
+          "position": "middle",
+          "arrival_time": "10:50",
+          "departure_time": "12:43",
+          "transit_from_prev": "transit",
+          "transit_duration": 30.42999999999995,
+          "transit_cost": 1.5,
+          "duration": 113,
+          "satisfaction": 9.656797731148256,
+          "cost": 37.8040936198383,
+          "description": "Attraction with satisfaction rating 9.7/10",
+          "entrance_fee": 37.8040936198383
+        },
+        {
+          "name": "Muthu's Curry - Little India",
+          "type": "hawker",
+          "position": "middle",
+          "arrival_time": "13:14",
+          "departure_time": "14:14",
+          "transit_from_prev": "transit",
+          "transit_duration": 31.299999999999955,
+          "transit_cost": 1.5,
+          "duration": 60,
+          "satisfaction": 4.88753729605529,
+          "cost": 10,
+          "meal_type": "lunch",
+          "description": "Food center with rating 4.9/5",
+          "meal_cost": 10
+        },
+        {
+          "name": "Tekka Centre",
+          "type": "hawker",
+          "position": "middle",
+          "arrival_time": "14:21",
+          "departure_time": "15:21",
+          "transit_from_prev": "transit",
+          "transit_duration": 6.970000000000027,
+          "transit_cost": 1.19,
+          "duration": 60,
+          "satisfaction": 4.9000053436280435,
+          "cost": 10,
+          "meal_type": "lunch",
+          "description": "Food center with rating 4.9/5",
+          "meal_cost": 10
+        },
+        {
+          "name": "Marina Bay Sands Singapore",
+          "type": "hotel",
+          "position": "middle",
+          "arrival_time": "15:42",
+          "departure_time": "15:42",
+          "transit_from_prev": "transit",
+          "transit_duration": 21.200000000000045,
+          "transit_cost": 1.4,
+          "duration": 0,
+          "satisfaction": 0,
+          "cost": 0
+        }
+      ]
+    },
+    {
+      "day": 2,
+      "date": "2023-01-02",
+      "locations": [
+        {
+          "name": "Marina Bay Sands Singapore",
+          "type": "hotel",
+          "position": "start",
+          "arrival_time": "09:00",
+          "departure_time": "09:00",
+          "transit_from_prev": null,
+          "transit_duration": 0,
+          "transit_cost": 0,
+          "satisfaction": 0,
+          "cost": 0
+        },
+        {
+          "name": "Marina Bay Sands SkyPark Observation Deck",
+          "type": "attraction",
+          "position": "middle",
+          "arrival_time": "09:09",
+          "departure_time": "10:33",
+          "transit_from_prev": "transit",
+          "transit_duration": 0,
+          "transit_cost": 0,
+          "duration": 84,
+          "satisfaction": 6.323095375594989,
+          "cost": 28.206342195139182,
+          "description": "Attraction with satisfaction rating 6.3/10",
+          "entrance_fee": 28.206342195139182
+        },
+        {
+          "name": "ArtScience Museum",
+          "type": "attraction",
+          "position": "middle",
+          "arrival_time": "10:38",
+          "departure_time": "12:00",
+          "transit_from_prev": "transit",
+          "transit_duration": 4.67999999999995,
+          "transit_cost": 1.19,
+          "duration": 82,
+          "satisfaction": 7.944150252125462,
+          "cost": 36.39286946773751,
+          "description": "Attraction with satisfaction rating 7.9/10",
+          "entrance_fee": 36.39286946773751
+        },
+        {
+          "name": "Maxwell Food Centre",
+          "type": "hawker",
+          "position": "middle",
+          "arrival_time": "12:24",
+          "departure_time": "13:24",
+          "transit_from_prev": "transit",
+          "transit_duration": 23.83000000000004,
+          "transit_cost": 1.19,
+          "duration": 60,
+          "satisfaction": 4.694397261843355,
+          "cost": 10,
+          "meal_type": "lunch",
+          "description": "Food center with rating 4.7/5",
+          "meal_cost": 10
+        },
+        {
+          "name": "Tekka Centre",
+          "type": "hawker",
+          "position": "middle",
+          "arrival_time": "13:43",
+          "departure_time": "14:43",
+          "transit_from_prev": "transit",
+          "transit_duration": 19.720000000000027,
+          "transit_cost": 1.29,
+          "duration": 60,
+          "satisfaction": 4.9000053436280435,
+          "cost": 10,
+          "meal_type": "lunch",
+          "description": "Food center with rating 4.9/5",
+          "meal_cost": 10
+        },
+        {
+          "name": "Marina Bay Sands Singapore",
+          "type": "hotel",
+          "position": "middle",
+          "arrival_time": "15:05",
+          "departure_time": "15:05",
+          "transit_from_prev": "transit",
+          "transit_duration": 21.200000000000045,
+          "transit_cost": 1.4,
+          "duration": 0,
+          "satisfaction": 0,
+          "cost": 0
+        }
+      ]
+    },
+    {
+      "day": 3,
+      "date": "2023-01-03",
+      "locations": [
+        {
+          "name": "Marina Bay Sands Singapore",
+          "type": "hotel",
+          "position": "start",
+          "arrival_time": "09:00",
+          "departure_time": "09:00",
+          "transit_from_prev": null,
+          "transit_duration": 0,
+          "transit_cost": 0,
+          "satisfaction": 0,
+          "cost": 0
+        },
+        {
+          "name": "Asian Civilisations Museum",
+          "type": "attraction",
+          "position": "middle",
+          "arrival_time": "09:25",
+          "departure_time": "11:01",
+          "transit_from_prev": "transit",
+          "transit_duration": 0,
+          "transit_cost": 0,
+          "duration": 96,
+          "satisfaction": 8.203363194654807,
+          "cost": 53.56726846349404,
+          "description": "Attraction with satisfaction rating 8.2/10",
+          "entrance_fee": 53.56726846349404
+        },
+        {
+          "name": "Gardens by the Bay",
+          "type": "attraction",
+          "position": "middle",
+          "arrival_time": "11:34",
+          "departure_time": "12:26",
+          "transit_from_prev": "transit",
+          "transit_duration": 33.48000000000002,
+          "transit_cost": 1.19,
+          "duration": 52,
+          "satisfaction": 8.203612106158289,
+          "cost": 59.29365190854734,
+          "description": "Attraction with satisfaction rating 8.2/10",
+          "entrance_fee": 59.29365190854734
+        },
+        {
+          "name": "Amoy Street Food Centre",
+          "type": "hawker",
+          "position": "middle",
+          "arrival_time": "12:56",
+          "departure_time": "13:56",
+          "transit_from_prev": "transit",
+          "transit_duration": 29.91999999999996,
+          "transit_cost": 1.4,
+          "duration": 60,
+          "satisfaction": 4.573086053782513,
+          "cost": 10,
+          "meal_type": "lunch",
+          "description": "Food center with rating 4.6/5",
+          "meal_cost": 10
+        },
+        {
+          "name": "Tekka Centre",
+          "type": "hawker",
+          "position": "middle",
+          "arrival_time": "14:23",
+          "departure_time": "15:23",
+          "transit_from_prev": "transit",
+          "transit_duration": 26.57000000000005,
+          "transit_cost": 1.5,
+          "duration": 60,
+          "satisfaction": 4.9000053436280435,
+          "cost": 10,
+          "meal_type": "lunch",
+          "description": "Food center with rating 4.9/5",
+          "meal_cost": 10
+        },
+        {
+          "name": "Marina Bay Sands Singapore",
+          "type": "hotel",
+          "position": "middle",
+          "arrival_time": "15:44",
+          "departure_time": "15:44",
+          "transit_from_prev": "transit",
+          "transit_duration": 21.200000000000045,
+          "transit_cost": 1.4,
+          "duration": 0,
+          "satisfaction": 0,
+          "cost": 0
+        }
+      ]
+    }
+  ],
+  "attractions_visited": [
+    "ArtScience Museum",
+    "Asian Civilisations Museum",
+    "Gardens by the Bay",
+    "Little India",
+    "Marina Bay Sands SkyPark Observation Deck",
+    "Singapore Botanic Gardens"
+  ],
+  "budget_breakdown": {
+    "hotel": 150,
+    "attractions": 252.49908917258628,
+    "meals": 60,
+    "transportation": 16.15
+  },
+  "transport_summary": {
+    "total_duration": 270.5000000000001,
+    "total_cost": 16.15
+  },
+  "constraint_violations": [
+    {
+      "type": "multiple_lunches",
+      "details": "Day 1 has 2 lunch visits: Muthu's Curry - Little India, Tekka Centre"
+    },
+    {
+      "type": "missing_dinner",
+      "details": "Day 1 has no dinner visit"
+    },
+    {
+      "type": "multiple_lunches",
+      "details": "Day 2 has 2 lunch visits: Maxwell Food Centre, Tekka Centre"
+    },
+    {
+      "type": "missing_dinner",
+      "details": "Day 2 has no dinner visit"
+    },
+    {
+      "type": "multiple_lunches",
+      "details": "Day 3 has 2 lunch visits: Amoy Street Food Centre, Tekka Centre"
+    },
+    {
+      "type": "missing_dinner",
+      "details": "Day 3 has no dinner visit"
+    }
+  ]
+}
