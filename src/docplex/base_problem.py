@@ -1,8 +1,11 @@
 import json
 import random
 import numpy as np
+import logging
 from docplex.mp.model import Model
 from docplex.mp.context import Context
+
+logger = logging.getLogger("itinerary_problem")
 
 
 def get_transport_matrix():
@@ -87,12 +90,95 @@ class TravelItineraryProblem(object):
         self.travel_time_penalty_per_minute = 0.1 # for every minute spent in transit, the "cost" is this in $
         self.satisfaction_offset = 10 # for the satisfaction, every point in satisfaction, offset the cost by this in $
 
+        # check for valid inputs
+        self.validate_inputs(budget, locations, transport_matrix, num_days)
+
         # define models and variables
         self.define_model()
         self.define_variables()
 
         # initialize solution as None before solving
         self.solution = None
+
+
+    def validate_inputs(self, budget, locations, transport_matrix, num_days):
+        """
+        Validate input data and print warnings/errors
+        
+        Args:
+            budget: Maximum budget
+            locations: List of location dictionaries
+            transport_matrix: Dictionary of transportation options
+            num_days: Number of days for the itinerary
+        """
+        logging.info("Validating optimization inputs...")
+        
+        # Check if we have at least one hotel
+        hotels = [loc for loc in locations if loc["type"] == "hotel"]
+        if not hotels:
+            logging.error("No hotels found in locations data!")
+        else:
+            logging.info(f"Found {len(hotels)} hotels in the data")
+        
+        # Check if we have hawkers for meals
+        hawkers = [loc for loc in locations if loc["type"] == "hawker"]
+        if not hawkers:
+            logging.error("No hawker centers found - meal constraints cannot be satisfied!")
+        else:
+            logging.info(f"Found {len(hawkers)} hawker centers in the data")
+        
+        # Check for attractions
+        attractions = [loc for loc in locations if loc["type"] == "attraction"]
+        logging.info(f"Found {len(attractions)} attractions in the data")
+        
+        # Validate location data completeness
+        for i, loc in enumerate(locations):
+            missing = []
+            if loc["type"] == "attraction":
+                if "entrance_fee" not in loc or loc["entrance_fee"] is None:
+                    missing.append("entrance_fee")
+                if "satisfaction" not in loc or loc["satisfaction"] is None:
+                    missing.append("satisfaction")
+                if "duration" not in loc or loc["duration"] is None:
+                    missing.append("duration")
+            elif loc["type"] == "hawker":
+                if "rating" not in loc or loc["rating"] is None:
+                    missing.append("rating")
+                if "duration" not in loc or loc["duration"] is None:
+                    missing.append("duration")
+            
+            if missing:
+                logging.warning(f"Location '{loc['name']}' is missing required fields: {', '.join(missing)}")
+        
+        # Check transport matrix completeness
+        sample_routes = 0
+        missing_routes = 0
+        for i, src in enumerate(locations):
+            for j, dest in enumerate(locations):
+                if i != j:  # Skip self-routes
+                    for hour in [8, 12, 16, 20]:  # Time brackets
+                        key = (src["name"], dest["name"], hour)
+                        if key not in transport_matrix:
+                            missing_routes += 1
+                            if missing_routes <= 5:  # Only log the first few missing routes
+                                logging.error(f"Missing transport data: {key}")
+                        else:
+                            sample_routes += 1
+        
+        if missing_routes > 0:
+            logging.error(f"Missing {missing_routes} routes in transport matrix!")
+        else:
+            logging.info(f"Transport matrix contains all required routes ({sample_routes} total)")
+        
+        # Check budget feasibility
+        hotel_cost = num_days * self.HOTEL_COST
+        min_food_cost = num_days * 2 * 10  # Minimum 2 meals per day at $10 each
+        
+        min_cost = hotel_cost + min_food_cost
+        if budget < min_cost:
+            logging.error(f"Budget (${budget}) is too low! Minimum needed is ${min_cost} for hotel and food alone")
+        else:
+            logging.info(f"Budget check passed: ${budget} >= minimum ${min_cost} for hotel and food")
 
 
     def define_model(self):
@@ -148,7 +234,8 @@ class TravelItineraryProblem(object):
         self.cost_var = self.mdl.continuous_var(lb=0, name="total_cost")
         self.travel_time_var = self.mdl.continuous_var(lb=0, name="total_travel_time")
         self.satisfaction_var = self.mdl.continuous_var(lb=0, name="total_satisfaction")
-    
+
+
     def define_constraints(self):
         # every day, for every location, the time bracket the guy goes in, must be only 1, cannot go to multiple
         for day in range(self.NUM_DAYS):
@@ -559,10 +646,10 @@ class TravelItineraryProblem(object):
             for dest in self.locations
             if source["name"] != dest["name"]
         )
-        print("Overall:")
+        print("Overall Summary:")
         print(f"    Total Cost             = ${total_cost:.2f}")
         print(f"    Total Travel Time      = {travel_time_hm[0]:.0f} hours {travel_time_hm[1]:.2f} minutes")
-        print(f"    Estimated Satisfaction = {total_satisfaction:.2f}")
+        print(f"    Estimated Satisfaction = {total_satisfaction:.2f} points")
 
 
 if __name__ == "__main__":
