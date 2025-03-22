@@ -18,6 +18,18 @@
       "lng": 103.8499
     },
     {
+      "name": "Lau Pa Sat",
+      "description": "Lau Pa Sat is a historic building located in the heart of Singapore's financial district. Try out popular food options like Satay, Hokkien Mee and Fried Carrot Cake and enjoy the vibrant atmosphere.",
+      "lat": 1.2806,
+      "lng": 103.8481
+    }, 
+    {
+      "name": "Marina Bay Sands",
+      "description": "Marina Bay Sands is an integrated resort fronting Marina Bay in Singapore. It is known for its iconic three towers and the SkyPark.",
+      "lat": 1.2834,
+      "lng": 103.8607
+    },
+    {
       "name": "Gardens by the Bay",
       "description": "Gardens by the Bay is a nature park spanning 101 hectares in the Central Region of Singapore, adjacent to the Marina Reservoir.",
       "lat": 1.2816,
