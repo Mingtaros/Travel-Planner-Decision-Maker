@@ -172,6 +172,12 @@ class VRPALNS:
         """
         solution = VRPSolution(self.problem)
         
+        budget_left = self.problem.budget - (self.problem.NUM_DAYS * self.problem.HOTEL_COST)
+        hotel_travel_cost = 10
+        rich_threshold = 100
+        avg_hawker_cost = 15
+        attraction_per_day = 4
+        
         # Get attraction and hawker lists
         attractions = [i for i in range(self.problem.num_locations) 
                     if self.problem.locations[i]["type"] == "attraction"]
@@ -203,94 +209,140 @@ class VRPALNS:
         
         # Initialize each day with proper structure
         for day in range(solution.num_days):
+            
+            latest_completion_time = self.problem.START_TIME
+            current_position = 1  # Start at position 1 (after hotel)
+            num_days_left = solution.num_days - day
+            lunch_inserted = 0
+            dinner_inserted = 0
+            approx_mandatory_cost = ((num_days_left * 2) - lunch_inserted - dinner_inserted) * avg_hawker_cost + hotel_travel_cost
+            attraction_count = 0
+            
             # Skip if we don't have enough hawkers
             if len(hawker_ratings) < 2:
                 logger.warning("Not enough unique hawkers for each day's lunch and dinner")
                 continue
-                
-            # 1. Create lunch at appropriate time
-            lunch_time = self.problem.LUNCH_START + 60  # 12:00 PM
-            lunch_hawker_idx, _ = hawker_ratings.pop(0)  # Get highest rated hawker for lunch
             
-            # Find transport mode that works
-            lunch_inserted = False
-            for transport_mode in ["transit", "drive"]:
-                if solution.insert_location(day, 1, lunch_hawker_idx, transport_mode):
-                    lunch_inserted = True
+            if budget_left/num_days_left < rich_threshold:
+                transport_mode = "transit"
+            else:
+                transport_mode = "drive"
+            
+            logger.info(f"Day {day+1}: Starting with ${budget_left:.2f} budget, using {transport_mode} transport")
+            
+            count = 0
+            
+            # Visit attractions until lunch time
+            while (latest_completion_time + 120) < self.problem.LUNCH_END and approx_mandatory_cost < budget_left and attraction_count < attraction_per_day:
+                
+                count += 1
+                attr_idx, attr_ratio = attraction_values.pop(0)
+                
+                attr_cost, attr_duration = solution.get_cost_duration(day, attr_idx, current_position, transport_mode)
+                
+                if approx_mandatory_cost + attr_cost <= budget_left and attr_duration + latest_completion_time <= self.problem.LUNCH_END:
+                    # Insert the attraction
+                    check, departure_time = solution.insert_location(day, current_position, attr_idx, transport_mode)
+                    if check:
+                        attraction_count += 1
+                        current_position += 1
+                        latest_completion_time = departure_time
+                        budget_left -= attr_cost
+                        # Remove this attraction from consideration for other days
+                        attraction_values = [(a, v) for a, v in attraction_values if a != attr_idx]
+                else:
+                    attraction_values.append((attr_idx, attr_ratio))  # Add back to the end of the list
+                
+                if count >= 10:
+                    logger.warning("Could not insert enough attractions before lunch time")
                     break
             
-            if not lunch_inserted:
-                # Try another hawker if insertion failed
+            logger.info(f"Day {day+1}: Lunch time reached at {round(latest_completion_time/60, 2)} with ${budget_left:.2f} budget left")
+            
+            # Have lunch at appropriate time
+            while lunch_inserted == 0:
                 if hawker_ratings:
-                    lunch_hawker_idx, _ = hawker_ratings.pop(0)
-                    for transport_mode in ["transit", "drive"]:
-                        if solution.insert_location(day, 1, lunch_hawker_idx, transport_mode):
-                            lunch_inserted = True
-                            break
+                    lunch_hawker_idx, hwk_ratio = hawker_ratings.pop(0)
+                    hwk_cost, hwk_duration = solution.get_cost_duration(day, lunch_hawker_idx, current_position, transport_mode)
+                    
+                    if approx_mandatory_cost + hwk_cost - avg_hawker_cost <= budget_left: # Ensure we can afford the hawker
+                        # Insert the hawker center
+                        check, lunch_departure_time = solution.insert_location(day, current_position, lunch_hawker_idx, transport_mode, 'Lunch')
+                        if check:
+                            current_position += 1
+                            latest_completion_time = lunch_departure_time
+                            budget_left -= hwk_cost
+                            lunch_inserted = 1
+                            hawker_ratings.append((lunch_hawker_idx, hwk_ratio))
             
-            # 2. Create dinner at appropriate time
-            dinner_time = self.problem.DINNER_START + 60  # 6:00 PM
+            approx_mandatory_cost = ((num_days_left * 2) - lunch_inserted - dinner_inserted) * avg_hawker_cost + hotel_travel_cost
             
-            # For dinner timing, we need to calculate appropriate position after lunch
-            dinner_position = 2  # After lunch by default
+            logger.info(f"Day {day+1}: Lunch completed at {round(latest_completion_time/60, 2)} with ${budget_left:.2f} budget left")
             
-            if lunch_inserted:
-                # Aim for dinner time
-                dinner_hawker_idx, _ = hawker_ratings.pop(0)  # Get highest rated hawker for dinner
+            count = 0
+            # Visit attractions until dinner time
+            while (latest_completion_time + 120) < self.problem.DINNER_END and approx_mandatory_cost < budget_left and attraction_count < attraction_per_day:
                 
-                # Find transport mode that works
-                dinner_inserted = False
-                for transport_mode in ["transit", "drive"]:
-                    if solution.insert_location(day, dinner_position, dinner_hawker_idx, transport_mode):
-                        dinner_inserted = True
-                        break
+                count += 1
+                attr_idx, attr_ratio = attraction_values.pop(0)
                 
-                if not dinner_inserted:
-                    # Try another hawker if insertion failed
-                    if hawker_ratings:
-                        dinner_hawker_idx, _ = hawker_ratings.pop(0)
-                        for transport_mode in ["transit", "drive"]:
-                            if solution.insert_location(day, dinner_position, dinner_hawker_idx, transport_mode):
-                                dinner_inserted = True
-                                break
+                attr_cost, attr_duration = solution.get_cost_duration(day, attr_idx, current_position, transport_mode)
+                
+                if approx_mandatory_cost + attr_cost <= budget_left and attr_duration + latest_completion_time <= self.problem.DINNER_END:
+                    # Insert the attraction
+                    check, departure_time = solution.insert_location(day, current_position, attr_idx, transport_mode)
+                    if check:
+                        attraction_count += 1
+                        current_position += 1
+                        latest_completion_time = departure_time
+                        budget_left -= attr_cost
+                        # Remove this attraction from consideration for other days
+                        attraction_values = [(a, v) for a, v in attraction_values if a != attr_idx]
+                else:
+                    attraction_values.append((attr_idx, attr_ratio))  # Add back to the end of the list
+                    
+                if count >= 10:
+                    logger.warning("Could not insert enough attractions before dinner time")
+                    break
             
-            # 3. Add hotel return at the end
+            logger.info(f"Day {day+1}: Dinner time reached at {round(latest_completion_time/60, 2)} with ${budget_left:.2f} budget left")
+                        
+            # Have dinner at appropriate time
+            while dinner_inserted == 0:
+                if hawker_ratings:
+                    dinner_hawker_idx, hwk_ratio = hawker_ratings.pop(0)
+                    hwk_cost, hwk_duration = solution.get_cost_duration(day, dinner_hawker_idx, current_position, transport_mode)
+                    
+                    if approx_mandatory_cost + hwk_cost - avg_hawker_cost <= budget_left: # Ensure we can afford the hawker
+                        # Insert the hawker center
+                        check, dinner_departure_time = solution.insert_location(day, current_position, dinner_hawker_idx, transport_mode, 'Dinner')
+                        if check:
+                            current_position += 1
+                            latest_completion_time = dinner_departure_time
+                            budget_left -= hwk_cost
+                            dinner_inserted = 1
+                            hawker_ratings.append((dinner_hawker_idx, hwk_ratio))
+            
+            # Add hotel return at the end
             hotel_idx = 0
-            hotel_position = dinner_position + 1 if dinner_inserted else dinner_position
+            approx_mandatory_cost = ((num_days_left * 2) - lunch_inserted - dinner_inserted) * avg_hawker_cost + hotel_travel_cost
+            
+            logger.info(f"Day {day+1}: Dinner completed at {round(latest_completion_time/60, 2)} with ${budget_left:.2f} budget left")
             
             # Find transport mode that works
             hotel_return_inserted = False
-            for transport_mode in ["transit", "drive"]:
-                if solution.insert_location(day, hotel_position, hotel_idx, transport_mode):
-                    hotel_return_inserted = True
-                    break
-            
-            # 4. Try to insert attractions between lunch and dinner
-            if lunch_inserted and dinner_inserted:
-                attr_position = 2  # After lunch, before dinner
-                
-                # Try to add 1-2 attractions between lunch and dinner
-                added_attractions = 0
-                max_attractions = 2
-                
-                for attr_idx, _ in attraction_values[:]:
-                    if added_attractions >= max_attractions:
+            for transport_mode in ["drive", "transit"]:
+                hotel_cost, hotel_duration = solution.get_cost_duration(day, hotel_idx, current_position, transport_mode)
+                if (latest_completion_time + hotel_duration) < self.problem.HARD_LIMIT_END_TIME and approx_mandatory_cost + hotel_cost <= budget_left:
+                    check, _ = solution.insert_location(day, current_position, hotel_idx, transport_mode)
+                    if check:
+                        hotel_return_inserted = True
                         break
-                    
-                    # Try both transit and drive
-                    for transport_mode in ["transit", "drive"]:
-                        if solution.is_feasible_insertion(day, attr_position, attr_idx, transport_mode):
-                            if solution.insert_location(day, attr_position, attr_idx, transport_mode):
-                                # Update attraction position for next insertion
-                                attr_position += 1
-                                added_attractions += 1
-                                
-                                # Remove this attraction from consideration for other days
-                                attraction_values = [(a, v) for a, v in attraction_values if a != attr_idx]
-                                break
-        
-        # Post-process to fix any issues
-        solution = solution.post_process_solution()
+            
+            logger.info(f"Day {day+1}: Hotel return completed with ${budget_left:.2f} budget left")
+            
+            if not hotel_return_inserted:
+                logger.warning("Could not insert hotel return due to time or budget constraints")
         
         return solution
     

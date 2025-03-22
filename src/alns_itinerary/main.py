@@ -148,8 +148,6 @@ def main(
         initial_json_file = export_json_itinerary(problem, initial_solution, initial_json_path)
         logger.info(f"Initial solution exported to: {initial_json_file}")
         
-        exit()
-        
         # Run the optimization
         results = alns.run(verbose=True)
         

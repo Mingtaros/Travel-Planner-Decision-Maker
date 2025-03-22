@@ -41,7 +41,48 @@ class VRPSolution:
         new_solution.routes = copy.deepcopy(self.routes)
         return new_solution
     
-    def insert_location(self, day, position, location_idx, transport_mode="transit"):
+    def get_cost_duration(self, day, location_idx, position, transport_mode="transit"):
+        """
+        Calculate the cost and duration of travel to a new location.
+        
+        Args:
+            location_idx: Index of the new location
+            prev_loc: Index of the previous location
+            prev_departure: Departure time from the previous location
+            transport_mode: Transport mode ("transit" or "drive")
+            
+        Returns:
+            tuple: (cost, duration) of travel
+        """
+        route = self.routes[day]
+        # Get previous location and departure time
+        if position == 0:
+            prev_loc, prev_departure = 0, self.problem.START_TIME
+        else:
+            prev_loc, _, prev_departure, _ = route[position-1]
+        # Calculate travel time
+        transport_hour = self.problem.get_transport_hour(prev_departure)
+        try:
+            transport_key = (self.problem.locations[prev_loc]["name"], 
+                           self.problem.locations[location_idx]["name"], 
+                           transport_hour)
+            transport_data = self.problem.transport_matrix[transport_key][transport_mode]
+            
+            loc_cost = 0
+            if self.problem.locations[location_idx]['type'] == 'attraction':
+                loc_cost = self.problem.locations[location_idx].get('entrance_fee', 0)
+            elif self.problem.locations[location_idx]['type'] == 'hawker':
+                loc_cost = self.problem.locations[location_idx].get('avg_food_price', 0)
+            else:
+                loc_cost = 0
+                
+            return transport_data["price"] + loc_cost, transport_data["duration"] + self.problem.locations[location_idx].get('duration', 60)
+        except KeyError:
+            # Missing transport data, use defaults
+            logger.warning(f"Missing transport data for {self.problem.locations[location_idx]}")
+            logger.warning(f"Previous Location: {self.problem.locations[prev_loc]}")
+    
+    def insert_location(self, day, position, location_idx, transport_mode="transit", meal=None):
         """
         Insert a location into a route at the specified position.
         Does not check feasibility - use is_feasible_insertion for that.
@@ -79,10 +120,10 @@ class VRPSolution:
             # Special handling for hawkers (enforce meal windows)
             if self.problem.locations[location_idx]["type"] == "hawker":
                 # Check if it's lunch or dinner time
-                if arrival_time < self.problem.LUNCH_END and arrival_time > self.problem.LUNCH_START - 60:
+                if meal == 'Lunch':
                     # Lunch visit - ensure it's within lunch window
                     arrival_time = max(arrival_time, self.problem.LUNCH_START)
-                elif arrival_time < self.problem.DINNER_END and arrival_time > self.problem.DINNER_START - 60:
+                elif meal == 'Dinner':
                     # Dinner visit - ensure it's within dinner window
                     arrival_time = max(arrival_time, self.problem.DINNER_START)
             
@@ -93,10 +134,7 @@ class VRPSolution:
             # Insert the new location
             route.insert(position, (location_idx, arrival_time, departure_time, transport_mode))
             
-            # Recalculate times for the rest of the route
-            self.recalculate_route_times(day, position+1)
-            
-            return True
+            return True, departure_time
             
         except KeyError:
             # Missing transport data
@@ -536,13 +574,6 @@ class VRPSolution:
                 if loc_type == "attraction":
                     if loc_idx in locations_visited:
                         # Same attraction appears more than once in a day
-                        return False
-                    locations_visited[loc_idx] = True
-                
-                # Each hawker should appear at most once per day
-                if loc_type == "hawker":
-                    if loc_idx in locations_visited:
-                        # Same hawker appears more than once in a day
                         return False
                     locations_visited[loc_idx] = True
             
