@@ -1,6 +1,6 @@
 """
-Destroy and repair operators for the VRP-based travel itinerary optimizer.
-This module contains specialized operators for the position-based VRP representation.
+Optimized destroy and repair operators for the VRP-based travel itinerary optimizer.
+These operators are refined to reduce constraint violations and improve solution quality.
 """
 
 import random
@@ -14,9 +14,10 @@ logger = logging.getLogger(__name__)
 # Destroy Operators
 #----------------
 
-def destroy_random_day_subsequence(problem, solution):
+def destroy_targeted_subsequence(problem, solution):
     """
-    Remove a random subsequence from a route on a random day
+    Improved version of subsequence removal that preserves meal timing and avoids
+    creating infeasible solutions. Focuses on time periods with low impact on constraints.
     
     Args:
         problem: TravelItineraryProblem instance
@@ -36,20 +37,61 @@ def destroy_random_day_subsequence(problem, solution):
     if len(route) < 4:
         return new_solution
     
-    # Choose start and end of subsequence to remove (avoid first and last positions)
-    start_pos = random.randint(1, len(route) - 3)
-    max_length = min(3, len(route) - start_pos - 1)  # Max 3 locations or what's available
-    length = random.randint(1, max_length)
+    # Identify time periods between meals (avoid removing meals)
+    morning_period = []  # Before lunch
+    afternoon_period = []  # Between lunch and dinner
+    evening_period = []  # After dinner
     
-    # Remove the subsequence
-    for _ in range(length):
-        new_solution.remove_location(day, start_pos)
+    lunch_pos = None
+    dinner_pos = None
+    
+    # Find lunch and dinner positions
+    for pos, (loc_idx, arrival, _, _) in enumerate(route):
+        if problem.locations[loc_idx]["type"] == "hawker":
+            if arrival >= problem.LUNCH_START and arrival <= problem.LUNCH_END:
+                lunch_pos = pos
+            elif arrival >= problem.DINNER_START and arrival <= problem.DINNER_END:
+                dinner_pos = pos
+    
+    # Build time periods
+    for pos in range(1, len(route) - 1):  # Skip hotel start/end
+        loc_type = problem.locations[route[pos][0]]["type"]
+        if loc_type == "attraction":  # Only consider removing attractions
+            if lunch_pos is not None and pos < lunch_pos:
+                morning_period.append(pos)
+            elif lunch_pos is not None and dinner_pos is not None and lunch_pos < pos < dinner_pos:
+                afternoon_period.append(pos)
+            elif dinner_pos is not None and pos > dinner_pos:
+                evening_period.append(pos)
+    
+    # Choose a period to target based on which has the most attractions
+    periods = [period for period in [morning_period, afternoon_period, evening_period] if period]
+    
+    if not periods:
+        return new_solution  # No valid periods found
+    
+    target_period = random.choice(periods)
+    
+    # Choose a subsequence to remove (up to 2 consecutive attractions)
+    if len(target_period) >= 2:
+        start_idx = random.randint(0, len(target_period) - 1)
+        end_idx = min(start_idx + random.randint(0, 1), len(target_period) - 1)
+        positions_to_remove = sorted(target_period[start_idx:end_idx + 1], reverse=True)
+    elif len(target_period) == 1:
+        positions_to_remove = [target_period[0]]
+    else:
+        return new_solution  # No positions to remove
+    
+    # Remove the selected positions
+    for pos in positions_to_remove:
+        new_solution.remove_location(day, pos)
     
     return new_solution
 
 def destroy_worst_attractions(problem, solution):
     """
-    Remove attractions with the worst satisfaction-to-cost ratio
+    Remove attractions with the worst satisfaction-to-cost ratio.
+    This version is more selective and avoids disrupting meal scheduling.
     
     Args:
         problem: TravelItineraryProblem instance
@@ -68,6 +110,15 @@ def destroy_worst_attractions(problem, solution):
     for day in range(new_solution.num_days):
         route = new_solution.routes[day]
         
+        # Find lunch and dinner positions to avoid removing attractions that would disrupt meal timing
+        lunch_pos = dinner_pos = None
+        for pos, (loc_idx, arrival, _, _) in enumerate(route):
+            if problem.locations[loc_idx]["type"] == "hawker":
+                if arrival >= problem.LUNCH_START and arrival <= problem.LUNCH_END:
+                    lunch_pos = pos
+                elif arrival >= problem.DINNER_START and arrival <= problem.DINNER_END:
+                    dinner_pos = pos
+        
         for pos, (loc_idx, _, _, _) in enumerate(route):
             if problem.locations[loc_idx]["type"] == "attraction":
                 satisfaction = problem.locations[loc_idx].get("satisfaction", 0)
@@ -76,13 +127,25 @@ def destroy_worst_attractions(problem, solution):
                 
                 # Calculate value ratio (lower is worse)
                 value_ratio = satisfaction / (cost + duration/60)
-                attraction_visits.append((day, pos, loc_idx, value_ratio))
+                
+                # Check if removal would disrupt meal timing
+                # Avoid removing attractions that are the only ones between meals
+                is_critical = False
+                if lunch_pos is not None and dinner_pos is not None:
+                    if lunch_pos < pos < dinner_pos:
+                        attractions_in_period = sum(1 for p, (l, _, _, _) in enumerate(route) 
+                                                if lunch_pos < p < dinner_pos and problem.locations[l]["type"] == "attraction")
+                        if attractions_in_period <= 1:
+                            is_critical = True
+                
+                if not is_critical:
+                    attraction_visits.append((day, pos, loc_idx, value_ratio))
     
     # Sort by value ratio (ascending - worst first)
     attraction_visits.sort(key=lambda x: x[3])
     
-    # Remove up to 30% of worst attractions, but at least 1 if any are visited
-    num_to_remove = max(1, int(len(attraction_visits) * 0.3))
+    # Remove up to 25% of worst attractions, but at least 1 if any are visited
+    num_to_remove = max(1, int(len(attraction_visits) * 0.25))
     num_to_remove = min(num_to_remove, len(attraction_visits))
     
     # Track positions that have been removed to avoid issues with shifting indices
@@ -102,119 +165,10 @@ def destroy_worst_attractions(problem, solution):
     
     return new_solution
 
-def destroy_random_attractions(problem, solution):
-    """
-    Remove a random selection of attractions
-    
-    Args:
-        problem: TravelItineraryProblem instance
-        solution: VRPSolution instance
-        
-    Returns:
-        VRPSolution: Modified solution
-    """
-    # Make a copy of the solution to avoid modifying the original
-    new_solution = solution.clone()
-    
-    # Find all attraction positions
-    attraction_positions = []
-    
-    for day in range(new_solution.num_days):
-        route = new_solution.routes[day]
-        
-        for pos, (loc_idx, _, _, _) in enumerate(route):
-            if problem.locations[loc_idx]["type"] == "attraction":
-                attraction_positions.append((day, pos))
-    
-    # Randomly select attractions to remove (40-60%)
-    removal_percentage = random.uniform(0.4, 0.6)
-    num_to_remove = max(1, int(len(attraction_positions) * removal_percentage))
-    num_to_remove = min(num_to_remove, len(attraction_positions))
-    
-    if attraction_positions:
-        to_remove = random.sample(attraction_positions, num_to_remove)
-        
-        # Sort in reverse order of (day, position) to avoid issues with shifting indices
-        to_remove.sort(reverse=True)
-        
-        # Remove selected attractions
-        for day, pos in to_remove:
-            new_solution.remove_location(day, pos)
-    
-    return new_solution
-
-def destroy_random_meals(problem, solution, preserve_one_per_day=True):
-    """
-    Remove some random meal (hawker) visits
-    
-    Args:
-        problem: TravelItineraryProblem instance
-        solution: VRPSolution instance
-        preserve_one_per_day: Keep at least one meal per day
-        
-    Returns:
-        VRPSolution: Modified solution
-    """
-    # Make a copy of the solution to avoid modifying the original
-    new_solution = solution.clone()
-    
-    # Find all hawker visits by day
-    hawker_positions = defaultdict(list)
-    
-    for day in range(new_solution.num_days):
-        route = new_solution.routes[day]
-        
-        for pos, (loc_idx, arrival, _, _) in enumerate(route):
-            if problem.locations[loc_idx]["type"] == "hawker":
-                is_lunch = (arrival >= problem.LUNCH_START and arrival <= problem.LUNCH_END)
-                is_dinner = (arrival >= problem.DINNER_START and arrival <= problem.DINNER_END)
-                meal_type = "lunch" if is_lunch else "dinner" if is_dinner else "other"
-                hawker_positions[day].append((pos, meal_type))
-    
-    # Remove random hawkers, preserving at least one per day if specified
-    removable_hawkers = []
-    
-    for day, positions in hawker_positions.items():
-        if preserve_one_per_day and len(positions) <= 1:
-            # Skip days with only one hawker
-            continue
-        
-        if preserve_one_per_day:
-            # Randomly select all but one to be candidates for removal
-            to_preserve = random.randint(0, len(positions) - 1)
-            for i, (pos, _) in enumerate(positions):
-                if i != to_preserve:
-                    removable_hawkers.append((day, pos))
-        else:
-            # All hawkers are candidates for removal
-            for pos, _ in positions:
-                removable_hawkers.append((day, pos))
-    
-    # Randomly select hawkers to remove (30-40%)
-    removal_percentage = random.uniform(0.3, 0.4)
-    num_to_remove = max(1, int(len(removable_hawkers) * removal_percentage))
-    num_to_remove = min(num_to_remove, len(removable_hawkers))
-    
-    if removable_hawkers:
-        # Sort in reverse order of (day, position) to avoid issues with shifting indices
-        removable_hawkers.sort(reverse=True)
-        
-        # Select random subset to remove if there are more than we want to remove
-        if len(removable_hawkers) > num_to_remove:
-            to_remove = random.sample(removable_hawkers, num_to_remove)
-            to_remove.sort(reverse=True)  # Sort again to ensure correct order
-        else:
-            to_remove = removable_hawkers
-        
-        # Remove selected hawkers
-        for day, pos in to_remove:
-            new_solution.remove_location(day, pos)
-    
-    return new_solution
-
 def destroy_time_window_violations(problem, solution):
     """
-    Remove locations that cause time window violations
+    Remove locations that cause time window violations.
+    This is a key operator for maintaining feasibility.
     
     Args:
         problem: TravelItineraryProblem instance
@@ -280,9 +234,76 @@ def destroy_time_window_violations(problem, solution):
     
     return new_solution
 
-def destroy_day_shuffle(problem, solution):
+def destroy_expensive_attractions(problem, solution):
     """
-    Randomize the order of locations on a day while preserving hotel start/end
+    Focus on removing expensive attractions to improve budget utilization.
+    Balances cost reduction with maintaining satisfaction.
+    
+    Args:
+        problem: TravelItineraryProblem instance
+        solution: VRPSolution instance
+        
+    Returns:
+        VRPSolution: Modified solution
+    """
+    # Make a copy of the solution to avoid modifying the original
+    new_solution = solution.clone()
+    
+    # Get current solution cost
+    total_cost = new_solution.get_total_cost()
+    
+    # If already under budget or very close, don't destroy expensive attractions
+    if total_cost <= problem.budget * 1.05:
+        return new_solution
+        
+    # Identify expensive attractions
+    expensive_attractions = []
+    
+    for day in range(new_solution.num_days):
+        route = new_solution.routes[day]
+        
+        for pos, (loc_idx, _, _, _) in enumerate(route):
+            if problem.locations[loc_idx]["type"] == "attraction":
+                cost = problem.locations[loc_idx].get("entrance_fee", 0)
+                satisfaction = problem.locations[loc_idx].get("satisfaction", 0)
+                
+                # Calculate cost-to-satisfaction ratio (higher is worse)
+                if satisfaction > 0:
+                    cost_ratio = cost / satisfaction
+                else:
+                    cost_ratio = float('inf')
+                
+                expensive_attractions.append((day, pos, loc_idx, cost, cost_ratio))
+    
+    # Sort by cost ratio (descending - worst first)
+    expensive_attractions.sort(key=lambda x: x[4], reverse=True)
+    
+    # Remove up to 30% of expensive attractions
+    num_to_remove = max(1, int(len(expensive_attractions) * 0.3))
+    num_to_remove = min(num_to_remove, len(expensive_attractions))
+    
+    # Track positions that have been removed to avoid issues with shifting indices
+    removed = defaultdict(set)
+    
+    # Remove expensive attractions
+    for i in range(num_to_remove):
+        day, pos, _, _, _ = expensive_attractions[i]
+        
+        # Adjust position for previous removals on the same day
+        removed_before_pos = len([p for p in removed[day] if p < pos])
+        adjusted_pos = pos - removed_before_pos
+        
+        # Remove the attraction
+        if new_solution.remove_location(day, adjusted_pos):
+            removed[day].add(pos)
+    
+    return new_solution
+
+def destroy_selected_day(problem, solution):
+    """
+    More focused day destruction that maintains the start and end hotel visits
+    and preserves lunch and dinner, but removes other activities from a selected day.
+    Helps with reorganizing an entire day at once.
     
     Args:
         problem: TravelItineraryProblem instance
@@ -298,47 +319,38 @@ def destroy_day_shuffle(problem, solution):
     day = random.randint(0, new_solution.num_days - 1)
     route = new_solution.routes[day]
     
-    # Need at least 4 locations to shuffle (hotel -> loc1 -> loc2 -> hotel)
+    # Need at least 4 locations to destroy (hotel -> loc1 -> loc2 -> hotel)
     if len(route) < 4:
         return new_solution
     
-    # Extract all non-hotel locations
-    locations = [(loc_idx, transport) for loc_idx, _, _, transport in route[1:-1]]
+    # Find all attraction positions and hawker positions
+    attraction_positions = []
+    hawker_positions = []
     
-    # Shuffle their order
-    random.shuffle(locations)
+    for pos, (loc_idx, arrival, _, _) in enumerate(route):
+        if problem.locations[loc_idx]["type"] == "attraction":
+            attraction_positions.append(pos)
+        elif problem.locations[loc_idx]["type"] == "hawker":
+            hawker_positions.append(pos)
     
-    # Create a new route
-    new_route = [route[0]]  # Start with hotel
+    # If no attractions to remove, return the original solution
+    if not attraction_positions:
+        return new_solution
     
-    # Add shuffled locations
-    for loc_idx, transport in locations:
-        # Default transport mode if None
-        transport_mode = transport if transport else "transit"
-        
-        # Determine insert position
-        position = len(new_route)
-        
-        # Try to insert the location
-        if new_solution.is_feasible_insertion(day, position, loc_idx, transport_mode):
-            new_solution.insert_location(day, position, loc_idx, transport_mode)
-        else:
-            # If not feasible, try alternate transport mode
-            alt_transport = "drive" if transport_mode == "transit" else "transit"
-            if new_solution.is_feasible_insertion(day, position, loc_idx, alt_transport):
-                new_solution.insert_location(day, position, loc_idx, alt_transport)
+    # Small chance to keep hawkers in place and just remove attractions
+    preserve_hawkers = random.random() < 0.7
     
-    # Add hotel return if not already present
-    if new_solution.routes[day][-1][0] != 0:
-        # Try to add return to hotel
-        hotel_idx = 0
-        position = len(new_solution.routes[day])
-        
-        # Try both transport modes
-        if new_solution.is_feasible_insertion(day, position, hotel_idx, "transit"):
-            new_solution.insert_location(day, position, hotel_idx, "transit")
-        elif new_solution.is_feasible_insertion(day, position, hotel_idx, "drive"):
-            new_solution.insert_location(day, position, hotel_idx, "drive")
+    # Positions to remove (attractions and possibly hawkers)
+    positions_to_remove = attraction_positions.copy()
+    if not preserve_hawkers:
+        positions_to_remove.extend(hawker_positions)
+    
+    # Sort positions in reverse order to avoid index issues when removing
+    positions_to_remove.sort(reverse=True)
+    
+    # Remove all those positions
+    for pos in positions_to_remove:
+        new_solution.remove_location(day, pos)
     
     return new_solution
 
@@ -346,9 +358,9 @@ def destroy_day_shuffle(problem, solution):
 # Repair Operators
 #----------------
 
-def repair_greedy_insertion(problem, solution):
+def repair_regret_insertion(problem, solution):
     """
-    Repair solution by greedily inserting missing hawkers and high-value attractions
+    Enhanced regret-based insertion with improved meal scheduling.
     
     Args:
         problem: TravelItineraryProblem instance
@@ -371,40 +383,7 @@ def repair_greedy_insertion(problem, solution):
                  if problem.locations[i]["type"] == "hawker"]
         hawkers.sort(key=lambda x: x[1], reverse=True)  # Sort by rating (highest first)
         
-        # Add lunch if missing
-        if not has_lunch:
-            # Try each hawker until one can be inserted during lunch window
-            for hawker_idx, _ in hawkers:
-                # Try to identify the best position for lunch
-                best_pos = None
-                best_time_diff = float('inf')
-                
-                for pos in range(1, len(new_solution.routes[day]) + 1):
-                    # Try both transit and drive
-                    for transport_mode in ["transit", "drive"]:
-                        if new_solution.is_feasible_insertion(day, pos, hawker_idx, transport_mode):
-                            # Clone solution to test insertion
-                            test_sol = new_solution.clone()
-                            test_sol.insert_location(day, pos, hawker_idx, transport_mode)
-                            
-                            # Get the actual arrival time
-                            arrival_time = test_sol.routes[day][pos][1]
-                            
-                            # Calculate how close it is to ideal lunch time (12:30 PM)
-                            ideal_lunch = problem.LUNCH_START + 90  # 12:30 PM
-                            time_diff = abs(arrival_time - ideal_lunch)
-                            
-                            if time_diff < best_time_diff:
-                                best_time_diff = time_diff
-                                best_pos = (pos, transport_mode)
-                
-                # Insert lunch hawker at the best position if found
-                if best_pos:
-                    pos, transport_mode = best_pos
-                    new_solution.insert_location(day, pos, hawker_idx, transport_mode)
-                    break
-        
-        # Add dinner if missing
+        # Add dinner first (prioritize dinner scheduling)
         if not has_dinner:
             # Try each hawker until one can be inserted during dinner window
             for hawker_idx, _ in hawkers:
@@ -412,6 +391,10 @@ def repair_greedy_insertion(problem, solution):
                 best_pos = None
                 best_time_diff = float('inf')
                 
+                # Aim for 6:30 PM (ideal dinner time)
+                ideal_dinner = problem.DINNER_START + 90
+                
+                # Try each position
                 for pos in range(1, len(new_solution.routes[day]) + 1):
                     # Try both transit and drive
                     for transport_mode in ["transit", "drive"]:
@@ -423,186 +406,10 @@ def repair_greedy_insertion(problem, solution):
                             # Get the actual arrival time
                             arrival_time = test_sol.routes[day][pos][1]
                             
-                            # Calculate how close it is to ideal dinner time (6:30 PM)
-                            ideal_dinner = problem.DINNER_START + 90  # 6:30 PM
-                            time_diff = abs(arrival_time - ideal_dinner)
-                            
-                            if time_diff < best_time_diff:
-                                best_time_diff = time_diff
-                                best_pos = (pos, transport_mode)
-                
-                # Insert dinner hawker at the best position if found
-                if best_pos:
-                    pos, transport_mode = best_pos
-                    new_solution.insert_location(day, pos, hawker_idx, transport_mode)
-                    break
-    
-    # Next, add high-value attractions
-    # Get unvisited attractions ordered by value
-    visited_attractions = new_solution.get_visited_attractions()
-    
-    attractions = []
-    for i in range(problem.num_locations):
-        if problem.locations[i]["type"] == "attraction" and i not in visited_attractions:
-            satisfaction = problem.locations[i].get("satisfaction", 0)
-            cost = problem.locations[i].get("entrance_fee", 1)
-            duration = problem.locations[i].get("duration", 60)
-            
-            # Calculate value ratio (higher is better)
-            value_ratio = satisfaction / (cost + duration/60)
-            attractions.append((i, value_ratio))
-    
-    # Sort by value ratio (highest first)
-    attractions.sort(key=lambda x: x[1], reverse=True)
-    
-    # Try to add up to 5 attractions
-    added_count = 0
-    max_to_add = min(5, len(attractions))
-    
-    for attr_idx, _ in attractions:
-        if added_count >= max_to_add:
-            break
-        
-        # For each attraction, try to find the best insertion point across all days
-        best_insertion = None
-        best_cost_increase = float('inf')
-        
-        for day in range(new_solution.num_days):
-            # Try inserting at each position between lunch and dinner
-            for pos in range(1, len(new_solution.routes[day])):
-                # Check the time of this position and next position
-                _, arrival_time, _, _ = new_solution.routes[day][pos]
-                
-                # Skip if we're already past lunch (try to insert after lunch)
-                if arrival_time < problem.LUNCH_END:
-                    continue
-                
-                # Skip if we're already at dinner time
-                if arrival_time >= problem.DINNER_START:
-                    break
-                
-                # Try both transit and drive
-                for transport_mode in ["transit", "drive"]:
-                    if new_solution.is_feasible_insertion(day, pos+1, attr_idx, transport_mode):
-                        # Clone solution to test insertion
-                        test_sol = new_solution.clone()
-                        test_sol.insert_location(day, pos+1, attr_idx, transport_mode)
-                        
-                        # Calculate cost increase
-                        original_cost = new_solution.get_total_cost()
-                        new_cost = test_sol.get_total_cost()
-                        cost_increase = new_cost - original_cost
-                        
-                        if cost_increase < best_cost_increase:
-                            best_cost_increase = cost_increase
-                            best_insertion = (day, pos+1, transport_mode)
-        
-        # Insert the attraction at the best position if found
-        if best_insertion:
-            day, pos, transport_mode = best_insertion
-            new_solution.insert_location(day, pos, attr_idx, transport_mode)
-            added_count += 1
-    
-    # Ensure each day ends at hotel
-    for day in range(new_solution.num_days):
-        route = new_solution.routes[day]
-        
-        # Add hotel at the end if not already there
-        if route[-1][0] != 0:
-            hotel_idx = 0
-            position = len(route)
-            
-            # Try both transport modes
-            if new_solution.is_feasible_insertion(day, position, hotel_idx, "transit"):
-                new_solution.insert_location(day, position, hotel_idx, "transit")
-            elif new_solution.is_feasible_insertion(day, position, hotel_idx, "drive"):
-                new_solution.insert_location(day, position, hotel_idx, "drive")
-    
-    return new_solution
-
-def repair_regret_insertion(problem, solution):
-    """
-    Repair solution using a regret-based insertion heuristic
-    
-    Args:
-        problem: TravelItineraryProblem instance
-        solution: VRPSolution instance
-        
-    Returns:
-        VRPSolution: Modified solution
-    """
-    # Make a copy of the solution to avoid modifying the original
-    new_solution = solution.clone()
-    
-    # First, ensure each day has lunch and dinner (same as greedy repair for meals)
-    for day in range(new_solution.num_days):
-        # Check for lunch and dinner
-        has_lunch, has_dinner = new_solution.has_lunch_and_dinner(day)
-        
-        # Get hawker centers ordered by rating
-        hawkers = [(i, problem.locations[i].get("rating", 0)) 
-                 for i in range(problem.num_locations) 
-                 if problem.locations[i]["type"] == "hawker"]
-        hawkers.sort(key=lambda x: x[1], reverse=True)  # Sort by rating (highest first)
-        
-        # Add lunch if missing
-        if not has_lunch:
-            # Try to insert during lunch window (similar to greedy repair)
-            for hawker_idx, _ in hawkers:
-                # Try to identify the best position for lunch
-                best_pos = None
-                best_time_diff = float('inf')
-                
-                for pos in range(1, len(new_solution.routes[day]) + 1):
-                    # Try both transit and drive
-                    for transport_mode in ["transit", "drive"]:
-                        if new_solution.is_feasible_insertion(day, pos, hawker_idx, transport_mode):
-                            # Clone solution to test insertion
-                            test_sol = new_solution.clone()
-                            test_sol.insert_location(day, pos, hawker_idx, transport_mode)
-                            
-                            # Get the actual arrival time
-                            arrival_time = test_sol.routes[day][pos][1]
-                            
-                            # Check if it's within lunch window
-                            if arrival_time >= problem.LUNCH_START and arrival_time <= problem.LUNCH_END:
-                                # Calculate how close it is to ideal lunch time (12:30 PM)
-                                ideal_lunch = problem.LUNCH_START + 90  # 12:30 PM
-                                time_diff = abs(arrival_time - ideal_lunch)
-                                
-                                if time_diff < best_time_diff:
-                                    best_time_diff = time_diff
-                                    best_pos = (pos, transport_mode)
-                
-                # Insert lunch hawker at the best position if found
-                if best_pos:
-                    pos, transport_mode = best_pos
-                    new_solution.insert_location(day, pos, hawker_idx, transport_mode)
-                    break
-        
-        # Add dinner if missing
-        if not has_dinner:
-            # Try to insert during dinner window (similar to greedy repair)
-            for hawker_idx, _ in hawkers:
-                # Try to identify the best position for dinner
-                best_pos = None
-                best_time_diff = float('inf')
-                
-                for pos in range(1, len(new_solution.routes[day]) + 1):
-                    # Try both transit and drive
-                    for transport_mode in ["transit", "drive"]:
-                        if new_solution.is_feasible_insertion(day, pos, hawker_idx, transport_mode):
-                            # Clone solution to test insertion
-                            test_sol = new_solution.clone()
-                            test_sol.insert_location(day, pos, hawker_idx, transport_mode)
-                            
-                            # Get the actual arrival time
-                            arrival_time = test_sol.routes[day][pos][1]
-                            
-                            # Check if it's within dinner window
-                            if arrival_time >= problem.DINNER_START and arrival_time <= problem.DINNER_END:
-                                # Calculate how close it is to ideal dinner time (6:30 PM)
-                                ideal_dinner = problem.DINNER_START + 90  # 6:30 PM
+                            # Check if within dinner window or close to it
+                            if (arrival_time >= problem.DINNER_START - 30 and 
+                                arrival_time <= problem.DINNER_END + 30):
+                                # Calculate how close to ideal
                                 time_diff = abs(arrival_time - ideal_dinner)
                                 
                                 if time_diff < best_time_diff:
@@ -612,7 +419,56 @@ def repair_regret_insertion(problem, solution):
                 # Insert dinner hawker at the best position if found
                 if best_pos:
                     pos, transport_mode = best_pos
-                    new_solution.insert_location(day, pos, hawker_idx, transport_mode)
+                    new_solution.insert_location(day, pos, hawker_idx, transport_mode, 'Dinner')
+                    break
+        
+        # Add lunch second
+        if not has_lunch:
+            # Try each hawker until one can be inserted during lunch window
+            for hawker_idx, _ in hawkers:
+                # Skip hawkers already used for dinner today
+                is_used_for_dinner = False
+                for loc, arrival, _, _ in new_solution.routes[day]:
+                    if loc == hawker_idx and arrival >= problem.DINNER_START and arrival <= problem.DINNER_END:
+                        is_used_for_dinner = True
+                        break
+                
+                if is_used_for_dinner:
+                    continue
+                
+                # Try to identify the best position for lunch
+                best_pos = None
+                best_time_diff = float('inf')
+                
+                # Aim for 12:30 PM (ideal lunch time)
+                ideal_lunch = problem.LUNCH_START + 90
+                
+                # Try each position
+                for pos in range(1, len(new_solution.routes[day]) + 1):
+                    # Try both transit and drive
+                    for transport_mode in ["transit", "drive"]:
+                        if new_solution.is_feasible_insertion(day, pos, hawker_idx, transport_mode):
+                            # Clone solution to test insertion
+                            test_sol = new_solution.clone()
+                            test_sol.insert_location(day, pos, hawker_idx, transport_mode)
+                            
+                            # Get the actual arrival time
+                            arrival_time = test_sol.routes[day][pos][1]
+                            
+                            # Check if within lunch window or close to it
+                            if (arrival_time >= problem.LUNCH_START - 30 and 
+                                arrival_time <= problem.LUNCH_END + 30):
+                                # Calculate how close to ideal
+                                time_diff = abs(arrival_time - ideal_lunch)
+                                
+                                if time_diff < best_time_diff:
+                                    best_time_diff = time_diff
+                                    best_pos = (pos, transport_mode)
+                
+                # Insert lunch hawker at the best position if found
+                if best_pos:
+                    pos, transport_mode = best_pos
+                    new_solution.insert_location(day, pos, hawker_idx, transport_mode, 'Lunch')
                     break
     
     # Now apply regret-based insertion for attractions
@@ -651,7 +507,7 @@ def repair_regret_insertion(problem, solution):
                             if cost_increase > 0:
                                 normalized_cost = -satisfaction_increase / cost_increase
                             else:
-                                normalized_cost = -satisfaction_increase  # Free satisfaction!
+                                normalized_cost = -satisfaction_increase * 2  # Double bonus for free satisfaction
                             
                             insertion_costs.append((normalized_cost, day, pos, transport_mode))
             
@@ -699,22 +555,54 @@ def repair_regret_insertion(problem, solution):
         route = new_solution.routes[day]
         
         # Add hotel at the end if not already there
-        if route[-1][0] != 0:
+        if len(route) == 0 or route[-1][0] != 0:
             hotel_idx = 0
             position = len(route)
             
             # Try both transport modes
-            if new_solution.is_feasible_insertion(day, position, hotel_idx, "transit"):
-                new_solution.insert_location(day, position, hotel_idx, "transit")
-            elif new_solution.is_feasible_insertion(day, position, hotel_idx, "drive"):
-                new_solution.insert_location(day, position, hotel_idx, "drive")
+            inserted = False
+            for transport_mode in ["transit", "drive"]:
+                if new_solution.is_feasible_insertion(day, position, hotel_idx, transport_mode):
+                    new_solution.insert_location(day, position, hotel_idx, transport_mode)
+                    inserted = True
+                    break
+            
+            # If we couldn't insert with feasible insertion, try direct insertion as last resort
+            if not inserted and len(route) > 0:
+                # Get the last location
+                last_loc, _, last_departure, _ = route[-1]
+                
+                # Try to calculate direct return
+                transport_hour = problem.get_transport_hour(last_departure)
+                try:
+                    transport_key = (problem.locations[last_loc]["name"], 
+                                    problem.locations[hotel_idx]["name"], 
+                                    transport_hour)
+                    
+                    # Choose fastest transport mode
+                    fastest_mode = "transit"
+                    fastest_time = float('inf')
+                    
+                    for mode in ["transit", "drive"]:
+                        if mode in problem.transport_matrix.get(transport_key, {}):
+                            duration = problem.transport_matrix[transport_key][mode]["duration"]
+                            if duration < fastest_time:
+                                fastest_time = duration
+                                fastest_mode = mode
+                    
+                    # Force insert hotel return
+                    new_solution.insert_location(day, position, hotel_idx, fastest_mode)
+                except (KeyError, TypeError):
+                    # If we can't find transport data, use drive as default
+                    new_solution.insert_location(day, position, hotel_idx, "drive")
     
     return new_solution
 
 def repair_time_based_insertion(problem, solution):
     """
-    Repair solution focusing on time window efficiency,
-    with enhanced dinner scheduling prioritization
+    Enhanced repair focusing on optimal time slots and meal scheduling.
+    Prioritizes dinner scheduling first, then lunch, then attractions in
+    appropriate time gaps.
     
     Args:
         problem: TravelItineraryProblem instance
@@ -737,10 +625,7 @@ def repair_time_based_insertion(problem, solution):
                  if problem.locations[i]["type"] == "hawker"]
         hawkers.sort(key=lambda x: x[1], reverse=True)  # Sort by rating (highest first)
         
-        # ---------------
-        # PRIORITIZE DINNER FIRST (this is the key change)
-        # ---------------
-        # Add dinner if missing - HIGHER PRIORITY than lunch
+        # PRIORITIZE DINNER FIRST
         if not has_dinner:
             # Allow a broader dinner window for initial insertion to increase chance of success
             early_dinner_time = problem.DINNER_START - 30  # 30 minutes earlier than standard
@@ -803,7 +688,7 @@ def repair_time_based_insertion(problem, solution):
                 # Try both transit and drive at the ideal position
                 for transport_mode in ["transit", "drive"]:
                     if new_solution.is_feasible_insertion(day, target_pos, hawker_idx, transport_mode):
-                        new_solution.insert_location(day, target_pos, hawker_idx, transport_mode)
+                        new_solution.insert_location(day, target_pos, hawker_idx, transport_mode, 'Dinner')
                         dinner_inserted = True
                         break
                 
@@ -837,7 +722,7 @@ def repair_time_based_insertion(problem, solution):
                                 
                                 # Use extended dinner window to improve chances
                                 if arrival >= early_dinner_time and arrival <= extended_dinner_end:
-                                    new_solution.insert_location(day, pos, hawker_idx, transport_mode)
+                                    new_solution.insert_location(day, pos, hawker_idx, transport_mode, 'Dinner')
                                     dinner_inserted = True
                                     break
                         
@@ -857,7 +742,7 @@ def repair_time_based_insertion(problem, solution):
                     if not any(loc == hawker_idx for loc, _, _, _ in new_solution.routes[day]):
                         for transport_mode in ["transit", "drive"]:
                             # We'll try to insert anyway and adjust times if needed
-                            if new_solution.insert_location(day, latest_pos, hawker_idx, transport_mode):
+                            if new_solution.insert_location(day, latest_pos, hawker_idx, transport_mode, 'Dinner'):
                                 dinner_inserted = True
                                 break
                     
@@ -868,67 +753,122 @@ def repair_time_based_insertion(problem, solution):
         if not has_lunch:
             # Find optimal lunch window
             lunch_time = problem.LUNCH_START + 60  # Target 12:00 PM
+            extended_lunch_start = problem.LUNCH_START - 30  # Extended window
+            extended_lunch_end = problem.LUNCH_END + 30
             
-            # Get the position where lunch should be inserted
+            # Try multiple positions for lunch
+            lunch_positions = []
+            
+            # Add the ideal lunch position
             target_pos = 1  # Default to after hotel
             for pos, (_, arrival, _, _) in enumerate(new_solution.routes[day]):
                 if arrival > lunch_time:
                     break
                 target_pos = pos + 1
             
-            # Try to insert a hawker at this position
-            for hawker_idx, _ in hawkers:
-                # Skip hawkers already used for dinner today
-                is_used_for_dinner = False
-                for loc, arrival, _, _ in new_solution.routes[day]:
-                    if loc == hawker_idx and arrival >= problem.DINNER_START and arrival <= problem.DINNER_END:
-                        is_used_for_dinner = True
+            lunch_positions.append(target_pos)
+            
+            # Try early lunch position
+            early_pos = 1
+            for pos, (_, arrival, _, _) in enumerate(new_solution.routes[day]):
+                if arrival > extended_lunch_start:
+                    break
+                early_pos = pos + 1
+            
+            if early_pos != target_pos:
+                lunch_positions.append(early_pos)
+            
+            # Try all positions systematically
+            lunch_inserted = False
+            
+            # First try the ideal positions in order
+            for pos in lunch_positions:
+                for hawker_idx, _ in hawkers:
+                    # Skip hawkers already used for dinner today
+                    is_used_for_dinner = False
+                    for loc, arrival, _, _ in new_solution.routes[day]:
+                        if loc == hawker_idx and arrival >= problem.DINNER_START and arrival <= problem.DINNER_END:
+                            is_used_for_dinner = True
+                            break
+                    
+                    if is_used_for_dinner:
+                        continue
+                    
+                    # Try both transit and drive
+                    for transport_mode in ["transit", "drive"]:
+                        if new_solution.is_feasible_insertion(day, pos, hawker_idx, transport_mode):
+                            # Test if this would be in lunch window
+                            test_sol = new_solution.clone()
+                            test_sol.insert_location(day, pos, hawker_idx, transport_mode)
+                            arrival = test_sol.routes[day][pos][1]
+                            
+                            # Use extended lunch window to improve chances
+                            if arrival >= extended_lunch_start and arrival <= extended_lunch_end:
+                                new_solution.insert_location(day, pos, hawker_idx, transport_mode, 'Lunch')
+                                lunch_inserted = True
+                                break
+                    
+                    if lunch_inserted:
                         break
                 
-                if is_used_for_dinner:
-                    continue
-                
-                # Try both transit and drive
-                for transport_mode in ["transit", "drive"]:
-                    if new_solution.is_feasible_insertion(day, target_pos, hawker_idx, transport_mode):
-                        new_solution.insert_location(day, target_pos, hawker_idx, transport_mode)
-                        has_lunch = True
-                        break
-                if has_lunch:
+                if lunch_inserted:
                     break
             
-            # If couldn't insert at target position, try all positions
-            if not has_lunch:
+            # If still not inserted, try any position
+            if not lunch_inserted:
                 for pos in range(1, len(new_solution.routes[day]) + 1):
                     for hawker_idx, _ in hawkers:
+                        # Skip hawkers already used for dinner
+                        is_used_for_dinner = False
+                        for loc, arrival, _, _ in new_solution.routes[day]:
+                            if loc == hawker_idx and arrival >= problem.DINNER_START and arrival <= problem.DINNER_END:
+                                is_used_for_dinner = True
+                                break
+                        
+                        if is_used_for_dinner:
+                            continue
+                            
                         for transport_mode in ["transit", "drive"]:
                             if new_solution.is_feasible_insertion(day, pos, hawker_idx, transport_mode):
-                                new_solution.insert_location(day, pos, hawker_idx, transport_mode)
-                                has_lunch = True
+                                new_solution.insert_location(day, pos, hawker_idx, transport_mode, 'Lunch')
+                                lunch_inserted = True
                                 break
-                        if has_lunch:
+                        if lunch_inserted:
                             break
-                    if has_lunch:
+                    if lunch_inserted:
                         break
     
-    # Next add attractions based on time efficiency
-    # Get unvisited attractions ordered by time efficiency
+    # Next add attractions based on a combined efficiency metric
+    # Get unvisited attractions ordered by value efficiency
     visited_attractions = new_solution.get_visited_attractions()
+    
+    # Calculate budget remaining
+    budget_left = problem.budget - new_solution.get_total_cost()
     
     attractions = []
     for i in range(problem.num_locations):
         if problem.locations[i]["type"] == "attraction" and i not in visited_attractions:
             satisfaction = problem.locations[i].get("satisfaction", 0)
             duration = problem.locations[i].get("duration", 60)
+            cost = problem.locations[i].get("entrance_fee", 1)
             
-            # Calculate time efficiency (higher is better)
-            time_efficiency = satisfaction / duration
-            attractions.append((i, time_efficiency))
+            # Calculate combined efficiency (higher is better)
+            # Consider both time efficiency and cost efficiency
+            if cost > 0:
+                value_efficiency = satisfaction / (cost * 0.5 + duration / 60 * 0.5)
+            else:
+                value_efficiency = satisfaction / (duration / 60)
+                
+            # Bonus for affordable attractions when budget is tight
+            if budget_left < 100 and cost < 30:
+                value_efficiency *= 1.2
+                
+            attractions.append((i, value_efficiency))
     
-    # Sort by time efficiency (highest first)
+    # Sort by efficiency (highest first)
     attractions.sort(key=lambda x: x[1], reverse=True)
     
-    # Try to insert attractions in time gaps between meals
+    # Try to insert attractions in optimal time gaps
     for day in range(new_solution.num_days):
         route = new_solution.routes[day]
         
@@ -943,7 +883,7 @@ def repair_time_based_insertion(problem, solution):
                 elif arrival >= problem.DINNER_START and arrival <= problem.DINNER_END:
                     dinner_pos = pos
         
-        # If we have both lunch and dinner, try inserting attractions between them
+        # First priority: Insert between lunch and dinner (afternoon)
         if lunch_pos is not None and dinner_pos is not None and lunch_pos < dinner_pos:
             # Try to insert after lunch and before dinner
             target_pos = lunch_pos + 1
@@ -963,7 +903,7 @@ def repair_time_based_insertion(problem, solution):
                         target_pos += 1
                         break
         
-        # Try to insert attractions in morning (before lunch) if there's time
+        # Second priority: Insert in morning (before lunch)
         if lunch_pos is not None and lunch_pos > 1:
             target_pos = 1  # After hotel, before lunch
             
@@ -981,20 +921,236 @@ def repair_time_based_insertion(problem, solution):
                         # Update target position
                         target_pos += 1
                         break
+        
+        # Third priority: Insert in evening (after dinner)
+        if dinner_pos is not None and dinner_pos < len(route) - 1:
+            target_pos = dinner_pos + 1
+            
+            # Try each attraction
+            for attr_idx, _ in attractions:
+                if attr_idx in visited_attractions:
+                    continue
+                
+                # Try both transit and drive
+                for transport_mode in ["transit", "drive"]:
+                    if new_solution.is_feasible_insertion(day, target_pos, attr_idx, transport_mode):
+                        # Make sure this doesn't push us past our end time
+                        test_sol = new_solution.clone()
+                        test_sol.insert_location(day, target_pos, attr_idx, transport_mode)
+                        
+                        # Verify we can still return to hotel in time
+                        if test_sol.is_feasible():
+                            new_solution.insert_location(day, target_pos, attr_idx, transport_mode)
+                            visited_attractions.add(attr_idx)
+                            
+                            # Update target position
+                            target_pos += 1
+                            break
     
     # Ensure each day ends at hotel
     for day in range(new_solution.num_days):
         route = new_solution.routes[day]
         
         # Add hotel at the end if not already there
-        if route[-1][0] != 0:
+        if len(route) == 0 or route[-1][0] != 0:
             hotel_idx = 0
             position = len(route)
             
             # Try both transport modes
-            if new_solution.is_feasible_insertion(day, position, hotel_idx, "transit"):
-                new_solution.insert_location(day, position, hotel_idx, "transit")
-            elif new_solution.is_feasible_insertion(day, position, hotel_idx, "drive"):
-                new_solution.insert_location(day, position, hotel_idx, "drive")
+            inserted = False
+            for transport_mode in ["transit", "drive"]:
+                if new_solution.is_feasible_insertion(day, position, hotel_idx, transport_mode):
+                    new_solution.insert_location(day, position, hotel_idx, transport_mode)
+                    inserted = True
+                    break
+            
+            # If we couldn't insert with feasible insertion, try direct insertion as last resort
+            if not inserted and len(route) > 0:
+                # Get the last location
+                last_loc, _, last_departure, _ = route[-1]
+                
+                # Try to calculate direct return
+                transport_hour = problem.get_transport_hour(last_departure)
+                try:
+                    transport_key = (problem.locations[last_loc]["name"], 
+                                    problem.locations[hotel_idx]["name"], 
+                                    transport_hour)
+                    
+                    # Choose fastest transport mode
+                    fastest_mode = "transit"
+                    fastest_time = float('inf')
+                    
+                    for mode in ["transit", "drive"]:
+                        if mode in problem.transport_matrix.get(transport_key, {}):
+                            duration = problem.transport_matrix[transport_key][mode]["duration"]
+                            if duration < fastest_time:
+                                fastest_time = duration
+                                fastest_mode = mode
+                    
+                    # Force insert hotel return
+                    new_solution.insert_location(day, position, hotel_idx, fastest_mode)
+                except (KeyError, TypeError):
+                    # If we can't find transport data, use drive as default
+                    new_solution.insert_location(day, position, hotel_idx, "drive")
+    
+    return new_solution
+
+def repair_balanced_solution(problem, solution):
+    """
+    Repair operator that focuses on creating a balanced solution across days,
+    distributing attractions evenly and ensuring proper meal scheduling.
+    
+    Args:
+        problem: TravelItineraryProblem instance
+        solution: VRPSolution instance
+        
+    Returns:
+        VRPSolution: Modified solution
+    """
+    # Make a copy of the solution to avoid modifying the original
+    new_solution = solution.clone()
+    
+    # First ensure each day has lunch and dinner (similar to other repair operators)
+    for day in range(new_solution.num_days):
+        has_lunch, has_dinner = new_solution.has_lunch_and_dinner(day)
+        
+        # Get hawker centers ordered by rating
+        hawkers = [(i, problem.locations[i].get("rating", 0)) 
+                 for i in range(problem.num_locations) 
+                 if problem.locations[i]["type"] == "hawker"]
+        hawkers.sort(key=lambda x: x[1], reverse=True)
+        
+        # Add dinner first (similar to time_based_insertion)
+        if not has_dinner:
+            # Try each hawker until one can be inserted during dinner window
+            for hawker_idx, _ in hawkers:
+                dinner_inserted = False
+                for pos in range(1, len(new_solution.routes[day]) + 1):
+                    for transport_mode in ["transit", "drive"]:
+                        if new_solution.is_feasible_insertion(day, pos, hawker_idx, transport_mode):
+                            new_solution.insert_location(day, pos, hawker_idx, transport_mode, 'Dinner')
+                            dinner_inserted = True
+                            break
+                    if dinner_inserted:
+                        break
+                if dinner_inserted:
+                    break
+        
+        # Add lunch second
+        if not has_lunch:
+            # Try each hawker until one can be inserted during lunch window
+            for hawker_idx, _ in hawkers:
+                # Skip hawkers already used for dinner
+                is_used_for_dinner = False
+                for loc, arrival, _, _ in new_solution.routes[day]:
+                    if loc == hawker_idx and arrival >= problem.DINNER_START and arrival <= problem.DINNER_END:
+                        is_used_for_dinner = True
+                        break
+                
+                if is_used_for_dinner:
+                    continue
+                    
+                lunch_inserted = False
+                for pos in range(1, len(new_solution.routes[day]) + 1):
+                    for transport_mode in ["transit", "drive"]:
+                        if new_solution.is_feasible_insertion(day, pos, hawker_idx, transport_mode):
+                            new_solution.insert_location(day, pos, hawker_idx, transport_mode, 'Lunch')
+                            lunch_inserted = True
+                            break
+                    if lunch_inserted:
+                        break
+                if lunch_inserted:
+                    break
+    
+    # Get unvisited attractions
+    visited_attractions = new_solution.get_visited_attractions()
+    unvisited_attractions = [i for i in range(problem.num_locations) 
+                           if problem.locations[i]["type"] == "attraction" 
+                           and i not in visited_attractions]
+    
+    # Count attractions per day
+    day_attraction_counts = {}
+    for day in range(new_solution.num_days):
+        count = 0
+        for loc, _, _, _ in new_solution.routes[day]:
+            if problem.locations[loc]["type"] == "attraction":
+                count += 1
+        day_attraction_counts[day] = count
+    
+    # Sort attractions by value
+    attractions_by_value = []
+    for attr_idx in unvisited_attractions:
+        satisfaction = problem.locations[attr_idx].get("satisfaction", 0)
+        cost = problem.locations[attr_idx].get("entrance_fee", 1)
+        duration = problem.locations[attr_idx].get("duration", 60)
+        
+        # Calculate value ratio (higher is better)
+        value_ratio = satisfaction / (cost + duration/60)
+        attractions_by_value.append((attr_idx, value_ratio))
+    
+    # Sort by value ratio (highest first)
+    attractions_by_value.sort(key=lambda x: x[1], reverse=True)
+    
+    # Distribute attractions evenly across days, prioritizing days with fewer attractions
+    while attractions_by_value and new_solution.get_total_cost() < problem.budget * 0.95:
+        # Sort days by attraction count (ascending)
+        sorted_days = sorted(day_attraction_counts.items(), key=lambda x: x[1])
+        
+        # Take the highest-value unvisited attraction
+        attr_idx, _ = attractions_by_value.pop(0)
+        
+        # Try to insert in the day with the fewest attractions
+        inserted = False
+        for day, _ in sorted_days:
+            # Find lunch and dinner positions
+            lunch_pos = dinner_pos = None
+            for pos, (loc_idx, arrival, _, _) in enumerate(new_solution.routes[day]):
+                if problem.locations[loc_idx]["type"] == "hawker":
+                    if arrival >= problem.LUNCH_START and arrival <= problem.LUNCH_END:
+                        lunch_pos = pos
+                    elif arrival >= problem.DINNER_START and arrival <= problem.DINNER_END:
+                        dinner_pos = pos
+            
+            # Try inserting in afternoon first (between lunch and dinner)
+            if lunch_pos is not None and dinner_pos is not None and lunch_pos < dinner_pos:
+                target_pos = lunch_pos + 1
+                for transport_mode in ["transit", "drive"]:
+                    if new_solution.is_feasible_insertion(day, target_pos, attr_idx, transport_mode):
+                        new_solution.insert_location(day, target_pos, attr_idx, transport_mode)
+                        day_attraction_counts[day] += 1
+                        inserted = True
+                        break
+            
+            # If not inserted, try morning
+            if not inserted and lunch_pos is not None:
+                target_pos = 1  # After hotel
+                for transport_mode in ["transit", "drive"]:
+                    if new_solution.is_feasible_insertion(day, target_pos, attr_idx, transport_mode):
+                        new_solution.insert_location(day, target_pos, attr_idx, transport_mode)
+                        day_attraction_counts[day] += 1
+                        inserted = True
+                        break
+            
+            if inserted:
+                break
+        
+        # If we couldn't insert in any day, stop trying with this attraction
+        if not inserted:
+            continue
+    
+    # Ensure each day ends at hotel
+    for day in range(new_solution.num_days):
+        route = new_solution.routes[day]
+        
+        # Add hotel at the end if not already there
+        if len(route) == 0 or route[-1][0] != 0:
+            hotel_idx = 0
+            position = len(route)
+            
+            # Try both transport modes
+            for transport_mode in ["transit", "drive"]:
+                if new_solution.is_feasible_insertion(day, position, hotel_idx, transport_mode):
+                    new_solution.insert_location(day, position, hotel_idx, transport_mode)
+                    break
     
     return new_solution

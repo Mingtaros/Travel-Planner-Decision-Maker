@@ -38,7 +38,8 @@ class VRPALNS:
         initial_temperature=None,
         time_limit=None, 
         seed=None,
-        early_termination_iterations=200
+        early_termination_iterations=200,
+        objective_weights=[0.3, 0.3, 0.4]
     ):
         """
         Initialize the ALNS algorithm with the VRP approach
@@ -68,6 +69,8 @@ class VRPALNS:
         self.temperature_control = temperature_control
         self.time_limit = time_limit
         self.early_termination_iterations = early_termination_iterations
+        self.objective_weights = objective_weights
+        self.infeasible_penalty = 10.0  # Large penalty for infeasible solutions
         
         # Set random seed if provided
         if seed is not None:
@@ -77,12 +80,11 @@ class VRPALNS:
         # Initialize destroy operators
         if destroy_operators is None:
             self.destroy_operators = [
-                destroy_random_day_subsequence,
+                destroy_targeted_subsequence,
                 destroy_worst_attractions,
-                destroy_random_attractions,
-                destroy_random_meals,
                 destroy_time_window_violations,
-                destroy_day_shuffle
+                destroy_expensive_attractions,
+                destroy_selected_day
             ]
         else:
             self.destroy_operators = destroy_operators
@@ -90,9 +92,9 @@ class VRPALNS:
         # Initialize repair operators
         if repair_operators is None:
             self.repair_operators = [
-                repair_greedy_insertion,
                 repair_regret_insertion,
-                repair_time_based_insertion
+                repair_time_based_insertion,
+                repair_balanced_solution
             ]
         else:
             self.repair_operators = repair_operators
@@ -177,6 +179,8 @@ class VRPALNS:
         rich_threshold = 100
         avg_hawker_cost = 15
         attraction_per_day = 4
+        meal_buffer_time = 150
+        hotel_idx = 0
         
         # Get attraction and hawker lists
         attractions = [i for i in range(self.problem.num_locations) 
@@ -233,7 +237,7 @@ class VRPALNS:
             count = 0
             
             # Visit attractions until lunch time
-            while (latest_completion_time + 120) < self.problem.LUNCH_END and approx_mandatory_cost < budget_left and attraction_count < attraction_per_day:
+            while (latest_completion_time + meal_buffer_time) < self.problem.LUNCH_END and approx_mandatory_cost < budget_left and attraction_count < attraction_per_day:
                 
                 count += 1
                 attr_idx, attr_ratio = attraction_values.pop(0)
@@ -281,7 +285,7 @@ class VRPALNS:
             
             count = 0
             # Visit attractions until dinner time
-            while (latest_completion_time + 120) < self.problem.DINNER_END and approx_mandatory_cost < budget_left and attraction_count < attraction_per_day:
+            while (latest_completion_time + meal_buffer_time) < self.problem.DINNER_END and approx_mandatory_cost < budget_left and attraction_count < attraction_per_day:
                 
                 count += 1
                 attr_idx, attr_ratio = attraction_values.pop(0)
@@ -324,7 +328,6 @@ class VRPALNS:
                             hawker_ratings.append((dinner_hawker_idx, hwk_ratio))
             
             # Add hotel return at the end
-            hotel_idx = 0
             approx_mandatory_cost = ((num_days_left * 2) - lunch_inserted - dinner_inserted) * avg_hawker_cost + hotel_travel_cost
             
             logger.info(f"Day {day+1}: Dinner completed at {round(latest_completion_time/60, 2)} with ${budget_left:.2f} budget left")
@@ -342,7 +345,7 @@ class VRPALNS:
             logger.info(f"Day {day+1}: Hotel return completed with ${budget_left:.2f} budget left")
             
             if not hotel_return_inserted:
-                logger.warning("Could not insert hotel return due to time or budget constraints")
+                logger.warning("Could not insert hotel return due to time or budget constraints")   
         
         return solution
     
@@ -417,11 +420,11 @@ class VRPALNS:
         
         # Normalize and combine objectives (weighted sum)
         # Cost weight: 0.3, Travel time weight: 0.3, Satisfaction weight: 0.4 (negative since we maximize)
-        objective = 0.3 * (cost / self.problem.budget) + 0.3 * (travel_time / (self.problem.NUM_DAYS * 12 * 60)) - 0.4 * (satisfaction / (self.problem.num_attractions * 10 + self.problem.num_hawkers * 5))
+        objective = self.objective_weights[0] * (cost / self.problem.budget) + self.objective_weights[1] * (travel_time / (self.problem.NUM_DAYS * 12 * 60)) - self.objective_weights[2] * (satisfaction / (self.problem.num_attractions * 10 + self.problem.num_hawkers * 5))
         
         # Add large penalty for infeasible solutions
         if not evaluation["is_feasible"]:
-            objective += 10.0
+            objective += self.infeasible_penalty
         
         return objective
     
@@ -511,12 +514,6 @@ class VRPALNS:
         self.destroy_count = [0] * len(self.destroy_operators)
         self.repair_count = [0] * len(self.repair_operators)
     
-    def update_temperature(self):
-        """
-        Update the temperature for simulated annealing
-        """
-        self.temperature *= self.temperature_control
-    
     def run(self, verbose=True):
         """
         Run the VRP-based ALNS algorithm
@@ -600,7 +597,7 @@ class VRPALNS:
                 self.current_objective = new_objective
                 
                 # Update best solution if improvement
-                if new_objective < self.best_objective:
+                if new_objective < self.best_objective and new_evaluation["is_feasible"]:  # Only update if feasible
                     if verbose:
                         logger.info(f"Iteration {iteration}: New best solution found (objective: {new_objective:.4f}, feasible: {new_evaluation['is_feasible']})")
                     
@@ -676,7 +673,7 @@ class VRPALNS:
                 self.update_weights()
                 
                 # Update simulated annealing temperature
-                self.update_temperature()
+                self.temperature *= self.temperature_control
                 
                 # Reset segment iteration counter
                 segment_iteration = 0
@@ -717,28 +714,6 @@ class VRPALNS:
         # Analyze operator performance if verbose
         if verbose:
             self.analyze_operator_performance()
-        
-        # Post-process the best solution before returning it
-        logger.info("Post-processing best solution to fix any remaining issues...")
-        post_processed_solution = self.best_solution.post_process_solution()
-        
-        # Re-evaluate the post-processed solution
-        post_processed_evaluation = post_processed_solution.evaluate()
-        post_processed_objective = self.calculate_objective(post_processed_evaluation)
-        
-        # Check if the post-processed solution is better
-        if post_processed_objective <= self.best_objective and post_processed_evaluation["is_feasible"]:
-            logger.info("Post-processed solution is better or equal to the original best solution.")
-            self.best_solution = post_processed_solution
-            self.best_evaluation = post_processed_evaluation
-            self.best_objective = post_processed_objective
-        elif post_processed_evaluation["is_feasible"] and not self.best_evaluation["is_feasible"]:
-            logger.info("Post-processed solution is feasible while original wasn't. Using post-processed solution.")
-            self.best_solution = post_processed_solution
-            self.best_evaluation = post_processed_evaluation
-            self.best_objective = post_processed_objective
-        else:
-            logger.info("Original solution is better than post-processed. Keeping original solution.")
         
         # Return best solution and statistics
         return {

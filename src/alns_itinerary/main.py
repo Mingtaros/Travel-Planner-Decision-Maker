@@ -132,7 +132,10 @@ def main(
             "segment_size": 100,
             "time_limit": 3600,  # 1 hour time limit
             "seed": 96,  # For reproducibility
-            "early_termination_iterations": 1000  # Early termination if no improvement
+            "early_termination_iterations": 1000,  # Early termination if no improvement
+            "weights_destroy": [1.2, 1.2, 1.5, 1.0, 0.8],  # Weights for destroy operators
+            "weights_repair": [1.2, 1.5, 1.0],  # Weights for repair operators
+            "objective_weights": [0.3, 0.3, 0.4],  # Weight for objective function
         }
         
         # Initialize VRP-ALNS

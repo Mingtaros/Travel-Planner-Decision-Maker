@@ -76,7 +76,7 @@ def get_trip_details(route_data, sort_priority="price", departure_time=datetime.
         trip_details.append({
             "price_sgd": accumulated_price,
             "distance_km": route["distance"]["value"] / 1000,
-            "duration_minutes": route["duration"]["value"] / 60,
+            "duration_minutes": round(route["duration"]["value"] / 60),
             "departure_time": route["departure_time"].replace("\u202f", " "),
             "arrival_time": route["arrival_time"].replace("\u202f", " "),
             "steps": route["steps"],

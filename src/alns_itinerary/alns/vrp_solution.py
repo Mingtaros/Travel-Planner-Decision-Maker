@@ -524,6 +524,9 @@ class VRPSolution:
         Returns:
             bool: True if solution is feasible
         """
+        
+        max_attractions_per_day = 4
+        
         # Check that each day has a hotel start and end
         for day in range(self.num_days):
             route = self.routes[day]
@@ -539,28 +542,10 @@ class VRPSolution:
             
             # Check if the day ends at hotel or can return to hotel in time
             last_loc, _, last_departure, _ = route[-1]
-            if last_loc != 0:
-                # Calculate return to hotel
-                hotel_idx = 0
-                transport_hour = self.problem.get_transport_hour(last_departure)
-                try:
-                    transport_key = (self.problem.locations[last_loc]["name"], 
-                                self.problem.locations[hotel_idx]["name"], 
-                                transport_hour)
-                    # Try both transit and drive
-                    if "transit" in self.problem.transport_matrix.get(transport_key, {}):
-                        transport_data = self.problem.transport_matrix[transport_key]["transit"]
-                    else:
-                        transport_data = self.problem.transport_matrix[transport_key]["drive"]
-                    
-                    return_time = last_departure + transport_data["duration"]
-                    if return_time > self.problem.HARD_LIMIT_END_TIME:
-                        return False
-                except KeyError:
-                    # Missing transport data
-                    return False
+            if last_loc != 0 or last_departure > self.problem.HARD_LIMIT_END_TIME:
+                return False
             
-            # Check for duplicate locations within each day
+            # Check for duplicate locations within each day and hotel in between the day
             locations_visited = {}
             for i, (loc_idx, arrival_time, _, _) in enumerate(route):
                 loc_type = self.problem.locations[loc_idx]["type"]
@@ -595,7 +580,7 @@ class VRPSolution:
             
             # Check for reasonable number of attractions per day
             attraction_count = sum(1 for loc, _, _, _ in route if self.problem.locations[loc]["type"] == "attraction")
-            if attraction_count > 4:  # More than 4 attractions in a day is unrealistic
+            if attraction_count > max_attractions_per_day:  # More than 4 attractions in a day is unrealistic
                 return False
         
         # Check that attractions are visited at most once across all days
@@ -606,14 +591,6 @@ class VRPSolution:
                     if loc in attraction_visits:
                         return False
                     attraction_visits[loc] = True
-        
-        # Check for logical sequencing - no A->B->A patterns (unnecessary backtracking)
-        for day in range(self.num_days):
-            route = self.routes[day]
-            for i in range(2, len(route)):
-                if route[i][0] == route[i-2][0] and route[i][0] != 0:  # Allow hotel to repeat
-                    # Found an A->B->A pattern
-                    return False
         
         # Check for budget constraint
         total_cost = self.get_total_cost()
@@ -657,7 +634,7 @@ class VRPSolution:
                 if loc_type == "attraction":
                     total_cost += self.problem.locations[curr_loc]["entrance_fee"]
                 elif loc_type == "hawker":
-                    total_cost += 10  # Standard meal cost
+                    total_cost += self.problem.locations[curr_loc]["avg_food_price"]
         
         return total_cost
     
@@ -679,8 +656,25 @@ class VRPSolution:
                 prev_loc, _, prev_departure, _ = route[i-1]
                 curr_loc, curr_arrival, _, transport_mode = route[i]
                 
-                # Calculate transport time
-                transport_time = curr_arrival - prev_departure
+                raw_transit_time = curr_arrival - prev_departure
+                
+                location_type = self.problem.locations[curr_loc]["type"]
+                rest_period = 0
+                
+                if location_type == "hawker":
+                    
+                    # Calculate transport cost
+                    transport_hour = self.problem.get_transport_hour(prev_departure)
+                    
+                    transport_key = (self.problem.locations[prev_loc]["name"], 
+                                self.problem.locations[curr_loc]["name"], 
+                                transport_hour)
+                    transport_data = self.problem.transport_matrix[transport_key][transport_mode]
+                    actual_transit_time = transport_data["duration"]
+                    rest_period = raw_transit_time - actual_transit_time
+                    
+                # Subtract rest period from transit time
+                transport_time = raw_transit_time - int(rest_period)
                 total_travel_time += transport_time
         
         return total_travel_time
@@ -945,30 +939,28 @@ class VRPSolution:
     def evaluate(self):
         """
         Evaluate the solution to get objectives and feasibility.
-        Added post-processing to fix common issues and improved feasibility checking.
         
         Returns:
             dict: Dictionary with evaluation results
         """
-        # First, post-process the solution to fix common issues
-        processed_solution = self.post_process_solution()
+        solution = self.clone()
         
         # Check feasibility
-        is_feasible = processed_solution.is_feasible()
+        is_feasible = solution.is_feasible()
         
         # Calculate costs
-        total_cost = processed_solution.get_total_cost()
-        total_travel_time = processed_solution.get_total_travel_time()
-        total_satisfaction = processed_solution.get_total_satisfaction()
+        total_cost = solution.get_total_cost()
+        total_travel_time = solution.get_total_travel_time()
+        total_satisfaction = solution.get_total_satisfaction()
         
         # Extract daily routes in the format expected by visualization
         daily_routes = []
-        for day in range(processed_solution.num_days):
+        for day in range(solution.num_days):
             route = []
-            for loc, arrival_time, departure_time, transport_mode in processed_solution.routes[day]:
+            for loc, arrival_time, departure_time, transport_mode in solution.routes[day]:
                 # Skip hotel at start if there are more locations
-                if loc == 0 and len(route) == 0 and len(processed_solution.routes[day]) > 1:
-                    continue
+                # if loc == 0 and len(route) == 0 and len(solution.routes[day]) > 1:
+                #     continue
                     
                 # Add location to route
                 route.append({
@@ -982,11 +974,11 @@ class VRPSolution:
         
         # Get visited attractions
         visited_attractions = []
-        for attr_idx in processed_solution.get_visited_attractions():
+        for attr_idx in solution.get_visited_attractions():
             visited_attractions.append(self.problem.locations[attr_idx]["name"])
         
         # Collect constraint violations using the new method
-        violations = processed_solution.collect_constraint_violations() if not is_feasible else []
+        violations = solution.collect_constraint_violations() if not is_feasible else []
         
         # Group violations by type for easier analysis
         inequality_violations = []
@@ -1042,224 +1034,3 @@ class VRPSolution:
             result += "\n"
         
         return result
-
-    def post_process_solution(self):
-        """
-        Post-process the solution to fix common issues:
-        - Remove redundant hotel visits in the middle of the day
-        - Remove duplicate hawker visits
-        - Ensure each day has exactly one lunch and one dinner
-        - Prioritize dinner scheduling
-        
-        Returns:
-            VRPSolution: A cleaned-up solution
-        """
-        # Make a copy of the solution
-        new_solution = self.clone()
-        
-        # Process each day
-        for day in range(new_solution.num_days):
-            route = new_solution.routes[day]
-            
-            # Skip days with too few locations
-            if len(route) < 3:
-                continue
-            
-            # 1. Remove redundant hotel visits in the middle of the day
-            i = 1  # Start from second position (after hotel start)
-            while i < len(route) - 1:  # Don't remove last position
-                loc_idx, _, _, _ = route[i]
-                if self.problem.locations[loc_idx]["type"] == "hotel":
-                    # Remove this hotel visit if it's not at start or end
-                    route.pop(i)
-                    # Recalculate times after removal
-                    new_solution.recalculate_route_times(day, i)
-                else:
-                    i += 1
-            
-            # 2. Fix duplicate hawker visits - keep only the one closest to ideal meal time
-            # First find all hawker visits
-            hawker_visits = []
-            for i, (loc_idx, arrival, _, _) in enumerate(route):
-                if self.problem.locations[loc_idx]["type"] == "hawker":
-                    # Determine if it's lunch or dinner
-                    if arrival >= self.problem.LUNCH_START and arrival <= self.problem.LUNCH_END:
-                        ideal_time = self.problem.LUNCH_START + 90  # 12:30 PM
-                        hawker_visits.append((i, loc_idx, arrival, "lunch", abs(arrival - ideal_time)))
-                    elif arrival >= self.problem.DINNER_START and arrival <= self.problem.DINNER_END:
-                        ideal_time = self.problem.DINNER_START + 90  # 6:30 PM
-                        hawker_visits.append((i, loc_idx, arrival, "dinner", abs(arrival - ideal_time)))
-                    else:
-                        # Unknown meal type, use closest meal time
-                        if abs(arrival - (self.problem.LUNCH_START + 90)) < abs(arrival - (self.problem.DINNER_START + 90)):
-                            hawker_visits.append((i, loc_idx, arrival, "lunch", abs(arrival - (self.problem.LUNCH_START + 90))))
-                        else:
-                            hawker_visits.append((i, loc_idx, arrival, "dinner", abs(arrival - (self.problem.DINNER_START + 90))))
-            
-            # Group hawker visits by meal type
-            lunch_visits = [v for v in hawker_visits if v[3] == "lunch"]
-            dinner_visits = [v for v in hawker_visits if v[3] == "dinner"]
-            
-            # For each meal type, keep only the best visit (closest to ideal time)
-            positions_to_remove = []
-            
-            # Process lunch visits - keep only the best one
-            if len(lunch_visits) > 1:
-                # Sort by time difference (ascending)
-                lunch_visits.sort(key=lambda x: x[4])
-                # Mark all except the best for removal
-                positions_to_remove.extend([pos for pos, _, _, _, _ in lunch_visits[1:]])
-            
-            # Process dinner visits - keep only the best one
-            if len(dinner_visits) > 1:
-                # Sort by time difference (ascending)
-                dinner_visits.sort(key=lambda x: x[4])
-                # Mark all except the best for removal
-                positions_to_remove.extend([pos for pos, _, _, _, _ in dinner_visits[1:]])
-            
-            # Sort positions in reverse order to avoid index shifting issues
-            positions_to_remove.sort(reverse=True)
-            
-            # Remove the marked positions
-            for pos in positions_to_remove:
-                route.pop(pos)
-                # Recalculate times after each removal
-                new_solution.recalculate_route_times(day, pos)
-            
-            # 3. HIGH PRIORITY: Add dinner if missing
-            # First recalculate which meal types we have after removals
-            has_lunch, has_dinner = new_solution.has_lunch_and_dinner(day)
-            
-            # PRIORITIZE ADDING DINNER FIRST
-            if not has_dinner:
-                # Find an optimal dinner time - try multiple potential positions
-                dinner_positions = []
-                
-                # Start with ideal dinner time (6:30 PM)
-                ideal_dinner = self.problem.DINNER_START + 90  # 6:30 PM
-                
-                # Find the position where dinner should be inserted (right before the location after dinner time)
-                ideal_pos = len(route)  # Default to end of route
-                for i, (_, arrival, _, _) in enumerate(route):
-                    if arrival > ideal_dinner:
-                        ideal_pos = i
-                        break
-                
-                dinner_positions.append(ideal_pos)
-                
-                # Also try early dinner (5:30 PM)
-                early_dinner = self.problem.DINNER_START + 30  # 5:30 PM
-                early_pos = len(route)  # Default to end of route
-                for i, (_, arrival, _, _) in enumerate(route):
-                    if arrival > early_dinner:
-                        early_pos = i
-                        break
-                
-                if early_pos != ideal_pos:
-                    dinner_positions.append(early_pos)
-                
-                # Also try late dinner (7:30 PM)
-                late_dinner = self.problem.DINNER_START + 150  # 7:30 PM
-                late_pos = len(route)  # Default to end of route
-                for i, (_, arrival, _, _) in enumerate(route):
-                    if arrival > late_dinner:
-                        late_pos = i
-                        break
-                
-                if late_pos != ideal_pos and late_pos != early_pos:
-                    dinner_positions.append(late_pos)
-                
-                # Ensure end position is included
-                if len(route) not in dinner_positions:
-                    dinner_positions.append(len(route))
-                
-                # Find an available hawker for dinner
-                avail_hawkers = []
-                for h in range(self.problem.num_locations):
-                    if self.problem.locations[h]["type"] == "hawker":
-                        # Check if this hawker is already used in this day
-                        if not any(loc == h for loc, _, _, _ in route):
-                            avail_hawkers.append((h, self.problem.locations[h].get("rating", 0)))
-                
-                # Sort hawkers by rating (highest first)
-                avail_hawkers.sort(key=lambda x: x[1], reverse=True)
-                
-                # Try each position and hawker until we find a feasible insertion
-                dinner_added = False
-                for pos in dinner_positions:
-                    for hawker_idx, _ in avail_hawkers:
-                        # Try both transit and drive
-                        for transport_mode in ["transit", "drive"]:
-                            if new_solution.is_feasible_insertion(day, pos, hawker_idx, transport_mode):
-                                new_solution.insert_location(day, pos, hawker_idx, transport_mode)
-                                dinner_added = True
-                                break
-                        if dinner_added:
-                            break
-                    if dinner_added:
-                        break
-                
-                # Last resort: Try to force a dinner hawker by relaxing constraints
-                if not dinner_added and avail_hawkers:
-                    # Use the highest rated available hawker
-                    hawker_idx = avail_hawkers[0][0]
-                    
-                    # Try to insert toward end of day
-                    pos = len(new_solution.routes[day])
-                    
-                    # Try to insert anyway and adjust times if needed
-                    for transport_mode in ["transit", "drive"]:
-                        if new_solution.insert_location(day, pos, hawker_idx, transport_mode):
-                            dinner_added = True
-                            break
-            
-            # 4. Now add lunch if missing (after handling dinner)
-            has_lunch, has_dinner = new_solution.has_lunch_and_dinner(day)
-            
-            if not has_lunch:
-                # Find the best position to insert a lunch hawker
-                lunch_time = self.problem.LUNCH_START + 60  # 12:00 PM
-                best_pos = 1  # Default to after hotel
-                
-                # Find the position where we should insert lunch (right before the location after lunch time)
-                for i, (_, arrival, _, _) in enumerate(route):
-                    if arrival > lunch_time:
-                        best_pos = i
-                        break
-                
-                # Find an available hawker for lunch
-                avail_hawkers = []
-                for h in range(self.problem.num_locations):
-                    if self.problem.locations[h]["type"] == "hawker":
-                        # Check if this hawker is already used in this day
-                        if not any(loc == h for loc, _, _, _ in route):
-                            avail_hawkers.append((h, self.problem.locations[h].get("rating", 0)))
-                
-                # Sort hawkers by rating (highest first)
-                avail_hawkers.sort(key=lambda x: x[1], reverse=True)
-                
-                # Try each available hawker
-                lunch_added = False
-                for hawker_idx, _ in avail_hawkers:
-                    # Try both transit and drive
-                    for transport_mode in ["transit", "drive"]:
-                        if new_solution.is_feasible_insertion(day, best_pos, hawker_idx, transport_mode):
-                            new_solution.insert_location(day, best_pos, hawker_idx, transport_mode)
-                            lunch_added = True
-                            break
-                    if lunch_added:
-                        break
-            
-            # 5. Make sure each day ends at the hotel
-            if route[-1][0] != 0:  # If last location is not the hotel
-                # Try to add hotel as the last location
-                hotel_idx = 0
-                position = len(route)
-                
-                # Try both transport modes
-                if new_solution.is_feasible_insertion(day, position, hotel_idx, "transit"):
-                    new_solution.insert_location(day, position, hotel_idx, "transit")
-                elif new_solution.is_feasible_insertion(day, position, hotel_idx, "drive"):
-                    new_solution.insert_location(day, position, hotel_idx, "drive")
-        
-        return new_solution

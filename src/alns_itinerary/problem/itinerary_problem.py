@@ -186,28 +186,3 @@ class TravelItineraryProblem:
                 return bracket
         
         return brackets[0]  # Default to first bracket if before 8 AM
-    
-    def evaluate_solution(self, vrp_solution):
-        """
-        Evaluate a VRPSolution and calculate objectives and constraint violations
-        
-        Args:
-            vrp_solution: VRPSolution instance
-            
-        Returns:
-            dict: Results including objectives and constraint violations
-        """
-        # Use the VRPSolution's evaluate method which already handles all the checks
-        # and calculations we need
-        evaluation = vrp_solution.evaluate()
-        
-        # The VRPSolution.evaluate() method returns a complete evaluation that includes:
-        # - is_feasible
-        # - total_cost
-        # - total_travel_time
-        # - total_satisfaction
-        # - daily_routes
-        # - visited_attractions
-        # - constraint_violations (which includes both inequality and equality violations)
-        
-        return evaluation

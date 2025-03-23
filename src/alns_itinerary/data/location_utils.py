@@ -174,7 +174,7 @@ def compute_hotel_routes(hotel, locations):
                         if (hotel["name"], dest_location["name"], hour) not in hotel_routes:
                             hotel_routes[(hotel["name"], dest_location["name"], hour)] = {
                                 "transit": {
-                                    "duration": round(duration_seconds / 60, 1),  # Convert to minutes
+                                    "duration": round(duration_seconds / 60),  # Convert to minutes
                                     "price": round(transit_fare, 2) if transit_fare else 0,
                                 },
                                 "drive": {
@@ -184,7 +184,7 @@ def compute_hotel_routes(hotel, locations):
                             }
                         else:
                             hotel_routes[(hotel["name"], dest_location["name"], hour)]["transit"] = {
-                                "duration": round(duration_seconds / 60, 1),  # Convert to minutes
+                                "duration": round(duration_seconds / 60),  # Convert to minutes
                                 "price": round(transit_fare, 2) if transit_fare else 0,
                             }
             
@@ -216,13 +216,13 @@ def compute_hotel_routes(hotel, locations):
                                     "price": 0,
                                 },
                                 "drive": {
-                                    "duration": round(duration_seconds / 60, 1),  # Convert to minutes
+                                    "duration": round(duration_seconds / 60),  # Convert to minutes
                                     "price": round(driving_fare, 2) if driving_fare else 0,
                                 }
                             }
                         else:
                             hotel_routes[(hotel["name"], dest_location["name"], hour)]["drive"] = {
-                                "duration": round(duration_seconds / 60, 1),  # Convert to minutes
+                                "duration": round(duration_seconds / 60),  # Convert to minutes
                                 "price": round(driving_fare, 2) if driving_fare else 0,
                             }
             
@@ -250,7 +250,7 @@ def compute_hotel_routes(hotel, locations):
                         if (origin_location["name"], hotel["name"], hour) not in hotel_routes:
                             hotel_routes[(origin_location["name"], hotel["name"], hour)] = {
                                 "transit": {
-                                    "duration": round(duration_seconds / 60, 1),  # Convert to minutes
+                                    "duration": round(duration_seconds / 60),  # Convert to minutes
                                     "price": round(transit_fare, 2) if transit_fare else 0,
                                 },
                                 "drive": {
@@ -260,7 +260,7 @@ def compute_hotel_routes(hotel, locations):
                             }
                         else:
                             hotel_routes[(origin_location["name"], hotel["name"], hour)]["transit"] = {
-                                "duration": round(duration_seconds / 60, 1),  # Convert to minutes
+                                "duration": round(duration_seconds / 60),  # Convert to minutes
                                 "price": round(transit_fare, 2) if transit_fare else 0,
                             }
             
@@ -292,13 +292,13 @@ def compute_hotel_routes(hotel, locations):
                                     "price": 0,
                                 },
                                 "drive": {
-                                    "duration": round(duration_seconds / 60, 1),  # Convert to minutes
+                                    "duration": round(duration_seconds / 60),  # Convert to minutes
                                     "price": round(driving_fare, 2) if driving_fare else 0,
                                 }
                             }
                         else:
                             hotel_routes[(origin_location["name"], hotel["name"], hour)]["drive"] = {
-                                "duration": round(duration_seconds / 60, 1),  # Convert to minutes
+                                "duration": round(duration_seconds / 60),  # Convert to minutes
                                 "price": round(driving_fare, 2) if driving_fare else 0,
                             }
         
