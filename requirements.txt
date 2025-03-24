@@ -10,3 +10,13 @@ pandas
 tantivy
 yfinance 
 groq
+osmnx
+sci-kit-learn
+pandas
+numpy
+matplotlib
+seaborn
+scipy
+scikit-image
+folium
+networkx
