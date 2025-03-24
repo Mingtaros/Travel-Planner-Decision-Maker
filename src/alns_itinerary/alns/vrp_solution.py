@@ -30,6 +30,7 @@ class VRPSolution:
         self.routes = [[] for _ in range(self.num_days)]
         self.hotel_return_transport = 'transit'
         self.hotel_transit_duration = 0
+        self.MAX_HAWKERS_PER_DAY = 2
         
         # Initialize all days to start at hotel
         hotel_idx = 0  # Assuming hotel is at index 0
@@ -270,7 +271,6 @@ class VRPSolution:
         # Check uniqueness constraints based on location type
         # No inserting hotel
         if location_type == "hotel":
-            # logger.warning("Cannot insert hotel location")
             return False
         
         elif location_type == "attraction":
@@ -279,24 +279,13 @@ class VRPSolution:
             for d in range(self.num_days):
                 for loc, _, _, _ in self.routes[d]:
                     if loc == location_idx:
-                        # logger.warning(f"Attraction {location_idx} is already visited on Day {d+1}")
                         return False
         
         elif location_type == "hawker":
             
-            # Check if we already have a meal of this type today
-            has_lunch = False
-            has_dinner = False
-            
-            for loc, arr_time, _, _ in route:
-                if self.problem.locations[loc]["type"] == "hawker":
-                    if arr_time >= self.problem.LUNCH_START and arr_time <= self.problem.LUNCH_END:
-                        has_lunch = True
-                    elif arr_time >= self.problem.DINNER_START and arr_time <= self.problem.DINNER_END:
-                        has_dinner = True
-            
+            has_lunch, has_dinner, _, _ = self.has_lunch_and_dinner(day)
+
             if has_lunch and has_dinner:
-                # logger.warning("Cannot insert more than one meal visit per day")
                 return False
             
             loc_cost = self.problem.locations[location_idx].get('avg_food_price', 0)
@@ -337,15 +326,11 @@ class VRPSolution:
         elif location_type == "hawker":
             hawker_count += 1
         
-        # Check against maximum allowed visits - relaxed for hawkers to ensure dinner can be added
-        MAX_HAWKERS_PER_DAY = 2      # Reasonable limit (lunch, dinner)
-        
+        # Check against maximum allowed visits - relaxed for hawkers to ensure dinner can be added   # Reasonable limit (lunch, dinner)
         if attraction_count > self.problem.MAX_ATTRACTION_PER_DAY:
-            # logger.warning(f"Exceeding maximum attractions per day ({self.problem.MAX_ATTRACTION_PER_DAY})")
             return False
         
-        if hawker_count > MAX_HAWKERS_PER_DAY:
-            # logger.warning(f"Exceeding maximum hawker visits per day ({MAX_HAWKERS_PER_DAY})")
+        if hawker_count > self.MAX_HAWKERS_PER_DAY:
             return False
         
         # Now perform the original feasibility checks
@@ -365,7 +350,6 @@ class VRPSolution:
         
         # Check if we are repeating the same location
         if next_loc == location_idx and next_loc != hotel_idx:
-            # logger.warning(f"Cannot repeat the same location {location_idx}")
             return False
         
         transport_hour = self.problem.get_transport_hour(departure_time)
@@ -491,8 +475,7 @@ class VRPSolution:
                 loc_type = self.problem.locations[loc_idx]["type"]
                 
                 # Hotel should only appear at start and end
-                if loc_type == "hotel" and i > 0 and i < len(route) - 1:
-                    # Hotel appears in the middle of the day (not allowed)
+                if loc_type == "hotel" and i > 0:
                     return False
                 
                 # Each attraction should appear at most once across all days
@@ -546,7 +529,7 @@ class VRPSolution:
         Returns:
             float: Total cost in SGD
         """
-        total_cost = self.problem.NUM_DAYS * self.problem.HOTEL_COST  # Hotel cost
+        total_cost = 0
         
         # Add costs for each day's route
         for day in range(self.num_days):

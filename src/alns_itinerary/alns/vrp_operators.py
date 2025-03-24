@@ -10,6 +10,7 @@ from collections import defaultdict
 from utils.export_json_itinerary import export_json_itinerary
 from datetime import datetime
 from heapq import heappush, heappop
+import math
 
 logger = logging.getLogger(__name__)
 
@@ -18,7 +19,19 @@ class VRPOperators:
     Collection of destroy and repair operators for the VRP-based travel itinerary optimizer
     """
     
-    def __init__(self, seed=None):
+    def __init__(
+        self, 
+        destroy_remove_percentage, 
+        destroy_distant_loc_weights, 
+        destroy_expensive_threshold,
+        destroy_day_hawker_preserve,
+        repair_transit_weights,
+        repair_satisfaction_weights,
+        ideal_meal_offset = 90,
+        repair_budget_limit = 0.95,
+        repair_free_bonus = 2,
+        repair_insertion_regret = 1000,
+        seed=None):
         """
         Initialize the operators with the problem definition
         
@@ -29,6 +42,18 @@ class VRPOperators:
         if seed is not None:
             np.random.seed(seed)
             random.seed(seed)
+            
+        self.min_subsequence = 3
+        self.destroy_remove_percentage = destroy_remove_percentage
+        self.destroy_distant_loc_weights = destroy_distant_loc_weights
+        self.destroy_expensive_threshold = destroy_expensive_threshold
+        self.destroy_day_hawker_preserve = destroy_day_hawker_preserve
+        self.ideal_meal_offset = ideal_meal_offset
+        self.repair_budget_limit = repair_budget_limit
+        self.repair_free_bonus = repair_free_bonus
+        self.repair_insertion_regret = repair_insertion_regret
+        self.repair_transit_weights = repair_transit_weights
+        self.repair_satisfaction_weights = repair_satisfaction_weights
 
     #----------------
     # Destroy Operators
@@ -47,19 +72,12 @@ class VRPOperators:
             VRPSolution: Modified solution
         """
         
-        # Make a copy of the solution to avoid modifying the original
-        # new_solution = solution.clone()
-        
-        # logger.info("Destroying targeted subsequence")
-        
-        # logger.info(f"Initial solution routes: {new_solution.routes}")
-        
         # Select a random day
         day = random.randint(0, new_solution.num_days - 1)
         route = new_solution.routes[day]
         
         # Need at least 4 locations to remove a subsequence (hotel -> loc1 -> loc2 -> hotel)
-        if len(route) < 3:
+        if len(route) < self.min_subsequence:
             return new_solution
         
         # Identify time periods between meals (avoid removing meals)
@@ -111,12 +129,6 @@ class VRPOperators:
         for pos in positions_to_remove:
             new_solution.remove_location(day, pos)
         
-        # logger.info(f"New solution routes: {new_solution.routes}")
-        # destroy_solution = new_solution
-        # destroy_json_path = f"results/destroy_itinerary_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
-        # destroy_json_file = export_json_itinerary(problem, destroy_solution, destroy_json_path)
-        # logger.info(f"Destroy solution exported to: {destroy_json_file}")
-        
         return new_solution
 
     def destroy_worst_attractions(self, problem, new_solution):
@@ -131,8 +143,6 @@ class VRPOperators:
         Returns:
             VRPSolution: Modified solution
         """
-        # Make a copy of the solution to avoid modifying the original
-        # new_solution = solution.clone()
         
         # Identify attraction visits with their value ratio
         attraction_visits = []
@@ -165,7 +175,7 @@ class VRPOperators:
         attraction_visits.sort(key=lambda x: x[3])
         
         # Remove up to 25% of worst attractions, but at least 1 if any are visited
-        num_to_remove = max(1, int(len(attraction_visits) * 0.25))
+        num_to_remove = max(1, int(len(attraction_visits) * self.destroy_remove_percentage))
         num_to_remove = min(num_to_remove, len(attraction_visits))
         
         # Track positions that have been removed to avoid issues with shifting indices
@@ -182,12 +192,6 @@ class VRPOperators:
             # Remove the attraction
             if new_solution.remove_location(day, adjusted_pos):
                 removed[day].add(pos)
-                
-        # logger.info(f"New solution routes: {new_solution.routes}")
-        # destroy_solution = new_solution
-        # destroy_json_path = f"results/destroy_itinerary_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
-        # destroy_json_file = export_json_itinerary(problem, destroy_solution, destroy_json_path)
-        # logger.info(f"Destroy solution exported to: {destroy_json_file}")
         
         return new_solution
 
@@ -211,7 +215,7 @@ class VRPOperators:
             route = new_solution.routes[day]
             
             # Skip days with insufficient locations
-            if len(route) < 3:
+            if len(route) < self.min_subsequence:
                 continue
             
             # Process each location (excluding start hotel)
@@ -273,8 +277,10 @@ class VRPOperators:
                     # For hawkers, use rating
                     location_value = problem.locations[loc_idx].get("rating", 1) * 2  # Scale rating
                 
+                log_time = math.log(total_transit_time + 1)
+                log_cost = math.log(total_transit_cost + 1)
                 # Higher score = worse transit efficiency (more time/cost per value)
-                transit_efficiency = (total_transit_time + total_transit_cost * 5) / (location_value + 1)
+                transit_efficiency = (log_time * self.destroy_distant_loc_weights[0] + log_cost * self.destroy_distant_loc_weights[1]) / (location_value + 1)
                 
                 # Add to transit data collection
                 transit_data.append((day, pos, loc_idx, transit_efficiency, total_transit_time))
@@ -283,7 +289,7 @@ class VRPOperators:
         transit_data.sort(key=lambda x: x[3], reverse=True)
         
         # Determine how many to remove (up to 30% of candidates or at most 3)
-        num_to_remove = min(3, max(1, int(len(transit_data) * 0.3)))
+        num_to_remove = min(int(self.destroy_remove_percentage*10), max(1, int(len(transit_data) * self.destroy_remove_percentage)))
         
         # Track removed positions
         removed = defaultdict(set)
@@ -299,12 +305,6 @@ class VRPOperators:
             # Remove the location
             if new_solution.remove_location(day, adjusted_pos):
                 removed[day].add(pos)
-                
-        # logger.info(f"New solution routes: {new_solution.routes}")
-        # destroy_solution = new_solution
-        # destroy_json_path = f"results/destroy_itinerary_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
-        # destroy_json_file = export_json_itinerary(problem, destroy_solution, destroy_json_path)
-        # logger.info(f"Destroy solution exported to: {destroy_json_file}")
         
         return new_solution
 
@@ -324,7 +324,7 @@ class VRPOperators:
         # Get current solution cost
         total_cost = new_solution.get_total_cost()
         
-        if total_cost <= problem.budget * 0.9:
+        if total_cost <= problem.budget * self.destroy_expensive_threshold:
             return new_solution
             
         # Identify expensive attractions
@@ -350,7 +350,7 @@ class VRPOperators:
         expensive_attractions.sort(key=lambda x: x[4], reverse=True)
         
         # Remove up to 30% of expensive attractions
-        num_to_remove = max(1, int(len(expensive_attractions) * 0.3))
+        num_to_remove = max(1, int(len(expensive_attractions) * self.destroy_remove_percentage))
         num_to_remove = min(num_to_remove, len(expensive_attractions))
         
         # Track positions that have been removed to avoid issues with shifting indices
@@ -407,7 +407,7 @@ class VRPOperators:
             return new_solution
         
         # Small chance to keep hawkers in place and just remove attractions
-        preserve_hawkers = random.random() < 0.7
+        preserve_hawkers = random.random() < self.destroy_day_hawker_preserve
         
         # Positions to remove (attractions and possibly hawkers)
         positions_to_remove = attraction_positions.copy()
@@ -469,7 +469,7 @@ class VRPOperators:
                     best_time_diff = float('inf')
                     
                     # Aim for 12:30 PM (ideal lunch time)
-                    ideal_lunch = problem.LUNCH_START + 90
+                    ideal_lunch = problem.LUNCH_START + self.ideal_meal_offset
                     
                     # Try each position
                     for pos in range(1, len(new_solution.routes[day]) + 1):
@@ -514,7 +514,7 @@ class VRPOperators:
                     best_time_diff = float('inf')
                     
                     # Aim for 6:30 PM (ideal dinner time)
-                    ideal_dinner = problem.DINNER_START + 90
+                    ideal_dinner = problem.DINNER_START + self.ideal_meal_offset
                     
                     # Try each position
                     for pos in range(1, len(new_solution.routes[day]) + 1):
@@ -555,7 +555,7 @@ class VRPOperators:
                             and i not in visited_attractions]
         
         # Apply regret insertion until no more attractions can be inserted or budget is reached
-        budget_limit = problem.budget * 0.95  # 95% of budget to leave some slack
+        budget_limit = problem.budget * self.repair_budget_limit  # 95% of budget to leave some slack
         
         while unvisited_attractions and new_solution.get_total_cost() < budget_limit:
             # Calculate regret values for each unvisited attraction
@@ -582,7 +582,7 @@ class VRPOperators:
                                 if cost_increase > 0:
                                     normalized_cost = -satisfaction_increase / cost_increase
                                 else:
-                                    normalized_cost = -satisfaction_increase * 2  # Double bonus for free satisfaction
+                                    normalized_cost = -satisfaction_increase * self.repair_free_bonus
                                 
                                 insertion_costs.append((normalized_cost, day, pos, transport_mode))
                 
@@ -596,7 +596,7 @@ class VRPOperators:
                     best_insertion = insertion_costs[0]
                 elif len(insertion_costs) == 1:
                     # Only one feasible insertion, set high regret
-                    regret = 1000
+                    regret = self.repair_insertion_regret
                     best_insertion = insertion_costs[0]
                 else:
                     # No feasible insertion, skip this attraction
@@ -618,20 +618,13 @@ class VRPOperators:
             
             # Insert the attraction
             new_solution.insert_location(day, pos, attr_idx, transport_mode)
-            # logger.info(f"Inserted attraction {attr_idx} at day {day+1}, pos {pos}, mode {transport_mode}")
             
             # Remove from unvisited list
             unvisited_attractions.remove(attr_idx)
             
             # Check if we've reached the budget limit
             if new_solution.get_total_cost() >= budget_limit:
-                # logger.info("Budget limit reached, stopping insertion")
                 break
-        
-        # repair_solution = new_solution
-        # repair_json_path = f"results/repair_itinerary_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
-        # repair_json_file = export_json_itinerary(problem, repair_solution, repair_json_path)
-        # logger.info(f"Repair solution exported to: {repair_json_file}")
         
         return new_solution
 
@@ -736,8 +729,11 @@ class VRPOperators:
                             
                             transport_data = problem.transport_matrix[transport_key][transport_mode]
                             
+                            log_time = math.log(transport_data["duration"] + 1)
+                            log_cost = math.log(transport_data["price"] + 1)
+                            
                             # Score considers rating and minimizes transit overhead
-                            score = rating / (transport_data["duration"] + transport_data["price"] * 5 + 1)
+                            score = rating / (log_time * self.repair_transit_weights[0] + log_cost * self.repair_transit_weights[1] + 1)
                             
                             # Update best hawker if score is better
                             if score > best_score:
@@ -804,7 +800,7 @@ class VRPOperators:
             ]
             
             # Budget tracking
-            budget_limit = problem.budget * 0.95
+            budget_limit = problem.budget * self.repair_budget_limit
             
             # Simple greedy attraction insertion
             for attr_idx in unvisited_attractions:
@@ -835,11 +831,6 @@ class VRPOperators:
         
         # Run attraction scheduling
         schedule_attractions(new_solution)
-        
-        # repair_solution = new_solution
-        # repair_json_path = f"results/repair_itinerary_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
-        # repair_json_file = export_json_itinerary(problem, repair_solution, repair_json_path)
-        # logger.info(f"Repair solution exported to: {repair_json_file}")
         
         return new_solution
 
@@ -942,9 +933,12 @@ class VRPOperators:
                             
                             transport_data = problem.transport_matrix[transport_key][transport_mode]
                             
+                            log_time = math.log(transport_data["duration"] + 1)
+                            log_cost = math.log(transport_data["price"] + 1)
+                            
                             # Satisfaction-driven scoring:
                             # Prioritize highly-rated hawkers with minimal transit overhead
-                            score = rating / (transport_data["duration"] + transport_data["price"] * 5 + 1)
+                            score = rating / (log_time * self.repair_satisfaction_weights[0] + log_cost * self.repair_satisfaction_weights[1] + 1)
                             
                             # Update best hawker if score is better
                             if score > best_score:
@@ -1016,7 +1010,7 @@ class VRPOperators:
             )
             
             # Budget tracking
-            budget_limit = problem.budget * 0.95
+            budget_limit = problem.budget * self.repair_budget_limit
             
             # Satisfaction-driven attraction insertion
             for attr_idx in unvisited_attractions:
@@ -1056,11 +1050,5 @@ class VRPOperators:
         
         # Run attraction scheduling
         schedule_attractions(new_solution)
-        
-        # Export repair solution for logging
-        # repair_solution = new_solution
-        # repair_json_path = f"results/repair_itinerary_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
-        # repair_json_file = export_json_itinerary(problem, repair_solution, repair_json_path)
-        # logger.info(f"Repair solution exported to: {repair_json_file}")
         
         return new_solution

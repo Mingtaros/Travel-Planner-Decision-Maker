@@ -160,9 +160,9 @@ def export_json_itinerary(problem, solution, filename=None):
                 "transit_duration": transit_duration,
                 "transit_cost": transit_cost,
                 "duration": location_duration,
-                "satisfaction": satisfaction,
-                "cost": location_cost,
-                "rest_duration": rest_duration,
+                "satisfaction": round(satisfaction, 1),
+                "cost": round(location_cost, 2),
+                "rest_duration": int(rest_duration),
                 "actual_arrival_time": actual_arrival_time_str if rest_duration > 0 else None
             }
             
@@ -173,10 +173,10 @@ def export_json_itinerary(problem, solution, filename=None):
             # Add additional details based on location type
             if location_type == "attraction":
                 location_entry["description"] = f"Attraction with satisfaction rating {satisfaction:.1f}/10"
-                location_entry["entrance_fee"] = problem.locations[location_idx].get("entrance_fee", 0)
+                location_entry["entrance_fee"] = round(problem.locations[location_idx].get("entrance_fee", 0), 2)
             elif location_type == "hawker":
                 location_entry["description"] = f"Food center with rating {satisfaction:.1f}/5"
-                location_entry["meal_cost"] = problem.locations[location_idx].get("avg_food_price", 0)
+                location_entry["meal_cost"] = round(problem.locations[location_idx].get("avg_food_price", 0), 2)
                 
                 # Add rest information to description if applicable
                 if rest_duration > 0:
@@ -231,7 +231,7 @@ def export_json_itinerary(problem, solution, filename=None):
                 "departure_time": return_time_str,  # Same as arrival for hotel
                 "transit_from_prev": transport_mode,
                 "transit_duration": transit_duration,
-                "transit_cost": transit_cost,
+                "transit_cost": round(transit_cost, 2),
                 "satisfaction": 0,
                 "cost": 0,
                 "rest_duration": 0
@@ -245,7 +245,6 @@ def export_json_itinerary(problem, solution, filename=None):
     
     # Calculate budget breakdown
     budget_breakdown = {
-        "hotel": problem.NUM_DAYS * problem.HOTEL_COST,
         "attractions": 0,
         "meals": 0,
         "transportation": 0

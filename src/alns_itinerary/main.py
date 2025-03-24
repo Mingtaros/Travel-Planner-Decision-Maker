@@ -16,6 +16,7 @@ from problem.itinerary_problem import TravelItineraryProblem
 from data.transport_utils import get_transport_matrix, get_all_locations
 from utils.export_json_itinerary import export_json_itinerary
 from utils.google_maps_client import GoogleMapsClient
+from utils.config import load_config
 from data.location_utils import (
     get_hotel_waypoint, 
     integrate_hotel_with_locations, 
@@ -40,12 +41,11 @@ def setup_logging():
     )
 
 def main(
-    hotel_name=None, 
-    budget=500, 
-    num_days=3, 
+    seed=42,
+    config_path="./src/alns_itinerary/config.json",
+    llm_path="./src/alns_itinerary/llm.json",
     max_attractions=None, 
     max_hawkers=None,
-    seed=42
 ):
     """
     Main function to run VRP-based optimization for travel itinerary
@@ -63,6 +63,33 @@ def main(
     # Set up logging
     setup_logging()
     logger = logging.getLogger(__name__)
+    config = load_config(config_path)
+    llm_data = load_config(llm_path)
+    
+    hotel_name = llm_data["HOTEL_NAME"]
+    budget = llm_data["BUDGET"]
+    num_days = llm_data["NUM_DAYS"]
+    max_iterations = config["MAX_ITERATIONS"]
+    segment_size = config["SEGMENT_SIZE"]
+    time_limit = config["TIME_LIMIT"]
+    early_termination_iterations = config["EARLY_TERMINATION_ITERATIONS"]
+    weights_destroy = config["WEIGHTS_DESTROY"]
+    weights_repair = config["WEIGHTS_REPAIR"]
+    objective_weights = config["OBJECTIVE_WEIGHTS"]
+    infeasible_penalty = config["INFEASIBLE_PENALTY"]
+    attraction_per_day = config["MAX_ATTRACTION_PER_DAY"]
+    meal_buffer_time = config["MEAL_BUFFER_TIME"]
+    rich_threshold = config["RICH_THRESHOLD"]
+    avg_hawker_cost = config["AVG_HAWKER_COST"]
+    rating_max = config["RATING_MAX"]
+    approx_hotel_travel_cost = config["APPROX_HOTEL_TRAVEL_COST"]
+    weights_scores = config["WEIGHTS_SCORES"]
+    destroy_remove_percentage = config["DESTROY_REMOVE_PERCENTAGE"]
+    destroy_distant_loc_weights = config["DESTROY_DISTANT_LOC_WEIGHTS"]
+    destroy_expensive_threshold = config["DESTROY_EXPENSIVE_THRESHOLD"]
+    repair_transit_weights = config["REPAIR_TRANSIT_WEIGHTS"]
+    repair_satisfaction_weights = config["REPAIR_SATISFACTION_WEIGHTS"]
+    destroy_day_hawker_preserve = config["DESTROY_DAY_HAWKER_PRESERVE"]
     
     if seed is not None:
         np.random.seed(seed)
@@ -132,16 +159,28 @@ def main(
         
         # Configure VRP-ALNS parameters
         alns_config = {
-            "max_iterations": 5000, # 5000,
-            "segment_size": 100, #100,
-            "time_limit": 3600,  # 1 hour time limit
+            "max_iterations": max_iterations, # 5000,
+            "segment_size": segment_size, #100,
+            "time_limit": time_limit,  # 1 hour time limit
             "seed": seed,  # For reproducibility
-            "early_termination_iterations": 2000,  # Early termination if no improvement
-            "weights_destroy": [1.0, 1.0, 1.0, 1.0, 1.0],  # Weights for destroy operators
-            "weights_repair": [1.0, 1.0, 1.0],  # Weights for repair operators
-            # "weights_destroy": [1.0],  # Weights for destroy operators
-            # "weights_repair": [1.0],  # Weights for repair operators
-            "objective_weights": [0.3, 0.3, 0.4],  # Weight for objective function
+            "early_termination_iterations": early_termination_iterations,  # Early termination if no improvement
+            "weights_destroy": weights_destroy,  # Weights for destroy operators
+            "weights_repair": weights_repair,  # Weights for repair operators
+            "objective_weights": objective_weights,  # Weight for objective function
+            "infeasible_penalty": infeasible_penalty,  # Penalty for infeasible solutions
+            "attraction_per_day": attraction_per_day, # Maximum attractions per day
+            "rich_threshold": rich_threshold,  # Threshold for rich ratio
+            "meal_buffer_time": meal_buffer_time,  # Buffer time for meals
+            "avg_hawker_cost": avg_hawker_cost,  # Average hawker cost
+            "rating_max": rating_max, # Maximum rating
+            "approx_hotel_travel_cost": approx_hotel_travel_cost, # Approximate hotel travel cost
+            "weights_scores": weights_scores,  # Weights for scoring function
+            "destroy_remove_percentage": destroy_remove_percentage,  # Percentage of destroy to remove
+            "destroy_distant_loc_weights": destroy_distant_loc_weights, # Weights for distant locations
+            "destroy_expensive_threshold": destroy_expensive_threshold,  # Threshold for expensive destroyer
+            "destroy_day_hawker_preserve": destroy_day_hawker_preserve, # Preserve hawker centers per day
+            "repair_transit_weights": repair_transit_weights,  # Weights for transit repair
+            "repair_satisfaction_weights": repair_satisfaction_weights  # Weights for satisfaction repair
         }
         
         # Initialize VRP-ALNS
@@ -186,9 +225,9 @@ def main(
 if __name__ == "__main__":
     # Example usage with default parameters
     main(
-        hotel_name="Marina Bay Sands",  # Optional: specific hotel name
-        budget=500,  # Total budget in SGD
-        num_days=3,  # Number of days
+        seed=42,
+        config_path="./src/alns_itinerary/config.json",
+        llm_path="./src/alns_itinerary/llm.json",
         max_attractions=16,  # Optional: limit number of attractions  
         max_hawkers=12  # Optional: limit number of hawkers
     )

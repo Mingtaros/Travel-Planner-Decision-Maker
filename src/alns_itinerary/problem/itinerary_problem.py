@@ -10,7 +10,7 @@ class TravelItineraryProblem:
     Travel Itinerary Problem definition
     This class defines the problem structure and constraints for a multi-day travel itinerary
     """
-    def __init__(self, budget, locations, transport_matrix, num_days=3, config_path="./src/alns_itinerary/config.json"):
+    def __init__(self, budget, locations, transport_matrix, num_days, config_path="./src/alns_itinerary/config.json"):
         """
         Initialize the travel itinerary problem
         
@@ -22,9 +22,8 @@ class TravelItineraryProblem:
         """
         config = load_config(config_path)
         # Constants from config
-        self.NUM_DAYS = num_days if num_days is not None else config["NUM_DAYS"]
+        self.NUM_DAYS = num_days
         self.MAX_ATTRACTION_PER_DAY = config["MAX_ATTRACTION_PER_DAY"]
-        self.HOTEL_COST = config["HOTEL_COST"]
         self.START_TIME = config["START_TIME"]
         self.HARD_LIMIT_END_TIME = config["HARD_LIMIT_END_TIME"]
         
@@ -122,14 +121,12 @@ class TravelItineraryProblem:
             logging.info(f"Transport matrix contains all required routes ({sample_routes} total)")
         
         # Check budget feasibility
-        hotel_cost = num_days * self.HOTEL_COST
         min_food_cost = num_days * 2 * 10  # Minimum 2 meals per day at $10 each
         
-        min_cost = hotel_cost + min_food_cost
-        if budget < min_cost:
-            logging.error(f"Budget (${budget}) is too low! Minimum needed is ${min_cost} for hotel and food alone")
+        if budget < min_food_cost:
+            logging.error(f"Budget (${budget}) is too low! Minimum needed is ${min_food_cost} for food alone")
         else:
-            logging.info(f"Budget check passed: ${budget} >= minimum ${min_cost} for hotel and food")
+            logging.info(f"Budget check passed: ${budget} >= minimum ${min_food_cost} for food")
     
     def test_feasibility(self):
         """

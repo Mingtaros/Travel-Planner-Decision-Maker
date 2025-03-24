@@ -25,19 +25,6 @@ def load_config(config_path="./src/alns_itinerary/config.json"):
     try:
         with open(config_path, 'r') as f:
             config = json.load(f)
-        
-        # Verify all required parameters are present
-        required_params = [
-            "NUM_DAYS", "MAX_ATTRACTION_PER_DAY", "HOTEL_COST", 
-            "START_TIME", "HARD_LIMIT_END_TIME", 
-            "LUNCH_START", "LUNCH_END", "DINNER_START", "DINNER_END"
-        ]
-        
-        missing_params = [param for param in required_params if param not in config]
-        
-        if missing_params:
-            logger.warning(f"Error: Configuration file is missing required parameters: {', '.join(missing_params)}")
-            sys.exit(1)
             
         logger.info(f"Configuration loaded from {config_path}")
         return config
