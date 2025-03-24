@@ -1,0 +1,263 @@
+{
+  "trip_summary": {
+    "duration": 3,
+    "total_budget": 500,
+    "actual_expenditure": 300.22,
+    "total_travel_time": 103.0,
+    "total_satisfaction": 44.3,
+    "is_feasible": true,
+    "starting_hotel": "Marina Bay Sands Singapore"
+  },
+  "days": [
+    {
+      "day": 1,
+      "date": "2025-03-24",
+      "locations": [
+        {
+          "name": "Marina Bay Sands Singapore",
+          "type": "hotel",
+          "arrival_time": "09:00",
+          "departure_time": "09:00",
+          "transit_from_prev": null,
+          "transit_duration": 0,
+          "transit_cost": 0,
+          "duration": 0,
+          "satisfaction": 0,
+          "cost": 0,
+          "rest_duration": 0,
+          "actual_arrival_time": null
+        },
+        {
+          "name": "National Museum of Singapore",
+          "type": "attraction",
+          "arrival_time": "09:22",
+          "departure_time": "10:15",
+          "transit_from_prev": "transit",
+          "transit_duration": 22.0,
+          "transit_cost": 1.4,
+          "duration": 53,
+          "satisfaction": 9.711008778424263,
+          "cost": 58.51238069532623,
+          "rest_duration": 0,
+          "actual_arrival_time": null,
+          "description": "Attraction with satisfaction rating 9.7/10",
+          "entrance_fee": 58.51238069532623
+        },
+        {
+          "name": "Waku Ghin",
+          "type": "hawker",
+          "arrival_time": "11:00",
+          "departure_time": "12:00",
+          "transit_from_prev": "transit",
+          "transit_duration": 22.0,
+          "transit_cost": 1.4,
+          "duration": 60,
+          "satisfaction": 4.0793842647781595,
+          "cost": 10.867511656638483,
+          "rest_duration": 23,
+          "actual_arrival_time": "10:37",
+          "meal_type": "lunch",
+          "description": "Food center with rating 4.1/5. Arrived at 10:37 and waited 23 minutes for opening time.",
+          "meal_cost": 10.867511656638483
+        },
+        {
+          "name": "Clarke Quay",
+          "type": "attraction",
+          "arrival_time": "12:20",
+          "departure_time": "13:34",
+          "transit_from_prev": "transit",
+          "transit_duration": 20.83000000000004,
+          "transit_cost": 1.29,
+          "duration": 74,
+          "satisfaction": 8.254442364744264,
+          "cost": 10.359100007574524,
+          "rest_duration": 0,
+          "actual_arrival_time": null,
+          "description": "Attraction with satisfaction rating 8.3/10",
+          "entrance_fee": 10.359100007574524
+        },
+        {
+          "name": "Cut by Wolfgang Puck",
+          "type": "hawker",
+          "arrival_time": "17:00",
+          "departure_time": "18:00",
+          "transit_from_prev": "transit",
+          "transit_duration": 22.16999999999996,
+          "transit_cost": 1.29,
+          "duration": 60,
+          "satisfaction": 4.689067697356303,
+          "cost": 12.473201101373808,
+          "rest_duration": 183,
+          "actual_arrival_time": "13:57",
+          "meal_type": "dinner",
+          "description": "Food center with rating 4.7/5. Arrived at 13:57 and waited 183 minutes for opening time.",
+          "meal_cost": 12.473201101373808
+        },
+        {
+          "name": "Marina Bay Sands Singapore",
+          "type": "hotel",
+          "position": "end",
+          "arrival_time": "18:03",
+          "departure_time": "18:03",
+          "transit_from_prev": "transit",
+          "transit_duration": 3,
+          "transit_cost": 1.19,
+          "satisfaction": 0,
+          "cost": 0,
+          "rest_duration": 0
+        }
+      ]
+    },
+    {
+      "day": 2,
+      "date": "2025-03-25",
+      "locations": [
+        {
+          "name": "Marina Bay Sands Singapore",
+          "type": "hotel",
+          "arrival_time": "09:00",
+          "departure_time": "09:00",
+          "transit_from_prev": null,
+          "transit_duration": 0,
+          "transit_cost": 0,
+          "duration": 0,
+          "satisfaction": 0,
+          "cost": 0,
+          "rest_duration": 0,
+          "actual_arrival_time": null
+        },
+        {
+          "name": "Waku Ghin",
+          "type": "hawker",
+          "arrival_time": "11:00",
+          "departure_time": "12:00",
+          "transit_from_prev": "transit",
+          "transit_duration": 0.0,
+          "transit_cost": 0,
+          "duration": 60,
+          "satisfaction": 4.0793842647781595,
+          "cost": 10.867511656638483,
+          "rest_duration": 120,
+          "actual_arrival_time": "09:00",
+          "meal_type": "lunch",
+          "description": "Food center with rating 4.1/5. Arrived at 09:00 and waited 120 minutes for opening time.",
+          "meal_cost": 10.867511656638483
+        },
+        {
+          "name": "Cut by Wolfgang Puck",
+          "type": "hawker",
+          "arrival_time": "17:00",
+          "departure_time": "18:00",
+          "transit_from_prev": "transit",
+          "transit_duration": 3.0,
+          "transit_cost": 1.19,
+          "duration": 60,
+          "satisfaction": 4.689067697356303,
+          "cost": 12.473201101373808,
+          "rest_duration": 297,
+          "actual_arrival_time": "12:03",
+          "meal_type": "dinner",
+          "description": "Food center with rating 4.7/5. Arrived at 12:03 and waited 297 minutes for opening time.",
+          "meal_cost": 12.473201101373808
+        },
+        {
+          "name": "Marina Bay Sands Singapore",
+          "type": "hotel",
+          "position": "end",
+          "arrival_time": "18:03",
+          "departure_time": "18:03",
+          "transit_from_prev": "transit",
+          "transit_duration": 3,
+          "transit_cost": 1.19,
+          "satisfaction": 0,
+          "cost": 0,
+          "rest_duration": 0
+        }
+      ]
+    },
+    {
+      "day": 3,
+      "date": "2025-03-26",
+      "locations": [
+        {
+          "name": "Marina Bay Sands Singapore",
+          "type": "hotel",
+          "arrival_time": "09:00",
+          "departure_time": "09:00",
+          "transit_from_prev": null,
+          "transit_duration": 0,
+          "transit_cost": 0,
+          "duration": 0,
+          "satisfaction": 0,
+          "cost": 0,
+          "rest_duration": 0,
+          "actual_arrival_time": null
+        },
+        {
+          "name": "Waku Ghin",
+          "type": "hawker",
+          "arrival_time": "11:00",
+          "departure_time": "12:00",
+          "transit_from_prev": "transit",
+          "transit_duration": 0.0,
+          "transit_cost": 0,
+          "duration": 60,
+          "satisfaction": 4.0793842647781595,
+          "cost": 10.867511656638483,
+          "rest_duration": 120,
+          "actual_arrival_time": "09:00",
+          "meal_type": "lunch",
+          "description": "Food center with rating 4.1/5. Arrived at 09:00 and waited 120 minutes for opening time.",
+          "meal_cost": 10.867511656638483
+        },
+        {
+          "name": "Cut by Wolfgang Puck",
+          "type": "hawker",
+          "arrival_time": "17:00",
+          "departure_time": "18:00",
+          "transit_from_prev": "transit",
+          "transit_duration": 3.0,
+          "transit_cost": 1.19,
+          "duration": 60,
+          "satisfaction": 4.689067697356303,
+          "cost": 12.473201101373808,
+          "rest_duration": 297,
+          "actual_arrival_time": "12:03",
+          "meal_type": "dinner",
+          "description": "Food center with rating 4.7/5. Arrived at 12:03 and waited 297 minutes for opening time.",
+          "meal_cost": 12.473201101373808
+        },
+        {
+          "name": "Marina Bay Sands Singapore",
+          "type": "hotel",
+          "position": "end",
+          "arrival_time": "18:03",
+          "departure_time": "18:03",
+          "transit_from_prev": "transit",
+          "transit_duration": 3,
+          "transit_cost": 1.19,
+          "satisfaction": 0,
+          "cost": 0,
+          "rest_duration": 0
+        }
+      ]
+    }
+  ],
+  "attractions_visited": [
+    "National Museum of Singapore",
+    "Clarke Quay"
+  ],
+  "budget_breakdown": {
+    "hotel": 150,
+    "attractions": 68.87148070290075,
+    "meals": 70.02213827403688,
+    "transportation": 11.329999999999998
+  },
+  "transport_summary": {
+    "total_duration": 102.0,
+    "total_cost": 11.329999999999998
+  },
+  "rest_summary": {
+    "total_rest_duration": 1040
+  }
+}

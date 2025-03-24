@@ -132,15 +132,15 @@ def main(
         
         # Configure VRP-ALNS parameters
         alns_config = {
-            "max_iterations": 2, # 5000,
-            "segment_size": 2, #100,
+            "max_iterations": 5000, # 5000,
+            "segment_size": 100, #100,
             "time_limit": 3600,  # 1 hour time limit
             "seed": seed,  # For reproducibility
-            "early_termination_iterations": 1000,  # Early termination if no improvement
-            # "weights_destroy": [1.2, 1.2, 1.5, 1.0, 0.8],  # Weights for destroy operators
-            # "weights_repair": [1.2, 1.5, 1.0],  # Weights for repair operators
-            "weights_destroy": [1.0],  # Weights for destroy operators
-            "weights_repair": [1.0],  # Weights for repair operators
+            "early_termination_iterations": 2000,  # Early termination if no improvement
+            "weights_destroy": [1.0, 1.0, 1.0, 1.0, 1.0],  # Weights for destroy operators
+            "weights_repair": [1.0, 1.0, 1.0],  # Weights for repair operators
+            # "weights_destroy": [1.0],  # Weights for destroy operators
+            # "weights_repair": [1.0],  # Weights for repair operators
             "objective_weights": [0.3, 0.3, 0.4],  # Weight for objective function
         }
         

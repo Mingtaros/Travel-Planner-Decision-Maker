@@ -449,7 +449,7 @@ class VRPOperators:
         for day in range(new_solution.num_days):
             # logger.info(f"Checking day {day+1} for meal scheduling")
             # Check for lunch and dinner
-            has_lunch, has_dinner = new_solution.has_lunch_and_dinner(day)
+            has_lunch, has_dinner, lunch_hawker_idx, dinner_hawker_idx = new_solution.has_lunch_and_dinner(day)
             # logger.info(f"Has lunch: {has_lunch}, has dinner: {has_dinner}")
             
             # Get hawker centers ordered by rating
@@ -457,13 +457,13 @@ class VRPOperators:
                     for i in range(problem.num_locations) 
                     if problem.locations[i]["type"] == "hawker"]
             hawkers.sort(key=lambda x: x[1], reverse=True)  # Sort by rating (highest first)
-            lunch_hawker_id = -1
             
-            # Add lunch second
             if not has_lunch:
                 # Try each hawker until one can be inserted during lunch window
                 for hawker_idx, _ in hawkers:
-                    
+                    if dinner_hawker_idx is not None and dinner_hawker_idx == hawker_idx:
+                        # Skip hawker if used for dinner
+                        continue
                     # Try to identify the best position for lunch
                     best_pos = None
                     best_time_diff = float('inf')
@@ -498,7 +498,7 @@ class VRPOperators:
                     if best_pos:
                         pos, transport_mode = best_pos
                         new_solution.insert_location(day, pos, hawker_idx, transport_mode, 'Lunch')
-                        lunch_hawker_id = hawker_idx
+                        lunch_hawker_idx = hawker_idx
                         # logger.debug(f"Inserted lunch hawker at day {day+1}, pos {pos}, hawker {hawker_idx}, mode {transport_mode}")
                         break
             
@@ -507,7 +507,7 @@ class VRPOperators:
                 # Try each hawker until one can be inserted during dinner window
                 for hawker_idx, _ in hawkers:
                     # Skip hawkers already used for dinner today
-                    if hawker_idx == lunch_hawker_id:
+                    if lunch_hawker_idx is not None and hawker_idx == lunch_hawker_idx:
                         continue
                     # Try to identify the best position for dinner
                     best_pos = None
@@ -671,8 +671,7 @@ class VRPOperators:
             for pos in range(1, len(day_route) + 1):
                 # Special handling for first/last route positions
                 if pos == 1:
-                    # Can we insert at the start of the day?
-                    if start_window >= problem.START_TIME:
+                    if problem.START_TIME < end_window:
                         possible_positions.append(pos)
                 elif pos == len(day_route):
                     # Check if we can insert at the end of the route
@@ -681,16 +680,12 @@ class VRPOperators:
                 else:
                     # Check between existing route points
                     prev_time = day_route[pos-1][2]
-                    next_time = day_route[pos][1]
-                    
-                    # Check if the insertion time falls within the meal window
-                    insertion_time = (prev_time + next_time) / 2
-                    if start_window <= insertion_time <= end_window:
+                    if prev_time < end_window:
                         possible_positions.append(pos)
             
             return possible_positions
         
-        def find_hawker_for_meal(hawker_indices, day, meal_type):
+        def find_hawker_for_meal(hawker_indices, day, meal_type, other_hawker=-1):
             """
             Find a suitable hawker for a specific meal
             
@@ -715,8 +710,12 @@ class VRPOperators:
             
             # Iterate through possible hawkers and positions
             for hawker_idx in hawker_indices:
+                if other_hawker is not None and hawker_idx == other_hawker:
+                    # Skip if hawker is already used for the other meal
+                    continue
+                
                 for pos in possible_positions:
-                    for transport_mode in ["transit", "drive"]:
+                    for transport_mode in ["drive", "transit"]:
                         # Check feasibility of insertion
                         if not new_solution.is_feasible_insertion(day, pos, hawker_idx, transport_mode):
                             continue
@@ -758,20 +757,20 @@ class VRPOperators:
             # Get hawker indices
             hawker_indices = [i for i in range(problem.num_locations) 
                             if problem.locations[i]["type"] == "hawker"]
-            
             # Check existing meal status
             route = new_solution.routes[day]
-            has_lunch, has_dinner = new_solution.has_lunch_and_dinner(day)
+            has_lunch, has_dinner, lunch_hawker_idx, dinner_hawker_idx = new_solution.has_lunch_and_dinner(day)
             
             # Strategy for meal insertion
             if not has_lunch:
                 # Look for lunch hawker
                 lunch_hawker, lunch_pos, lunch_transport = find_hawker_for_meal(
-                    hawker_indices, day, 'lunch'
+                    hawker_indices, day, 'lunch', dinner_hawker_idx
                 )
                 
                 # Insert lunch if found
                 if lunch_hawker is not None:
+                    lunch_hawker_idx = lunch_hawker
                     new_solution.insert_location(
                         day, lunch_pos, lunch_hawker, lunch_transport, 'Lunch'
                     )
@@ -782,7 +781,7 @@ class VRPOperators:
             if not has_dinner:
                 # Look for dinner hawker
                 dinner_hawker, dinner_pos, dinner_transport = find_hawker_for_meal(
-                    hawker_indices, day, 'dinner'
+                    hawker_indices, day, 'dinner', lunch_hawker_idx
                 )
                 
                 # Insert dinner if found
@@ -837,256 +836,231 @@ class VRPOperators:
         # Run attraction scheduling
         schedule_attractions(new_solution)
         
-        repair_solution = new_solution
-        repair_json_path = f"results/repair_itinerary_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
-        repair_json_file = export_json_itinerary(problem, repair_solution, repair_json_path)
-        logger.info(f"Repair solution exported to: {repair_json_file}")
+        # repair_solution = new_solution
+        # repair_json_path = f"results/repair_itinerary_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+        # repair_json_file = export_json_itinerary(problem, repair_solution, repair_json_path)
+        # logger.info(f"Repair solution exported to: {repair_json_file}")
         
         return new_solution
 
     def repair_satisfaction_driven_insertion(self, problem, new_solution):
         """
-        Repair operator that prioritizes inserting locations with high satisfaction,
-        while maintaining efficient computational strategies.
-        
-        Key Strategy:
-        - Maximize overall trip satisfaction
-        - Intelligent location insertion considering satisfaction, transit efficiency, 
-        and existing trip constraints
+        Robust repair operator ensuring meal feasibility with satisfaction-driven insertion strategy
         
         Args:
             problem: TravelItineraryProblem instance
             new_solution: VRPSolution instance
             
         Returns:
-            VRPSolution: Modified solution optimized for satisfaction
+            VRPSolution: Feasible solution with proper meal insertions
         """
-        # Precompute location indices by type for faster filtering
-        location_indices = {
-            "hawker": [i for i in range(problem.num_locations) 
-                    if problem.locations[i]["type"] == "hawker"],
-            "attraction": [i for i in range(problem.num_locations) 
-                        if problem.locations[i]["type"] == "attraction"]
-        }
-        
-        # Cached transport data to reduce repeated lookups
-        transport_cache = {}
-        
-        def get_cached_transport_data(prev_loc, curr_loc, departure_time, transport_mode):
-            """Cached transport data retrieval to minimize repeated calculations"""
-            cache_key = (prev_loc, curr_loc, transport_mode, 
-                        problem.get_transport_hour(departure_time))
-            
-            if cache_key not in transport_cache:
-                try:
-                    transport_key = (problem.locations[prev_loc]["name"],
-                                    problem.locations[curr_loc]["name"],
-                                    problem.get_transport_hour(departure_time))
-                    
-                    transport_data = problem.transport_matrix[transport_key][transport_mode]
-                    transport_cache[cache_key] = transport_data
-                except (KeyError, TypeError):
-                    return None
-            
-            return transport_cache[cache_key]
-        
-        def calculate_satisfaction_efficiency(location_idx, day, pos, transport_mode, location_type):
+        def find_meal_insertion_positions(day_route, meal_type):
             """
-            Calculate insertion efficiency with a strong emphasis on satisfaction
+            Find potential meal insertion positions respecting time windows
             
-            Key Scoring Components:
-            - Location satisfaction/rating
-            - Transit efficiency
-            - Impact on overall trip satisfaction
+            Args:
+                day_route: Route for a specific day
+                meal_type: 'lunch' or 'dinner'
             
             Returns:
-            - Efficiency score (lower is better for heapq)
-            - Metric dictionary for insertion
+                list: Possible insertion positions
             """
-            # Early pruning conditions
-            if not new_solution.is_feasible_insertion(day, pos, location_idx, transport_mode):
-                return float('inf'), None
+            # Define time windows
+            if meal_type == 'lunch':
+                start_window = problem.LUNCH_START
+                end_window = problem.LUNCH_END
+            else:  # dinner
+                start_window = problem.DINNER_START
+                end_window = problem.DINNER_END
             
-            # Location-specific satisfaction metrics
-            if location_type == "hawker":
-                # Hawker satisfaction is based on rating
-                rating = problem.locations[location_idx].get("rating", 0)
-                
-                route = new_solution.routes[day]
-                prev_loc = route[pos-1][0]
-                departure_time = route[pos-1][2]
-                
-                # Get transport data
-                transport_data = get_cached_transport_data(prev_loc, location_idx, 
-                                                        departure_time, transport_mode)
-                if not transport_data:
-                    return float('inf'), None
-                
-                # Transit metrics
-                transit_time = transport_data["duration"]
-                transit_cost = transport_data["price"]
-                
-                # Meal-specific considerations
-                route_copy = route.copy()
-                route_copy.insert(pos, (location_idx, 0, 0, 'Lunch/Dinner'))
-                
-                # Compute meal time
-                insertion_time = route_copy[pos][1]
-                is_lunch = problem.LUNCH_START <= insertion_time <= problem.LUNCH_END
-                is_dinner = problem.DINNER_START <= insertion_time <= problem.DINNER_END
-                
-                # Scoring that prioritizes high-rated hawkers in correct meal windows
-                if is_lunch or is_dinner:
-                    # Inverse score (lower is better for heapq)
-                    # Prioritize high rating, minimize transit overhead
-                    efficiency_score = (transit_time + transit_cost * 5) / (rating + 1)
-                    
-                    return efficiency_score, {
-                        "location_idx": location_idx,
-                        "day": day,
-                        "pos": pos,
-                        "transport_mode": transport_mode,
-                        "type": location_type,
-                        "meal_type": "Lunch" if is_lunch else "Dinner"
-                    }
-                
-                return float('inf'), None
+            possible_positions = []
             
-            elif location_type == "attraction":
-                # Attraction satisfaction is more directly measured
-                satisfaction = problem.locations[location_idx].get("satisfaction", 0)
-                entrance_fee = problem.locations[location_idx].get("entrance_fee", 0)
-                
-                route = new_solution.routes[day]
-                
-                # Previous location details
-                prev_loc = route[pos-1][0]
-                departure_time = route[pos-1][2]
-                
-                # Get transport data
-                transport_data = get_cached_transport_data(prev_loc, location_idx, 
-                                                        departure_time, transport_mode)
-                if not transport_data:
-                    return float('inf'), None
-                
-                # Transit metrics
-                transit_time = transport_data["duration"]
-                transit_cost = transport_data["price"]
-                
-                # Comprehensive satisfaction-driven scoring
-                # Lower score means more desirable insertion
-                # Balance satisfaction, minimize transit overhead, consider entrance fee
-                efficiency_score = (transit_time + transit_cost * 5) / (satisfaction + 1) + (entrance_fee * 0.1)
-                
-                return efficiency_score, {
-                    "location_idx": location_idx,
-                    "day": day,
-                    "pos": pos,
-                    "transport_mode": transport_mode,
-                    "type": location_type
-                }
+            # Check each possible insertion position
+            for pos in range(1, len(day_route) + 1):
+                # Special handling for first/last route positions
+                if pos == 1:
+                    if problem.START_TIME < end_window:
+                        possible_positions.append(pos)
+                elif pos == len(day_route):
+                    # Check if we can insert at the end of the route
+                    if day_route[pos-1][2] <= end_window:
+                        possible_positions.append(pos)
+                else:
+                    # Check between existing route points
+                    prev_time = day_route[pos-1][2]
+                    if prev_time < end_window:
+                        possible_positions.append(pos)
             
-            return float('inf'), None
+            return possible_positions
         
-        def schedule_meals(new_solution):
+        def find_hawker_for_meal(hawker_indices, day, meal_type, other_hawker=-1):
             """
-            Efficient meal scheduling prioritizing satisfaction
-            """
-            meal_heap = []
+            Find a suitable hawker for a specific meal
             
-            # Compute hawker insertion efficiencies
-            for day in range(new_solution.num_days):
-                has_lunch = new_solution.has_lunch_and_dinner(day)[0]
-                has_dinner = new_solution.has_lunch_and_dinner(day)[1]
-                
-                # If meals are already covered, skip
-                if has_lunch and has_dinner:
+            Args:
+                hawker_indices: List of hawker location indices
+                day: Day index
+                meal_type: 'lunch' or 'dinner'
+            
+            Returns:
+                tuple: (hawker_index, best_position, transport_mode) or None
+            """
+            route = new_solution.routes[day]
+            
+            # Find possible insertion positions
+            possible_positions = find_meal_insertion_positions(route, meal_type)
+            
+            # Prioritize hawkers
+            best_hawker = None
+            best_score = float('-inf')
+            best_position = None
+            best_transport_mode = None
+            
+            # Iterate through possible hawkers and positions
+            for hawker_idx in hawker_indices:
+                if other_hawker is not None and hawker_idx == other_hawker:
                     continue
-                
-                # Check route to find insertion positions
-                route = new_solution.routes[day]
-                
-                for hawker_idx in location_indices["hawker"]:
-                    for pos in range(1, len(route) + 1):
-                        for transport_mode in ["transit", "drive"]:
-                            satisfaction_score, meal_metric = calculate_satisfaction_efficiency(
-                                hawker_idx, day, pos, transport_mode, "hawker"
-                            )
+                for pos in possible_positions:
+                    for transport_mode in ["drive", "transit"]:
+                        # Check feasibility of insertion
+                        if not new_solution.is_feasible_insertion(day, pos, hawker_idx, transport_mode):
+                            continue
+                        
+                        # Calculate a score based on rating and satisfaction
+                        rating = problem.locations[hawker_idx].get("rating", 0)
+                        
+                        # Additional scoring logic
+                        try:
+                            # Get transport details from previous location
+                            prev_loc = route[pos-1][0]
+                            departure_time = route[pos-1][2]
                             
-                            if meal_metric:
-                                heappush(meal_heap, (satisfaction_score, meal_metric))
+                            transport_hour = problem.get_transport_hour(departure_time)
+                            transport_key = (problem.locations[prev_loc]["name"], 
+                                            problem.locations[hawker_idx]["name"], 
+                                            transport_hour)
+                            
+                            transport_data = problem.transport_matrix[transport_key][transport_mode]
+                            
+                            # Satisfaction-driven scoring:
+                            # Prioritize highly-rated hawkers with minimal transit overhead
+                            score = rating / (transport_data["duration"] + transport_data["price"] * 5 + 1)
+                            
+                            # Update best hawker if score is better
+                            if score > best_score:
+                                best_score = score
+                                best_hawker = hawker_idx
+                                best_position = pos
+                                best_transport_mode = transport_mode
+                        
+                        except (KeyError, TypeError):
+                            # Skip if transport data is unavailable
+                            continue
             
-            # Insert most satisfying meals
-            while meal_heap:
-                _, meal_metric = heappop(meal_heap)
-                
-                # Insert meal
-                new_solution.insert_location(
-                    meal_metric['day'], 
-                    meal_metric['pos'], 
-                    meal_metric['location_idx'], 
-                    meal_metric['transport_mode'],
-                    meal_metric.get('meal_type')
+            return best_hawker, best_position, best_transport_mode
+        
+        # Iterate through each day
+        for day in range(new_solution.num_days):
+            # Get hawker indices
+            hawker_indices = [i for i in range(problem.num_locations) 
+                            if problem.locations[i]["type"] == "hawker"]
+            
+            # Check existing meal status
+            route = new_solution.routes[day]
+            has_lunch, has_dinner, lunch_hawker_idx, dinner_hawker_idx = new_solution.has_lunch_and_dinner(day)
+            # Strategy for meal insertion
+            if not has_lunch:
+                # Look for lunch hawker
+                lunch_hawker, lunch_pos, lunch_transport = find_hawker_for_meal(
+                    hawker_indices, day, 'lunch', dinner_hawker_idx
                 )
+                
+                # Insert lunch if found
+                if lunch_hawker is not None:
+                    lunch_hawker_idx = lunch_hawker
+                    new_solution.insert_location(
+                        day, lunch_pos, lunch_hawker, lunch_transport, 'Lunch'
+                    )
+            
+            # Refresh route after potential lunch insertion
+            route = new_solution.routes[day]
+            
+            if not has_dinner:
+                # Look for dinner hawker
+                dinner_hawker, dinner_pos, dinner_transport = find_hawker_for_meal(
+                    hawker_indices, day, 'dinner', lunch_hawker_idx
+                )
+                
+                # Insert dinner if found
+                if dinner_hawker is not None:
+                    new_solution.insert_location(
+                        day, dinner_pos, dinner_hawker, dinner_transport, 'Dinner'
+                    )
         
         def schedule_attractions(new_solution):
             """
-            Efficient attraction scheduling maximizing satisfaction
+            Satisfaction-driven attraction scheduling
             """
-            attraction_heap = []
-            
             # Track already visited attractions
             visited_attractions = new_solution.get_visited_attractions()
             unvisited_attractions = [
-                attr for attr in location_indices["attraction"] 
-                if attr not in visited_attractions
+                i for i in range(problem.num_locations) 
+                if problem.locations[i]["type"] == "attraction" 
+                and i not in visited_attractions
             ]
             
-            # Compute attraction insertion efficiencies
-            # Sort unvisited attractions by base satisfaction to add initial bias
+            # Sort attractions by satisfaction in descending order
             unvisited_attractions.sort(
                 key=lambda attr: problem.locations[attr].get("satisfaction", 0), 
                 reverse=True
             )
             
-            for attr_idx in unvisited_attractions:
-                for day in range(new_solution.num_days):
-                    route = new_solution.routes[day]
-                    
-                    for pos in range(1, len(route) + 1):
-                        for transport_mode in ["transit", "drive"]:
-                            satisfaction_score, attr_metric = calculate_satisfaction_efficiency(
-                                attr_idx, day, pos, transport_mode, "attraction"
-                            )
-                            
-                            if attr_metric:
-                                heappush(attraction_heap, (satisfaction_score, attr_metric))
-            
             # Budget tracking
             budget_limit = problem.budget * 0.95
             
-            # Insert most satisfying attractions
-            while attraction_heap and new_solution.get_total_cost() < budget_limit:
-                _, attr_metric = heappop(attraction_heap)
-                
-                # Insert attraction
-                new_solution.insert_location(
-                    attr_metric['day'], 
-                    attr_metric['pos'], 
-                    attr_metric['location_idx'], 
-                    attr_metric['transport_mode']
-                )
-                
-                # Update tracking
-                visited_attractions.append(attr_metric['location_idx'])
-                
-                # Optional: Add a small random chance to explore alternatives
-                # This prevents getting stuck in local optima
-                if len(attraction_heap) > 10 and random.random() < 0.1:
+            # Satisfaction-driven attraction insertion
+            for attr_idx in unvisited_attractions:
+                if new_solution.get_total_cost() >= budget_limit:
                     break
+                
+                # Try to insert in each day
+                inserted = False
+                for day in range(new_solution.num_days):
+                    route = new_solution.routes[day]
+                    
+                    # Prioritize positions based on current route satisfaction
+                    # This helps maintain a balanced satisfaction distribution
+                    for pos in range(1, len(route) + 1):
+                        for transport_mode in ["transit", "drive"]:
+                            if new_solution.is_feasible_insertion(day, pos, attr_idx, transport_mode):
+                                # Additional check: assess the impact on route satisfaction
+                                # This could be a method in the VRPSolution class
+                                new_solution.insert_location(
+                                    day, pos, attr_idx, transport_mode
+                                )
+                                inserted = True
+                                break
+                        
+                        if inserted:
+                            break
+                    
+                    if inserted:
+                        break
+                
+                # Optional: add a random chance to explore alternative insertions
+                # This prevents getting stuck in local optima
+                if len(unvisited_attractions) > 10 and random.random() < 0.1:
+                    break
+            
+            return new_solution
         
-        # Main optimization sequence
-        schedule_meals(new_solution)
+        # Run attraction scheduling
         schedule_attractions(new_solution)
+        
+        # Export repair solution for logging
+        # repair_solution = new_solution
+        # repair_json_path = f"results/repair_itinerary_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+        # repair_json_file = export_json_itinerary(problem, repair_solution, repair_json_path)
+        # logger.info(f"Repair solution exported to: {repair_json_file}")
         
         return new_solution

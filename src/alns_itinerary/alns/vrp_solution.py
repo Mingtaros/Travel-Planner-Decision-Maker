@@ -409,15 +409,19 @@ class VRPSolution:
         route = self.routes[day]
         has_lunch = False
         has_dinner = False
+        lunch_hawker_idx = None
+        dinner_hawker_idx = None
         
         for loc, arrival_time, _, _ in route:
             if self.problem.locations[loc]["type"] == "hawker":
                 if arrival_time >= self.problem.LUNCH_START and arrival_time <= self.problem.LUNCH_END:
                     has_lunch = True
+                    lunch_hawker_idx = loc
                 elif arrival_time >= self.problem.DINNER_START and arrival_time <= self.problem.DINNER_END:
                     has_dinner = True
+                    dinner_hawker_idx = loc
         
-        return has_lunch, has_dinner
+        return has_lunch, has_dinner, lunch_hawker_idx, dinner_hawker_idx
     
     def get_visited_attractions(self):
         """

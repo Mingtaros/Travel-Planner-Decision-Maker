@@ -83,11 +83,11 @@ class VRPALNS:
         # Initialize destroy operators
         if destroy_operators is None:
             self.destroy_operators = [
-                # operators.destroy_targeted_subsequence,
-                # operators.destroy_worst_attractions,
+                operators.destroy_targeted_subsequence,
+                operators.destroy_worst_attractions,
                 operators.destroy_distant_locations,
-                # operators.destroy_expensive_attractions,
-                # operators.destroy_selected_day
+                operators.destroy_expensive_attractions,
+                operators.destroy_selected_day
             ]
         else:
             self.destroy_operators = destroy_operators
@@ -95,9 +95,9 @@ class VRPALNS:
         # Initialize repair operators
         if repair_operators is None:
             self.repair_operators = [
-                # operators.repair_regret_insertion,
+                operators.repair_regret_insertion,
                 operators.repair_transit_efficient_insertion,
-                # operators.repair_balanced_solution
+                operators.repair_satisfaction_driven_insertion
             ]
         else:
             self.repair_operators = repair_operators
@@ -266,6 +266,7 @@ class VRPALNS:
             
             # logger.info(f"Day {day+1}: Lunch time reached at {round(latest_completion_time/60, 2)} with ${budget_left:.2f} budget left")
             
+            lunch_hawker_idx = -1
             # Have lunch at appropriate time
             while lunch_inserted == 0:
                 if hawker_ratings:
@@ -320,7 +321,7 @@ class VRPALNS:
                     dinner_hawker_idx, hwk_ratio = hawker_ratings.pop(0)
                     hwk_cost, hwk_duration = solution.get_cost_duration(day, dinner_hawker_idx, current_position, transport_mode)
                     
-                    if approx_mandatory_cost + hwk_cost - avg_hawker_cost <= budget_left: # Ensure we can afford the hawker
+                    if approx_mandatory_cost + hwk_cost - avg_hawker_cost <= budget_left and dinner_hawker_idx != lunch_hawker_idx: # Ensure we can afford the hawker
                         # Insert the hawker center
                         check, dinner_departure_time = solution.insert_location(day, current_position, dinner_hawker_idx, transport_mode, 'Dinner')
                         if check:
