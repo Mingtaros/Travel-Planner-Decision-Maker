@@ -31,7 +31,7 @@ def setup_logging():
     
     # Configure logging
     logging.basicConfig(
-        level=logging.INFO,
+        level=logging.DEBUG,
         format='%(asctime)s - %(levelname)s - %(message)s',
         handlers=[
             logging.FileHandler(f"log/vrp_optimization_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"),
@@ -44,7 +44,8 @@ def main(
     budget=500, 
     num_days=3, 
     max_attractions=None, 
-    max_hawkers=None
+    max_hawkers=None,
+    seed=42
 ):
     """
     Main function to run VRP-based optimization for travel itinerary
@@ -62,6 +63,9 @@ def main(
     # Set up logging
     setup_logging()
     logger = logging.getLogger(__name__)
+    
+    if seed is not None:
+        np.random.seed(seed)
     
     try:
         # Get hotel waypoint
@@ -128,13 +132,15 @@ def main(
         
         # Configure VRP-ALNS parameters
         alns_config = {
-            "max_iterations": 5000,
-            "segment_size": 100,
+            "max_iterations": 2, # 5000,
+            "segment_size": 2, #100,
             "time_limit": 3600,  # 1 hour time limit
-            "seed": 96,  # For reproducibility
+            "seed": seed,  # For reproducibility
             "early_termination_iterations": 1000,  # Early termination if no improvement
-            "weights_destroy": [1.2, 1.2, 1.5, 1.0, 0.8],  # Weights for destroy operators
-            "weights_repair": [1.2, 1.5, 1.0],  # Weights for repair operators
+            # "weights_destroy": [1.2, 1.2, 1.5, 1.0, 0.8],  # Weights for destroy operators
+            # "weights_repair": [1.2, 1.5, 1.0],  # Weights for repair operators
+            "weights_destroy": [1.0],  # Weights for destroy operators
+            "weights_repair": [1.0],  # Weights for repair operators
             "objective_weights": [0.3, 0.3, 0.4],  # Weight for objective function
         }
         

@@ -56,23 +56,23 @@ def export_json_itinerary(problem, solution, filename=None):
         }
         
         # Add hotel as starting point if not already included
-        # if not route or route[0]["type"] != "hotel":
-        #     day_start_time = problem.START_TIME  # 9 AM in minutes
-        #     start_time_str = f"{int(day_start_time // 60):02d}:{int(day_start_time % 60):02d}"
+        if not route or route[0]["type"] != "hotel":
+            day_start_time = problem.START_TIME  # 9 AM in minutes
+            start_time_str = f"{int(day_start_time // 60):02d}:{int(day_start_time % 60):02d}"
             
-        #     day_data["locations"].append({
-        #         "name": problem.locations[0]["name"],
-        #         "type": "hotel",
-        #         "position": "start",
-        #         "arrival_time": start_time_str,
-        #         "departure_time": start_time_str,
-        #         "transit_from_prev": None,
-        #         "transit_duration": 0,
-        #         "transit_cost": 0,
-        #         "satisfaction": 0,
-        #         "cost": 0,
-        #         "rest_duration": 0
-        #     })
+            day_data["locations"].append({
+                "name": problem.locations[0]["name"],
+                "type": "hotel",
+                "position": "start",
+                "arrival_time": start_time_str,
+                "departure_time": start_time_str,
+                "transit_from_prev": None,
+                "transit_duration": 0,
+                "transit_cost": 0,
+                "satisfaction": 0,
+                "cost": 0,
+                "rest_duration": 0
+            })
         
         prev_location = None
         prev_departure_time = problem.START_TIME
@@ -190,59 +190,52 @@ def export_json_itinerary(problem, solution, filename=None):
             prev_location = location_idx
             prev_departure_time = departure_time
         
-        # # Add hotel return at the end if not already included
-        # if not route or route[-1]["type"] != "hotel":
-        #     # Calculate return to hotel
-        #     hotel_idx = 0
-        #     transport_hour = problem.get_transport_hour(prev_departure_time)
-        #     transit_duration = 30  # Default 30 minutes if transport data not available
-        #     transport_mode = "transit"  # Default transport mode
-        #     transit_cost = 0
+        # Add hotel return at the end if not already included
+        if not route or route[-1]["type"] != "hotel":
+            # Calculate return to hotel
+            hotel_idx = 0
+            transport_hour = problem.get_transport_hour(prev_departure_time)
+            transit_duration = 30  # Default 30 minutes if transport data not available
+            transport_mode = "transit"  # Default transport mode
+            transit_cost = 0
             
-        #     try:
-        #         # Try to get actual transit time and cost
-        #         if prev_location is not None:
-        #             transport_key = (problem.locations[prev_location]["name"], 
-        #                             problem.locations[hotel_idx]["name"], 
-        #                             transport_hour)
-        #             # Try transit first, then drive
-        #             if "transit" in problem.transport_matrix.get(transport_key, {}):
-        #                 transport_data = problem.transport_matrix[transport_key]["transit"]
-        #                 transit_duration = transport_data["duration"]
-        #                 transit_cost = transport_data["price"]
-        #                 transport_mode = "transit"
-        #             elif "drive" in problem.transport_matrix.get(transport_key, {}):
-        #                 transport_data = problem.transport_matrix[transport_key]["drive"]
-        #                 transit_duration = transport_data["duration"]
-        #                 transit_cost = transport_data["price"]
-        #                 transport_mode = "drive"
-        #     except (KeyError, TypeError):
-        #         # Estimate transport cost if data not available
-        #         if transport_mode == "transit":
-        #             transit_cost = min(5, transit_duration / 15)  # ~$1 per 15 min
-        #         else:  # drive
-        #             transit_cost = min(20, transit_duration / 5 * 4)  # ~$4 per 5 min
+            # Try to get actual transit time and cost
+            if prev_location is not None:
+                transport_key = (problem.locations[prev_location]["name"], 
+                                problem.locations[hotel_idx]["name"], 
+                                transport_hour)
+                # Try transit first, then drive
+                if "transit" in problem.transport_matrix.get(transport_key, {}):
+                    transport_data = problem.transport_matrix[transport_key]["transit"]
+                    transit_duration = transport_data["duration"]
+                    transit_cost = transport_data["price"]
+                    transport_mode = "transit"
+                elif "drive" in problem.transport_matrix.get(transport_key, {}):
+                    transport_data = problem.transport_matrix[transport_key]["drive"]
+                    transit_duration = transport_data["duration"]
+                    transit_cost = transport_data["price"]
+                    transport_mode = "drive"
             
-        #     # Calculate return time
-        #     return_time = prev_departure_time + transit_duration
-        #     return_hour = int(return_time // 60)
-        #     return_min = int(return_time % 60)
-        #     return_time_str = f"{return_hour:02d}:{return_min:02d}"
+            # Calculate return time
+            return_time = prev_departure_time + transit_duration
+            return_hour = int(return_time // 60)
+            return_min = int(return_time % 60)
+            return_time_str = f"{return_hour:02d}:{return_min:02d}"
             
-        #     # Add hotel return
-        #     day_data["locations"].append({
-        #         "name": problem.locations[0]["name"],
-        #         "type": "hotel",
-        #         "position": "end",
-        #         "arrival_time": return_time_str,
-        #         "departure_time": return_time_str,  # Same as arrival for hotel
-        #         "transit_from_prev": transport_mode,
-        #         "transit_duration": transit_duration,
-        #         "transit_cost": transit_cost,
-        #         "satisfaction": 0,
-        #         "cost": 0,
-        #         "rest_duration": 0
-        #     })
+            # Add hotel return
+            day_data["locations"].append({
+                "name": problem.locations[0]["name"],
+                "type": "hotel",
+                "position": "end",
+                "arrival_time": return_time_str,
+                "departure_time": return_time_str,  # Same as arrival for hotel
+                "transit_from_prev": transport_mode,
+                "transit_duration": transit_duration,
+                "transit_cost": transit_cost,
+                "satisfaction": 0,
+                "cost": 0,
+                "rest_duration": 0
+            })
         
         # Add day to itinerary
         itinerary["days"].append(day_data)

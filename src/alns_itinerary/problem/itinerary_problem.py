@@ -1,6 +1,7 @@
 import numpy as np
 import logging
 import os
+from utils.config import load_config
 
 logger = logging.getLogger("itinerary_problem")
 
@@ -9,7 +10,7 @@ class TravelItineraryProblem:
     Travel Itinerary Problem definition
     This class defines the problem structure and constraints for a multi-day travel itinerary
     """
-    def __init__(self, budget, locations, transport_matrix, num_days=3):
+    def __init__(self, budget, locations, transport_matrix, num_days=3, config_path="./src/alns_itinerary/config.json"):
         """
         Initialize the travel itinerary problem
         
@@ -19,19 +20,20 @@ class TravelItineraryProblem:
             transport_matrix: Dictionary of transportation options between locations
             num_days: Number of days for the itinerary
         """
-        # Constants
-        self.NUM_DAYS = num_days
-        self.HOTEL_COST = 50
-        self.START_TIME = 9 * 60  # Every day starts at 9 AM
-        self.HARD_LIMIT_END_TIME = 22 * 60  # Return to hotel by 10 PM
+        config = load_config(config_path)
+        # Constants from config
+        self.NUM_DAYS = num_days if num_days is not None else config["NUM_DAYS"]
+        self.MAX_ATTRACTION_PER_DAY = config["MAX_ATTRACTION_PER_DAY"]
+        self.HOTEL_COST = config["HOTEL_COST"]
+        self.START_TIME = config["START_TIME"]
+        self.HARD_LIMIT_END_TIME = config["HARD_LIMIT_END_TIME"]
         
         # Define lunch and dinner time windows (in minutes since start of day)
-        self.LUNCH_START = 11 * 60  # 11 AM
-        self.LUNCH_END = 15 * 60    # 3 PM
-        self.DINNER_START = 17 * 60  # 5 PM
-        self.DINNER_END = 21 * 60   # 9 PM
+        self.LUNCH_START = config["LUNCH_START"]
+        self.LUNCH_END = config["LUNCH_END"]
+        self.DINNER_START = config["DINNER_START"]
+        self.DINNER_END = config["DINNER_END"]
         
-        # Problem parameters
         self.budget = budget
         self.locations = locations
         self.num_locations = len(locations)
@@ -52,7 +54,7 @@ class TravelItineraryProblem:
     
     def validate_inputs(self, budget, locations, transport_matrix, num_days):
         """
-        Validate input data and print warnings/errors
+        Validate input data and logger.info warnings/errors
         
         Args:
             budget: Maximum budget

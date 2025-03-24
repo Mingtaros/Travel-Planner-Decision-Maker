@@ -1,0 +1,11 @@
+{
+    "NUM_DAYS": 3,
+    "MAX_ATTRACTION_PER_DAY": 4,
+    "HOTEL_COST": 50,
+    "START_TIME": 540,
+    "HARD_LIMIT_END_TIME": 1320,
+    "LUNCH_START": 660,
+    "LUNCH_END": 900,
+    "DINNER_START": 1020,
+    "DINNER_END": 1260
+  }

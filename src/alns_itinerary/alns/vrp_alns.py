@@ -14,7 +14,7 @@ import gc
 from collections import defaultdict
 
 from alns.vrp_solution import VRPSolution
-from alns.vrp_operators import *
+from alns.vrp_operators import VRPOperators
 
 logger = logging.getLogger(__name__)
 
@@ -71,6 +71,9 @@ class VRPALNS:
         self.early_termination_iterations = early_termination_iterations
         self.objective_weights = objective_weights
         self.infeasible_penalty = 10.0  # Large penalty for infeasible solutions
+        self.seed = seed
+        
+        operators = VRPOperators(self.seed)
         
         # Set random seed if provided
         if seed is not None:
@@ -80,11 +83,11 @@ class VRPALNS:
         # Initialize destroy operators
         if destroy_operators is None:
             self.destroy_operators = [
-                destroy_targeted_subsequence,
-                destroy_worst_attractions,
-                destroy_time_window_violations,
-                destroy_expensive_attractions,
-                destroy_selected_day
+                # operators.destroy_targeted_subsequence,
+                # operators.destroy_worst_attractions,
+                operators.destroy_distant_locations,
+                # operators.destroy_expensive_attractions,
+                # operators.destroy_selected_day
             ]
         else:
             self.destroy_operators = destroy_operators
@@ -92,9 +95,9 @@ class VRPALNS:
         # Initialize repair operators
         if repair_operators is None:
             self.repair_operators = [
-                repair_regret_insertion,
-                repair_time_based_insertion,
-                repair_balanced_solution
+                # operators.repair_regret_insertion,
+                operators.repair_transit_efficient_insertion,
+                # operators.repair_balanced_solution
             ]
         else:
             self.repair_operators = repair_operators
@@ -224,7 +227,7 @@ class VRPALNS:
             
             # Skip if we don't have enough hawkers
             if len(hawker_ratings) < 2:
-                logger.warning("Not enough unique hawkers for each day's lunch and dinner")
+                # logger.warning("Not enough unique hawkers for each day's lunch and dinner")
                 continue
             
             if budget_left/num_days_left < rich_threshold:
@@ -232,7 +235,7 @@ class VRPALNS:
             else:
                 transport_mode = "drive"
             
-            logger.info(f"Day {day+1}: Starting with ${budget_left:.2f} budget, using {transport_mode} transport")
+            # logger.info(f"Day {day+1}: Starting with ${budget_left:.2f} budget, using {transport_mode} transport")
             
             count = 0
             
@@ -258,10 +261,10 @@ class VRPALNS:
                     attraction_values.append((attr_idx, attr_ratio))  # Add back to the end of the list
                 
                 if count >= 10:
-                    logger.warning("Could not insert enough attractions before lunch time")
+                    # logger.warning("Could not insert enough attractions before lunch time")
                     break
             
-            logger.info(f"Day {day+1}: Lunch time reached at {round(latest_completion_time/60, 2)} with ${budget_left:.2f} budget left")
+            # logger.info(f"Day {day+1}: Lunch time reached at {round(latest_completion_time/60, 2)} with ${budget_left:.2f} budget left")
             
             # Have lunch at appropriate time
             while lunch_inserted == 0:
@@ -281,7 +284,7 @@ class VRPALNS:
             
             approx_mandatory_cost = ((num_days_left * 2) - lunch_inserted - dinner_inserted) * avg_hawker_cost + hotel_travel_cost
             
-            logger.info(f"Day {day+1}: Lunch completed at {round(latest_completion_time/60, 2)} with ${budget_left:.2f} budget left")
+            # logger.info(f"Day {day+1}: Lunch completed at {round(latest_completion_time/60, 2)} with ${budget_left:.2f} budget left")
             
             count = 0
             # Visit attractions until dinner time
@@ -306,10 +309,10 @@ class VRPALNS:
                     attraction_values.append((attr_idx, attr_ratio))  # Add back to the end of the list
                     
                 if count >= 10:
-                    logger.warning("Could not insert enough attractions before dinner time")
+                    # logger.warning("Could not insert enough attractions before dinner time")
                     break
             
-            logger.info(f"Day {day+1}: Dinner time reached at {round(latest_completion_time/60, 2)} with ${budget_left:.2f} budget left")
+            # logger.info(f"Day {day+1}: Dinner time reached at {round(latest_completion_time/60, 2)} with ${budget_left:.2f} budget left")
                         
             # Have dinner at appropriate time
             while dinner_inserted == 0:
@@ -330,22 +333,25 @@ class VRPALNS:
             # Add hotel return at the end
             approx_mandatory_cost = ((num_days_left * 2) - lunch_inserted - dinner_inserted) * avg_hawker_cost + hotel_travel_cost
             
-            logger.info(f"Day {day+1}: Dinner completed at {round(latest_completion_time/60, 2)} with ${budget_left:.2f} budget left")
+            # logger.info(f"Day {day+1}: Dinner completed at {round(latest_completion_time/60, 2)} with ${budget_left:.2f} budget left")
             
             # Find transport mode that works
             hotel_return_inserted = False
             for transport_mode in ["drive", "transit"]:
                 hotel_cost, hotel_duration = solution.get_cost_duration(day, hotel_idx, current_position, transport_mode)
                 if (latest_completion_time + hotel_duration) < self.problem.HARD_LIMIT_END_TIME and approx_mandatory_cost + hotel_cost <= budget_left:
-                    check, _ = solution.insert_location(day, current_position, hotel_idx, transport_mode)
-                    if check:
-                        hotel_return_inserted = True
-                        break
+                    hotel_return_inserted = True
+                    solution.hotel_return_transport = transport_mode
+                    solution.hotel_transit_duration = hotel_duration
+                    # check, _ = solution.insert_location(day, current_position, hotel_idx, transport_mode)
+                    # if check:
+                    #     hotel_return_inserted = True
+                    #     break
             
-            logger.info(f"Day {day+1}: Hotel return completed with ${budget_left:.2f} budget left")
+            # logger.info(f"Day {day+1}: Hotel return completed with ${budget_left:.2f} budget left")
             
-            if not hotel_return_inserted:
-                logger.warning("Could not insert hotel return due to time or budget constraints")   
+            # if not hotel_return_inserted:
+                # logger.warning("Could not insert hotel return due to time or budget constraints")   
         
         return solution
     
@@ -632,16 +638,22 @@ class VRPALNS:
                     if len(self.diverse_solutions) > 10:
                         self.diverse_solutions.sort(key=lambda x: x["objective"])
                         self.diverse_solutions = self.diverse_solutions[:10]
-                else:
-                    # Update weight scores - better than current but not best
+                elif new_evaluation["is_feasible"]:
+                    logger.info(f"Iteration {iteration}: New solution accepted (objective: {new_objective:.4f}, feasible: {new_evaluation['is_feasible']})")
+                    # Update weight scores - feasible but not best
                     self.scores_destroy[destroy_idx] += SCORE_BETTER
                     self.scores_repair[repair_idx] += SCORE_BETTER
-                
+                else:
+                    logger.info(f"Iteration {iteration}: New worse solution accepted (objective: {new_objective:.4f}, feasible: {new_evaluation['is_feasible']})")
+                    # Update weight scores - feasible but not best
+                    self.scores_destroy[destroy_idx] += SCORE_ACCEPTED
+                    self.scores_repair[repair_idx] += SCORE_ACCEPTED
                 stats["accepted_count"] += 1
                 
                 # Increment counter for early termination
                 self.iterations_since_improvement += 1
             else:
+                logger.info(f"Iteration {iteration}: New solution rejected (objective: {new_objective:.4f})")
                 # Update weight scores - solution rejected
                 self.scores_destroy[destroy_idx] += SCORE_REJECTED
                 self.scores_repair[repair_idx] += SCORE_REJECTED
