@@ -1,7 +1,27 @@
 """
-Main entry point for the VRP-based travel itinerary optimizer.
-This file replaces the original main.py with a position-based VRP approach
-that handles time constraints more effectively.
+Travel Itinerary Optimizer
+==========================
+
+This module provides the main entry point for the VRP-based travel itinerary optimizer.
+It orchestrates the optimization process for creating multi-day travel itineraries
+that balance satisfaction, cost, and time constraints.
+
+The optimizer uses an Adaptive Large Neighborhood Search (ALNS) approach, adapted 
+from Vehicle Routing Problem techniques to handle the complexities of itinerary planning.
+
+Usage:
+    # Basic usage with default parameters
+    python main.py
+    
+    # Or import and run programmatically
+    from main import main
+    results = main(
+        seed=42,
+        config_path="./config.json",
+        llm_path="./llm.json",
+        max_attractions=15,
+        max_hawkers=10
+    )
 """
 
 import os
@@ -16,7 +36,7 @@ from problem.itinerary_problem import TravelItineraryProblem
 from data.transport_utils import get_transport_matrix, get_all_locations
 from utils.export_json_itinerary import export_json_itinerary
 from utils.google_maps_client import GoogleMapsClient
-from utils.config import load_config
+from utils.config import load_config, load_recommendations
 from data.location_utils import (
     get_hotel_waypoint, 
     integrate_hotel_with_locations, 
@@ -25,7 +45,11 @@ from data.location_utils import (
 
 def setup_logging():
     """
-    Set up logging configuration
+    Configure application logging.
+    
+    Sets up both file and console logging with timestamps and appropriate
+    log levels. Log files are stored in the 'log' directory with filenames
+    that include the current timestamp.
     """
     # Create logs directory if it doesn't exist
     os.makedirs("log", exist_ok=True)
@@ -40,25 +64,68 @@ def setup_logging():
         ]
     )
 
+def augment_location_data(locations):
+    """Add missing data fields to locations with reasonable defaults."""
+    for loc in locations:
+        if loc["type"] == "hawker":
+            if "rating" not in loc:
+                loc["rating"] = np.random.uniform(3, 5)
+            if "avg_food_price" not in loc:
+                loc["avg_food_price"] = np.random.uniform(5, 15)
+            if "duration" not in loc:
+                loc["duration"] = 60  # standardize 60 mins for meals
+        elif loc["type"] == "attraction":
+            if "satisfaction" not in loc:
+                loc["satisfaction"] = np.random.uniform(5, 10)
+            if "entrance_fee" not in loc:
+                loc["entrance_fee"] = np.random.uniform(5, 100)
+            if "duration" not in loc:
+                loc["duration"] = np.random.randint(45, 120)
+        elif loc["type"] == "hotel":
+            # Set hotel duration to 0 (no time spent at hotel for activities)
+            loc["duration"] = 0
+    
+    return locations
+
 def main(
     seed=42,
     config_path="./src/alns_itinerary/config.json",
     llm_path="./src/alns_itinerary/llm.json",
+    recommendations_path=None,
     max_attractions=None, 
     max_hawkers=None,
 ):
     """
-    Main function to run VRP-based optimization for travel itinerary
+    Run the travel itinerary optimization process.
+    
+    This function orchestrates the entire optimization workflow:
+    1. Loading and preparing location and transportation data
+    2. Setting up the optimization problem with constraints
+    3. Running the ALNS algorithm to find optimal itineraries
+    4. Exporting results as JSON itineraries
     
     Args:
-        hotel_name (str, optional): Name of the hotel to start the trip
-        budget (float): Total budget for the trip
-        num_days (int): Number of days in the trip
-        max_attractions (int, optional): Maximum number of attractions to consider
-        max_hawkers (int, optional): Maximum number of hawkers to consider
+        seed (int, optional): Random seed for reproducibility (default: 42)
+        config_path (str): Path to the main configuration file
+        llm_path (str): Path to the LLM-generated parameters file containing:
+            - HOTEL_NAME: Name of the hotel for the trip
+            - BUDGET: Total budget in SGD
+            - NUM_DAYS: Number of days for the trip
+        recommendations_path (str, optional): Path to the recommendations JSON file
+        max_attractions (int, optional): Maximum number of attractions to include
+        max_hawkers (int, optional): Maximum number of hawker centers to include
         
     Returns:
-        dict: Optimization results including best solution
+        dict or None: Optimization results including:
+            - best_solution: The VRPSolution object
+            - best_evaluation: Detailed metrics of the best solution
+            - stats: Optimization statistics
+            Returns None if optimization fails
+            
+    Note:
+        The optimization uses various parameters from the config file to control
+        the ALNS algorithm behavior, including weights for different objectives,
+        destroy/repair operators, and termination conditions.
     """
     # Set up logging
     setup_logging()
@@ -123,25 +190,7 @@ def main(
             logger.error("Failed to integrate hotel with locations and transport matrix")
             return None
         
-        # For all locations, add missing data with randomization
-        for loc in updated_locations:
-            if loc["type"] == "hawker":
-                if "rating" not in loc:
-                    loc["rating"] = np.random.uniform(3, 5)  # More realistic ratings
-                if "avg_food_price" not in loc:
-                    loc["avg_food_price"] = np.random.uniform(5, 15)
-                if "duration" not in loc:
-                    loc["duration"] = 60  # standardize 60 mins for meals
-            elif loc["type"] == "attraction":
-                if "satisfaction" not in loc:
-                    loc["satisfaction"] = np.random.uniform(5, 10)  # More realistic ratings
-                if "entrance_fee" not in loc:
-                    loc["entrance_fee"] = np.random.uniform(5, 100)
-                if "duration" not in loc:
-                    loc["duration"] = np.random.randint(45, 120)  # More realistic durations
-            elif loc["type"] == "hotel":
-                # Set hotel duration to 0 (no time spent at hotel for activities)
-                loc["duration"] = 0
+        updated_locations = augment_location_data(updated_locations)
         
         # Create problem instance
         logger.info(f"Creating problem instance: {num_days} days, ${budget} budget")

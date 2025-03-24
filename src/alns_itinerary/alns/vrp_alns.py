@@ -1,6 +1,22 @@
 """
-Enhanced Adaptive Large Neighborhood Search (ALNS) algorithm for the VRP-based travel itinerary problem.
-This implementation uses the position-based VRP representation for more effective time constraint management.
+Adaptive Large Neighborhood Search for Travel Itinerary Optimization
+===================================================================
+
+This module implements an enhanced Adaptive Large Neighborhood Search (ALNS)
+algorithm specifically designed for optimizing travel itineraries using a
+Vehicle Routing Problem (VRP) approach.
+
+Key Features:
+- Position-based VRP representation for time-constrained scheduling
+- Simulated annealing acceptance criteria with auto-calibrated temperature
+- Weighted adaptive operator selection
+- Multiple destroy and repair strategies
+- Support for complex constraints (meals, budget, time windows)
+- Early termination and time limit capabilities
+
+The ALNS algorithm works by iteratively destroying and repairing solutions,
+using operators that are weighted based on their historical performance.
+The algorithm balances exploration and exploitation through simulated annealing.
 """
 
 import random
@@ -20,7 +36,26 @@ logger = logging.getLogger(__name__)
 
 class VRPALNS:
     """
-    Enhanced ALNS implementation using the position-based VRP representation
+    Enhanced Adaptive Large Neighborhood Search (ALNS) for travel itinerary optimization.
+    
+    This class provides a complete implementation of the ALNS metaheuristic
+    adapted to the travel itinerary problem. It manages the optimization process,
+    operator selection, solution acceptance, and performance tracking.
+    
+    The algorithm balances three main objectives:
+    1. Minimizing total cost (transportation and attractions)
+    2. Minimizing travel time between locations
+    3. Maximizing total satisfaction/enjoyment
+    
+    Attributes:
+        problem: The TravelItineraryProblem instance containing constraints
+        current_solution: The current working solution
+        best_solution: The best solution found so far
+        destroy_operators: List of destroy operator functions
+        repair_operators: List of repair operator functions
+        weights_destroy/weights_repair: Adaptive weights for operator selection
+        temperature: Current simulated annealing temperature
+        objective_weights: Weights for the multi-objective function
     """
     def __init__(
         self, 
@@ -56,24 +91,39 @@ class VRPALNS:
         repair_satisfaction_weights=[0.5, 0.5],
     ):
         """
-        Initialize the ALNS algorithm with the VRP approach
+        Initialize the ALNS algorithm for travel itinerary optimization.
         
         Args:
-            problem: The TravelItineraryProblem instance
-            initial_solution: Initial VRPSolution (if None, will create a heuristic solution)
-            destroy_operators: List of destroy operator functions
-            repair_operators: List of repair operator functions
-            weights_destroy: Initial weights for destroy operators
-            weights_repair: Initial weights for repair operators
-            max_iterations: Maximum number of iterations
-            segment_size: Number of iterations before weights are updated
-            reaction_factor: How strongly to adjust weights based on performance
-            decay_factor: How much to decay weights over time
-            temperature_control: Temperature decrease factor for simulated annealing
-            initial_temperature: Initial temperature for simulated annealing
-            time_limit: Time limit in seconds
-            seed: Random seed for reproducibility
-            early_termination_iterations: Number of iterations without improvement to trigger early termination
+            problem: The TravelItineraryProblem instance containing constraints
+            initial_solution: Optional starting solution (default: creates a heuristic solution)
+            destroy_operators: List of destroy operators (default: uses standard operators)
+            repair_operators: List of repair operators (default: uses standard operators)
+            weights_destroy: Initial weights for destroy operators (default: equal weights)
+            weights_repair: Initial weights for repair operators (default: equal weights)
+            max_iterations: Maximum number of iterations to perform (default: 1000)
+            segment_size: Number of iterations before weight updates (default: 100)
+            reaction_factor: Learning rate for weight adjustments (default: 0.5)
+            decay_factor: Weight decay rate (default: 0.8)
+            temperature_control: Cooling rate for simulated annealing (default: 0.95)
+            initial_temperature: Starting temperature (default: auto-calibrated)
+            time_limit: Maximum runtime in seconds (default: None)
+            seed: Random seed for reproducibility (default: None)
+            infeasible_penalty: Penalty factor for infeasible solutions (default: 10.0)
+            early_termination_iterations: Iterations without improvement before stopping (default: 200)
+            objective_weights: Weights for [cost, travel_time, satisfaction] (default: [0.3, 0.3, 0.4])
+            weights_scores: Scores for [new_best, better, accepted, rejected] solutions (default: [3, 2, 1, 0])
+            attraction_per_day: Target number of attractions per day (default: 4)
+            rich_threshold: Budget threshold for using more expensive transport (default: 100)
+            avg_hawker_cost: Average cost of meals at hawker centers (default: 15)
+            rating_max: Maximum possible satisfaction rating (default: 10)
+            meal_buffer_time: Buffer time around meals in minutes (default: 90)
+            approx_hotel_travel_cost: Estimated cost for hotel transit (default: 10)
+            destroy_remove_percentage: Percentage of solution to destroy (default: 0.3)
+            destroy_distant_loc_weights: Weights for distance-based destruction (default: [0.5, 0.5])
+            destroy_expensive_threshold: Threshold for expensive location removal (default: 0.9)
+            destroy_day_hawker_preserve: Probability to preserve hawkers during destruction (default: 0.7)
+            repair_transit_weights: Weights for transit-based insertion (default: [0.5, 0.5])
+            repair_satisfaction_weights: Weights for satisfaction-based insertion (default: [0.5, 0.5])
         """
         self.problem = problem
         self.max_iterations = max_iterations
@@ -206,14 +256,23 @@ class VRPALNS:
     
     def create_initial_solution(self):
         """
-        Create a valid initial solution that adheres to all constraints:
-        - Each day has exactly one lunch and one dinner at appropriate times
-        - Each day starts and ends at the hotel
-        - Attractions are distributed sensibly between meals
+        Create a valid initial solution for the itinerary problem.
+        
+        Constructs a feasible initial solution with a greedy heuristic approach:
+        1. Selects attractions based on value (satisfaction/cost ratio)
+        2. Ensures each day has exactly one lunch and dinner at appropriate times
+        3. Properly schedules attractions between meals
+        4. Respects budget and time constraints
+        5. Returns to hotel at the end of each day
         
         Returns:
-            VRPSolution: Valid initial solution
+            VRPSolution: A valid initial solution that satisfies all hard constraints
+            
+        Note:
+            The quality of this initial solution significantly impacts the
+            efficiency of the optimization process.
         """
+
         solution = VRPSolution(self.problem)
         
         budget_left = self.problem.budget
@@ -434,13 +493,21 @@ class VRPALNS:
     
     def calculate_objective(self, evaluation):
         """
-        Calculate a single objective value from a solution evaluation
+        Calculate the overall objective value for a solution.
+        
+        Combines multiple objectives (cost, travel time, satisfaction) into
+        a single value for simulated annealing-based optimization. Lower
+        values indicate better solutions.
         
         Args:
-            evaluation: Solution evaluation dictionary
+            evaluation (dict): Evaluation metrics from solution.evaluate()
             
         Returns:
-            float: Weighted objective value (lower is better)
+            float: Combined objective value (lower is better)
+            
+        Note:
+            Infeasible solutions receive a large penalty to ensure the
+            algorithm prioritizes finding feasible solutions.
         """
         # Extract objectives
         cost = evaluation["total_cost"]
@@ -546,13 +613,27 @@ class VRPALNS:
     
     def run(self, verbose=True):
         """
-        Run the VRP-based ALNS algorithm
+        Execute the ALNS optimization process.
+        
+        This is the main method that runs the complete ALNS algorithm:
+        1. Iteratively destroys and repairs the current solution
+        2. Uses simulated annealing to accept or reject new solutions
+        3. Updates operator weights based on performance
+        4. Tracks the best solution found
+        5. Terminates upon reaching stopping criteria
         
         Args:
-            verbose: Whether to print progress information
+            verbose (bool): Whether to output detailed progress logs
             
         Returns:
-            dict: Results including best solution and statistics
+            dict: Results dictionary containing:
+                - best_solution: The best VRPSolution found
+                - best_evaluation: Detailed metrics of the best solution
+                - stats: Comprehensive statistics about the optimization process
+                
+        Note:
+            The algorithm terminates when it reaches max_iterations, time_limit,
+            or early_termination_iterations without improvement.
         """
         logger.info("Starting VRP-based ALNS optimization...")
         

@@ -1,3 +1,22 @@
+"""
+Google Maps API Client
+=====================
+
+A comprehensive interface for Google Maps API interactions, supporting:
+- Place details retrieval and parsing
+- Route matrix calculation for travel planning
+- Multiple travel modes (transit, driving)
+
+Requirements:
+- Google Maps API key (set in environment or passed directly)
+- googlemaps and requests Python packages
+
+Usage Example:
+    client = GoogleMapsClient()
+    place_details = client.get_place_details(place_name="Marina Bay Sands")
+    parsed_details = client.parse_place_details(place_details)
+"""
+
 import os
 import json
 import logging
@@ -11,7 +30,15 @@ logger = logging.getLogger(__name__)
 
 class GoogleMapsClient:
     """
-    Comprehensive client for Google Maps API interactions
+    Client for Google Maps API interactions.
+    
+    This class provides a unified interface for various Google Maps API endpoints,
+    including Places API for location details and Routes API for travel planning.
+    All methods handle errors gracefully and provide detailed logging.
+    
+    Attributes:
+        gmaps: The Google Maps Python client instance
+        api_key: The Google Maps API key being used
     """
     def __init__(self, api_key=None):
         """
@@ -41,15 +68,22 @@ class GoogleMapsClient:
     
     def get_place_details(self, place_id=None, place_name=None, language="en"):
         """
-        Retrieve detailed information about a place
+        Retrieve detailed information about a place from Google Maps.
+        
+        This method can work with either a place_id or place_name. If only place_name
+        is provided, it will first search for the place and then retrieve its details.
         
         Args:
-            place_id (str, optional): Specific Google Maps place ID
-            place_name (str, optional): Name of the place to search
-            language (str, optional): Language for results
+            place_id (str, optional): Google Maps place ID for direct lookup
+            place_name (str, optional): Name of the place to search for
+            language (str): Language code for localized results (default: "en")
         
         Returns:
-            dict: Detailed place information
+            dict: Detailed place information or None if not found/error
+        
+        Note:
+            The returned data includes name, address, coordinates, rating, 
+            opening hours, and other available details.
         """
         try:
             # If only place name is provided, first search for the place
@@ -127,16 +161,28 @@ class GoogleMapsClient:
     
     def compute_route_matrix(self, origins, destinations=None, mode="transit", departure_time=None):
         """
-        Compute route matrix between origins and destinations
+        Calculate routes between multiple origins and destinations.
+        
+        Uses the Google Routes Matrix API to compute travel times, distances, and routes
+        between multiple points. Particularly useful for trip planning applications.
         
         Args:
-            origins: List of origin waypoints
-            destinations: List of destination waypoints (optional)
-            mode: Travel mode (transit or drive)
-            departure_time: Departure datetime
+            origins: List of origin points in one of these formats:
+                    - [lat, lng]
+                    - [name, lat, lng]
+            destinations: List of destination points (same format as origins)
+                        If None, uses origins as destinations
+            mode: Travel mode, either "transit" or "drive"
+            departure_time: Departure datetime object (default: current time)
         
         Returns:
-            List of route matrix entries
+            List of dictionary objects with route information including:
+            - duration
+            - distance
+            - route details
+            
+        Note:
+            For transit mode, departure_time is used for public transit scheduling.
         """
         # Use current time if no departure time specified
         if departure_time is None:
@@ -158,24 +204,16 @@ class GoogleMapsClient:
             # Prepare waypoints
             def format_waypoint(point):
                 """Format a single waypoint"""
-                if len(point) == 2:  # [lat, lng]
+                if isinstance(point, (list, tuple)):
+                    lat = point[1] if len(point) >= 3 else point[0]
+                    lng = point[2] if len(point) >= 3 else point[1]
+                    
                     return {
                         "waypoint": {
                             "location": {
                                 "latLng": {
-                                    "latitude": point[0],
-                                    "longitude": point[1]
-                                }
-                            }
-                        }
-                    }
-                elif len(point) == 3:  # [name, lat, lng]
-                    return {
-                        "waypoint": {
-                            "location": {
-                                "latLng": {
-                                    "latitude": point[1],
-                                    "longitude": point[2]
+                                    "latitude": lat,
+                                    "longitude": lng
                                 }
                             }
                         }

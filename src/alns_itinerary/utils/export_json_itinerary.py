@@ -1,8 +1,18 @@
 """
-Export the itinerary as a JSON file with detailed information.
-This module provides functions to export the optimized itinerary in JSON format
-that can be used to generate actual itineraries in applications.
-Includes rest blocks between activities for more realistic itineraries.
+Export Itinerary as JSON
+========================
+
+This module exports optimized travel itineraries as structured JSON files for use in applications.
+
+Features:
+- Converts VRPSolution objects into detailed day-by-day itineraries
+- Calculates realistic transit times between locations
+- Includes rest periods and meal timing
+- Provides budget breakdown by category (attractions, meals, transportation)
+- Supports constraint violation reporting for debugging
+
+Usage:
+    result_file = export_json_itinerary(problem, solution, filename="my_itinerary.json")
 """
 
 import os
@@ -12,14 +22,28 @@ from datetime import datetime, timedelta
 
 logger = logging.getLogger(__name__)
 
+def format_time(minutes):
+    """Convert minutes to HH:MM format."""
+    hour = int(minutes // 60)
+    minute = int(minutes % 60)
+    return f"{hour:02d}:{minute:02d}"
+
 def export_json_itinerary(problem, solution, filename=None):
     """
-    Export the itinerary as a detailed JSON file.
+    Export an optimized travel itinerary as a detailed JSON file.
+    
+    The JSON structure includes:
+    - Trip summary (duration, budget, expenditure, satisfaction score)
+    - Day-by-day itinerary with locations, arrival/departure times
+    - Transit information between locations (mode, duration, cost)
+    - Rest periods and meal timing
+    - Budget breakdown by category
+    - Constraint violations (if any)
     
     Args:
-        problem: TravelItineraryProblem instance
-        solution: VRPSolution instance
-        filename: Path to the output JSON file (optional)
+        problem: TravelItineraryProblem instance containing location data and constraints
+        solution: VRPSolution instance with the optimized route
+        filename: Path to the output JSON file (optional, auto-generated if None)
         
     Returns:
         str: Path to the exported JSON file
@@ -111,22 +135,16 @@ def export_json_itinerary(problem, solution, filename=None):
                 actual_arrival_time = arrival_time - rest_duration
             
             # Format times as strings
-            arrival_hour = int(arrival_time // 60)
-            arrival_min = int(arrival_time % 60)
-            arrival_time_str = f"{arrival_hour:02d}:{arrival_min:02d}"
+            arrival_time_str = format_time(arrival_time)
             
             # For display purposes, create the actual arrival time string 
             # (before any rest periods)
-            actual_arrival_hour = int(actual_arrival_time // 60)
-            actual_arrival_min = int(actual_arrival_time % 60)
-            actual_arrival_time_str = f"{actual_arrival_hour:02d}:{actual_arrival_min:02d}"
+            actual_arrival_time_str = format_time(actual_arrival_time)
             
             # Calculate departure time (arrival + duration at location)
             location_duration = problem.locations[location_idx].get("duration", 60)
             departure_time = arrival_time + location_duration
-            departure_hour = int(departure_time // 60)
-            departure_min = int(departure_time % 60)
-            departure_time_str = f"{departure_hour:02d}:{departure_min:02d}"
+            departure_time_str = format_time(departure_time)
             
             # Determine meal type for hawkers
             meal_type = None
@@ -157,12 +175,12 @@ def export_json_itinerary(problem, solution, filename=None):
                 "arrival_time": arrival_time_str,
                 "departure_time": departure_time_str,
                 "transit_from_prev": transport_mode,
-                "transit_duration": transit_duration,
+                "transit_duration": round(transit_duration),
                 "transit_cost": transit_cost,
                 "duration": location_duration,
                 "satisfaction": round(satisfaction, 1),
                 "cost": round(location_cost, 2),
-                "rest_duration": int(rest_duration),
+                "rest_duration": round(rest_duration),
                 "actual_arrival_time": actual_arrival_time_str if rest_duration > 0 else None
             }
             
@@ -218,9 +236,7 @@ def export_json_itinerary(problem, solution, filename=None):
             
             # Calculate return time
             return_time = prev_departure_time + transit_duration
-            return_hour = int(return_time // 60)
-            return_min = int(return_time % 60)
-            return_time_str = f"{return_hour:02d}:{return_min:02d}"
+            return_time_str = format_time(return_time)
             
             # Add hotel return
             day_data["locations"].append({
@@ -230,7 +246,7 @@ def export_json_itinerary(problem, solution, filename=None):
                 "arrival_time": return_time_str,
                 "departure_time": return_time_str,  # Same as arrival for hotel
                 "transit_from_prev": transport_mode,
-                "transit_duration": transit_duration,
+                "transit_duration": round(transit_duration),
                 "transit_cost": round(transit_cost, 2),
                 "satisfaction": 0,
                 "cost": 0,

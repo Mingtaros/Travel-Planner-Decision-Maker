@@ -1,3 +1,26 @@
+"""
+Transport Matrix Utilities
+========================
+
+This module provides functions for loading and managing transportation data:
+- Loading route matrices from JSON files 
+- Converting between time formats and transport brackets
+- Extracting location data from route matrices
+
+The transport matrix is a key component for itinerary optimization,
+providing travel times and costs between locations at different times of day.
+
+Usage:
+    # Load the full transport matrix
+    transport_matrix = get_transport_matrix()
+    
+    # Get all locations from the transport data
+    locations = get_all_locations()
+    
+    # Convert a time to the appropriate transport bracket
+    hour_bracket = get_transport_hour(540)  # 9:00 AM -> 8
+"""
+
 import os
 import json
 import logging
@@ -7,10 +30,24 @@ logger = logging.getLogger(__name__)
 
 def get_transport_matrix():
     """
-    Load the transport matrix from cached JSON files
+    Load the complete transport matrix from cached JSON files.
+    
+    Reads route data for different time periods (morning, midday, evening, night)
+    and consolidates them into a single transport matrix dictionary.
     
     Returns:
-        dict: Comprehensive transport matrix with routes and costs
+        dict: Transport matrix with the following structure:
+            {(origin_name, destination_name, hour_bracket): 
+                {
+                    "transit": {"duration": minutes, "price": fare},
+                    "drive": {"duration": minutes, "price": fare}
+                }
+            }
+    
+    Note:
+        - hour_bracket is an integer (8, 12, 16, or 20) representing time of day
+        - If files are missing or corrupted, partial data will be returned
+        - Empty dictionary is returned in case of critical errors
     """
     try:
         # Determine the base path for route data
@@ -76,10 +113,24 @@ def get_transport_matrix():
 
 def get_all_locations():
     """
-    Retrieve all locations from the route matrix
+    Extract location data from the route matrix files.
+    
+    Loads the location data from the morning route matrix file and
+    converts it to a standardized format for use in the optimization.
     
     Returns:
-        list: List of location dictionaries
+        list: List of location dictionaries with the following structure:
+            {
+                "id": unique_id,
+                "name": location_name,
+                "type": "hotel"|"attraction"|"hawker",
+                "lat": latitude,
+                "lng": longitude
+            }
+    
+    Note:
+        - Location types are inferred from names and may need validation
+        - Returns empty list if the route matrix file cannot be loaded
     """
     try:
         # Determine the base path for route data
@@ -127,13 +178,25 @@ def get_all_locations():
 
 def get_transport_hour(transport_time):
     """
-    Convert transport time to the nearest transport matrix bracket
+    Convert a time value to the appropriate transport matrix time bracket.
+    
+    The transport matrix uses discrete time brackets (8, 12, 16, 20) to reduce
+    data storage requirements. This function maps any time to the correct bracket.
     
     Args:
-        transport_time: Time in minutes since day start
+        transport_time (int): Time in minutes since start of day
+                             (e.g., 540 = 9:00 AM, 720 = 12:00 PM)
     
     Returns:
         int: Transport hour bracket (8, 12, 16, or 20)
+        
+    Examples:
+        >>> get_transport_hour(540)   # 9:00 AM
+        8
+        >>> get_transport_hour(750)   # 12:30 PM
+        12
+        >>> get_transport_hour(1020)  # 5:00 PM
+        16
     """
     # Transport_matrix is bracketed to 4 groups, find the earliest applicable one
     brackets = [8, 12, 16, 20]

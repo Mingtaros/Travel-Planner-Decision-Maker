@@ -1,6 +1,22 @@
 """
-Optimized destroy and repair operators for the VRP-based travel itinerary optimizer.
-These operators are refined to reduce constraint violations and improve solution quality.
+Destroy and Repair Operators for Travel Itinerary Optimization
+=============================================================
+
+This module implements specialized operators for the Adaptive Large Neighborhood Search
+(ALNS) algorithm used in travel itinerary optimization. These operators intelligently
+modify solutions during the search process:
+
+Destroy Operators:
+- Remove parts of solutions in strategic ways to explore the search space
+- Focus on different aspects: transit efficiency, satisfaction, cost, timing
+
+Repair Operators:
+- Rebuild partial solutions by inserting locations in efficient ways
+- Ensure meal scheduling while maximizing overall satisfaction
+- Maintain feasibility with respect to time, budget, and logical constraints
+
+The operators work with the VRPSolution objects, which represent travel itineraries
+as position-based Vehicle Routing Problem solutions.
 """
 
 import random
@@ -16,7 +32,29 @@ logger = logging.getLogger(__name__)
 
 class VRPOperators:
     """
-    Collection of destroy and repair operators for the VRP-based travel itinerary optimizer
+    Collection of destroy and repair operators for travel itinerary optimization.
+    
+    This class provides a set of specialized operators that intelligently modify
+    solutions during the ALNS search process. The operators are designed to handle
+    the unique constraints of travel itineraries, such as meal scheduling, attraction
+    uniqueness, and budget limitations.
+    
+    The operators are grouped into two categories:
+    1. Destroy operators: Remove parts of solutions to explore the search space
+    2. Repair operators: Rebuild partial solutions by inserting locations
+    
+    Attributes:
+        min_subsequence (int): Minimum subsequence length for destruction operations
+        destroy_remove_percentage (float): Percentage of locations to remove
+        destroy_distant_loc_weights (list): Weights for evaluating location distance
+        destroy_expensive_threshold (float): Threshold for expensive attraction removal
+        destroy_day_hawker_preserve (float): Probability to preserve hawkers during day destruction
+        ideal_meal_offset (int): Ideal offset from meal window start (in minutes)
+        repair_budget_limit (float): Budget limit factor for repair operations
+        repair_free_bonus (float): Bonus factor for free attractions
+        repair_insertion_regret (float): Regret factor for single-option insertions
+        repair_transit_weights (list): Weights for transit efficiency evaluation
+        repair_satisfaction_weights (list): Weights for satisfaction-driven insertion
     """
     
     def __init__(
@@ -33,9 +71,29 @@ class VRPOperators:
         repair_insertion_regret = 1000,
         seed=None):
         """
-        Initialize the operators with the problem definition
+        Initialize the VRP operators with configuration parameters.
         
         Args:
+            destroy_remove_percentage (float): Percentage of locations to remove during destroy
+                                            operations (typically 0.1-0.5)
+            destroy_distant_loc_weights (list): Weights [time_weight, cost_weight] for evaluating
+                                            the transit efficiency of locations
+            destroy_expensive_threshold (float): Budget threshold ratio for triggering
+                                                expensive attraction removal (0.0-1.0)
+            destroy_day_hawker_preserve (float): Probability to preserve hawker centers
+                                                during day destruction (0.0-1.0)
+            repair_transit_weights (list): Weights [time_weight, cost_weight] for
+                                        transit-efficient insertion
+            repair_satisfaction_weights (list): Weights [time_weight, cost_weight] for
+                                            satisfaction-driven insertion
+            ideal_meal_offset (int): Minutes from start of meal window for ideal
+                                    meal timing (default: 90)
+            repair_budget_limit (float): Fraction of total budget to use as limit
+                                        during repair operations (default: 0.95)
+            repair_free_bonus (float): Bonus multiplier for attractions with no cost
+                                    (default: 2)
+            repair_insertion_regret (float): Regret value for locations with only
+                                            one insertion option (default: 1000)
             seed (int, optional): Random seed for reproducibility
         """
         # Set random seed if provided
@@ -61,15 +119,23 @@ class VRPOperators:
 
     def destroy_targeted_subsequence(self, problem, new_solution):
         """
-        Improved version of subsequence removal that preserves meal timing and avoids
-        creating infeasible solutions. Focuses on time periods with low impact on constraints.
+        Remove a targeted subsequence of attractions from a daily route.
+        
+        This operator focuses on removing a subsequence of attractions from a random day,
+        while preserving the meal structure (lunch and dinner). It identifies periods
+        between meals and selectively removes attractions from these periods, making it
+        easier to maintain feasibility when repairing the solution.
         
         Args:
-            problem: TravelItineraryProblem instance
-            solution: VRPSolution instance
+            problem: TravelItineraryProblem instance containing constraints
+            new_solution: VRPSolution instance to modify
             
         Returns:
-            VRPSolution: Modified solution
+            VRPSolution: Modified solution with a subsequence removed
+            
+        Note:
+            This operator is particularly effective for exploring alternative
+            arrangements of attractions within a day without disrupting meal timing.
         """
         
         # Select a random day
@@ -134,14 +200,22 @@ class VRPOperators:
     def destroy_worst_attractions(self, problem, new_solution):
         """
         Remove attractions with the worst satisfaction-to-cost ratio.
-        This version is more selective and avoids disrupting meal scheduling.
+        
+        This operator identifies and removes attractions that provide the least value
+        for their cost, creating opportunities to insert better attractions during the
+        repair phase. It carefully avoids disrupting meal scheduling, ensuring the
+        solution remains feasible after destruction.
         
         Args:
-            problem: TravelItineraryProblem instance
-            solution: VRPSolution instance
+            problem: TravelItineraryProblem instance containing constraints
+            new_solution: VRPSolution instance to modify
             
         Returns:
-            VRPSolution: Modified solution
+            VRPSolution: Modified solution with low-value attractions removed
+            
+        Note:
+            This operator helps optimize the budget allocation by removing attractions
+            that don't provide sufficient satisfaction relative to their cost.
         """
         
         # Identify attraction visits with their value ratio
@@ -429,14 +503,30 @@ class VRPOperators:
 
     def repair_regret_insertion(self, problem, new_solution):
         """
-        Enhanced regret-based insertion with improved meal scheduling.
+        Repair a solution using regret-based insertion with improved meal scheduling.
+        
+        This sophisticated repair operator first ensures each day has proper meal scheduling
+        (lunch and dinner at appropriate times), then uses a regret-based approach to
+        insert attractions. The regret value represents how much worse the solution would
+        be if an attraction is not inserted at its best position, prioritizing attractions
+        with limited insertion options.
+        
+        The operator:
+        1. Ensures each day has lunch and dinner at appropriate times
+        2. Calculates regret values for each unvisited attraction
+        3. Inserts attractions in order of highest regret
+        4. Respects budget and time constraints
         
         Args:
-            problem: TravelItineraryProblem instance
-            solution: VRPSolution instance
+            problem: TravelItineraryProblem instance containing constraints
+            new_solution: VRPSolution instance to repair
             
         Returns:
-            VRPSolution: Modified solution
+            VRPSolution: Repaired solution with meals and attractions
+            
+        Note:
+            This is one of the most effective repair operators as it balances immediate
+            greedy choices with foresight about future insertion opportunities.
         """
         
         # logger.info("Repairing solution with regret-based insertion")
@@ -836,14 +926,28 @@ class VRPOperators:
 
     def repair_satisfaction_driven_insertion(self, problem, new_solution):
         """
-        Robust repair operator ensuring meal feasibility with satisfaction-driven insertion strategy
+        Repair a solution prioritizing overall satisfaction.
+        
+        This operator focuses on maximizing the total satisfaction of the itinerary.
+        It first ensures proper meal scheduling for each day, then inserts attractions
+        in order of their satisfaction rating, while considering transit efficiency.
+        
+        The operator:
+        1. Ensures each day has lunch and dinner at appropriate times
+        2. Sorts unvisited attractions by satisfaction (highest first)
+        3. Inserts attractions in priority order where feasible
+        4. Maintains budget and time constraints
         
         Args:
-            problem: TravelItineraryProblem instance
-            new_solution: VRPSolution instance
+            problem: TravelItineraryProblem instance containing constraints
+            new_solution: VRPSolution instance to repair
             
         Returns:
-            VRPSolution: Feasible solution with proper meal insertions
+            VRPSolution: Repaired solution optimized for satisfaction
+            
+        Note:
+            This operator works well for maximizing customer enjoyment when budget
+            is not the primary constraint.
         """
         def find_meal_insertion_positions(day_route, meal_type):
             """
