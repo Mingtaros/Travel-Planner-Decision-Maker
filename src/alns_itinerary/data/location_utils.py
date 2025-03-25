@@ -611,7 +611,7 @@ def augment_location_data(locations, recommendations=None):
                 rec = attraction_lookup[loc_name_lower]
                 # Use recommendation data if available
                 if "satisfaction" not in loc:
-                    loc["satisfaction"] = rec["rating"] * 2  # Scale up rating to satisfaction (0-10)
+                    loc["satisfaction"] = rec["rating"]
                 if "entrance_fee" not in loc:
                     loc["entrance_fee"] = rec["price"]
                 if "description" not in loc:

@@ -36,11 +36,14 @@ from problem.itinerary_problem import TravelItineraryProblem
 from data.transport_utils import get_transport_matrix, get_all_locations
 from utils.export_json_itinerary import export_json_itinerary
 from utils.google_maps_client import GoogleMapsClient
-from utils.config import load_config, load_recommendations
+from utils.config import load_config
 from data.location_utils import (
     get_hotel_waypoint, 
     integrate_hotel_with_locations, 
-    filter_locations
+    filter_locations,
+    filter_by_recommendations,
+    augment_location_data,
+    load_recommendations
 )
 
 def setup_logging():
@@ -56,7 +59,7 @@ def setup_logging():
     
     # Configure logging
     logging.basicConfig(
-        level=logging.DEBUG,
+        level=logging.INFO,
         format='%(asctime)s - %(levelname)s - %(message)s',
         handlers=[
             logging.FileHandler(f"log/vrp_optimization_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"),
@@ -64,7 +67,7 @@ def setup_logging():
         ]
     )
 
-def augment_location_data(locations):
+def enrich_location_data(locations):
     """Add missing data fields to locations with reasonable defaults."""
     for loc in locations:
         if loc["type"] == "hawker":
@@ -133,6 +136,13 @@ def main(
     config = load_config(config_path)
     llm_data = load_config(llm_path)
     
+    # Load recommendations if available
+    recommendations = None
+    if recommendations_path and os.path.exists(recommendations_path):
+        recommendations = load_recommendations(recommendations_path)
+        logger.info(f"Loaded {len(recommendations.get('attractions', []))} attraction and "
+                   f"{len(recommendations.get('hawkers', []))} hawker recommendations")
+    
     hotel_name = llm_data["HOTEL_NAME"]
     budget = llm_data["BUDGET"]
     num_days = llm_data["NUM_DAYS"]
@@ -173,6 +183,11 @@ def main(
         
         logger.info(f"Loaded {len(all_locations)} locations and transport matrix")
         
+        # Apply recommendation-based filtering first
+        if recommendations:
+            all_locations = filter_by_recommendations(all_locations, recommendations)
+            logger.info(f"Filtered locations based on recommendations")
+        
         # Filter locations based on max_attractions and max_hawkers
         if max_attractions is not None or max_hawkers is not None:
             logger.info(f"Filtering locations (max attractions: {max_attractions}, max hawkers: {max_hawkers})...")
@@ -190,7 +205,10 @@ def main(
             logger.error("Failed to integrate hotel with locations and transport matrix")
             return None
         
-        updated_locations = augment_location_data(updated_locations)
+        if recommendations:
+            updated_locations = augment_location_data(updated_locations, recommendations)
+        else:
+            updated_locations = enrich_location_data(updated_locations)
         
         # Create problem instance
         logger.info(f"Creating problem instance: {num_days} days, ${budget} budget")
@@ -277,6 +295,5 @@ if __name__ == "__main__":
         seed=42,
         config_path="./src/alns_itinerary/config.json",
         llm_path="./src/alns_itinerary/llm.json",
-        max_attractions=16,  # Optional: limit number of attractions  
-        max_hawkers=12  # Optional: limit number of hawkers
+        recommendations_path="./src/alns_itinerary/20250323_150807.json",
     )

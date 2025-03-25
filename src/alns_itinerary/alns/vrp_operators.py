@@ -529,18 +529,10 @@ class VRPOperators:
             greedy choices with foresight about future insertion opportunities.
         """
         
-        # logger.info("Repairing solution with regret-based insertion")
-        # logger.info(f"Initial solution routes: {new_solution.routes}")
-            
-        # Make a copy of the solution to avoid modifying the original
-        # new_solution = solution.clone()
-        
         # First, ensure each day has lunch and dinner
         for day in range(new_solution.num_days):
-            # logger.info(f"Checking day {day+1} for meal scheduling")
             # Check for lunch and dinner
             has_lunch, has_dinner, lunch_hawker_idx, dinner_hawker_idx = new_solution.has_lunch_and_dinner(day)
-            # logger.info(f"Has lunch: {has_lunch}, has dinner: {has_dinner}")
             
             # Get hawker centers ordered by rating
             hawkers = [(i, problem.locations[i].get("rating", 0)) 
@@ -564,7 +556,8 @@ class VRPOperators:
                     # Try each position
                     for pos in range(1, len(new_solution.routes[day]) + 1):
                         # Try both transit and drive
-                        for transport_mode in ["transit", "drive"]:
+                        random.shuffle(problem.transport_types)
+                        for transport_mode in problem.transport_types:
                             if new_solution.is_feasible_insertion(day, pos, hawker_idx, transport_mode):
                                 # Clone solution to test insertion
                                 test_sol = new_solution.clone()
@@ -609,7 +602,8 @@ class VRPOperators:
                     # Try each position
                     for pos in range(1, len(new_solution.routes[day]) + 1):
                         # Try both transit and drive
-                        for transport_mode in ["transit", "drive"]:
+                        random.shuffle(problem.transport_types)
+                        for transport_mode in problem.transport_types:
                             # logger.info(f"Checking dinner insertion at day {day+1}, pos {pos}, hawker {hawker_idx}, mode {transport_mode}")
                             if new_solution.is_feasible_insertion(day, pos, hawker_idx, transport_mode):
                                 # Clone solution to test insertion
@@ -658,7 +652,8 @@ class VRPOperators:
                 for day in range(new_solution.num_days):
                     for pos in range(1, len(new_solution.routes[day]) + 1):
                         # Try both transit and drive
-                        for transport_mode in ["transit", "drive"]:
+                        random.shuffle(problem.transport_types)
+                        for transport_mode in problem.transport_types:
                             if new_solution.is_feasible_insertion(day, pos, attr_idx, transport_mode):
                                 # Calculate cost of insertion
                                 test_sol = new_solution.clone()
@@ -798,7 +793,8 @@ class VRPOperators:
                     continue
                 
                 for pos in possible_positions:
-                    for transport_mode in ["drive", "transit"]:
+                    random.shuffle(problem.transport_types)
+                    for transport_mode in problem.transport_types:
                         # Check feasibility of insertion
                         if not new_solution.is_feasible_insertion(day, pos, hawker_idx, transport_mode):
                             continue
@@ -903,7 +899,8 @@ class VRPOperators:
                     route = new_solution.routes[day]
                     
                     for pos in range(1, len(route) + 1):
-                        for transport_mode in ["transit", "drive"]:
+                        random.shuffle(problem.transport_types)
+                        for transport_mode in problem.transport_types:
                             if new_solution.is_feasible_insertion(day, pos, attr_idx, transport_mode):
                                 new_solution.insert_location(
                                     day, pos, attr_idx, transport_mode
@@ -1016,7 +1013,8 @@ class VRPOperators:
                 if other_hawker is not None and hawker_idx == other_hawker:
                     continue
                 for pos in possible_positions:
-                    for transport_mode in ["drive", "transit"]:
+                    random.shuffle(problem.transport_types)
+                    for transport_mode in problem.transport_types:
                         # Check feasibility of insertion
                         if not new_solution.is_feasible_insertion(day, pos, hawker_idx, transport_mode):
                             continue
@@ -1129,7 +1127,8 @@ class VRPOperators:
                     # Prioritize positions based on current route satisfaction
                     # This helps maintain a balanced satisfaction distribution
                     for pos in range(1, len(route) + 1):
-                        for transport_mode in ["transit", "drive"]:
+                        random.shuffle(problem.transport_types)
+                        for transport_mode in problem.transport_types:
                             if new_solution.is_feasible_insertion(day, pos, attr_idx, transport_mode):
                                 # Additional check: assess the impact on route satisfaction
                                 # This could be a method in the VRPSolution class

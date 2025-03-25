@@ -3,7 +3,10 @@ from .location_utils import (
     get_hotel_waypoint,
     compute_hotel_routes,
     integrate_hotel_with_locations,
-    filter_locations
+    filter_locations,
+    filter_by_recommendations,
+    augment_location_data,
+    load_recommendations
 )
 
 # Import key utility functions for easy access
@@ -33,5 +36,8 @@ __all__ = [
     'get_hotel_waypoint',
     'compute_hotel_routes',
     'integrate_hotel_with_locations',
-    'filter_locations'
+    'filter_locations',
+    'filter_by_recommendations',
+    'augment_location_data',
+    'load_recommendations'
 ]

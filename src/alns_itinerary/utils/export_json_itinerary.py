@@ -83,6 +83,7 @@ def export_json_itinerary(problem, solution, filename=None):
         if not route or route[0]["type"] != "hotel":
             day_start_time = problem.START_TIME  # 9 AM in minutes
             start_time_str = f"{int(day_start_time // 60):02d}:{int(day_start_time % 60):02d}"
+            hotel_location = problem.locations[0]
             
             day_data["locations"].append({
                 "name": problem.locations[0]["name"],
@@ -90,6 +91,8 @@ def export_json_itinerary(problem, solution, filename=None):
                 "position": "start",
                 "arrival_time": start_time_str,
                 "departure_time": start_time_str,
+                "lat": hotel_location.get("lat"),
+                "lng": hotel_location.get("lng"),
                 "transit_from_prev": None,
                 "transit_duration": 0,
                 "transit_cost": 0,
@@ -168,12 +171,15 @@ def export_json_itinerary(problem, solution, filename=None):
             elif location_type == "hawker":
                 satisfaction = problem.locations[location_idx].get("rating", 0)
             
+            location_details = problem.locations[location_idx]
             # Create location entry
             location_entry = {
                 "name": location_name,
                 "type": location_type,
                 "arrival_time": arrival_time_str,
                 "departure_time": departure_time_str,
+                "lat": location_details.get("lat"),
+                "lng": location_details.get("lng"),
                 "transit_from_prev": transport_mode,
                 "transit_duration": round(transit_duration),
                 "transit_cost": transit_cost,
@@ -237,6 +243,7 @@ def export_json_itinerary(problem, solution, filename=None):
             # Calculate return time
             return_time = prev_departure_time + transit_duration
             return_time_str = format_time(return_time)
+            hotel_location = problem.locations[0]
             
             # Add hotel return
             day_data["locations"].append({
@@ -245,6 +252,8 @@ def export_json_itinerary(problem, solution, filename=None):
                 "position": "end",
                 "arrival_time": return_time_str,
                 "departure_time": return_time_str,  # Same as arrival for hotel
+                "lat": hotel_location.get("lat"),
+                "lng": hotel_location.get("lng"),
                 "transit_from_prev": transport_mode,
                 "transit_duration": round(transit_duration),
                 "transit_cost": round(transit_cost, 2),
