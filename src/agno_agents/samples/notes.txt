@@ -1,0 +1,64 @@
+
+src/agno_agents/samples/level3_multi_agent_2.py
+
+Not done
+1. Currently only take ratings to simplify. not yet done satisfaction = rating * persona
+[extra] 2. need to get tokens, beside runtime metrics
+3. need synthetically generate realistic 50 user queries
+4. extract moo_parameters, currently hardcoded, need to interpret from query e.g. budget, number of days etc
+5. can see data/alns_inputs/02/POI_data.json... attraction has changi village hawker why?
+6. code agent not done yet for leo side (cplex and something else)
+
+
+Second Attempt to fit ALNS Inputs (Daniel)
+
+This is multi agent workflow framework used
+1. 'Supervisor agent' which reads the query and check the intent of the query and routes to the correct agent (e.g. hawker, attraction)
+and if its toxic, will reject and ask for clarification
+2. 'Hawker agent' & 'Attraction agent'
+    E.g. 'Hawker Agent'
+    - will be routed by the Supervisor agent obligated to make the follow steps:
+        - NLU: refines the query to contextualise it ("i like to eat spicy finger lickin good food") -> refined by llm -> search for "spicy delicious food"
+        - SEMANTIC RETRIEVAL: performs vector search for hawkers within the internal vector store (scraped, chunked, and processed - LLM with human-in-the-loop)
+          uses cosine similarity (nearest neighbour)
+        - REACT (REASON MEETS ACT): Reasons and adjust to see what tool to use and what needs to be done if its insufficient.
+        - AUGMENTATION & GENERATION: add the context to prompt and get response (no need go to details)
+        - EXTERNAL TOOL CALL + REASONING: May call web-search to get ratings, and food that they might like. Then Calculator for avging ratings. 
+    - JSON parser post process (100%)
+    E.g. 'Attraction Agent' 
+    #### same thing here #### but attraction context #####
+
+3. 
+XX stands for scenario or user query which will be either handcrafted or synthetically generated (int) XX: {01, ...,50}
+
+data/alns_inputs/XX (got two json file to prep)
+> POI_data_XX.json
+
+key: Query: the user query that it inputs in (str)
+
+key: Hawker:
+ - key:val pair - Satisfaction: Satisfaction score = Web rating * persona weights
+ - key:val pair - Avg Food Price
+ - key:val pair - Duration (fixed 1hr)
+
+ key: Attraction:
+ - key:val pair - Satisfaction: Satisfaction score = Web rating * persona weights
+ - key:val pair - Entrance Fee: 
+ - key:val pair - Duration (From Web)
+
+> moo_parameters_XX.json
+ -key:val pair - Budget: Budget interpret from User Query or hardcode 
+ -key:val pair - Number of days: Number of days to plan to tour in Singapore from User Query
+ -key: List[w1, w2, w3] -  params: List of Parameters for Multi-Objective Function Weights [weight_cost, weight_traveltime, weight_satisfaction]
+
+<<Note!!!>>
+** : means additinal data that ALNS inputs doesnt require
+
+> POI_full_data_XX.json
+  key: hawker_name
+  - ** key:val pair - dish_name : the dish that will be preferred for the traveller inferrred from user query
+  - key:val pair - Satisfaction: Satisfaction score = Web rating * persona weights
+  - key:val pair - Avg Food Price
+  - key:val pair - Duration (fixed 1hr)
+  - ** key:List[link1, link2] - a list of sources where the agent picks up from (prevents hallucination)
+

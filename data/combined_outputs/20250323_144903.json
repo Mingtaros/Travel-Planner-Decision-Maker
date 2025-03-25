@@ -1,0 +1,57 @@
+{
+    "QUERY": "i like sweet stuff because they are my fav",
+    "hawker": {
+        "HAWKER_RECOMMENDATIONS": [
+            {
+                "hawker_name": "Maxwell Food Centre",
+                "dish_name": "Tian Tian Hainanese Chicken Rice",
+                "description": "While not sweet, this dish is a must-try at Maxwell Food Centre, known for its tender chicken and fragrant rice.",
+                "average_price": 5.0,
+                "ratings": 4.5,
+                "sources": [
+                    "https://guide.michelin.com/sg/en/article/travel/must-try-hawker-food-in-singapore"
+                ]
+            },
+            {
+                "hawker_name": "Haig Road Market & Food Centre",
+                "dish_name": "Haron Satay",
+                "description": "Haron Satay offers skewered and grilled meat served with a sweet peanut sauce, perfect for those who enjoy sweet and savory combinations.",
+                "average_price": 6.0,
+                "ratings": 4.2,
+                "sources": [
+                    "https://danielfooddiary.com/2024/08/09/singaporehawkerfood/"
+                ]
+            },
+            {
+                "hawker_name": "Old Airport Road Food Centre",
+                "dish_name": "Famous Old Airport Fried Oyster",
+                "description": "A delightful dish featuring fried oysters with a crispy exterior and a sweet, savory sauce.",
+                "average_price": 8.0,
+                "ratings": 4.3,
+                "sources": [
+                    "https://singaporefoodie.com/singapore-hawker-food-2023/"
+                ]
+            },
+            {
+                "hawker_name": "Tiong Bahru Food Centre",
+                "dish_name": "Liao Fan Hong Kong Soya Sauce Chicken Rice & Noodle",
+                "description": "This Michelin-starred stall offers a sweet and savory soya sauce chicken that is both tender and flavorful.",
+                "average_price": 5.0,
+                "ratings": 4.6,
+                "sources": [
+                    "https://rambletravelers.com/9-best-hawker-foods-in-singapore/"
+                ]
+            },
+            {
+                "hawker_name": "East Coast Lagoon Food Village",
+                "dish_name": "Traditional Hokkien Snacks",
+                "description": "These snacks often have a sweet element, perfect for those with a sweet tooth looking to try traditional flavors.",
+                "average_price": 4.0,
+                "ratings": 4.4,
+                "sources": [
+                    "https://www.klook.com/en-AU/blog/best-hawker-food-singapore/"
+                ]
+            }
+        ]
+    }
+}

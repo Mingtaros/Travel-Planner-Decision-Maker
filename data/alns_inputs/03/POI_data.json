@@ -1,0 +1,111 @@
+{
+    "Query": "I only have one full day in Singapore. Can you suggest cultural attractions and a local hawker spot that fits a 60 SGD day budget?",
+    "Hawker": [
+        {
+            "Hawker Name": "Tiong Bahru Market",
+            "Dish Name": "Chwee Kueh",
+            "Description": "Chwee Kueh is a traditional Teochew dish consisting of steamed rice cakes topped with preserved radish. It's a simple yet flavorful dish that is a staple breakfast item for many locals.",
+            "Rating": 4.5,
+            "Avg Food Price": 2.5,
+            "Duration": 1,
+            "Sources": [
+                "https://www.thebestsingapore.com/biz-review/tiong-bahru-market-food-centre/",
+                "https://danielfooddiary.com/2022/08/23/tiongbahrufoodcentre/"
+            ]
+        },
+        {
+            "Hawker Name": "Tiong Bahru Market",
+            "Dish Name": "Lor Mee",
+            "Description": "Lor Mee is a noodle dish served in a thick, starchy gravy with ingredients like fish cakes, braised egg, and pork belly. It's a comforting and hearty meal.",
+            "Rating": 4.5,
+            "Avg Food Price": 4.0,
+            "Duration": 1,
+            "Sources": [
+                "https://www.thebestsingapore.com/biz-review/tiong-bahru-market-food-centre/",
+                "https://danielfooddiary.com/2022/08/23/tiongbahrufoodcentre/"
+            ]
+        },
+        {
+            "Hawker Name": "Amoy Street Food Centre",
+            "Dish Name": "Nasi Lemak",
+            "Description": "Nasi Lemak is a fragrant rice dish cooked in coconut milk and pandan leaf, served with fried chicken, sambal, and other accompaniments. It's a beloved dish for its rich flavors and variety.",
+            "Rating": 4.0,
+            "Avg Food Price": 3.5,
+            "Duration": 1,
+            "Sources": [
+                "https://danielfooddiary.com/2020/06/19/amoystreet/",
+                "https://iwandered.net/amoy-street-food-centre-what-to-eat-best-food/"
+            ]
+        },
+        {
+            "Hawker Name": "Amoy Street Food Centre",
+            "Dish Name": "Fishball Noodles",
+            "Description": "Fishball Noodles are a popular choice, featuring springy fishballs and noodles in a savory broth or dry with a spicy sauce. It's a light yet satisfying meal.",
+            "Rating": 4.0,
+            "Avg Food Price": 3.0,
+            "Duration": 1,
+            "Sources": [
+                "https://danielfooddiary.com/2020/06/19/amoystreet/",
+                "https://iwandered.net/amoy-street-food-centre-what-to-eat-best-food/"
+            ]
+        },
+        {
+            "Hawker Name": "Amoy Street Food Centre",
+            "Dish Name": "Char Kway Teow",
+            "Description": "Char Kway Teow is a stir-fried noodle dish with ingredients like prawns, Chinese sausage, and cockles. It's known for its smoky flavor and is a must-try for noodle lovers.",
+            "Rating": 4.0,
+            "Avg Food Price": 4.0,
+            "Duration": 1,
+            "Sources": [
+                "https://danielfooddiary.com/2020/06/19/amoystreet/",
+                "https://iwandered.net/amoy-street-food-centre-what-to-eat-best-food/"
+            ]
+        }
+    ],
+    "Attraction": [
+        {
+            "Attraction Name": "Peranakan Museum",
+            "Description": "The Peranakan Museum offers a deep dive into the unique Peranakan culture, showcasing a rich collection of artifacts and exhibits. It's perfect for cultural enthusiasts interested in exploring the blend of Chinese and Malay influences in Singapore.",
+            "Rating": 4.4,
+            "Entrance Fee": 6.0,
+            "Duration": 2,
+            "Sources": [
+                "https://www.nhb.gov.sg/peranakanmuseum/visit/plan-your-visit",
+                "https://www.tripadvisor.com.sg/Attraction_Review-g294265-d1491151-Reviews-Peranakan_Museum-Singapore.html"
+            ]
+        },
+        {
+            "Attraction Name": "Asian Civilisations Museum",
+            "Description": "This museum is ideal for those interested in the diverse cultures of Asia, with extensive collections from China, Southeast Asia, South Asia, and the Islamic world. It's a must-visit for cultural enthusiasts.",
+            "Rating": 4.4,
+            "Entrance Fee": 12.0,
+            "Duration": 2,
+            "Sources": [
+                "https://www.nhb.gov.sg/acm/visit/admissions",
+                "https://www.tripadvisor.com.sg/Attraction_Review-g294265-d310896-Reviews-Asian_Civilisations_Museum-Singapore.html"
+            ]
+        },
+        {
+            "Attraction Name": "National Museum of Singapore",
+            "Description": "The National Museum of Singapore is the oldest museum in the country, offering insights into Singapore's history and culture through innovative exhibits. It's perfect for history buffs and cultural enthusiasts.",
+            "Rating": 4.5,
+            "Entrance Fee": 10.65,
+            "Duration": 2,
+            "Sources": [
+                "https://www.nhb.gov.sg/nationalmuseum/plan-your-visit/visitor-information/admissions",
+                "https://www.tripadvisor.com.sg/Attraction_Review-g294265-d324550-Reviews-National_Museum_of_Singapore-Singapore.html"
+            ]
+        },
+        {
+            "Attraction Name": "Chinatown Complex Food Centre",
+            "Description": "As the largest hawker centre in Singapore, Chinatown Complex Food Centre offers a vast array of local dishes at affordable prices. It's a great spot for food lovers to experience authentic Singaporean hawker fare.",
+            "Rating": 4.2,
+            "Entrance Fee": 0.0,
+            "Duration": 2,
+            "Sources": [
+                "https://www.tripadvisor.com.sg/Restaurant_Review-g294265-d1145020-Reviews-Chinatown_Complex-Singapore.html",
+                "https://supasoya.com/singapore/guides/chinatown-complex-food-centre-best-hawker/"
+            ]
+        }
+    ]
+}
