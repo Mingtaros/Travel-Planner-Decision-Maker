@@ -1,7 +1,27 @@
 """
-Main entry point for the VRP-based travel itinerary optimizer.
-This file replaces the original main.py with a position-based VRP approach
-that handles time constraints more effectively.
+Travel Itinerary Optimizer
+==========================
+
+This module provides the main entry point for the VRP-based travel itinerary optimizer.
+It orchestrates the optimization process for creating multi-day travel itineraries
+that balance satisfaction, cost, and time constraints.
+
+The optimizer uses an Adaptive Large Neighborhood Search (ALNS) approach, adapted 
+from Vehicle Routing Problem techniques to handle the complexities of itinerary planning.
+
+Usage:
+    # Basic usage with default parameters
+    python main.py
+    
+    # Or import and run programmatically
+    from main import main
+    results = main(
+        seed=42,
+        config_path="./config.json",
+        llm_path="./llm.json",
+        max_attractions=15,
+        max_hawkers=10
+    )
 """
 
 import os
@@ -16,22 +36,30 @@ from problem.itinerary_problem import TravelItineraryProblem
 from data.transport_utils import get_transport_matrix, get_all_locations
 from utils.export_json_itinerary import export_json_itinerary
 from utils.google_maps_client import GoogleMapsClient
+from utils.config import load_config
 from data.location_utils import (
     get_hotel_waypoint, 
     integrate_hotel_with_locations, 
-    filter_locations
+    filter_locations,
+    filter_by_recommendations,
+    augment_location_data,
+    load_recommendations
 )
 
 def setup_logging():
     """
-    Set up logging configuration
+    Configure application logging.
+    
+    Sets up both file and console logging with timestamps and appropriate
+    log levels. Log files are stored in the 'log' directory with filenames
+    that include the current timestamp.
     """
     # Create logs directory if it doesn't exist
     os.makedirs("log", exist_ok=True)
     
     # Configure logging
     logging.basicConfig(
-        level=logging.DEBUG,
+        level=logging.INFO,
         format='%(asctime)s - %(levelname)s - %(message)s',
         handlers=[
             logging.FileHandler(f"log/vrp_optimization_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"),
@@ -39,30 +67,106 @@ def setup_logging():
         ]
     )
 
+def enrich_location_data(locations):
+    """Add missing data fields to locations with reasonable defaults."""
+    for loc in locations:
+        if loc["type"] == "hawker":
+            if "rating" not in loc:
+                loc["rating"] = np.random.uniform(3, 10)
+            if "avg_food_price" not in loc:
+                loc["avg_food_price"] = np.random.uniform(5, 15)
+            if "duration" not in loc:
+                loc["duration"] = 60  # standardize 60 mins for meals
+        elif loc["type"] == "attraction":
+            if "satisfaction" not in loc:
+                loc["satisfaction"] = np.random.uniform(3, 10)
+            if "entrance_fee" not in loc:
+                loc["entrance_fee"] = np.random.uniform(5, 100)
+            if "duration" not in loc:
+                loc["duration"] = np.random.randint(45, 120)
+        elif loc["type"] == "hotel":
+            # Set hotel duration to 0 (no time spent at hotel for activities)
+            loc["duration"] = 0
+    
+    return locations
+
 def main(
-    hotel_name=None, 
-    budget=500, 
-    num_days=3, 
+    seed=42,
+    config_path="./src/alns_itinerary/config.json",
+    llm_path="./src/alns_itinerary/llm.json",
+    recommendations_path=None,
     max_attractions=None, 
     max_hawkers=None,
-    seed=42
 ):
     """
-    Main function to run VRP-based optimization for travel itinerary
+    Run the travel itinerary optimization process.
+    
+    This function orchestrates the entire optimization workflow:
+    1. Loading and preparing location and transportation data
+    2. Setting up the optimization problem with constraints
+    3. Running the ALNS algorithm to find optimal itineraries
+    4. Exporting results as JSON itineraries
     
     Args:
-        hotel_name (str, optional): Name of the hotel to start the trip
-        budget (float): Total budget for the trip
-        num_days (int): Number of days in the trip
-        max_attractions (int, optional): Maximum number of attractions to consider
-        max_hawkers (int, optional): Maximum number of hawkers to consider
+        seed (int, optional): Random seed for reproducibility (default: 42)
+        config_path (str): Path to the main configuration file
+        llm_path (str): Path to the LLM-generated parameters file containing:
+            - HOTEL_NAME: Name of the hotel for the trip
+            - BUDGET: Total budget in SGD
+            - NUM_DAYS: Number of days for the trip
+        recommendations_path (str, optional): Path to the recommendations JSON file
+        max_attractions (int, optional): Maximum number of attractions to include
+        max_hawkers (int, optional): Maximum number of hawker centers to include
         
     Returns:
-        dict: Optimization results including best solution
+        dict or None: Optimization results including:
+            - best_solution: The VRPSolution object
+            - best_evaluation: Detailed metrics of the best solution
+            - stats: Optimization statistics
+            Returns None if optimization fails
+            
+    Note:
+        The optimization uses various parameters from the config file to control
+        the ALNS algorithm behavior, including weights for different objectives,
+        destroy/repair operators, and termination conditions.
     """
     # Set up logging
     setup_logging()
     logger = logging.getLogger(__name__)
+    config = load_config(config_path)
+    llm_data = load_config(llm_path)
+    
+    # Load recommendations if available
+    recommendations = None
+    if recommendations_path and os.path.exists(recommendations_path):
+        recommendations = load_recommendations(recommendations_path)
+        logger.info(f"Loaded {len(recommendations.get('attractions', []))} attraction and "
+                   f"{len(recommendations.get('hawkers', []))} hawker recommendations")
+    
+    hotel_name = llm_data["HOTEL_NAME"]
+    budget = llm_data["BUDGET"]
+    num_days = llm_data["NUM_DAYS"]
+    max_iterations = config["MAX_ITERATIONS"]
+    segment_size = config["SEGMENT_SIZE"]
+    time_limit = config["TIME_LIMIT"]
+    early_termination_iterations = config["EARLY_TERMINATION_ITERATIONS"]
+    weights_destroy = config["WEIGHTS_DESTROY"]
+    weights_repair = config["WEIGHTS_REPAIR"]
+    objective_weights = config["OBJECTIVE_WEIGHTS"]
+    infeasible_penalty = config["INFEASIBLE_PENALTY"]
+    attraction_per_day = config["MAX_ATTRACTION_PER_DAY"]
+    meal_buffer_time = config["MEAL_BUFFER_TIME"]
+    rich_threshold = config["RICH_THRESHOLD"]
+    avg_hawker_cost = config["AVG_HAWKER_COST"]
+    rating_max = config["RATING_MAX"]
+    approx_hotel_travel_cost = config["APPROX_HOTEL_TRAVEL_COST"]
+    weights_scores = config["WEIGHTS_SCORES"]
+    destroy_remove_percentage = config["DESTROY_REMOVE_PERCENTAGE"]
+    destroy_distant_loc_weights = config["DESTROY_DISTANT_LOC_WEIGHTS"]
+    destroy_expensive_threshold = config["DESTROY_EXPENSIVE_THRESHOLD"]
+    repair_transit_weights = config["REPAIR_TRANSIT_WEIGHTS"]
+    repair_satisfaction_weights = config["REPAIR_SATISFACTION_WEIGHTS"]
+    destroy_day_hawker_preserve = config["DESTROY_DAY_HAWKER_PRESERVE"]
     
     if seed is not None:
         np.random.seed(seed)
@@ -78,6 +182,11 @@ def main(
         transport_matrix = get_transport_matrix()
         
         logger.info(f"Loaded {len(all_locations)} locations and transport matrix")
+        
+        # Apply recommendation-based filtering first
+        if recommendations:
+            all_locations = filter_by_recommendations(all_locations, recommendations)
+            logger.info(f"Filtered locations based on recommendations")
         
         # Filter locations based on max_attractions and max_hawkers
         if max_attractions is not None or max_hawkers is not None:
@@ -96,25 +205,10 @@ def main(
             logger.error("Failed to integrate hotel with locations and transport matrix")
             return None
         
-        # For all locations, add missing data with randomization
-        for loc in updated_locations:
-            if loc["type"] == "hawker":
-                if "rating" not in loc:
-                    loc["rating"] = np.random.uniform(3, 5)  # More realistic ratings
-                if "avg_food_price" not in loc:
-                    loc["avg_food_price"] = np.random.uniform(5, 15)
-                if "duration" not in loc:
-                    loc["duration"] = 60  # standardize 60 mins for meals
-            elif loc["type"] == "attraction":
-                if "satisfaction" not in loc:
-                    loc["satisfaction"] = np.random.uniform(5, 10)  # More realistic ratings
-                if "entrance_fee" not in loc:
-                    loc["entrance_fee"] = np.random.uniform(5, 100)
-                if "duration" not in loc:
-                    loc["duration"] = np.random.randint(45, 120)  # More realistic durations
-            elif loc["type"] == "hotel":
-                # Set hotel duration to 0 (no time spent at hotel for activities)
-                loc["duration"] = 0
+        if recommendations:
+            updated_locations = augment_location_data(updated_locations, recommendations)
+        else:
+            updated_locations = enrich_location_data(updated_locations)
         
         # Create problem instance
         logger.info(f"Creating problem instance: {num_days} days, ${budget} budget")
@@ -132,16 +226,28 @@ def main(
         
         # Configure VRP-ALNS parameters
         alns_config = {
-            "max_iterations": 2, # 5000,
-            "segment_size": 2, #100,
-            "time_limit": 3600,  # 1 hour time limit
+            "max_iterations": max_iterations, # 5000,
+            "segment_size": segment_size, #100,
+            "time_limit": time_limit,  # 1 hour time limit
             "seed": seed,  # For reproducibility
-            "early_termination_iterations": 1000,  # Early termination if no improvement
-            # "weights_destroy": [1.2, 1.2, 1.5, 1.0, 0.8],  # Weights for destroy operators
-            # "weights_repair": [1.2, 1.5, 1.0],  # Weights for repair operators
-            "weights_destroy": [1.0],  # Weights for destroy operators
-            "weights_repair": [1.0],  # Weights for repair operators
-            "objective_weights": [0.3, 0.3, 0.4],  # Weight for objective function
+            "early_termination_iterations": early_termination_iterations,  # Early termination if no improvement
+            "weights_destroy": weights_destroy,  # Weights for destroy operators
+            "weights_repair": weights_repair,  # Weights for repair operators
+            "objective_weights": objective_weights,  # Weight for objective function
+            "infeasible_penalty": infeasible_penalty,  # Penalty for infeasible solutions
+            "attraction_per_day": attraction_per_day, # Maximum attractions per day
+            "rich_threshold": rich_threshold,  # Threshold for rich ratio
+            "meal_buffer_time": meal_buffer_time,  # Buffer time for meals
+            "avg_hawker_cost": avg_hawker_cost,  # Average hawker cost
+            "rating_max": rating_max, # Maximum rating
+            "approx_hotel_travel_cost": approx_hotel_travel_cost, # Approximate hotel travel cost
+            "weights_scores": weights_scores,  # Weights for scoring function
+            "destroy_remove_percentage": destroy_remove_percentage,  # Percentage of destroy to remove
+            "destroy_distant_loc_weights": destroy_distant_loc_weights, # Weights for distant locations
+            "destroy_expensive_threshold": destroy_expensive_threshold,  # Threshold for expensive destroyer
+            "destroy_day_hawker_preserve": destroy_day_hawker_preserve, # Preserve hawker centers per day
+            "repair_transit_weights": repair_transit_weights,  # Weights for transit repair
+            "repair_satisfaction_weights": repair_satisfaction_weights  # Weights for satisfaction repair
         }
         
         # Initialize VRP-ALNS
@@ -186,9 +292,8 @@ def main(
 if __name__ == "__main__":
     # Example usage with default parameters
     main(
-        hotel_name="Marina Bay Sands",  # Optional: specific hotel name
-        budget=500,  # Total budget in SGD
-        num_days=3,  # Number of days
-        max_attractions=16,  # Optional: limit number of attractions  
-        max_hawkers=12  # Optional: limit number of hawkers
+        seed=42,
+        config_path="./src/alns_itinerary/config.json",
+        llm_path="./src/alns_itinerary/llm.json",
+        recommendations_path="./src/alns_itinerary/20250323_150807.json",
     )

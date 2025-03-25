@@ -1,6 +1,7 @@
 import json
 import random
 import numpy as np
+import datetime
 import logging
 from docplex.mp.model import Model
 from docplex.mp.context import Context
@@ -54,12 +55,22 @@ class TravelItineraryProblem(object):
             locations,
             transport_matrix,
             num_days=3,
+            hotel=None,
             priority_weights=[0.3, 0.3, 0.4],
         ):
 
         # constants
         self.NUM_DAYS = num_days
-        self.HOTEL_COST = 50
+        if hotel is None:
+            self.hotel = {
+                "name": locations[0]["name"],
+                "cost": 50,
+            }
+        else:
+            # hotel must include:
+            #   - name
+            #   - cost
+            self.hotel = hotel
         self.START_TIME = 9 * 60 # everyday starts from 9 AM
         self.HARD_LIMIT_END_TIME = 22 * 60 # everyday MUST return back to hotel by 10 PM
 
@@ -88,7 +99,7 @@ class TravelItineraryProblem(object):
         self.priority_weights = priority_weights
         # the goal here is to make the objective work in the same axis, price $
         self.travel_time_penalty_per_minute = 0.1 # for every minute spent in transit, the "cost" is this in $
-        self.satisfaction_offset = 10 # for the satisfaction, every point in satisfaction, offset the cost by this in $
+        self.satisfaction_offset = 50 # for the satisfaction, every point in satisfaction, offset the cost by this in $
 
         # check for valid inputs
         self.validate_inputs(budget, locations, transport_matrix, num_days)
@@ -171,8 +182,8 @@ class TravelItineraryProblem(object):
             logging.info(f"Transport matrix contains all required routes ({sample_routes} total)")
         
         # Check budget feasibility
-        hotel_cost = num_days * self.HOTEL_COST
-        min_food_cost = num_days * 2 * 10  # Minimum 2 meals per day at $10 each
+        hotel_cost = num_days * self.hotel["cost"]
+        min_food_cost = num_days * 2 * 10  # HEURISTIC: Minimum 2 meals per day at $10 each
         
         min_cost = hotel_cost + min_food_cost
         if budget < min_cost:
@@ -185,7 +196,7 @@ class TravelItineraryProblem(object):
         context = Context.make_default_context()
         context.cplex_parameters.threads = 10
         self.mdl = Model("MITB-AI", context=context)
-        self.mdl.parameters.timelimit = 120
+        self.mdl.parameters.timelimit = 720
 
 
     def define_variables(self):
@@ -432,7 +443,7 @@ class TravelItineraryProblem(object):
                     )
 
         self.mdl.add_constraint(self.cost_var ==
-            self.NUM_DAYS * self.HOTEL_COST + 
+            self.NUM_DAYS * self.hotel["cost"] + 
             sum(
                 self.x_var[(day, transport_type, source["name"], dest["name"])] * (
                     self.transport_matrix[(source["name"], dest["name"], time_bracket)][transport_type]["price"] 
@@ -598,7 +609,7 @@ class TravelItineraryProblem(object):
                 current_location = next_location # update for next loop
             print()  # Blank line between days
 
-        total_cost = self.NUM_DAYS * self.HOTEL_COST + \
+        total_cost = self.NUM_DAYS * self.hotel["cost"] + \
             sum([
                 # only count if destination is chosen
                 self.x_var[(day, transport_type, source["name"], dest["name"])].solution_value *
@@ -655,6 +666,197 @@ class TravelItineraryProblem(object):
         print(f"    Estimated Satisfaction = {total_satisfaction:.2f} points")
 
 
+    def export_json(self, filename):
+        itinerary = {}
+
+        total_cost = self.NUM_DAYS * self.hotel["cost"] + \
+            sum([
+                # only count if destination is chosen
+                self.x_var[(day, transport_type, source["name"], dest["name"])].solution_value *
+                self.bracket_var[(day, dest["name"], time_bracket)].solution_value * (
+                    # calculate the fare to get to this destination
+                    self.transport_matrix[(source["name"], dest["name"], time_bracket)][transport_type]["price"]
+                    # if go there, find the entrance fee / food price
+                    + (dest["entrance_fee"] if dest["type"] == "attraction" else 0)
+                    + (dest["avg_food_price"] if dest["type"] == "hawker" else 0)
+                )
+                for day in range(self.NUM_DAYS)
+                for transport_type in self.transport_types
+                for source in self.locations
+                for dest in self.locations
+                for time_bracket in self.time_brackets
+                if source["name"] != dest["name"]
+            ])
+        
+        travel_time_total = sum(
+            self.x_var[(day, transport_type, source["name"], dest["name"])].solution_value * 
+            self.bracket_var[(day, dest["name"], time_bracket)].solution_value * 
+            self.transport_matrix[(source["name"], dest["name"], time_bracket)][transport_type]["duration"]
+            for day in range(self.NUM_DAYS)
+            for transport_type in self.transport_types
+            for source in self.locations
+            for dest in self.locations
+            for time_bracket in self.time_brackets
+            if source["name"] != dest["name"]
+        )
+
+        total_satisfaction = sum(
+            self.x_var[(day, transport_type, source["name"], dest["name"])].solution_value * (
+                dest["satisfaction"] if dest["type"] == "attraction" else 0
+            )
+            for day in range(self.NUM_DAYS)
+            for transport_type in self.transport_types
+            for source in self.locations
+            for dest in self.locations
+            if source["name"] != dest["name"]
+        ) + sum(
+            self.x_var[(day, transport_type, source["name"], dest["name"])].solution_value * (
+                dest["rating"] if dest["type"] == "hawker" else 0
+            )
+            for day in range(self.NUM_DAYS)
+            for transport_type in self.transport_types
+            for source in self.locations
+            for dest in self.locations
+            if source["name"] != dest["name"]
+        )
+
+        itinerary["trip_summary"] = {
+            "duration": 3,
+            "total_budget": self.budget,
+            "actual_expenditure": total_cost,
+            "total_travel_time": travel_time_total,
+            "total_satisfaction": total_satisfaction,
+            "is_feasible": self.solution is not None,
+            "starting_hotel": self.hotel["name"]
+        }
+        attractions_visited = []
+        budget_breakdown = {
+            "attractions": 0,
+            "meals": 0,
+            "transportation": 0
+        }
+        rest_total = 0
+        itinerary["days"] = []
+
+        for day in range(self.NUM_DAYS):
+            itinerary_day = {
+                "day": day + 1,
+                "locations": []
+            }
+            
+            # Hotel as starting point
+            hotel = self.locations[0]
+            start_location = hotel["name"]
+            current_location = start_location
+
+            hotel_starting_arrival_time = round(self.u_var[(day, hotel["name"])].solution_value)
+            # add entry for hotel
+            itinerary_day["locations"].append({
+                "name": hotel["name"],
+                "type": hotel["type"],
+                "arrival_time": f"{int(hotel_starting_arrival_time // 60):02d}:{int(hotel_starting_arrival_time % 60):02d}",
+                "departure_time": f"{int(hotel_starting_arrival_time // 60):02d}:{int(hotel_starting_arrival_time % 60):02d}", # because duration is 0
+                "transit_from_prev": None,
+                "transit_duration": 0,
+                "satisfaction": 0,
+                "cost": self.hotel["cost"],
+                "rest_duration": 0,
+            })
+
+            while True:
+                next_location = None
+                chosen_transport = None
+                travel_time = None
+                price = None
+                entrance_fee = None
+                duration = None
+                food_price = None
+                satisfaction_score = None
+                rating = None
+
+                # Find the next location and transport used
+                for transport_type in self.transport_types:
+                    for dest in self.locations:
+                        if dest["name"] == current_location:
+                            continue
+                        
+                        for time_bracket in self.time_brackets:
+                            if self.x_var[(day, transport_type, current_location, dest["name"])].solution_value > 0.5:
+                                next_location = dest["name"]
+                                chosen_transport = transport_type
+                                travel_time = self.transport_matrix[(current_location, next_location, time_bracket)][transport_type]["duration"]
+                                price = self.transport_matrix[(current_location, next_location, time_bracket)][transport_type]["price"]
+                                entrance_fee = dest.get("entrance_fee", 0) if dest["type"] == "attraction" else None
+                                duration = dest.get("duration", 0)
+                                food_price = dest.get("avg_food_price", 0) if dest["type"] == "hawker" else None
+                                satisfaction_score = dest.get("satisfaction", 0) if dest["type"] == "attraction" else None
+                                rating = dest.get("rating", 0) if dest["type"] == "hawker" else None
+                                break
+                        if next_location:
+                            break
+                    if next_location:
+                        break
+                
+                if not next_location:
+                    break  # No more locations for the day
+
+                arrival_time = round(self.u_var[(day, current_location)].solution_value + travel_time)
+                departure_time = round(self.u_var[(day, next_location)].solution_value)
+                rest_duration = departure_time - arrival_time - duration # how long does the traveller rest after finished
+                if next_location == hotel["name"]:
+                    # this means rest until the morning
+                    rest_duration += 24 * 60 # account for next day
+                rest_total += rest_duration
+                budget_breakdown["transportation"] += price
+
+                this_day_location = {
+                    "name": next_location,
+                    "type": dest["type"],
+                    "arrival_time": f"{int(arrival_time // 60):02d}:{int(arrival_time % 60):02d}",
+                    "departure_time": f"{int(departure_time // 60):02d}:{int(departure_time % 60):02d}",
+                    "transit_from_prev": chosen_transport,
+                    "transit_duration": travel_time,
+                    "transit_cost": price,
+                    "duration": duration,
+                    "satisfaction": satisfaction_score if dest["type"] == "attraction" else rating,
+                    "cost": entrance_fee if dest["type"] == "attraction" else food_price,
+                    "rest_duration": rest_duration,
+                    "actual_arrival_time": None,
+                }
+
+                if dest["type"] == "attraction":
+                    this_day_location["description"] = f"Attraction with satisfaction rating {satisfaction_score:.1f}/10"
+                    this_day_location["entrance_fee"] = entrance_fee
+                    budget_breakdown["attractions"] += entrance_fee
+                    attractions_visited.append(dest["name"])
+                elif dest["type"] == "hawker":
+                    this_day_location["description"] = f"Food Center with rating {rating:.2f}/5"
+                    this_day_location["meal_cost"] = food_price
+                    budget_breakdown["meals"] += food_price 
+
+                itinerary_day["locations"].append(this_day_location)
+
+                if next_location == hotel["name"]:
+                    break
+
+                current_location = next_location # update for next loop
+            itinerary["days"].append(itinerary_day)
+        
+        itinerary["attractions_visited"] = attractions_visited
+        itinerary["budget_breakdown"] = budget_breakdown
+        itinerary["transport_summary"] = {
+            "total_duration": travel_time_total,
+            "total_cost": itinerary["budget_breakdown"]["transportation"],
+        }
+        itinerary["rest_summary"] = {
+            "total_rest_duration": rest_total
+        }
+
+        # save as json
+        with open(filename, 'w') as f:
+            json.dump(itinerary, f, indent=4)
+
+
 if __name__ == "__main__":
     random.seed(42)
     # load locations
@@ -670,9 +872,9 @@ if __name__ == "__main__":
             loc["entrance_fee"] = np.random.uniform(5, 100)
             loc["duration"] = np.random.randint(30, 90)
     # get hotel, add it to selected locations
-    dummy_hotel = {
+    sample_hotel = {
         "type": "hotel",
-        "name": "DUMMY HOTEL",
+        "name": "Marina Bay Sands",
         "lat": 1.2852044,
         "lng": 103.8610313,
     }
@@ -681,28 +883,28 @@ if __name__ == "__main__":
     # add dummy hotel to transport_matrix
     for loc in all_locations:
         for time_ in [8, 12, 16, 20]:
-            transport_matrix[(dummy_hotel["name"], loc["name"], time_)] = {
+            transport_matrix[(sample_hotel["name"], loc["name"], time_)] = {
                 "transit": {
-                    "duration": 50,
-                    "price": 1.93,
+                    "duration": 20,
+                    "price": 1.19,
                 },
                 "drive": {
-                    "duration": 20,
+                    "duration": 5,
                     "price": 10.1,
                 }
             }
-            transport_matrix[(loc["name"], dummy_hotel["name"], time_)] = {
+            transport_matrix[(loc["name"], sample_hotel["name"], time_)] = {
                 "transit": {
-                    "duration": 50,
-                    "price": 1.93,
+                    "duration": 20,
+                    "price": 1.19,
                 },
                 "drive": {
-                    "duration": 20,
+                    "duration": 5,
                     "price": 10.1,
                 }
             }
 
-    locations = [dummy_hotel] + all_locations
+    locations = [sample_hotel] + all_locations
 
     # select sublocations for smaller problem size
     hotels = [loc for loc in locations if loc["type"] == "hotel"]
@@ -721,8 +923,16 @@ if __name__ == "__main__":
         # locations=selected_locations,
         transport_matrix=transport_matrix,
         num_days=3,
+        hotel={
+            "name": sample_hotel["name"],
+            "cost": 50,
+        },
         priority_weights=[0.3, 0.3, 0.4],
     )
 
+    current_time = datetime.datetime.now()
+    current_time_formatted = current_time.strftime("%Y%m%d %H%M%S")
+
     problem.solve()
     problem.print_solution()
+    problem.export_json(f"results/docplex_itinerary_{current_time_formatted}.json")

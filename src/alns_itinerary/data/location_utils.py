@@ -1,9 +1,32 @@
+"""
+Location Utilities
+=================
+
+This module provides functions for working with location data in travel itineraries:
+- Hotel geocoding and waypoint creation
+- Computing routes between hotels and attractions/food centers
+- Location filtering and prioritization
+- Integration of hotel data with existing location datasets
+
+The module handles Google Maps API interactions and maintains a caching system
+to reduce API calls and improve performance.
+
+Usage examples:
+    # Get hotel location from name
+    hotel = get_hotel_waypoint("Marina Bay Sands")
+    
+    # Compute routes between hotel and attractions
+    hotel_routes = compute_hotel_routes(hotel, attractions)
+    
+    # Filter locations to include the best-rated
+    filtered = filter_locations(locations, max_attractions=10, max_hawkers=5)
+"""
 import logging
 import numpy as np
 from datetime import datetime
 
 # Import required utilities
-from .google_maps_client import GoogleMapsClient
+from utils.google_maps_client import GoogleMapsClient
 from .trip_detail import calculate_public_transport_fare, calculate_car_fare
 from .cache_manager import save_hotel_routes_to_cache, load_hotel_routes_from_cache
 
@@ -11,20 +34,31 @@ logger = logging.getLogger(__name__)
 
 def get_hotel_waypoint(hotel_name):
     """
-    Get hotel waypoint from user input (name)
+    Get hotel coordinates and details from a hotel name.
+    
+    Uses Google Maps API to geocode the hotel name and retrieve its location.
+    If geocoding fails, returns a default hotel location in central Singapore.
     
     Args:
-        hotel_name: Name of the hotel
+        hotel_name (str): Name of the hotel to geocode
         
     Returns:
-        dict: Hotel location information
+        dict: Hotel location information with the following keys:
+            - type: Always "hotel"
+            - name: Hotel name (as provided or from Google)
+            - lat: Latitude coordinate
+            - lng: Longitude coordinate
+            
+    Note:
+        This function gracefully handles errors and will return a default
+        location if the hotel cannot be found or in case of API failure.
     """
     if not hotel_name:
         logger.warning("No hotel information provided, using default hotel")
         # Return a default hotel in central Singapore if none provided
         return {
             "type": "hotel",
-            "name": "DEFAULT HOTEL",
+            "name": "Marina Bay Sands",
             "lat": 1.2904527,  # Marina Bay Sands coordinates as default
             "lng": 103.8577566,
         }
@@ -74,14 +108,28 @@ def get_hotel_waypoint(hotel_name):
 
 def compute_hotel_routes(hotel, locations):
     """
-    Compute routes between the hotel and all other locations
+    Compute travel routes between a hotel and all other locations.
+    
+    Calculates transit and driving routes for different times of day between
+    the hotel and all attractions/hawker centers. Results are cached to avoid
+    repeated API calls.
     
     Args:
-        hotel: Hotel location information
-        locations: List of all other locations
+        hotel (dict): Hotel location dictionary with name, lat, lng
+        locations (list): List of location dictionaries for attractions/hawkers
         
     Returns:
-        dict: Route matrix entries for the hotel
+        dict: Route matrix entries for the hotel with structure:
+            {(origin_name, destination_name, hour): 
+                {
+                    "transit": {"duration": minutes, "price": fare},
+                    "drive": {"duration": minutes, "price": fare}
+                }
+            }
+            
+    Note:
+        This function makes multiple Google Maps API calls and may be rate-limited.
+        Results are cached and will be reused when possible.
     """
     cached_routes = load_hotel_routes_from_cache(hotel, locations)
     if cached_routes is not None:
@@ -315,15 +363,25 @@ def compute_hotel_routes(hotel, locations):
 
 def integrate_hotel_with_locations(hotel, locations, transport_matrix):
     """
-    Integrate hotel with existing locations and transport matrix
+    Integrate hotel data with existing locations and transport matrices.
+    
+    This function:
+    1. Adds or updates the hotel in the locations list
+    2. Computes routes between the hotel and all other locations
+    3. Merges the hotel routes with the existing transport matrix
     
     Args:
-        hotel: Hotel location dictionary
-        locations: List of location dictionaries
-        transport_matrix: Existing transport matrix
+        hotel (dict): Hotel location information
+        locations (list): Existing list of location dictionaries
+        transport_matrix (dict): Existing transport matrix
         
     Returns:
         tuple: (updated_locations, updated_transport_matrix)
+            Returns (None, None) if hotel route computation fails
+            
+    Note:
+        The hotel is always positioned at index 0 in the locations list
+        to ensure it's treated as the starting point for itineraries.
     """
     # Check if hotel already exists in locations
     hotel_exists = False
@@ -359,17 +417,24 @@ def integrate_hotel_with_locations(hotel, locations, transport_matrix):
 
 def filter_locations(locations, max_attractions=None, max_hawkers=None, filter_criteria=None):
     """
-    Filter locations by type and criteria, limiting the number of attractions and hawkers.
+    Filter and prioritize locations for itinerary planning.
+    
+    Sorts locations by criteria (e.g., rating, satisfaction) and limits
+    the number of each type to include in the itinerary optimization.
     
     Args:
-        locations: List of all location dictionaries
-        max_attractions: Maximum number of attractions to include (None = all)
-        max_hawkers: Maximum number of hawkers to include (None = all)
-        filter_criteria: Optional dict with criteria to prioritize locations
-            (e.g., {'attractions': 'satisfaction', 'hawkers': 'rating'})
+        locations (list): List of all location dictionaries
+        max_attractions (int, optional): Maximum number of attractions to include
+        max_hawkers (int, optional): Maximum number of hawkers to include
+        filter_criteria (dict, optional): Criteria for sorting locations:
+            {
+                "attractions": field_name_for_sorting, # e.g., "satisfaction"
+                "hawkers": field_name_for_sorting,     # e.g., "rating"
+            }
     
     Returns:
-        list: Filtered list of locations
+        list: Filtered list of locations with hotels first, followed by
+              the top attractions and hawkers based on criteria
     """
     # Sort hotel(s) to the front of the list
     hotels = [loc for loc in locations if loc["type"] == "hotel"]
@@ -397,6 +462,239 @@ def filter_locations(locations, max_attractions=None, max_hawkers=None, filter_c
         hawkers = hawkers[:max_hawkers]
     
     # Combine filtered locations, ensuring hotels come first
+    filtered_locations = hotels + attractions + hawkers
+    
+    return filtered_locations
+
+
+"""
+Main entry point for the VRP-based travel itinerary optimizer.
+This file replaces the original main.py with a position-based VRP approach
+that handles time constraints more effectively.
+"""
+
+import os
+import logging
+import numpy as np
+import json
+from datetime import datetime
+
+# Import VRP components
+from alns.vrp_alns import VRPALNS
+from alns.vrp_solution import VRPSolution
+from problem.itinerary_problem import TravelItineraryProblem
+from data.transport_utils import get_transport_matrix, get_all_locations
+from utils.export_json_itinerary import export_json_itinerary
+from utils.google_maps_client import GoogleMapsClient
+from utils.config import load_config
+from data.location_utils import (
+    get_hotel_waypoint, 
+    integrate_hotel_with_locations, 
+    filter_locations
+)
+
+def setup_logging():
+    """
+    Set up logging configuration
+    """
+    # Create logs directory if it doesn't exist
+    os.makedirs("log", exist_ok=True)
+    
+    # Configure logging
+    logging.basicConfig(
+        level=logging.DEBUG,
+        format='%(asctime)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.FileHandler(f"log/vrp_optimization_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"),
+            logging.StreamHandler()
+        ]
+    )
+
+def load_recommendations(json_path):
+    """
+    Load attraction and hawker recommendations from external JSON file
+    
+    Args:
+        json_path: Path to the JSON file with recommendations
+        
+    Returns:
+        dict: Dictionary with attraction and hawker recommendations
+    """
+    try:
+        with open(json_path, 'r') as f:
+            data = json.load(f)
+        
+        recommendations = {
+            'hawkers': [],
+            'attractions': []
+        }
+        
+        # Extract hawker recommendations
+        if 'hawker' in data and 'HAWKER_RECOMMENDATIONS' in data['hawker']:
+            for hawker in data['hawker']['HAWKER_RECOMMENDATIONS']:
+                recommendations['hawkers'].append({
+                    'name': hawker['hawker_name'],
+                    'dish': hawker['dish_name'],
+                    'description': hawker['description'],
+                    'avg_price': hawker['average_price'],
+                    'rating': hawker['ratings']
+                })
+        
+        # Extract attraction recommendations
+        if 'attraction' in data and 'ATTRACTION_RECOMMENDATIONS' in data['attraction']:
+            for attraction in data['attraction']['ATTRACTION_RECOMMENDATIONS']:
+                recommendations['attractions'].append({
+                    'name': attraction['attraction_name'],
+                    'description': attraction['description'],
+                    'price': attraction['average_price'],
+                    'rating': attraction['ratings']
+                })
+        
+        return recommendations
+    except Exception as e:
+        logging.error(f"Error loading recommendations: {e}")
+        return {'hawkers': [], 'attractions': []}
+
+def augment_location_data(locations, recommendations=None):
+    """
+    Add missing data to locations with recommended data when available
+    
+    Args:
+        locations: List of all location dictionaries
+        recommendations: Dictionary with attraction and hawker recommendations
+        
+    Returns:
+        list: Augmented location data
+    """
+    # Create lookup dictionaries for quick access to recommendations
+    hawker_lookup = {}
+    attraction_lookup = {}
+    
+    if recommendations:
+        for hawker in recommendations['hawkers']:
+            hawker_lookup[hawker['name'].lower()] = hawker
+        
+        for attraction in recommendations['attractions']:
+            attraction_lookup[attraction['name'].lower()] = attraction
+    
+    # For all locations, add missing data with prioritizing recommendations
+    for loc in locations:
+        loc_name_lower = loc["name"].lower()
+        
+        if loc["type"] == "hawker":
+            # Check if we have recommendation data for this hawker
+            if loc_name_lower in hawker_lookup:
+                rec = hawker_lookup[loc_name_lower]
+                # Use recommendation data if available
+                if "rating" not in loc:
+                    loc["rating"] = rec["rating"]
+                if "avg_food_price" not in loc:
+                    loc["avg_food_price"] = rec["avg_price"]
+                if "description" not in loc:
+                    loc["description"] = rec["description"]
+                if "dish" not in loc:
+                    loc["dish"] = rec["dish"]
+            else:
+                # Use randomized values for missing data
+                if "rating" not in loc:
+                    loc["rating"] = np.random.uniform(3, 5)  # More realistic ratings
+                if "avg_food_price" not in loc:
+                    loc["avg_food_price"] = np.random.uniform(5, 15)
+            
+            # Ensure duration is set
+            if "duration" not in loc:
+                loc["duration"] = 60  # standardize 60 mins for meals
+                
+        elif loc["type"] == "attraction":
+            # Check if we have recommendation data for this attraction
+            if loc_name_lower in attraction_lookup:
+                rec = attraction_lookup[loc_name_lower]
+                # Use recommendation data if available
+                if "satisfaction" not in loc:
+                    loc["satisfaction"] = rec["rating"]
+                if "entrance_fee" not in loc:
+                    loc["entrance_fee"] = rec["price"]
+                if "description" not in loc:
+                    loc["description"] = rec["description"]
+            else:
+                # Use randomized values for missing data
+                if "satisfaction" not in loc:
+                    loc["satisfaction"] = np.random.uniform(5, 10)  # More realistic ratings
+                if "entrance_fee" not in loc:
+                    loc["entrance_fee"] = np.random.uniform(5, 100)
+            
+            # Ensure duration is set
+            if "duration" not in loc:
+                loc["duration"] = np.random.randint(45, 120)  # More realistic durations
+                
+        elif loc["type"] == "hotel":
+            # Set hotel duration to 0 (no time spent at hotel for activities)
+            loc["duration"] = 0
+    
+    return locations
+
+def filter_by_recommendations(locations, recommendations=None):
+    """
+    Filter locations to prioritize recommended attractions and hawkers
+    
+    Args:
+        locations: List of all location dictionaries
+        recommendations: Dictionary with attraction and hawker recommendations
+        
+    Returns:
+        list: Filtered locations
+    """
+    if not recommendations or (not recommendations['attractions'] and not recommendations['hawkers']):
+        # If no recommendations, return original locations
+        return locations
+    
+    # Create sets of recommended location names (lowercase for case-insensitive matching)
+    recommended_hawkers = {hawker['name'].lower() for hawker in recommendations['hawkers']}
+    recommended_attractions = {attraction['name'].lower() for attraction in recommendations['attractions']}
+    
+    # Separate locations by type
+    hotels = [loc for loc in locations if loc["type"] == "hotel"]
+    
+    # Filter hawkers and attractions based on recommendations
+    hawkers = []
+    attractions = []
+    
+    for loc in locations:
+        loc_name_lower = loc["name"].lower()
+        
+        if loc["type"] == "hawker":
+            # Check if this hawker is in recommendations
+            is_recommended = any(hawker_name in loc_name_lower or loc_name_lower in hawker_name 
+                               for hawker_name in recommended_hawkers)
+            
+            if is_recommended:
+                # Add recommended hawkers with high priority
+                hawkers.append((loc, 1, loc.get("rating", 3.0)))
+            else:
+                # Add other hawkers with lower priority
+                hawkers.append((loc, 0, loc.get("rating", 3.0)))
+        
+        elif loc["type"] == "attraction":
+            # Check if this attraction is in recommendations
+            is_recommended = any(attraction_name in loc_name_lower or loc_name_lower in attraction_name 
+                               for attraction_name in recommended_attractions)
+            
+            if is_recommended:
+                # Add recommended attractions with high priority
+                attractions.append((loc, 1, loc.get("satisfaction", 5.0)))
+            else:
+                # Add other attractions with lower priority
+                attractions.append((loc, 0, loc.get("satisfaction", 5.0)))
+    
+    # Sort hawkers and attractions by priority (recommended first) and then by rating
+    hawkers.sort(key=lambda x: (-x[1], -x[2]))
+    attractions.sort(key=lambda x: (-x[1], -x[2]))
+    
+    # Extract just the location dictionaries
+    hawkers = [h[0] for h in hawkers]
+    attractions = [a[0] for a in attractions]
+    
+    # Combine all locations with hotels first
     filtered_locations = hotels + attractions + hawkers
     
     return filtered_locations

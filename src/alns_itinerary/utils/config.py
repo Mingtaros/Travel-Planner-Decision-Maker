@@ -1,3 +1,18 @@
+"""
+Configuration Handler
+====================
+
+This module provides utilities for loading and validating configuration settings
+from JSON files. It gracefully handles errors and provides helpful error messages.
+
+Usage:
+    config = load_config("path/to/config.json")
+    
+    # Access configuration values
+    api_key = config.get('api_key')
+    max_locations = config.get('max_locations', 10)  # With default value
+"""
+
 import os
 import json
 import logging
@@ -7,13 +22,28 @@ logger = logging.getLogger("load_config")
 
 def load_config(config_path="./src/alns_itinerary/config.json"):
     """
-    Load configuration from a JSON file.
+    Load and validate configuration settings from a JSON file.
+    
+    This function attempts to load the specified configuration file, providing
+    helpful error messages if the file is missing, invalid, or inaccessible.
+    The program will exit with status code 1 if configuration cannot be loaded.
     
     Args:
-        config_path: Path to the configuration file
-        
+        config_path (str): Path to the JSON configuration file
+                         (default: "./src/alns_itinerary/config.json")
+    
     Returns:
-        dict: Configuration parameters
+        dict: Configuration parameters as a dictionary
+    
+    Raises:
+        SystemExit: If the configuration file cannot be loaded
+    
+    Example:
+        # Load with default path
+        config = load_config()
+        
+        # Load with custom path
+        config = load_config("./config/settings.json")
     """
     
     # Try to load configuration from file
@@ -25,19 +55,6 @@ def load_config(config_path="./src/alns_itinerary/config.json"):
     try:
         with open(config_path, 'r') as f:
             config = json.load(f)
-        
-        # Verify all required parameters are present
-        required_params = [
-            "NUM_DAYS", "MAX_ATTRACTION_PER_DAY", "HOTEL_COST", 
-            "START_TIME", "HARD_LIMIT_END_TIME", 
-            "LUNCH_START", "LUNCH_END", "DINNER_START", "DINNER_END"
-        ]
-        
-        missing_params = [param for param in required_params if param not in config]
-        
-        if missing_params:
-            logger.warning(f"Error: Configuration file is missing required parameters: {', '.join(missing_params)}")
-            sys.exit(1)
             
         logger.info(f"Configuration loaded from {config_path}")
         return config

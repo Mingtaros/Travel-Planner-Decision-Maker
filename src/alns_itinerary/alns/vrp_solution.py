@@ -1,6 +1,19 @@
 """
-Solution representation for the VRP-based travel itinerary problem.
-This file defines the core data structure for representing solutions.
+VRP Solution Representation
+==========================
+
+This module provides the core data structure for representing travel itinerary solutions
+using a position-based Vehicle Routing Problem (VRP) approach.
+
+The VRPSolution class handles:
+- Route representation for multi-day itineraries
+- Feasibility checking against time, budget, and logical constraints
+- Location insertion and removal operations
+- Comprehensive solution evaluation
+- Detailed constraint violation reporting
+
+Each solution tracks the complete schedule of locations visited on each day,
+including arrival/departure times and transportation modes.
 """
 
 import copy
@@ -11,9 +24,25 @@ logger = logging.getLogger(__name__)
 
 class VRPSolution:
     """
-    Position-based solution representation for the Travel Itinerary Problem.
-    Each solution consists of routes for each day, where each route is a sequence
-    of locations with arrival/departure times and transport modes.
+    Position-based representation for travel itineraries.
+    
+    This class manages the complete state of a travel itinerary solution,
+    providing methods to manipulate routes, check feasibility, and evaluate
+    solution quality.
+    
+    A solution consists of multiple daily routes, where each route is a sequence
+    of locations with arrival/departure times and transport modes. The solution
+    enforces complex constraints like meal timing, attraction uniqueness, and
+    budget limitations.
+    
+    Attributes:
+        problem: Reference to the TravelItineraryProblem instance
+        num_days: Number of days in the itinerary
+        routes: List of daily routes, where each route is a list of location tuples
+               (location_idx, arrival_time, departure_time, transport_mode)
+        hotel_return_transport: Transport mode for returning to hotel (default: 'transit')
+        hotel_transit_duration: Duration for hotel return in minutes
+        MAX_HAWKERS_PER_DAY: Maximum number of hawker centers to visit per day (default: 2)
     """
     def __init__(self, problem):
         """
@@ -30,12 +59,33 @@ class VRPSolution:
         self.routes = [[] for _ in range(self.num_days)]
         self.hotel_return_transport = 'transit'
         self.hotel_transit_duration = 0
+        self.MAX_HAWKERS_PER_DAY = 2
         
         # Initialize all days to start at hotel
         hotel_idx = 0  # Assuming hotel is at index 0
         for day in range(self.num_days):
             # Add hotel as first location (no transport for first location)
             self.routes[day].append((hotel_idx, problem.START_TIME, problem.START_TIME, None))
+    
+    def _get_transport_data(self, origin_idx, dest_idx, departure_time, mode="transit"):
+        """Get transport data between two locations at a specific time."""
+        transport_hour = self.problem.get_transport_hour(departure_time)
+        transport_key = (
+            self.problem.locations[origin_idx]["name"],
+            self.problem.locations[dest_idx]["name"],
+            transport_hour
+        )
+        
+        try:
+            return self.problem.transport_matrix[transport_key][mode]
+        except KeyError:
+            # Log warning about missing data
+            logger.warning(f"Missing transport data for {transport_key} with mode {mode}")
+            # Return default data
+            return {
+                "duration": 30,  # Default 30 minutes
+                "price": 5       # Default $5
+            }
     
     def clone(self):
         """Create a deep copy of this solution"""
@@ -63,13 +113,9 @@ class VRPSolution:
         else:
             prev_loc, _, prev_departure, _ = route[position-1]
         # Calculate travel time
-        transport_hour = self.problem.get_transport_hour(prev_departure)
         try:
-            transport_key = (self.problem.locations[prev_loc]["name"], 
-                           self.problem.locations[location_idx]["name"], 
-                           transport_hour)
-            transport_data = self.problem.transport_matrix[transport_key][transport_mode]
-            
+            transport_data = self._get_transport_data(prev_loc, location_idx, prev_departure, transport_mode)
+        
             loc_cost = 0
             if self.problem.locations[location_idx]['type'] == 'attraction':
                 loc_cost = self.problem.locations[location_idx].get('entrance_fee', 0)
@@ -87,16 +133,26 @@ class VRPSolution:
     def insert_location(self, day, position, location_idx, transport_mode="transit", meal=None):
         """
         Insert a location into a route at the specified position.
-        Does not check feasibility - use is_feasible_insertion for that.
+        
+        This method adds a new location to a day's route, calculating the appropriate
+        arrival and departure times based on travel duration from the previous location.
+        For hawker centers, it can enforce meal timing windows (lunch or dinner).
         
         Args:
-            day: Day index
-            position: Position to insert (1 = after hotel, etc.)
-            location_idx: Location index to insert
-            transport_mode: Transport mode ("transit" or "drive")
-            
+            day (int): Day index to modify (0-indexed)
+            position (int): Position in the route to insert the location (1 = after hotel)
+            location_idx (int): Index of the location to insert
+            transport_mode (str): Transportation mode to use ("transit" or "drive")
+            meal (str, optional): For hawkers, specifies "Lunch" or "Dinner" to enforce timing
+        
         Returns:
-            bool: True if insert was successful
+            tuple: (success, departure_time)
+                - success (bool): True if insertion was successful
+                - departure_time (int): Departure time from the inserted location
+        
+        Note:
+            This method does not check feasibility - use is_feasible_insertion() first
+            to determine if the insertion would create a valid solution.
         """
         route = self.routes[day]
         
@@ -109,12 +165,8 @@ class VRPSolution:
         prev_loc, _, prev_departure, _ = route[position-1]
         
         # Calculate travel time to new location
-        transport_hour = self.problem.get_transport_hour(prev_departure)
         try:
-            transport_key = (self.problem.locations[prev_loc]["name"], 
-                             self.problem.locations[location_idx]["name"], 
-                             transport_hour)
-            transport_data = self.problem.transport_matrix[transport_key][transport_mode]
+            transport_data = self._get_transport_data(prev_loc, location_idx, prev_departure, transport_mode)
             
             # Calculate arrival time
             arrival_time = prev_departure + transport_data["duration"]
@@ -194,12 +246,7 @@ class VRPSolution:
             curr_loc, arrival_time, _, transport_mode = route[i]
             
             # Calculate travel time
-            transport_hour = self.problem.get_transport_hour(prev_departure)
-            transport_key = (self.problem.locations[prev_loc]["name"], 
-                           self.problem.locations[curr_loc]["name"], 
-                           transport_hour)
-            transport_data = self.problem.transport_matrix[transport_key][transport_mode]
-            
+            transport_data = self._get_transport_data(prev_loc, curr_loc, prev_departure, transport_mode)
             # Calculate arrival time
             actual_arrival_time = prev_departure + transport_data["duration"]
             
@@ -226,18 +273,27 @@ class VRPSolution:
 
     def is_feasible_insertion(self, day, position, location_idx, transport_mode="transit"):
         """
-        Enhanced check if inserting a location at a position is feasible.
-        Includes additional checks to prevent duplicate visits and unrealistic itineraries.
-        With improved dinner scheduling flexibility.
+        Check if inserting a location at a position would create a feasible solution.
+        
+        Performs comprehensive checks including:
+        - Time window constraints (location open hours, meal times)
+        - Budget limitations
+        - Maximum attractions/hawkers per day
+        - Uniqueness constraints (no duplicate attractions)
+        - Meal scheduling (proper lunch/dinner timing)
         
         Args:
-            day: Day index
-            position: Position to insert
-            location_idx: Location index to insert
-            transport_mode: Transport mode
-            
+            day (int): Day index to check
+            position (int): Position to insert
+            location_idx (int): Location index to insert
+            transport_mode (str): Transportation mode to use
+        
         Returns:
-            bool: True if insertion is feasible
+            bool: True if the insertion would create a feasible solution
+            
+        Note:
+            This check is crucial before any insertion to maintain solution validity.
+            It prevents creating solutions that violate problem constraints.
         """
         route = self.routes[day]
         
@@ -258,19 +314,13 @@ class VRPSolution:
             return False
         
         # Calculate arrival time
-        transport_hour = self.problem.get_transport_hour(prev_departure)
-        
-        transport_key = (self.problem.locations[prev_loc]["name"], 
-                    self.problem.locations[location_idx]["name"], 
-                    transport_hour)
-        transport_data = self.problem.transport_matrix[transport_key][transport_mode]
+        transport_data = self._get_transport_data(prev_loc, location_idx, prev_departure, transport_mode)
         arrival_time = prev_departure + transport_data["duration"]
         arr_transit_cost = transport_data["price"]
         loc_cost = 0
         # Check uniqueness constraints based on location type
         # No inserting hotel
         if location_type == "hotel":
-            # logger.warning("Cannot insert hotel location")
             return False
         
         elif location_type == "attraction":
@@ -279,24 +329,13 @@ class VRPSolution:
             for d in range(self.num_days):
                 for loc, _, _, _ in self.routes[d]:
                     if loc == location_idx:
-                        # logger.warning(f"Attraction {location_idx} is already visited on Day {d+1}")
                         return False
         
         elif location_type == "hawker":
             
-            # Check if we already have a meal of this type today
-            has_lunch = False
-            has_dinner = False
-            
-            for loc, arr_time, _, _ in route:
-                if self.problem.locations[loc]["type"] == "hawker":
-                    if arr_time >= self.problem.LUNCH_START and arr_time <= self.problem.LUNCH_END:
-                        has_lunch = True
-                    elif arr_time >= self.problem.DINNER_START and arr_time <= self.problem.DINNER_END:
-                        has_dinner = True
-            
+            has_lunch, has_dinner, _, _ = self.has_lunch_and_dinner(day)
+
             if has_lunch and has_dinner:
-                # logger.warning("Cannot insert more than one meal visit per day")
                 return False
             
             loc_cost = self.problem.locations[location_idx].get('avg_food_price', 0)
@@ -337,15 +376,11 @@ class VRPSolution:
         elif location_type == "hawker":
             hawker_count += 1
         
-        # Check against maximum allowed visits - relaxed for hawkers to ensure dinner can be added
-        MAX_HAWKERS_PER_DAY = 2      # Reasonable limit (lunch, dinner)
-        
+        # Check against maximum allowed visits - relaxed for hawkers to ensure dinner can be added   # Reasonable limit (lunch, dinner)
         if attraction_count > self.problem.MAX_ATTRACTION_PER_DAY:
-            # logger.warning(f"Exceeding maximum attractions per day ({self.problem.MAX_ATTRACTION_PER_DAY})")
             return False
         
-        if hawker_count > MAX_HAWKERS_PER_DAY:
-            # logger.warning(f"Exceeding maximum hawker visits per day ({MAX_HAWKERS_PER_DAY})")
+        if hawker_count > self.MAX_HAWKERS_PER_DAY:
             return False
         
         # Now perform the original feasibility checks
@@ -365,15 +400,9 @@ class VRPSolution:
         
         # Check if we are repeating the same location
         if next_loc == location_idx and next_loc != hotel_idx:
-            # logger.warning(f"Cannot repeat the same location {location_idx}")
             return False
         
-        transport_hour = self.problem.get_transport_hour(departure_time)
-        transport_key = (self.problem.locations[location_idx]["name"], 
-                    self.problem.locations[next_loc]["name"], 
-                    transport_hour)
-        transport_data = self.problem.transport_matrix[transport_key][next_transport]
-    
+        transport_data = self._get_transport_data(location_idx, next_loc, departure_time, next_transport)
         new_next_arrival = departure_time + transport_data["duration"]
         dep_transit_cost = transport_data["price"]
         
@@ -409,15 +438,19 @@ class VRPSolution:
         route = self.routes[day]
         has_lunch = False
         has_dinner = False
+        lunch_hawker_idx = None
+        dinner_hawker_idx = None
         
         for loc, arrival_time, _, _ in route:
             if self.problem.locations[loc]["type"] == "hawker":
                 if arrival_time >= self.problem.LUNCH_START and arrival_time <= self.problem.LUNCH_END:
                     has_lunch = True
+                    lunch_hawker_idx = loc
                 elif arrival_time >= self.problem.DINNER_START and arrival_time <= self.problem.DINNER_END:
                     has_dinner = True
+                    dinner_hawker_idx = loc
         
-        return has_lunch, has_dinner
+        return has_lunch, has_dinner, lunch_hawker_idx, dinner_hawker_idx
     
     def get_visited_attractions(self):
         """
@@ -436,17 +469,16 @@ class VRPSolution:
         return visited
     
     def get_hotel_return(self, day):
+        """
+        Calculate the return to hotel time and cost for a day's route.
+        """
         route = self.routes[day]
 
         last_loc, _, last_departure, _ = route[-1]
         if last_loc == 0:
             return last_departure, 0, 0
-        transport_hour = self.problem.get_transport_hour(last_departure)
-        transport_key = (self.problem.locations[last_loc]["name"], 
-                    self.problem.locations[0]["name"], 
-                    transport_hour)
-        transport_data = self.problem.transport_matrix[transport_key][self.hotel_return_transport]
         
+        transport_data = self._get_transport_data(last_loc, 0, last_departure, self.hotel_return_transport)
         return_transit_duration = transport_data["duration"]
         return_transit_cost = transport_data["price"]
         hotel_arrival = last_departure + return_transit_duration
@@ -455,12 +487,22 @@ class VRPSolution:
         
     def is_feasible(self):
         """
-        Enhanced check to determine if the solution is feasible.
-        Added checks for practical considerations like duplicate locations
-        and proper meal scheduling.
+        Determine if the complete solution satisfies all constraints.
+        
+        Performs comprehensive validation including:
+        - Hotel start and end for each day
+        - Daily time window adherence (start after 9 AM, end before hard limit)
+        - Budget constraints
+        - Location uniqueness (each attraction visited at most once)
+        - Meal scheduling (exactly one lunch and one dinner per day)
+        - Reasonable daily attraction count
         
         Returns:
-            bool: True if solution is feasible
+            bool: True if the solution satisfies all constraints
+            
+        Note:
+            This is a comprehensive check used to validate complete solutions.
+            For incremental validation during construction, use is_feasible_insertion().
         """
         
         # Check that each day has a hotel start and end
@@ -487,8 +529,7 @@ class VRPSolution:
                 loc_type = self.problem.locations[loc_idx]["type"]
                 
                 # Hotel should only appear at start and end
-                if loc_type == "hotel" and i > 0 and i < len(route) - 1:
-                    # Hotel appears in the middle of the day (not allowed)
+                if loc_type == "hotel" and i > 0:
                     return False
                 
                 # Each attraction should appear at most once across all days
@@ -542,7 +583,7 @@ class VRPSolution:
         Returns:
             float: Total cost in SGD
         """
-        total_cost = self.problem.NUM_DAYS * self.problem.HOTEL_COST  # Hotel cost
+        total_cost = 0
         
         # Add costs for each day's route
         for day in range(self.num_days):
@@ -554,12 +595,8 @@ class VRPSolution:
                 curr_loc, _, _, transport_mode = route[i]
                 
                 # Calculate transport cost
-                transport_hour = self.problem.get_transport_hour(prev_departure)
                 try:
-                    transport_key = (self.problem.locations[prev_loc]["name"], 
-                                   self.problem.locations[curr_loc]["name"], 
-                                   transport_hour)
-                    transport_data = self.problem.transport_matrix[transport_key][transport_mode]
+                    transport_data = self._get_transport_data(prev_loc, curr_loc, prev_departure, transport_mode)
                     total_cost += transport_data["price"]
                 except KeyError:
                     # Missing transport data, use default
@@ -603,12 +640,7 @@ class VRPSolution:
                 if location_type == "hawker":
                     
                     # Calculate transport cost
-                    transport_hour = self.problem.get_transport_hour(prev_departure)
-                    
-                    transport_key = (self.problem.locations[prev_loc]["name"], 
-                                self.problem.locations[curr_loc]["name"], 
-                                transport_hour)
-                    transport_data = self.problem.transport_matrix[transport_key][transport_mode]
+                    transport_data = self._get_transport_data(prev_loc, curr_loc, prev_departure, transport_mode)
                     actual_transit_time = transport_data["duration"]
                     rest_period = raw_transit_time - actual_transit_time
                     
@@ -648,8 +680,23 @@ class VRPSolution:
         """
         Collect detailed information about constraint violations in the solution.
         
+        Performs a comprehensive analysis of the solution, identifying all constraint
+        violations with detailed explanations. This is valuable for debugging and
+        for providing feedback to users about why a solution is infeasible.
+        
+        Checks include:
+        - Hotel start/end for each day
+        - Duplicate location visits
+        - Attraction uniqueness across days
+        - Meal scheduling (lunch/dinner timing)
+        - Budget constraints
+        - Maximum attractions/hawkers per day
+        
         Returns:
-            list: List of constraint violation dictionaries with explanations
+            list: List of constraint violation dictionaries, each containing:
+                - type (str): Type of violation
+                - details (str): Human-readable explanation
+                - Additional fields specific to each violation type
         """
         violations = []
         
@@ -840,10 +887,28 @@ class VRPSolution:
 
     def evaluate(self):
         """
-        Evaluate the solution to get objectives and feasibility.
+        Evaluate the solution to calculate all performance metrics.
+        
+        Computes comprehensive metrics including:
+        - Feasibility status
+        - Total cost (transportation + attractions + meals)
+        - Total travel time in minutes
+        - Total satisfaction score
+        - Daily routes in a format suitable for visualization
+        - Visited attractions list
+        - Detailed constraint violations (if any)
         
         Returns:
-            dict: Dictionary with evaluation results
+            dict: Evaluation results with the following keys:
+                - is_feasible (bool): Whether the solution is valid
+                - total_cost (float): Total cost in SGD
+                - total_travel_time (float): Total travel time in minutes
+                - total_satisfaction (float): Total satisfaction score
+                - daily_routes (list): Formatted daily routes for visualization
+                - visited_attractions (list): Names of visited attractions
+                - constraint_violations (list): Detailed violation reports
+                - inequality_violations (list): Inequality constraint violations
+                - equality_violations (list): Equality constraint violations
         """
         solution = self.clone()
         
@@ -860,9 +925,6 @@ class VRPSolution:
         for day in range(solution.num_days):
             route = []
             for loc, arrival_time, departure_time, transport_mode in solution.routes[day]:
-                # Skip hotel at start if there are more locations
-                # if loc == 0 and len(route) == 0 and len(solution.routes[day]) > 1:
-                #     continue
                     
                 # Add location to route
                 route.append({

@@ -1,6 +1,22 @@
 """
-Enhanced Adaptive Large Neighborhood Search (ALNS) algorithm for the VRP-based travel itinerary problem.
-This implementation uses the position-based VRP representation for more effective time constraint management.
+Adaptive Large Neighborhood Search for Travel Itinerary Optimization
+===================================================================
+
+This module implements an enhanced Adaptive Large Neighborhood Search (ALNS)
+algorithm specifically designed for optimizing travel itineraries using a
+Vehicle Routing Problem (VRP) approach.
+
+Key Features:
+- Position-based VRP representation for time-constrained scheduling
+- Simulated annealing acceptance criteria with auto-calibrated temperature
+- Weighted adaptive operator selection
+- Multiple destroy and repair strategies
+- Support for complex constraints (meals, budget, time windows)
+- Early termination and time limit capabilities
+
+The ALNS algorithm works by iteratively destroying and repairing solutions,
+using operators that are weighted based on their historical performance.
+The algorithm balances exploration and exploitation through simulated annealing.
 """
 
 import random
@@ -20,7 +36,26 @@ logger = logging.getLogger(__name__)
 
 class VRPALNS:
     """
-    Enhanced ALNS implementation using the position-based VRP representation
+    Enhanced Adaptive Large Neighborhood Search (ALNS) for travel itinerary optimization.
+    
+    This class provides a complete implementation of the ALNS metaheuristic
+    adapted to the travel itinerary problem. It manages the optimization process,
+    operator selection, solution acceptance, and performance tracking.
+    
+    The algorithm balances three main objectives:
+    1. Minimizing total cost (transportation and attractions)
+    2. Minimizing travel time between locations
+    3. Maximizing total satisfaction/enjoyment
+    
+    Attributes:
+        problem: The TravelItineraryProblem instance containing constraints
+        current_solution: The current working solution
+        best_solution: The best solution found so far
+        destroy_operators: List of destroy operator functions
+        repair_operators: List of repair operator functions
+        weights_destroy/weights_repair: Adaptive weights for operator selection
+        temperature: Current simulated annealing temperature
+        objective_weights: Weights for the multi-objective function
     """
     def __init__(
         self, 
@@ -38,28 +73,57 @@ class VRPALNS:
         initial_temperature=None,
         time_limit=None, 
         seed=None,
+        infeasible_penalty=10.0,
         early_termination_iterations=200,
-        objective_weights=[0.3, 0.3, 0.4]
+        objective_weights=[0.3, 0.3, 0.4],
+        weights_scores=[3, 2, 1, 0],
+        attraction_per_day=4,
+        rich_threshold=100,
+        avg_hawker_cost=15,
+        rating_max=10,
+        meal_buffer_time=90,
+        approx_hotel_travel_cost=10,
+        destroy_remove_percentage=0.3,
+        destroy_distant_loc_weights=[0.5, 0.5],
+        destroy_expensive_threshold=0.9,
+        destroy_day_hawker_preserve=0.7,
+        repair_transit_weights=[0.5, 0.5],
+        repair_satisfaction_weights=[0.5, 0.5],
     ):
         """
-        Initialize the ALNS algorithm with the VRP approach
+        Initialize the ALNS algorithm for travel itinerary optimization.
         
         Args:
-            problem: The TravelItineraryProblem instance
-            initial_solution: Initial VRPSolution (if None, will create a heuristic solution)
-            destroy_operators: List of destroy operator functions
-            repair_operators: List of repair operator functions
-            weights_destroy: Initial weights for destroy operators
-            weights_repair: Initial weights for repair operators
-            max_iterations: Maximum number of iterations
-            segment_size: Number of iterations before weights are updated
-            reaction_factor: How strongly to adjust weights based on performance
-            decay_factor: How much to decay weights over time
-            temperature_control: Temperature decrease factor for simulated annealing
-            initial_temperature: Initial temperature for simulated annealing
-            time_limit: Time limit in seconds
-            seed: Random seed for reproducibility
-            early_termination_iterations: Number of iterations without improvement to trigger early termination
+            problem: The TravelItineraryProblem instance containing constraints
+            initial_solution: Optional starting solution (default: creates a heuristic solution)
+            destroy_operators: List of destroy operators (default: uses standard operators)
+            repair_operators: List of repair operators (default: uses standard operators)
+            weights_destroy: Initial weights for destroy operators (default: equal weights)
+            weights_repair: Initial weights for repair operators (default: equal weights)
+            max_iterations: Maximum number of iterations to perform (default: 1000)
+            segment_size: Number of iterations before weight updates (default: 100)
+            reaction_factor: Learning rate for weight adjustments (default: 0.5)
+            decay_factor: Weight decay rate (default: 0.8)
+            temperature_control: Cooling rate for simulated annealing (default: 0.95)
+            initial_temperature: Starting temperature (default: auto-calibrated)
+            time_limit: Maximum runtime in seconds (default: None)
+            seed: Random seed for reproducibility (default: None)
+            infeasible_penalty: Penalty factor for infeasible solutions (default: 10.0)
+            early_termination_iterations: Iterations without improvement before stopping (default: 200)
+            objective_weights: Weights for [cost, travel_time, satisfaction] (default: [0.3, 0.3, 0.4])
+            weights_scores: Scores for [new_best, better, accepted, rejected] solutions (default: [3, 2, 1, 0])
+            attraction_per_day: Target number of attractions per day (default: 4)
+            rich_threshold: Budget threshold for using more expensive transport (default: 100)
+            avg_hawker_cost: Average cost of meals at hawker centers (default: 15)
+            rating_max: Maximum possible satisfaction rating (default: 10)
+            meal_buffer_time: Buffer time around meals in minutes (default: 90)
+            approx_hotel_travel_cost: Estimated cost for hotel transit (default: 10)
+            destroy_remove_percentage: Percentage of solution to destroy (default: 0.3)
+            destroy_distant_loc_weights: Weights for distance-based destruction (default: [0.5, 0.5])
+            destroy_expensive_threshold: Threshold for expensive location removal (default: 0.9)
+            destroy_day_hawker_preserve: Probability to preserve hawkers during destruction (default: 0.7)
+            repair_transit_weights: Weights for transit-based insertion (default: [0.5, 0.5])
+            repair_satisfaction_weights: Weights for satisfaction-based insertion (default: [0.5, 0.5])
         """
         self.problem = problem
         self.max_iterations = max_iterations
@@ -70,10 +134,36 @@ class VRPALNS:
         self.time_limit = time_limit
         self.early_termination_iterations = early_termination_iterations
         self.objective_weights = objective_weights
-        self.infeasible_penalty = 10.0  # Large penalty for infeasible solutions
+        self.infeasible_penalty = infeasible_penalty
+        self.rating_max = rating_max
+        self.approx_hotel_travel_cost = approx_hotel_travel_cost
+        self.rich_threshold = rich_threshold
+        self.avg_hawker_cost = avg_hawker_cost
+        self.attraction_per_day = attraction_per_day
+        self.meal_buffer_time = meal_buffer_time
+        self.weights_scores = weights_scores
         self.seed = seed
+        self.hotel_idx = 0
+        self.diverse_solution_limit = 10
+        self.destroy_remove_percentage = destroy_remove_percentage
+        self.destroy_distant_loc_weights = destroy_distant_loc_weights
+        self.destroy_expensive_threshold = destroy_expensive_threshold
+        self.destroy_day_hawker_preserve = destroy_day_hawker_preserve
+        self.repair_satisfaction_weights = repair_satisfaction_weights
+        self.repair_transit_weights = repair_transit_weights
         
-        operators = VRPOperators(self.seed)
+        operators_config = {
+            "destroy_remove_percentage": self.destroy_remove_percentage,
+            "destroy_distant_loc_weights": self.destroy_distant_loc_weights,
+            "destroy_expensive_threshold": self.destroy_expensive_threshold,
+            "destroy_day_hawker_preserve": self.destroy_day_hawker_preserve,
+            "repair_satisfaction_weights": self.repair_satisfaction_weights,
+            "repair_transit_weights": self.repair_transit_weights,
+            "objective_weights": self.objective_weights,
+            "seed": self.seed
+        }
+        
+        operators = VRPOperators(**operators_config)
         
         # Set random seed if provided
         if seed is not None:
@@ -83,11 +173,11 @@ class VRPALNS:
         # Initialize destroy operators
         if destroy_operators is None:
             self.destroy_operators = [
-                # operators.destroy_targeted_subsequence,
-                # operators.destroy_worst_attractions,
+                operators.destroy_targeted_subsequence,
+                operators.destroy_worst_attractions,
                 operators.destroy_distant_locations,
-                # operators.destroy_expensive_attractions,
-                # operators.destroy_selected_day
+                operators.destroy_expensive_attractions,
+                operators.destroy_selected_day
             ]
         else:
             self.destroy_operators = destroy_operators
@@ -95,9 +185,9 @@ class VRPALNS:
         # Initialize repair operators
         if repair_operators is None:
             self.repair_operators = [
-                # operators.repair_regret_insertion,
+                operators.repair_regret_insertion,
                 operators.repair_transit_efficient_insertion,
-                # operators.repair_balanced_solution
+                operators.repair_satisfaction_driven_insertion
             ]
         else:
             self.repair_operators = repair_operators
@@ -167,23 +257,26 @@ class VRPALNS:
     
     def create_initial_solution(self):
         """
-        Create a valid initial solution that adheres to all constraints:
-        - Each day has exactly one lunch and one dinner at appropriate times
-        - Each day starts and ends at the hotel
-        - Attractions are distributed sensibly between meals
+        Create a valid initial solution for the itinerary problem.
+        
+        Constructs a feasible initial solution with a greedy heuristic approach:
+        1. Selects attractions based on value (satisfaction/cost ratio)
+        2. Ensures each day has exactly one lunch and dinner at appropriate times
+        3. Properly schedules attractions between meals
+        4. Respects budget and time constraints
+        5. Returns to hotel at the end of each day
         
         Returns:
-            VRPSolution: Valid initial solution
+            VRPSolution: A valid initial solution that satisfies all hard constraints
+            
+        Note:
+            The quality of this initial solution significantly impacts the
+            efficiency of the optimization process.
         """
+
         solution = VRPSolution(self.problem)
         
-        budget_left = self.problem.budget - (self.problem.NUM_DAYS * self.problem.HOTEL_COST)
-        hotel_travel_cost = 10
-        rich_threshold = 100
-        avg_hawker_cost = 15
-        attraction_per_day = 4
-        meal_buffer_time = 150
-        hotel_idx = 0
+        budget_left = self.problem.budget
         
         # Get attraction and hawker lists
         attractions = [i for i in range(self.problem.num_locations) 
@@ -222,7 +315,7 @@ class VRPALNS:
             num_days_left = solution.num_days - day
             lunch_inserted = 0
             dinner_inserted = 0
-            approx_mandatory_cost = ((num_days_left * 2) - lunch_inserted - dinner_inserted) * avg_hawker_cost + hotel_travel_cost
+            approx_mandatory_cost = ((num_days_left * 2) - lunch_inserted - dinner_inserted) * self.avg_hawker_cost + self.approx_hotel_travel_cost
             attraction_count = 0
             
             # Skip if we don't have enough hawkers
@@ -230,7 +323,7 @@ class VRPALNS:
                 # logger.warning("Not enough unique hawkers for each day's lunch and dinner")
                 continue
             
-            if budget_left/num_days_left < rich_threshold:
+            if budget_left/num_days_left < self.rich_threshold:
                 transport_mode = "transit"
             else:
                 transport_mode = "drive"
@@ -240,7 +333,7 @@ class VRPALNS:
             count = 0
             
             # Visit attractions until lunch time
-            while (latest_completion_time + meal_buffer_time) < self.problem.LUNCH_END and approx_mandatory_cost < budget_left and attraction_count < attraction_per_day:
+            while (latest_completion_time + self.meal_buffer_time) < self.problem.LUNCH_END and approx_mandatory_cost < budget_left and attraction_count < self.attraction_per_day:
                 
                 count += 1
                 attr_idx, attr_ratio = attraction_values.pop(0)
@@ -266,13 +359,14 @@ class VRPALNS:
             
             # logger.info(f"Day {day+1}: Lunch time reached at {round(latest_completion_time/60, 2)} with ${budget_left:.2f} budget left")
             
+            lunch_hawker_idx = -1
             # Have lunch at appropriate time
             while lunch_inserted == 0:
                 if hawker_ratings:
                     lunch_hawker_idx, hwk_ratio = hawker_ratings.pop(0)
                     hwk_cost, hwk_duration = solution.get_cost_duration(day, lunch_hawker_idx, current_position, transport_mode)
                     
-                    if approx_mandatory_cost + hwk_cost - avg_hawker_cost <= budget_left: # Ensure we can afford the hawker
+                    if approx_mandatory_cost + hwk_cost - self.avg_hawker_cost <= budget_left: # Ensure we can afford the hawker
                         # Insert the hawker center
                         check, lunch_departure_time = solution.insert_location(day, current_position, lunch_hawker_idx, transport_mode, 'Lunch')
                         if check:
@@ -282,13 +376,13 @@ class VRPALNS:
                             lunch_inserted = 1
                             hawker_ratings.append((lunch_hawker_idx, hwk_ratio))
             
-            approx_mandatory_cost = ((num_days_left * 2) - lunch_inserted - dinner_inserted) * avg_hawker_cost + hotel_travel_cost
+            approx_mandatory_cost = ((num_days_left * 2) - lunch_inserted - dinner_inserted) * self.avg_hawker_cost + self.approx_hotel_travel_cost
             
             # logger.info(f"Day {day+1}: Lunch completed at {round(latest_completion_time/60, 2)} with ${budget_left:.2f} budget left")
             
             count = 0
             # Visit attractions until dinner time
-            while (latest_completion_time + meal_buffer_time) < self.problem.DINNER_END and approx_mandatory_cost < budget_left and attraction_count < attraction_per_day:
+            while (latest_completion_time + self.meal_buffer_time) < self.problem.DINNER_END and approx_mandatory_cost < budget_left and attraction_count < self.attraction_per_day:
                 
                 count += 1
                 attr_idx, attr_ratio = attraction_values.pop(0)
@@ -320,7 +414,7 @@ class VRPALNS:
                     dinner_hawker_idx, hwk_ratio = hawker_ratings.pop(0)
                     hwk_cost, hwk_duration = solution.get_cost_duration(day, dinner_hawker_idx, current_position, transport_mode)
                     
-                    if approx_mandatory_cost + hwk_cost - avg_hawker_cost <= budget_left: # Ensure we can afford the hawker
+                    if approx_mandatory_cost + hwk_cost - self.avg_hawker_cost <= budget_left and dinner_hawker_idx != lunch_hawker_idx: # Ensure we can afford the hawker
                         # Insert the hawker center
                         check, dinner_departure_time = solution.insert_location(day, current_position, dinner_hawker_idx, transport_mode, 'Dinner')
                         if check:
@@ -331,27 +425,16 @@ class VRPALNS:
                             hawker_ratings.append((dinner_hawker_idx, hwk_ratio))
             
             # Add hotel return at the end
-            approx_mandatory_cost = ((num_days_left * 2) - lunch_inserted - dinner_inserted) * avg_hawker_cost + hotel_travel_cost
-            
-            # logger.info(f"Day {day+1}: Dinner completed at {round(latest_completion_time/60, 2)} with ${budget_left:.2f} budget left")
+            approx_mandatory_cost = ((num_days_left * 2) - lunch_inserted - dinner_inserted) * self.avg_hawker_cost + self.approx_hotel_travel_cost
             
             # Find transport mode that works
             hotel_return_inserted = False
             for transport_mode in ["drive", "transit"]:
-                hotel_cost, hotel_duration = solution.get_cost_duration(day, hotel_idx, current_position, transport_mode)
+                hotel_cost, hotel_duration = solution.get_cost_duration(day, self.hotel_idx, current_position, transport_mode)
                 if (latest_completion_time + hotel_duration) < self.problem.HARD_LIMIT_END_TIME and approx_mandatory_cost + hotel_cost <= budget_left:
                     hotel_return_inserted = True
                     solution.hotel_return_transport = transport_mode
-                    solution.hotel_transit_duration = hotel_duration
-                    # check, _ = solution.insert_location(day, current_position, hotel_idx, transport_mode)
-                    # if check:
-                    #     hotel_return_inserted = True
-                    #     break
-            
-            # logger.info(f"Day {day+1}: Hotel return completed with ${budget_left:.2f} budget left")
-            
-            # if not hotel_return_inserted:
-                # logger.warning("Could not insert hotel return due to time or budget constraints")   
+                    solution.hotel_transit_duration = hotel_duration 
         
         return solution
     
@@ -411,22 +494,37 @@ class VRPALNS:
     
     def calculate_objective(self, evaluation):
         """
-        Calculate a single objective value from a solution evaluation
+        Calculate the overall objective value for a solution.
+        
+        Combines multiple objectives (cost, travel time, satisfaction) into
+        a single value for simulated annealing-based optimization. Lower
+        values indicate better solutions.
         
         Args:
-            evaluation: Solution evaluation dictionary
+            evaluation (dict): Evaluation metrics from solution.evaluate()
             
         Returns:
-            float: Weighted objective value (lower is better)
+            float: Combined objective value (lower is better)
+            
+        Note:
+            Infeasible solutions receive a large penalty to ensure the
+            algorithm prioritizes finding feasible solutions.
         """
         # Extract objectives
         cost = evaluation["total_cost"]
         travel_time = evaluation["total_travel_time"]
         satisfaction = evaluation["total_satisfaction"]
+        max_satisfaction = (self.problem.NUM_DAYS * 6) * self.rating_max
+        reference_time = 6 * 60  # 6 hours as a reference point
+        
+        budget_objective = self.objective_weights[0] * (cost / self.problem.budget)
+        travel_time_objective = self.objective_weights[1] * (travel_time / (travel_time + reference_time))
+        satisfaction_objective = self.objective_weights[2] * (satisfaction / max_satisfaction)
+        
+        # logger.info("Budget_Objective: {}, Satisfaction_Objective: {}, Travel_Time_Objective: {}".format(budget_objective, satisfaction_objective, travel_time_objective))
         
         # Normalize and combine objectives (weighted sum)
-        # Cost weight: 0.3, Travel time weight: 0.3, Satisfaction weight: 0.4 (negative since we maximize)
-        objective = self.objective_weights[0] * (cost / self.problem.budget) + self.objective_weights[1] * (travel_time / (self.problem.NUM_DAYS * 12 * 60)) - self.objective_weights[2] * (satisfaction / (self.problem.num_attractions * 10 + self.problem.num_hawkers * 5))
+        objective =  budget_objective + travel_time_objective - satisfaction_objective
         
         # Add large penalty for infeasible solutions
         if not evaluation["is_feasible"]:
@@ -522,13 +620,27 @@ class VRPALNS:
     
     def run(self, verbose=True):
         """
-        Run the VRP-based ALNS algorithm
+        Execute the ALNS optimization process.
+        
+        This is the main method that runs the complete ALNS algorithm:
+        1. Iteratively destroys and repairs the current solution
+        2. Uses simulated annealing to accept or reject new solutions
+        3. Updates operator weights based on performance
+        4. Tracks the best solution found
+        5. Terminates upon reaching stopping criteria
         
         Args:
-            verbose: Whether to print progress information
+            verbose (bool): Whether to output detailed progress logs
             
         Returns:
-            dict: Results including best solution and statistics
+            dict: Results dictionary containing:
+                - best_solution: The best VRPSolution found
+                - best_evaluation: Detailed metrics of the best solution
+                - stats: Comprehensive statistics about the optimization process
+                
+        Note:
+            The algorithm terminates when it reaches max_iterations, time_limit,
+            or early_termination_iterations without improvement.
         """
         logger.info("Starting VRP-based ALNS optimization...")
         
@@ -537,10 +649,10 @@ class VRPALNS:
         segment_iteration = 0
         
         # Score constants for updating weights
-        SCORE_BEST = 3     # New best solution
-        SCORE_BETTER = 2   # Better than current but not best
-        SCORE_ACCEPTED = 1 # Worse but accepted
-        SCORE_REJECTED = 0 # Rejected
+        SCORE_BEST = self.weights_scores[0]     # New best solution
+        SCORE_BETTER = self.weights_scores[1]   # Better than current but not best
+        SCORE_ACCEPTED = self.weights_scores[2] # Worse but accepted
+        SCORE_REJECTED = self.weights_scores[3] # Rejected
         
         # Track statistics
         stats = {
@@ -635,9 +747,9 @@ class VRPALNS:
                         "iteration": iteration
                     })
                     # Limit the size of diverse solutions list
-                    if len(self.diverse_solutions) > 10:
+                    if len(self.diverse_solutions) > self.diverse_solution_limit:
                         self.diverse_solutions.sort(key=lambda x: x["objective"])
-                        self.diverse_solutions = self.diverse_solutions[:10]
+                        self.diverse_solutions = self.diverse_solutions[:self.diverse_solution_limit]
                 elif new_evaluation["is_feasible"]:
                     logger.info(f"Iteration {iteration}: New solution accepted (objective: {new_objective:.4f}, feasible: {new_evaluation['is_feasible']})")
                     # Update weight scores - feasible but not best
