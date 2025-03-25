@@ -102,9 +102,10 @@ class GoogleMapsClient:
             place_details = self.gmaps.place(
                 place_id=place_id,
                 fields=[
-                    'name', 'formatted_address', 'geometry', 'formatted_phone_number', 
-                    'website', 'rating', 'user_ratings_total', 'opening_hours', 
-                    'price_level', 'types'
+                    'name', 'geometry', 'formatted_address'
+                    # 'name', 'formatted_address', 'geometry', 'formatted_phone_number', 
+                    # 'website', 'rating', 'user_ratings_total', 'opening_hours', 
+                    # 'price_level', 'types'
                 ],
                 language=language
             )
@@ -136,17 +137,12 @@ class GoogleMapsClient:
         # Prepare parsed data
         parsed_place = {
             'name': result.get('name', ''),
-            'address': result.get('formatted_address', ''),
+            # 'address': result.get('formatted_address', ''),
             'location': {
                 'lat': location.get('lat', 0),
                 'lng': location.get('lng', 0)
             },
-            'phone': result.get('formatted_phone_number', ''),
-            'website': result.get('website', ''),
-            'rating': result.get('rating', 0),
-            'total_ratings': result.get('user_ratings_total', 0),
-            'price_level': result.get('price_level', 0),
-            'types': result.get('types', [])
+            # 'types': result.get('types', [])
         }
         
         # Parse opening hours if available

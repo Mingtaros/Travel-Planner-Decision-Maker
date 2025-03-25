@@ -925,9 +925,6 @@ class VRPSolution:
         for day in range(solution.num_days):
             route = []
             for loc, arrival_time, departure_time, transport_mode in solution.routes[day]:
-                # Skip hotel at start if there are more locations
-                # if loc == 0 and len(route) == 0 and len(solution.routes[day]) > 1:
-                #     continue
                     
                 # Add location to route
                 route.append({

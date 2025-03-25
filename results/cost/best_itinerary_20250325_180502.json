@@ -1,0 +1,271 @@
+{
+  "trip_summary": {
+    "duration": 3,
+    "total_budget": 500,
+    "actual_expenditure": 188.34,
+    "total_travel_time": 272.0,
+    "total_satisfaction": 65.1,
+    "is_feasible": true,
+    "starting_hotel": "Marina Bay Sands Singapore"
+  },
+  "days": [
+    {
+      "day": 1,
+      "date": "2025-03-25",
+      "locations": [
+        {
+          "name": "Marina Bay Sands Singapore",
+          "type": "hotel",
+          "arrival_time": "09:00",
+          "departure_time": "09:00",
+          "lat": 1.2837575,
+          "lng": 103.8591065,
+          "transit_from_prev": null,
+          "transit_duration": 0,
+          "transit_cost": 0,
+          "duration": 0,
+          "satisfaction": 0,
+          "cost": 0,
+          "rest_duration": 0,
+          "actual_arrival_time": null
+        },
+        {
+          "name": "Labrador Nature Reserve",
+          "type": "attraction",
+          "arrival_time": "09:49",
+          "departure_time": "11:12",
+          "lat": 1.2665094,
+          "lng": 103.8020649,
+          "transit_from_prev": "transit",
+          "transit_duration": 49,
+          "transit_cost": 1.77,
+          "duration": 83,
+          "satisfaction": 9.8,
+          "cost": 96.43,
+          "rest_duration": 0,
+          "actual_arrival_time": null,
+          "description": "Attraction with satisfaction rating 9.8/10",
+          "entrance_fee": 96.43
+        },
+        {
+          "name": "Chinatown Complex Food Centre",
+          "type": "hawker",
+          "arrival_time": "12:00",
+          "departure_time": "13:00",
+          "lat": 1.2819187,
+          "lng": 103.8433447,
+          "transit_from_prev": "transit",
+          "transit_duration": 33,
+          "transit_cost": 1.59,
+          "duration": 60,
+          "satisfaction": 9.0,
+          "cost": 9.05,
+          "rest_duration": 15,
+          "actual_arrival_time": "11:45",
+          "meal_type": "lunch",
+          "description": "Food center with rating 9.0/5. Arrived at 11:45 and waited 15 minutes for opening time.",
+          "meal_cost": 9.05
+        },
+        {
+          "name": "Muthu's Curry - Little India",
+          "type": "hawker",
+          "arrival_time": "18:00",
+          "departure_time": "19:00",
+          "lat": 1.3099202,
+          "lng": 103.8522443,
+          "transit_from_prev": "transit",
+          "transit_duration": 18,
+          "transit_cost": 1.4,
+          "duration": 60,
+          "satisfaction": 9.5,
+          "cost": 12.85,
+          "rest_duration": 282,
+          "actual_arrival_time": "13:18",
+          "meal_type": "dinner",
+          "description": "Food center with rating 9.5/5. Arrived at 13:18 and waited 282 minutes for opening time.",
+          "meal_cost": 12.85
+        },
+        {
+          "name": "Marina Bay Sands Singapore",
+          "type": "hotel",
+          "position": "end",
+          "arrival_time": "19:42",
+          "departure_time": "19:42",
+          "lat": 1.2837575,
+          "lng": 103.8591065,
+          "transit_from_prev": "transit",
+          "transit_duration": 42,
+          "transit_cost": 1.5,
+          "satisfaction": 0,
+          "cost": 0,
+          "rest_duration": 0
+        }
+      ]
+    },
+    {
+      "day": 2,
+      "date": "2025-03-26",
+      "locations": [
+        {
+          "name": "Marina Bay Sands Singapore",
+          "type": "hotel",
+          "arrival_time": "09:00",
+          "departure_time": "09:00",
+          "lat": 1.2837575,
+          "lng": 103.8591065,
+          "transit_from_prev": null,
+          "transit_duration": 0,
+          "transit_cost": 0,
+          "duration": 0,
+          "satisfaction": 0,
+          "cost": 0,
+          "rest_duration": 0,
+          "actual_arrival_time": null
+        },
+        {
+          "name": "Sungei Road Laksa",
+          "type": "hawker",
+          "arrival_time": "12:00",
+          "departure_time": "13:00",
+          "lat": 1.3067257,
+          "lng": 103.8578874,
+          "transit_from_prev": "drive",
+          "transit_duration": 11,
+          "transit_cost": 7.14,
+          "duration": 60,
+          "satisfaction": 9.2,
+          "cost": 13.51,
+          "rest_duration": 169,
+          "actual_arrival_time": "09:11",
+          "meal_type": "lunch",
+          "description": "Food center with rating 9.2/5. Arrived at 09:11 and waited 169 minutes for opening time.",
+          "meal_cost": 13.51
+        },
+        {
+          "name": "Chinatown Complex Food Centre",
+          "type": "hawker",
+          "arrival_time": "18:00",
+          "departure_time": "19:00",
+          "lat": 1.2819187,
+          "lng": 103.8433447,
+          "transit_from_prev": "drive",
+          "transit_duration": 16,
+          "transit_cost": 6.88,
+          "duration": 60,
+          "satisfaction": 9.0,
+          "cost": 9.05,
+          "rest_duration": 284,
+          "actual_arrival_time": "13:16",
+          "meal_type": "dinner",
+          "description": "Food center with rating 9.0/5. Arrived at 13:16 and waited 284 minutes for opening time.",
+          "meal_cost": 9.05
+        },
+        {
+          "name": "Marina Bay Sands Singapore",
+          "type": "hotel",
+          "position": "end",
+          "arrival_time": "19:20",
+          "departure_time": "19:20",
+          "lat": 1.2837575,
+          "lng": 103.8591065,
+          "transit_from_prev": "transit",
+          "transit_duration": 20,
+          "transit_cost": 1.19,
+          "satisfaction": 0,
+          "cost": 0,
+          "rest_duration": 0
+        }
+      ]
+    },
+    {
+      "day": 3,
+      "date": "2025-03-27",
+      "locations": [
+        {
+          "name": "Marina Bay Sands Singapore",
+          "type": "hotel",
+          "arrival_time": "09:00",
+          "departure_time": "09:00",
+          "lat": 1.2837575,
+          "lng": 103.8591065,
+          "transit_from_prev": null,
+          "transit_duration": 0,
+          "transit_cost": 0,
+          "duration": 0,
+          "satisfaction": 0,
+          "cost": 0,
+          "rest_duration": 0,
+          "actual_arrival_time": null
+        },
+        {
+          "name": "Chinatown Complex Food Centre",
+          "type": "hawker",
+          "arrival_time": "12:00",
+          "departure_time": "13:00",
+          "lat": 1.2819187,
+          "lng": 103.8433447,
+          "transit_from_prev": "transit",
+          "transit_duration": 20,
+          "transit_cost": 1.19,
+          "duration": 60,
+          "satisfaction": 9.0,
+          "cost": 9.05,
+          "rest_duration": 160,
+          "actual_arrival_time": "09:20",
+          "meal_type": "lunch",
+          "description": "Food center with rating 9.0/5. Arrived at 09:20 and waited 160 minutes for opening time.",
+          "meal_cost": 9.05
+        },
+        {
+          "name": "Muthu's Curry - Little India",
+          "type": "hawker",
+          "arrival_time": "18:00",
+          "departure_time": "19:00",
+          "lat": 1.3099202,
+          "lng": 103.8522443,
+          "transit_from_prev": "transit",
+          "transit_duration": 18,
+          "transit_cost": 1.4,
+          "duration": 60,
+          "satisfaction": 9.5,
+          "cost": 12.85,
+          "rest_duration": 282,
+          "actual_arrival_time": "13:18",
+          "meal_type": "dinner",
+          "description": "Food center with rating 9.5/5. Arrived at 13:18 and waited 282 minutes for opening time.",
+          "meal_cost": 12.85
+        },
+        {
+          "name": "Marina Bay Sands Singapore",
+          "type": "hotel",
+          "position": "end",
+          "arrival_time": "19:42",
+          "departure_time": "19:42",
+          "lat": 1.2837575,
+          "lng": 103.8591065,
+          "transit_from_prev": "transit",
+          "transit_duration": 42,
+          "transit_cost": 1.5,
+          "satisfaction": 0,
+          "cost": 0,
+          "rest_duration": 0
+        }
+      ]
+    }
+  ],
+  "attractions_visited": [
+    "Labrador Nature Reserve"
+  ],
+  "budget_breakdown": {
+    "attractions": 96.43,
+    "meals": 66.35999999999999,
+    "transportation": 25.56
+  },
+  "transport_summary": {
+    "total_duration": 269,
+    "total_cost": 25.56
+  },
+  "rest_summary": {
+    "total_rest_duration": 1192
+  }
+}

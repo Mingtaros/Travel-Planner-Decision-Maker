@@ -65,6 +65,7 @@ class VRPOperators:
         destroy_day_hawker_preserve,
         repair_transit_weights,
         repair_satisfaction_weights,
+        objective_weights,
         ideal_meal_offset = 90,
         repair_budget_limit = 0.95,
         repair_free_bonus = 2,
@@ -112,7 +113,31 @@ class VRPOperators:
         self.repair_insertion_regret = repair_insertion_regret
         self.repair_transit_weights = repair_transit_weights
         self.repair_satisfaction_weights = repair_satisfaction_weights
+        self.objective_weights = objective_weights
 
+    def weighted_transport_selection(self, problem):
+        """
+        Perform a weighted random selection of transport types.
+        
+        :return: Randomly selected and reordered transport types
+        """
+        # Ensure the input is valid
+        if len(problem.transport_types) != 2:
+            raise ValueError("Transport types must be a list of exactly 2 items")
+        
+        # Determine the first transport type based on weighted probability
+        if max(self.objective_weights) == self.objective_weights[1]:
+            # Second transport type (e.g., 'drive') is selected
+            first_type = problem.transport_types[1]
+            second_type = problem.transport_types[0]
+        else:
+            random.shuffle(problem.transport_types)
+            first_type = problem.transport_types[0]
+            second_type = problem.transport_types[1]
+        
+        # Return the reordered list
+        return [first_type, second_type]
+    
     #----------------
     # Destroy Operators
     #----------------
@@ -556,8 +581,7 @@ class VRPOperators:
                     # Try each position
                     for pos in range(1, len(new_solution.routes[day]) + 1):
                         # Try both transit and drive
-                        random.shuffle(problem.transport_types)
-                        for transport_mode in problem.transport_types:
+                        for transport_mode in self.weighted_transport_selection(problem):
                             if new_solution.is_feasible_insertion(day, pos, hawker_idx, transport_mode):
                                 # Clone solution to test insertion
                                 test_sol = new_solution.clone()
@@ -602,14 +626,11 @@ class VRPOperators:
                     # Try each position
                     for pos in range(1, len(new_solution.routes[day]) + 1):
                         # Try both transit and drive
-                        random.shuffle(problem.transport_types)
-                        for transport_mode in problem.transport_types:
-                            # logger.info(f"Checking dinner insertion at day {day+1}, pos {pos}, hawker {hawker_idx}, mode {transport_mode}")
+                        for transport_mode in self.weighted_transport_selection(problem):
                             if new_solution.is_feasible_insertion(day, pos, hawker_idx, transport_mode):
                                 # Clone solution to test insertion
                                 test_sol = new_solution.clone()
                                 test_sol.insert_location(day, pos, hawker_idx, transport_mode)
-                                # logger.info(f"Testing dinner insertion at day {day+1}, pos {pos}, hawker {hawker_idx}, mode {transport_mode}")
                                 # Get the actual arrival time
                                 arrival_time = test_sol.routes[day][pos][1]
                                 
@@ -627,7 +648,6 @@ class VRPOperators:
                     if best_pos:
                         pos, transport_mode = best_pos
                         new_solution.insert_location(day, pos, hawker_idx, transport_mode, 'Dinner')
-                        # logger.info(f"Inserted dinner hawker at day {day+1}, pos {pos}, hawker {hawker_idx}, mode {transport_mode}")
                         break
         
         # Now apply regret-based insertion for attractions
@@ -652,8 +672,7 @@ class VRPOperators:
                 for day in range(new_solution.num_days):
                     for pos in range(1, len(new_solution.routes[day]) + 1):
                         # Try both transit and drive
-                        random.shuffle(problem.transport_types)
-                        for transport_mode in problem.transport_types:
+                        for transport_mode in self.weighted_transport_selection(problem):
                             if new_solution.is_feasible_insertion(day, pos, attr_idx, transport_mode):
                                 # Calculate cost of insertion
                                 test_sol = new_solution.clone()
@@ -691,7 +710,6 @@ class VRPOperators:
             
             # If no regret values, we're done
             if not regret_values:
-                # logger.info("No more feasible attractions to insert")
                 break
             
             # Sort by regret (highest first)
@@ -793,8 +811,7 @@ class VRPOperators:
                     continue
                 
                 for pos in possible_positions:
-                    random.shuffle(problem.transport_types)
-                    for transport_mode in problem.transport_types:
+                    for transport_mode in self.weighted_transport_selection(problem):
                         # Check feasibility of insertion
                         if not new_solution.is_feasible_insertion(day, pos, hawker_idx, transport_mode):
                             continue
@@ -899,8 +916,7 @@ class VRPOperators:
                     route = new_solution.routes[day]
                     
                     for pos in range(1, len(route) + 1):
-                        random.shuffle(problem.transport_types)
-                        for transport_mode in problem.transport_types:
+                        for transport_mode in self.weighted_transport_selection(problem):
                             if new_solution.is_feasible_insertion(day, pos, attr_idx, transport_mode):
                                 new_solution.insert_location(
                                     day, pos, attr_idx, transport_mode
@@ -1013,8 +1029,7 @@ class VRPOperators:
                 if other_hawker is not None and hawker_idx == other_hawker:
                     continue
                 for pos in possible_positions:
-                    random.shuffle(problem.transport_types)
-                    for transport_mode in problem.transport_types:
+                    for transport_mode in self.weighted_transport_selection(problem):
                         # Check feasibility of insertion
                         if not new_solution.is_feasible_insertion(day, pos, hawker_idx, transport_mode):
                             continue
@@ -1127,8 +1142,7 @@ class VRPOperators:
                     # Prioritize positions based on current route satisfaction
                     # This helps maintain a balanced satisfaction distribution
                     for pos in range(1, len(route) + 1):
-                        random.shuffle(problem.transport_types)
-                        for transport_mode in problem.transport_types:
+                        for transport_mode in self.weighted_transport_selection(problem):
                             if new_solution.is_feasible_insertion(day, pos, attr_idx, transport_mode):
                                 # Additional check: assess the impact on route satisfaction
                                 # This could be a method in the VRPSolution class

@@ -159,6 +159,7 @@ class VRPALNS:
             "destroy_day_hawker_preserve": self.destroy_day_hawker_preserve,
             "repair_satisfaction_weights": self.repair_satisfaction_weights,
             "repair_transit_weights": self.repair_transit_weights,
+            "objective_weights": self.objective_weights,
             "seed": self.seed
         }
         
@@ -513,11 +514,17 @@ class VRPALNS:
         cost = evaluation["total_cost"]
         travel_time = evaluation["total_travel_time"]
         satisfaction = evaluation["total_satisfaction"]
+        max_satisfaction = (self.problem.NUM_DAYS * 6) * self.rating_max
+        reference_time = 6 * 60  # 6 hours as a reference point
+        
+        budget_objective = self.objective_weights[0] * (cost / self.problem.budget)
+        travel_time_objective = self.objective_weights[1] * (travel_time / (travel_time + reference_time))
+        satisfaction_objective = self.objective_weights[2] * (satisfaction / max_satisfaction)
+        
+        # logger.info("Budget_Objective: {}, Satisfaction_Objective: {}, Travel_Time_Objective: {}".format(budget_objective, satisfaction_objective, travel_time_objective))
         
         # Normalize and combine objectives (weighted sum)
-        objective = self.objective_weights[0] * (cost / self.problem.budget) + \
-            self.objective_weights[1] * (travel_time / (self.problem.NUM_DAYS * (self.problem.HARD_LIMIT_END_TIME - self.problem.START_TIME))) - \
-                self.objective_weights[2] * (satisfaction / (self.rating_max))
+        objective =  budget_objective + travel_time_objective - satisfaction_objective
         
         # Add large penalty for infeasible solutions
         if not evaluation["is_feasible"]:

@@ -72,14 +72,14 @@ def enrich_location_data(locations):
     for loc in locations:
         if loc["type"] == "hawker":
             if "rating" not in loc:
-                loc["rating"] = np.random.uniform(3, 5)
+                loc["rating"] = np.random.uniform(3, 10)
             if "avg_food_price" not in loc:
                 loc["avg_food_price"] = np.random.uniform(5, 15)
             if "duration" not in loc:
                 loc["duration"] = 60  # standardize 60 mins for meals
         elif loc["type"] == "attraction":
             if "satisfaction" not in loc:
-                loc["satisfaction"] = np.random.uniform(5, 10)
+                loc["satisfaction"] = np.random.uniform(3, 10)
             if "entrance_fee" not in loc:
                 loc["entrance_fee"] = np.random.uniform(5, 100)
             if "duration" not in loc:
