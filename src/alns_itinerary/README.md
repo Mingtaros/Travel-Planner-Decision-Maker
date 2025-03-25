@@ -40,7 +40,7 @@ The optimizer solves a complex travel planning problem with multiple objectives:
 1. **Time Constraints**
    - Daily start time: 9 AM
    - Hard end time: 10 PM
-   - Specific lunch (11 AM - 3 PM) and dinner (5 PM - 9 PM) windows
+   - Specific lunch (12 PM - 3 PM) and dinner (6 PM - 9 PM) windows
 
 2. **Location Constraints**
    - Each attraction can be visited only once
@@ -153,6 +153,7 @@ itinerary_optimizer/
 │   ├── transport_utils.py    # Transport matrix handling
 │   ├── location_utils.py     # Location data processing
 │   └── cache_manager.py      # Caching for API responses
+│   └── trip_detail.py        # Getting location details for trips
 │
 ├── utils/                # Utility modules
 │   ├── export_json_itinerary.py  # JSON export functionality
