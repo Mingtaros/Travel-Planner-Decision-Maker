@@ -20,6 +20,9 @@ from agno.vectordb.chroma import ChromaDb
 from agno.tools.duckduckgo import DuckDuckGoTools
 from agno.tools.googlesearch import GoogleSearchTools
 
+from agno.knowledge.csv import CSVKnowledgeBase
+from agno.vectordb.pgvector import PgVector
+
 # ========================================================
 # Load environment variables
 # ========================================================
@@ -53,6 +56,17 @@ class AttractionRecommendation(BaseModel):
 class AttractionResponse(BaseModel):
     # QUERY: str = Field(..., description="The user's original query for attraction recommendations.") 
     ATTRACTION_RECOMMENDATIONS: List[AttractionRecommendation] = Field(..., description="List of recommended attraction options.")
+
+def get_preference_kb():
+    preference_kb = CSVKnowledgeBase(
+        path="data/locationData/csv/",
+        # Table name: ai.csv_documents
+        vector_db=PgVector(
+            table_name="sg_attraction_hawker",
+            db_url="postgresql+psycopg://ai:ai@localhost:5532/ai",
+        ),
+    )
+    return preference_kb
 
 def get_hawker_kb():
     pdf_urls = [
@@ -143,13 +157,14 @@ def create_hawker_agent(model_id = "gpt-4o", debug_mode=True):
         description="You are a Singapore hawker food recommender for foreigners! You are able to understand the traveller's personality and persona.",
         role="Search the internal knowledge base and web for information",
         instructions=[
-            "Provide 5 hawker food recommendations from the internal knowledge base and web search.",
+            "Provide 5 hawker food recommendations from the internal knowledge base",
             "For each recommendation, include the following:",
             "- 'Hawker Name': Name of the hawker centre.",
             "- 'Dish Name': Name of the recommended dish.",
             "- 'Description': Short, compelling explanation of the dish and its appeal.",
             "- 'Average Price': In SGD, based on actual price per dish (not total order or combo). Do not inflate.",
             "- 'Rating': Google rating between 1.0 and 5.0. If no rating is found, return null.",
+            "- 'Satisfaction Score': Traveller type satisfaction score after comprehending the Google Rating. If no Google rating is found, return null.",
             "- 'Sources': A list of URLs where you found the price and/or rating.",
             "For desserts (e.g., putu piring, tutu kueh), estimate the cost based on a standard serving (e.g., 4–5 pieces).",
             "Avoid guessing prices. If no reliable pricing info is found, skip that dish.",
@@ -186,7 +201,7 @@ def create_attraction_agent(model_id = "gpt-4o", debug_mode=True):
         response_model=AttractionResponse, # Strictly enforces structured response
         structured_outputs=True, 
         description="You are a Singapore Attraction recommender for foreigners! You are able to understand the traveller's personality and persona.",
-        role="Search the internal knowledge base and web for information",
+        role="Search the internal knowledge base",
         instructions=[
             "Provide 5 relevant attraction recommendations from the knowledge base",
             "For each attraction, include the following:",
@@ -194,6 +209,7 @@ def create_attraction_agent(model_id = "gpt-4o", debug_mode=True):
             "- 'Description' (why it is recommended, who it is suited for)",
             "- 'Entrance Fee' (in SGD). If it is free, return 0. If not, retrieve the adult entrance fee from an official or trusted source. Do not guess.",
             "- 'Rating' between 1 and 5 (preferably Google rating or TripAdvisor). If not found, return null.",
+            "- 'Satisfaction Score': Traveller type satisfaction score after comprehending the Google Rating. If no Google rating is found, return null.",
             "- 'Duration' of visit, which is typically around 2 hours unless otherwise stated.",
             "- 'Sources' (a list of URLs where you found the entrance fee or rating).",
             "If an attraction's entrance fee or rating cannot be verified, skip that attraction and replace it with another one.",
