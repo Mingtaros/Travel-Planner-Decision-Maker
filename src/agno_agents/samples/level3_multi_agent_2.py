@@ -193,13 +193,14 @@ def create_hawker_agent(model_id = "gpt-4o", debug_mode=True):
             "For desserts (e.g., putu piring, tutu kueh), estimate the cost based on a standard serving (e.g., 4–5 pieces).",
             "Avoid guessing prices. If no reliable pricing info is found, skip that dish.",
             "If conflicting prices are found, return the most commonly mentioned or lower bound.",
-            "Only include dishes where both price and rating can be confirmed."
+            "Only include dishes where both price and rating can be confirmed.",
+            "Only when no relevant hawker can be found, choose any popular hawkers in the internal knowledge base."
         ],
         knowledge=hawker_kb,
         search_knowledge=True,
 
         tools=[DuckDuckGoTools(search=True,
-                            news=True,
+                            # news=True,
                             fixed_max_results=3)],
         show_tool_calls=True,
         debug_mode=debug_mode,  # Comment if not needed - added to see the granularity for debug like retrieved context from vectodb
@@ -243,7 +244,7 @@ def create_attraction_agent(model_id = "gpt-4o", debug_mode=True):
         search_knowledge=True,
 
         tools=[DuckDuckGoTools(search=True,
-                            news=True,
+                            # news=True,
                             fixed_max_results=3),
             GoogleSearchTools()],
         show_tool_calls=True,
@@ -305,12 +306,12 @@ user_queries = {
 }
 
 user_queries = {
-    "01": "We’re a family of four visiting Singapore for 3 days. We’d love to explore kid-friendly attractions and try some affordable local food. Budget is around 300 SGD.",
+    "08": "My spouse and I are retired and visiting Singapore for 5 days. We love cultural sites and relaxing parks. Prefer to avoid loud or overly touristy spots. Prefer to have less oily food in general too. Budget is 350 SGD.",
     
-    "02": "I'm a solo backpacker staying for 2 days. My budget is tight (~50 SGD total), and I'm mainly here to try authentic spicy hawker food and explore free attractions.",
+    "09": "We’re a group of university students on a short trip (2 days) with a budget of 60 SGD each. Recommend cheap eats and fun, free things to do.",
     
-    "03": "I only have one full day in Singapore. Can you suggest cultural attractions and a sweet food places that fits a 60 SGD day budget?",
-        }
+    "10": "This is my first time in Singapore and I’ll be here for 3 days. I’d like a mix of sightseeing, must-try foods, and some local experiences. Budget is 250 SGD."
+}
 
 if __name__ == "__main__":
     # Step 0: Create Agents
@@ -330,7 +331,7 @@ if __name__ == "__main__":
 
         # #Step 2b: Use Preference Agnent to ccheck what the query wants score of 1-10
         # preference_response = preference_agent.run(query, stream=False)
-        # preference_score_json = preference_response.content
+        # preference_score_json = preference_response
         # # print(preference_score_json)
         # # print(type(preference_score_json))
         
@@ -362,7 +363,7 @@ if __name__ == "__main__":
                     "Satisfaction Score":hawker["satisfaction_score"],
                     "Rating": hawker["ratings"],
                     "Avg Food Price": hawker["average_price"],
-                    "Duration": 1,
+                    "Duration": 60,
                     "Sources": hawker.get("sources", [])
                 })
 
@@ -380,7 +381,7 @@ if __name__ == "__main__":
                     "Rating": attraction["ratings"],
                     "Satisfaction Score":attraction["satisfaction_score"],
                     "Entrance Fee": attraction["average_price"],
-                    "Duration": 2,
+                    "Duration": 120,
                     "Sources": attraction.get("sources", [])
                 })
                 responses["Metrics"] = {
