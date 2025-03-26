@@ -49,7 +49,7 @@ def find_route_between_points(G, start_point, end_point):
         # Fallback to direct line if no route found
         return [start_point, end_point]
 
-itinerary_file = r"C:\Users\99744\OneDrive\桌面\AI Planning\Project\Travel-Planner-Decision-Maker\Travel-Planner-Decision-Maker\results\balanced\best_itinerary_20250325_180738.json"
+itinerary_file = "../results/transit_time/best_itinerary_20250325_180633.json"
 if not os.path.exists(itinerary_file):
     st.error("Itinerary file not found!")
     st.stop()
