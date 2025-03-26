@@ -29,8 +29,8 @@ import json
 
 # Import required utilities
 from utils.google_maps_client import GoogleMapsClient
-from .transport_utils import calculate_public_transport_fare, calculate_car_fare
-from .cache_manager import save_hotel_routes_to_cache, load_hotel_routes_from_cache
+from data.transport_utils import calculate_public_transport_fare, calculate_car_fare
+from data.cache_manager import save_hotel_routes_to_cache, load_hotel_routes_from_cache
 
 logger = logging.getLogger(__name__)
 

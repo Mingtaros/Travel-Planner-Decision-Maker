@@ -93,7 +93,7 @@ def enrich_location_data(locations):
     
     return locations
 
-def main(
+def alns_main(
     seed=42,
     config_path="./src/alns_itinerary/config.json",
     llm_path="./data/alns_inputs/",
@@ -261,7 +261,7 @@ def main(
         # Export the initial solution as JSON
         initial_solution = alns.current_solution
         initial_json_path = f"results/initial_itinerary_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
-        initial_json_file = export_json_itinerary(problem, initial_solution, initial_json_path)
+        initial_json_file, initial_itinerary = export_json_itinerary(problem, initial_solution, initial_json_path)
         logger.info(f"Initial solution exported to: {initial_json_file}")
         
         # exit()
@@ -274,7 +274,7 @@ def main(
         
         # Export the best solution as JSON
         json_path = f"results/best_itinerary_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
-        json_file = export_json_itinerary(problem, best_vrp_solution, json_path)
+        json_file, best_itinerary = export_json_itinerary(problem, best_vrp_solution, json_path)
         
         # Log optimization results
         logger.info(f"Optimization completed. Solutions exported to:")
@@ -286,7 +286,7 @@ def main(
         logger.info(f"Total satisfaction: {results['best_evaluation']['total_satisfaction']:.2f}")
         logger.info(f"Solution feasible: {results['stats']['best_is_feasible']}")
         
-        return results
+        return best_itinerary
     
     except Exception as e:
         logger.error(f"An error occurred during optimization: {e}", exc_info=True)
@@ -294,7 +294,7 @@ def main(
 
 if __name__ == "__main__":
     # Example usage with default parameters
-    main(
+    alns_main(
         seed=42,
         config_path="./src/alns_itinerary/config.json",
         llm_path="./data/alns_inputs/",

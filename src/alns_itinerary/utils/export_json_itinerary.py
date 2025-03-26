@@ -337,4 +337,4 @@ def export_json_itinerary(problem, solution, filename=None):
         json.dump(itinerary, f, indent=2, ensure_ascii=True)
     
     logger.info(f"JSON itinerary exported to {filename}")
-    return filename
+    return filename, itinerary
