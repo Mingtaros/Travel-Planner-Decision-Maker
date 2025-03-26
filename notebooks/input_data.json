@@ -1,8 +1,6 @@
 {
-    "name": "John Ee",
-    "age": 25,
-    "date": "2025-03-12",
-    "time": "02:30:00",
-    "description": "Fun trip around Singapore",
-    "transport_mode": "walk"
+    "personas": "Cultural Enthusiast",
+    "date": "2025-03-28",
+    "time": "09:00:00",
+    "description": "I want to explore cultural and natural attractions, such as historical sites and scenic landscapes. I also prefer to eat spicy food and try local specialties."
 }
