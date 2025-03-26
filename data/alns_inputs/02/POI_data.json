@@ -1,123 +1,203 @@
 {
-    "Query": "I'm a solo backpacker staying for 2 days. My budget is tight (~50 SGD total), and I'm mainly here to try authentic hawker food and explore free attractions.",
+    "Query": "I'm a solo backpacker staying for 2 days. My budget is tight (~50 SGD total), and I'm mainly here to try authentic spicy hawker food and explore free attractions.",
     "Hawker": [
         {
-            "Hawker Name": "ION Orchard Food Opera",
-            "Dish Name": "Sergeant Hainanese Chicken Rice",
-            "Description": "A classic Singaporean dish featuring tender poached chicken served with fragrant rice and a side of garlicky chili. It's a must-try for its authentic taste and affordability.",
-            "Rating": 3.6,
-            "Avg Food Price": 5.0,
-            "Duration": 1,
-            "Sources": [
-                "https://www.yelp.com/biz/sergeant-hainanese-chicken-rice-singapore",
-                "https://www.tripadvisor.com/Restaurant_Review-g294265-d5501954-Reviews-Sergeant_Hainanese_Chicken_Rice-Singapore.html",
-                "https://www.burpple.com/sergeant-chicken-rice-at-food-republic-suntec-city"
-            ]
-        },
-        {
-            "Hawker Name": "Changi Village Hawker Centre",
-            "Dish Name": "Mizzy Corner Nasi Lemak",
-            "Description": "A beloved local favorite, this nasi lemak features fragrant coconut rice, crispy fried chicken, and spicy sambal. It's a perfect blend of flavors and textures.",
-            "Rating": 4.0,
-            "Avg Food Price": 5.0,
-            "Duration": 1,
-            "Sources": [
-                "https://sethlui.com/mizzy-corner-nasi-lemak-singapore/",
-                "https://www.foodadvisor.com.sg/restaurant/mizzy-corner-nasi-lemak/"
-            ]
-        },
-        {
-            "Hawker Name": "Changi Village Hawker Centre",
-            "Dish Name": "International Muslim Food Stall Nasi Lemak",
-            "Description": "Known for its generous portions and deliciously runny egg, this nasi lemak is a staple for those seeking a hearty meal at a great price.",
-            "Rating": 3.5,
-            "Avg Food Price": 5.0,
-            "Duration": 1,
-            "Sources": [
-                "https://www.tripadvisor.com/Restaurant_Review-g294265-d14788032-Reviews-International_Muslim_Food_Stall_Nasi_Lemak-Singapore.html",
-                "https://www.wherehalal.com/outlets/international-muslim-food-stall-nasi-lemak"
-            ]
-        },
-        {
             "Hawker Name": "Chinatown Complex Food Centre",
-            "Dish Name": "Xiu Ji Ikan Bilis Yong Tau Foo",
-            "Description": "A budget-friendly option offering a variety of fresh, handmade items like bitter gourd, stuffed tofu, and meatballs, all bathed in a flavorful broth.",
-            "Rating": 4.0,
-            "Avg Food Price": 4.0,
-            "Duration": 1,
-            "Sources": [
-                "https://eatbook.sg/chinatown-complex-food/",
-                "https://danielfooddiary.com/2025/01/25/chinatowncomplex/"
-            ]
-        },
-        {
-            "Hawker Name": "Chinatown Complex Food Centre",
-            "Dish Name": "Big Dot Chicken",
-            "Description": "Enjoy fried chicken with nostalgic flavors at an unbeatable price. The menu features a variety of combos, including a thigh and fries for just $3.00.",
-            "Rating": 4.0,
-            "Avg Food Price": 3.0,
+            "Dish Name": "Ma La Xiang Guo",
+            "Description": "A customizable spicy stir-fry pot with a variety of ingredients like meats and vegetables, cooked in a numbing and spicy Sichuan peppercorn sauce.",
+            "Satisfaction Score": 4.0,
+            "Rating": 4.2,
+            "Avg Food Price": 8.0,
             "Duration": 1,
             "Sources": [
                 "https://danielfooddiary.com/2025/01/25/chinatowncomplex/",
-                "https://iwandered.net/chinatown-complex-food-centre-best-food-eat/"
+                "https://eatbook.sg/chinatown-complex-food/"
+            ]
+        },
+        {
+            "Hawker Name": "People's Park Complex Food Centre",
+            "Dish Name": "Spicy Crab",
+            "Description": "Fiery crabs cooked in a rich Ma La sauce, blending Sichuan peppercorns and dried chillies for a spicy and numbing experience.",
+            "Satisfaction Score": 4.0,
+            "Rating": 4.0,
+            "Avg Food Price": 12.0,
+            "Duration": 1,
+            "Sources": [
+                "https://www.monsterdaytours.com/post/best-food-to-try-at-chinatown-peoples-park-complex-and-centre",
+                "https://danielfooddiary.com/2023/07/04/peoplesparkfood/"
+            ]
+        },
+        {
+            "Hawker Name": "Maxwell Food Centre",
+            "Dish Name": "Spicy Cold Chicken",
+            "Description": "A cold dish featuring tender chicken pieces marinated in a spicy sauce, perfect for a refreshing yet fiery meal.",
+            "Satisfaction Score": 4.5,
+            "Rating": 4.3,
+            "Avg Food Price": 8.0,
+            "Duration": 1,
+            "Sources": [
+                "https://maxwellfoodcentre.com/",
+                "https://eatbook.sg/maxwell-food-centre-guide/"
+            ]
+        },
+        {
+            "Hawker Name": "Old Airport Road Food Centre",
+            "Dish Name": "XO Fish Head Bee Hoon",
+            "Description": "A spicy noodle soup with fish head, known for its bold flavors and spicy kick from the pre-fried fish slices.",
+            "Satisfaction Score": 4.5,
+            "Rating": 4.5,
+            "Avg Food Price": 5.0,
+            "Duration": 1,
+            "Sources": [
+                "https://sethlui.com/hua-ji-xo-fish-head-bee-hoon-singapore/",
+                "https://jaymoylovesfood.com/old-airport-road/"
+            ]
+        },
+        {
+            "Hawker Name": "Chinatown Complex Food Centre",
+            "Dish Name": "Sichuan Spicy Noodles",
+            "Description": "Noodles tossed in a spicy Sichuan sauce, offering a fiery and flavorful experience.",
+            "Satisfaction Score": 4.0,
+            "Rating": 4.2,
+            "Avg Food Price": 5.0,
+            "Duration": 1,
+            "Sources": [
+                "https://danielfooddiary.com/2025/01/25/chinatowncomplex/",
+                "https://eatbook.sg/chinatown-complex-food/"
+            ]
+        },
+        {
+            "Hawker Name": "People's Park Complex Food Centre",
+            "Dish Name": "Mala Chicken",
+            "Description": "A spicy chicken dish cooked with Sichuan peppercorns and dried chillies, offering a numbing and spicy flavor profile.",
+            "Satisfaction Score": 4.0,
+            "Rating": 4.0,
+            "Avg Food Price": 6.0,
+            "Duration": 1,
+            "Sources": [
+                "https://trevallog.com/people-park-food-centre/",
+                "https://eatbook.sg/peoples-park-food/"
+            ]
+        },
+        {
+            "Hawker Name": "Maxwell Food Centre",
+            "Dish Name": "Rendang Chicken",
+            "Description": "A Malay-influenced dish with tender chicken cooked in a rich and spicy coconut milk sauce.",
+            "Satisfaction Score": 4.5,
+            "Rating": 4.3,
+            "Avg Food Price": 6.0,
+            "Duration": 1,
+            "Sources": [
+                "https://maxwellfoodcentre.com/old-nyonya/",
+                "https://eatbook.sg/maxwell-food-centre-guide/"
+            ]
+        },
+        {
+            "Hawker Name": "Old Airport Road Food Centre",
+            "Dish Name": "Sambal Stingray",
+            "Description": "Grilled stingray slathered in a spicy sambal sauce, offering a delightful mix of smoky and spicy flavors.",
+            "Satisfaction Score": 4.5,
+            "Rating": 4.5,
+            "Avg Food Price": 8.0,
+            "Duration": 1,
+            "Sources": [
+                "https://jaymoylovesfood.com/old-airport-road/",
+                "https://sethlui.com/rong-yi-local-handmade-pau-old-airport-road-food-centre-singapore/"
             ]
         }
     ],
     "Attraction": [
         {
             "Attraction Name": "Merlion Park",
-            "Description": "Merlion Park is an iconic symbol of Singapore, featuring the famous Merlion statue. It's a great spot for photography and offers a beautiful view of the Marina Bay skyline. Ideal for solo travelers and those interested in iconic landmarks.",
+            "Description": "A must-visit iconic symbol of Singapore, perfect for cultural enthusiasts and nature lovers. It's a great spot for photos and enjoying the waterfront view.",
+            "Rating": 4.4,
+            "Satisfaction Score": 4.5,
+            "Entrance Fee": 0.0,
+            "Duration": 2,
+            "Sources": [
+                "https://www.visitsingapore.com/see-do-singapore/recreation-leisure/viewpoints/merlion-park/"
+            ]
+        },
+        {
+            "Attraction Name": "Clarke Quay",
+            "Description": "A vibrant riverside quay known for its bustling nightlife and dining options. It's a great place to explore during the day for its colorful architecture and lively atmosphere.",
             "Rating": 4.3,
+            "Satisfaction Score": 4.2,
             "Entrance Fee": 0.0,
             "Duration": 2,
             "Sources": [
-                "https://www.tripadvisor.com.sg/Attraction_Review-g294265-d644919-Reviews-Merlion_Park-Singapore.html",
-                "https://www.yelp.com/biz/merlion-park-singapore"
-            ]
-        },
-        {
-            "Attraction Name": "Fort Canning Park",
-            "Description": "Fort Canning Park is a historic hilltop park in the heart of the city. It offers lush greenery, historical artifacts, and is a great place for a leisurely walk or a picnic. Perfect for nature lovers and history enthusiasts.",
-            "Rating": 4.3,
-            "Entrance Fee": 0.0,
-            "Duration": 2,
-            "Sources": [
-                "https://www.tripadvisor.com.sg/Attraction_Review-g294265-d324755-Reviews-Fort_Canning_Park-Singapore.html",
-                "https://www.tripexpert.com/singapore/attractions/fort-canning-park"
-            ]
-        },
-        {
-            "Attraction Name": "Chinatown Complex Food Centre",
-            "Description": "Chinatown Complex Food Centre is the largest hawker centre in Singapore, offering a wide variety of authentic local dishes at affordable prices. It's a must-visit for foodies looking to experience Singapore's hawker culture.",
-            "Rating": 4.2,
-            "Entrance Fee": 0.0,
-            "Duration": 2,
-            "Sources": [
-                "https://www.tripadvisor.com.sg/Restaurant_Review-g294265-d1145020-Reviews-Chinatown_Complex-Singapore.html",
-                "https://www.yelp.com/biz/chinatown-complex-market-and-food-centre-singapore"
-            ]
-        },
-        {
-            "Attraction Name": "Changi Village Hawker Centre",
-            "Description": "Changi Village Hawker Centre is known for its laid-back atmosphere and delicious local food, including the famous nasi lemak. It's a great spot to enjoy a meal and experience the local dining culture.",
-            "Rating": 4.2,
-            "Entrance Fee": 0.0,
-            "Duration": 2,
-            "Sources": [
-                "https://www.tripadvisor.com.sg/Restaurant_Review-g294265-d12934535-Reviews-Changi_Village_Market_Hawker_Centre-Singapore.html",
-                "https://www.yelp.com/biz/changi-village-hawker-centre-singapore"
+                "https://www.visitsingapore.com/see-do-singapore/recreation-leisure/viewpoints/clarke-quay/"
             ]
         },
         {
             "Attraction Name": "Esplanade - Theatres on the Bay",
-            "Description": "Esplanade is a performing arts centre located near the Marina Bay. It's known for its unique architecture and offers free performances and exhibitions. Ideal for art and culture enthusiasts.",
+            "Description": "A cultural hub for arts and performances, offering free outdoor concerts and beautiful views of the Marina Bay skyline. Ideal for cultural enthusiasts and backpackers.",
             "Rating": 4.5,
+            "Satisfaction Score": 4.6,
             "Entrance Fee": 0.0,
             "Duration": 2,
             "Sources": [
-                "https://www.tripadvisor.com.sg/Attraction_Review-g294265-d324755-Reviews-Fort_Canning_Park-Singapore.html",
-                "https://sg.trip.com/travel-guide/attraction/singapore/fort-canning-park-22846209/"
+                "https://www.esplanade.com/"
+            ]
+        },
+        {
+            "Attraction Name": "Fort Canning Park",
+            "Description": "A historic hilltop park in the city center, perfect for nature lovers and history buffs. It offers walking trails and historical landmarks.",
+            "Rating": 4.6,
+            "Satisfaction Score": 4.7,
+            "Entrance Fee": 0.0,
+            "Duration": 2,
+            "Sources": [
+                "https://www.nparks.gov.sg/gardens-parks-and-nature/parks-and-nature-reserves/fort-canning-park"
+            ]
+        },
+        {
+            "Attraction Name": "Chinatown Complex Food Centre",
+            "Description": "The largest hawker centre in Singapore, known for its vast array of spicy and authentic local dishes. A must-visit for food lovers on a budget.",
+            "Rating": 4.2,
+            "Satisfaction Score": 4.3,
+            "Entrance Fee": 5.0,
+            "Duration": 2,
+            "Sources": [
+                "https://www.visitsingapore.com/dining-drinks-singapore/hawker-centres/chinatown-complex-food-centre/"
+            ]
+        },
+        {
+            "Attraction Name": "Maxwell Food Centre",
+            "Description": "Famous for its authentic local dishes, including spicy options like laksa and chili crab. A great spot for budget-friendly meals.",
+            "Rating": 4.4,
+            "Satisfaction Score": 4.5,
+            "Entrance Fee": 5.0,
+            "Duration": 2,
+            "Sources": [
+                "https://www.visitsingapore.com/dining-drinks-singapore/hawker-centres/maxwell-food-centre/"
+            ]
+        },
+        {
+            "Attraction Name": "Little India",
+            "Description": "A vibrant cultural district known for its colorful streets, temples, and authentic Indian cuisine. Perfect for exploring on foot and enjoying spicy food.",
+            "Rating": 4.3,
+            "Satisfaction Score": 4.4,
+            "Entrance Fee": 0.0,
+            "Duration": 2,
+            "Sources": [
+                "https://www.visitsingapore.com/see-do-singapore/places-to-see/little-india/"
+            ]
+        },
+        {
+            "Attraction Name": "Gardens by the Bay (Outdoor Gardens)",
+            "Description": "Explore the beautiful outdoor gardens for free, including the iconic Supertree Grove. Ideal for nature lovers and photographers.",
+            "Rating": 4.7,
+            "Satisfaction Score": 4.8,
+            "Entrance Fee": 0.0,
+            "Duration": 2,
+            "Sources": [
+                "https://www.gardensbythebay.com.sg/en.html"
             ]
         }
-    ]
+    ],
+    "Metrics": {
+        "Hawker Agent Time (s)": 25.56,
+        "Attraction Agent Time (s)": 12.07
+    }
 }

@@ -4,118 +4,142 @@
         {
             "Hawker Name": "Maxwell Food Centre",
             "Dish Name": "Hainanese Chicken Rice",
-            "Description": "A classic Singaporean dish featuring tender poached chicken and fragrant rice cooked in chicken stock, served with chili sauce and ginger paste.",
+            "Description": "A classic Singaporean dish featuring tender poached chicken served with fragrant rice and a side of chili sauce. A must-try for its authentic taste and affordability.",
+            "Satisfaction Score": 4.5,
             "Rating": 4.5,
-            "Avg Food Price": 5.0,
+            "Avg Food Price": 4.5,
             "Duration": 1,
             "Sources": [
-                "https://www.thebestsingapore.com/eat-and-drink/the-best-5-hainanese-chicken-rice/"
-            ]
-        },
-        {
-            "Hawker Name": "Katong Laksa",
-            "Dish Name": "Laksa",
-            "Description": "A spicy noodle soup with a rich coconut milk base, featuring rice noodles, prawns, and cockles, topped with laksa leaves.",
-            "Rating": 4.3,
-            "Avg Food Price": 5.5,
-            "Duration": 1,
-            "Sources": [
-                "https://eatbook.sg/laksa-singapore/"
+                "https://maxwellfoodcentre.com/tong-fong-fatt-hainanese/",
+                "https://maxwellfoodcentre.com/stalls-menu/",
+                "https://maxwellfoodcentre.com/"
             ]
         },
         {
             "Hawker Name": "Old Airport Road Food Centre",
             "Dish Name": "Char Kway Teow",
-            "Description": "A stir-fried noodle dish with flat rice noodles, prawns, Chinese sausage, and cockles, cooked with a smoky 'wok hei' flavor.",
-            "Rating": 4.2,
-            "Avg Food Price": 3.0,
-            "Duration": 1,
-            "Sources": [
-                "https://eatbook.sg/best-char-kway-teow/"
-            ]
-        },
-        {
-            "Hawker Name": "The Roti Prata House",
-            "Dish Name": "Roti Prata",
-            "Description": "A South Indian flatbread that is crispy on the outside and soft on the inside, often served with a side of curry.",
+            "Description": "A popular stir-fried noodle dish with a smoky flavor, made with flat rice noodles, eggs, Chinese sausage, and prawns. Known for its rich taste and satisfying portion.",
+            "Satisfaction Score": 4.0,
             "Rating": 4.0,
-            "Avg Food Price": 1.5,
+            "Avg Food Price": 5.0,
             "Duration": 1,
             "Sources": [
-                "https://www.singmenu.com/the-roti-prata-house-menu/"
+                "https://eatbook.sg/old-airport-road-food/",
+                "https://www.burpple.com/old-airport-road-market-food-centre",
+                "https://thehoneycombers.com/singapore/old-airport-road-food-centre-singapore/"
             ]
         },
         {
-            "Hawker Name": "Jumbo Seafood",
-            "Dish Name": "Chilli Crab",
-            "Description": "A famous Singaporean seafood dish featuring crabs cooked in a sweet, savory, and spicy tomato-based sauce.",
-            "Rating": 4.4,
-            "Avg Food Price": 58.0,
+            "Hawker Name": "Chinatown Complex Food Centre",
+            "Dish Name": "Soya Sauce Chicken Rice",
+            "Description": "A flavorful dish featuring tender chicken braised in soya sauce, served with rice. It's a favorite for its savory taste and affordability.",
+            "Satisfaction Score": 4.0,
+            "Rating": 4.0,
+            "Avg Food Price": 3.5,
             "Duration": 1,
             "Sources": [
-                "https://www.8crabs.com/how-much-do-chili-crabs-cost-in-singapore/"
+                "https://www.burpple.com/chinatown-complex-market-food-centre",
+                "https://sethlui.com/chinatown-complex-food-centre-guide-singapore/"
+            ]
+        },
+        {
+            "Hawker Name": "Tiong Bahru Market",
+            "Dish Name": "Chwee Kueh",
+            "Description": "A traditional breakfast dish consisting of steamed rice cakes topped with preserved radish. Loved for its simplicity and unique taste.",
+            "Satisfaction Score": 4.2,
+            "Rating": 4.2,
+            "Avg Food Price": 2.5,
+            "Duration": 1,
+            "Sources": [
+                "https://www.burpple.com/tiong-bahru-market",
+                "https://sethlui.com/tiong-bahru-market-food-guide-singapore/"
+            ]
+        },
+        {
+            "Hawker Name": "Lau Pa Sat",
+            "Dish Name": "Satay",
+            "Description": "Grilled skewers of meat served with a spicy peanut sauce. A popular choice for its delicious flavor and social dining experience.",
+            "Satisfaction Score": 4.3,
+            "Rating": 4.3,
+            "Avg Food Price": 0.7,
+            "Duration": 1,
+            "Sources": [
+                "https://www.burpple.com/lau-pa-sat",
+                "https://sethlui.com/lau-pa-sat-food-guide-singapore/"
             ]
         }
     ],
     "Attraction": [
         {
             "Attraction Name": "KidZania Singapore",
-            "Description": "KidZania Singapore is an interactive indoor theme park that allows children to role-play various professions in a kid-sized city. It's perfect for families with children who enjoy imaginative play and learning through fun activities.",
+            "Description": "KidZania Singapore is an interactive indoor theme park that allows children to experience adult jobs and roles in a fun and educational way. It's perfect for families with children who enjoy role-playing and learning through play.",
             "Rating": 1.0,
-            "Entrance Fee": 60.0,
+            "Satisfaction Score": 2.0,
+            "Entrance Fee": 73.0,
             "Duration": 2,
             "Sources": [
                 "https://www.kidzania.com.sg/",
+                "https://www.sentosa.com.sg/en/things-to-do/attractions/kidzania-singapore/",
+                "https://www.facebook.com/KidZaniaSingaporeOfficial/",
                 "https://www.klook.com/en-SG/activity/1416-kidzania-singapore/"
             ]
         },
         {
+            "Attraction Name": "iFly Singapore",
+            "Description": "iFly Singapore offers an indoor skydiving experience that simulates the free-fall aspect of skydiving. It's suitable for families with older children who are thrill-seekers and want to try something adventurous.",
+            "Rating": 4.6,
+            "Satisfaction Score": 4.0,
+            "Entrance Fee": 89.0,
+            "Duration": 2,
+            "Sources": [
+                "https://www.iflysingapore.com/first-timers/",
+                "https://www.traveloka.com/en-sg/activities/singapore/product/ifly-singapore-7213584233584",
+                "https://www.klook.com/en-SG/activity/139-ifly-singapore/",
+                "https://www.getyourguide.com/singapore-l170/ifly-singapore-t506643/"
+            ]
+        },
+        {
+            "Attraction Name": "Ice Cream Museum",
+            "Description": "The Ice Cream Museum is a whimsical and colorful attraction where families can enjoy interactive exhibits and unlimited ice cream. It's perfect for families with young children who love sweet treats and playful environments.",
+            "Rating": 4.5,
+            "Satisfaction Score": 4.0,
+            "Entrance Fee": 35.0,
+            "Duration": 2,
+            "Sources": [
+                "https://tickets.museumoficecream.sg/attraction/museum-of-ice-cream-admission-52001",
+                "https://www.museumoficecream.com/singapore/",
+                "https://www.klook.com/en-SG/activity/78105-museum-ice-cream-singapore-admission/"
+            ]
+        },
+        {
             "Attraction Name": "Singapore Zoo",
-            "Description": "The Singapore Zoo is renowned for its 'open' design, where animals are kept in spacious, landscaped enclosures separated from visitors by moats and glass. It's a great place for families to explore and learn about wildlife.",
+            "Description": "Singapore Zoo is renowned for its 'open' concept, where animals are kept in spacious, landscaped enclosures separated from visitors by moats. It's ideal for families who love animals and nature.",
             "Rating": 4.7,
+            "Satisfaction Score": 5.0,
             "Entrance Fee": 49.0,
             "Duration": 2,
             "Sources": [
-                "https://www.mandai.com/en/singapore-zoo/visit.html",
+                "https://www.mandai.com/en/ticketing/admission-and-rides/parks-selection.html",
+                "https://www.mandai.com/en/tickets-and-passes/single-park-admission.html",
                 "https://www.klook.com/en-SG/activity/141-singapore-zoo-singapore/"
             ]
         },
         {
             "Attraction Name": "River Wonders",
-            "Description": "River Wonders is Asia's first and only river-themed wildlife park, featuring animals from various river habitats. It's an educational and fun experience for families interested in nature and wildlife.",
+            "Description": "River Wonders is Asia's first and only river-themed wildlife park, featuring animals from various river habitats. It's great for families interested in wildlife and conservation.",
             "Rating": 4.5,
+            "Satisfaction Score": 4.0,
             "Entrance Fee": 43.0,
             "Duration": 2,
             "Sources": [
                 "https://www.mandai.com/en/river-wonders.html",
+                "https://www.mandai.com/en/river-wonders/visit.html",
                 "https://www.klook.com/en-SG/activity/124-river-wonders-singapore-tickets/"
-            ]
-        },
-        {
-            "Attraction Name": "S.E.A. Aquarium",
-            "Description": "The S.E.A. Aquarium is one of the world's largest aquariums, home to more than 100,000 marine animals. It's a fascinating place for families to explore the underwater world and learn about marine life.",
-            "Rating": 4.6,
-            "Entrance Fee": 41.0,
-            "Duration": 2,
-            "Sources": [
-                "https://www.sentosa.com.sg/en/things-to-do/attractions/sea-aquarium/",
-                "https://www.rwsentosa.com/en/attractions/sea-aquarium/tickets"
-            ]
-        },
-        {
-            "Attraction Name": "Museum of Ice Cream",
-            "Description": "The Museum of Ice Cream offers a whimsical experience with interactive exhibits and unlimited ice cream treats. It's a delightful place for families with children who love ice cream and playful environments.",
-            "Rating": 4.5,
-            "Entrance Fee": 35.0,
-            "Duration": 2,
-            "Sources": [
-                "https://tickets.museumoficecream.sg/",
-                "https://www.klook.com/en-SG/activity/78105-museum-ice-cream-singapore-admission/"
             ]
         }
     ],
     "Metrics": {
-        "Hawker Agent Time (s)": 27.34,
-        "Attraction Agent Time (s)": 13.68
+        "Hawker Agent Time (s)": 25.25,
+        "Attraction Agent Time (s)": 14.56
     }
 }

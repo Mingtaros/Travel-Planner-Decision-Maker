@@ -40,6 +40,7 @@ class HawkerRecommendation(BaseModel):
     description: str = Field(..., description="A short description of the dish and why it's recommended.")
     average_price: float = Field(..., description="The maximum price in SGD of the dish, retrieved from web sources.")
     ratings: float = Field(..., description="The Google rating of the Hawker Centre, range from 1 to 5.")
+    satisfaction_score: float = Field(..., description="The Satisfaction Score after unstanding the travller preference and the Google rating of the Hawker Centre, range from 1 to 5.")
     sources: List[str] = Field(..., description="List of sources where information was retrieved.")
 
 class HawkerResponse(BaseModel):
@@ -51,6 +52,7 @@ class AttractionRecommendation(BaseModel):
     description: str = Field(..., description="A short description of the attraction and why it's recommended.")
     average_price: float = Field(..., description="The maximum price in SGD of the attraction, retrieved from web sources.")
     ratings: float = Field(..., description="The Google rating of the attraction, range from 1 to 5.")
+    satisfaction_score: float = Field(..., description="The Satisfaction Score after unstanding the travller preference and the Google rating of the Hawker Centre, range from 1 to 5.")
     sources: List[str] = Field(..., description="List of sources where information was retrieved.")
 
 class AttractionResponse(BaseModel):
@@ -115,6 +117,28 @@ def get_attraction_kb():
                                     )
     return attraction_kb
 
+def create_preference_agent():
+    csv_kb = get_preference_kb()
+    preference_agent = Agent(
+            name="Satisfaction Suitability Agent",
+            model=OpenAIChat(
+                id="gpt-4o",  # or any model you prefer
+                response_format="json", # depends what we want 
+                temperature=0.1,
+            ),
+            agent_id="suitability_agent",
+            description="You are an expert in understanding based on the traveller type, if you need to look up for suitability score of attraction and/or food. Returns only the suitability score (1-10) of a location & food for a specific traveler type.",
+            knowledge=csv_kb,
+            instructions=[
+                # "You will be given a traveler's type, an attraction name, and optionally a hawker/food name.",
+                "Search the knowledge base and return ONLY the following keys as a JSON:",
+                "- score_attraction_suitability: value between 0 and 10 (0 if not found)",
+                "- score_food_suitability: value between 0 and 10 (0 if not found)",
+                "Do not return any explanation. Return only valid JSON."],
+            search_knowledge=True,
+            )
+    return preference_agent
+
 def create_intent_agent(model_id = "deepseek-r1-distill-llama-70b"):
     # Create the Intent Classification Agent
     intent_agent = Agent(
@@ -157,7 +181,7 @@ def create_hawker_agent(model_id = "gpt-4o", debug_mode=True):
         description="You are a Singapore hawker food recommender for foreigners! You are able to understand the traveller's personality and persona.",
         role="Search the internal knowledge base and web for information",
         instructions=[
-            "Provide 5 hawker food recommendations from the internal knowledge base",
+            "IMPORTANT: Provide at least 8 hawker food recommendations from the internal knowledge base",
             "For each recommendation, include the following:",
             "- 'Hawker Name': Name of the hawker centre.",
             "- 'Dish Name': Name of the recommended dish.",
@@ -203,7 +227,7 @@ def create_attraction_agent(model_id = "gpt-4o", debug_mode=True):
         description="You are a Singapore Attraction recommender for foreigners! You are able to understand the traveller's personality and persona.",
         role="Search the internal knowledge base",
         instructions=[
-            "Provide 5 relevant attraction recommendations from the knowledge base",
+            "IMPORTANT: Provide at least 8 relevant attraction recommendations from the knowledge base",
             "For each attraction, include the following:",
             "- 'Attraction Name'",
             "- 'Description' (why it is recommended, who it is suited for)",
@@ -281,26 +305,31 @@ user_queries = {
 }
 
 user_queries = {
-    "01": "We’re a family of four visiting Singapore for 3 days. We’d love to explore kid-friendly attractions and try some affordable local food. Budget is around 300 SGD.",
-    
-    # "02": "I'm a solo backpacker staying for 2 days. My budget is tight (~50 SGD total), and I'm mainly here to try authentic hawker food and explore free attractions.",
-}
+    "02": "I'm a solo backpacker staying for 2 days. My budget is tight (~50 SGD total), and I'm mainly here to try authentic spicy hawker food and explore free attractions.",
+    }
 
 if __name__ == "__main__":
     # Step 0: Create Agents
-    debug_mode = True
+    debug_mode = False
     intent_agent = create_intent_agent()
     hawker_agent = create_hawker_agent(debug_mode=debug_mode)
     attraction_agent = create_attraction_agent(debug_mode=debug_mode)
+    # preference_agent = create_preference_agent()
 
     # Step 1: Loop through all user queries
     for query_num, query in user_queries.items():
         print(f"\n🔍 Processing Query {query_num}: {query}")
 
-        # Step 2: Use Intent Agent to classify the query
+        # Step 2a: Use Intent Agent to classify the query
         intent_response = intent_agent.run(query, stream=False)
         intent = intent_response.content.intent
 
+        # #Step 2b: Use Preference Agnent to ccheck what the query wants score of 1-10
+        # preference_response = preference_agent.run(query, stream=False)
+        # preference_score_json = preference_response.content
+        # # print(preference_score_json)
+        # # print(type(preference_score_json))
+        
         if intent == "malicious":
             print("⚠️ Query flagged as malicious. Skipping...")
             continue
@@ -326,6 +355,7 @@ if __name__ == "__main__":
                     "Hawker Name": hawker["hawker_name"],
                     "Dish Name": hawker["dish_name"],
                     "Description": hawker["description"],
+                    "Satisfaction Score":hawker["satisfaction_score"],
                     "Rating": hawker["ratings"],
                     "Avg Food Price": hawker["average_price"],
                     "Duration": 1,
@@ -344,6 +374,7 @@ if __name__ == "__main__":
                     "Attraction Name": attraction["attraction_name"],
                     "Description": attraction["description"],
                     "Rating": attraction["ratings"],
+                    "Satisfaction Score":attraction["satisfaction_score"],
                     "Entrance Fee": attraction["average_price"],
                     "Duration": 2,
                     "Sources": attraction.get("sources", [])

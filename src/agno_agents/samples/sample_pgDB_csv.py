@@ -57,7 +57,8 @@ hawker = "Hill Street Tai Hwa Pork Noodle" #2nd input
 # hawker="" #2nd input
 traveller_type = "backpacker" #3rd input
 
-query = f"Only return the numerical suitability score (1-10) of {attraction} {hawker} for {traveller_type}. Do not add any explanation."
+# query = f"Only return the numerical suitability score (1-10) of {attraction} {hawker} for {traveller_type}. Do not add any explanation."
+query = "We’re a family of four visiting Singapore for 3 days. We’d love to explore kid-friendly attractions and try some affordable local food. Budget is around 300 SGD.",
 
 # agent.print_response(
 #     query
