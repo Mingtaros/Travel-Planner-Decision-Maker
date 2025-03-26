@@ -305,8 +305,12 @@ user_queries = {
 }
 
 user_queries = {
+    "01": "We’re a family of four visiting Singapore for 3 days. We’d love to explore kid-friendly attractions and try some affordable local food. Budget is around 300 SGD.",
+    
     "02": "I'm a solo backpacker staying for 2 days. My budget is tight (~50 SGD total), and I'm mainly here to try authentic spicy hawker food and explore free attractions.",
-    }
+    
+    "03": "I only have one full day in Singapore. Can you suggest cultural attractions and a sweet food places that fits a 60 SGD day budget?",
+        }
 
 if __name__ == "__main__":
     # Step 0: Create Agents
