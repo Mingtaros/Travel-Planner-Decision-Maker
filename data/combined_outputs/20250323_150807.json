@@ -1,0 +1,106 @@
+{
+    "QUERY": "i like to eat spicy food and tour around singapore",
+    "hawker": {
+        "HAWKER_RECOMMENDATIONS": [
+            {
+                "hawker_name": "People's Park Complex Food Centre",
+                "dish_name": "Ri Ri Hong Mala Xiang Guo",
+                "description": "A popular spicy dish known for its numbing and spicy flavors, Mala Xiang Guo is a stir-fry dish with a variety of ingredients like meats and vegetables, cooked in a spicy Sichuan peppercorn sauce.",
+                "average_price": 15.0,
+                "ratings": 4.5,
+                "sources": [
+                    "https://singaporefoodie.com/singapore-hawker-food-2023/"
+                ]
+            },
+            {
+                "hawker_name": "Old Airport Road Food Centre",
+                "dish_name": "Famous Old Airport Fried Oyster",
+                "description": "A spicy and savory dish made with fresh oysters fried with eggs and a spicy chili sauce, offering a unique blend of flavors.",
+                "average_price": 10.0,
+                "ratings": 4.2,
+                "sources": [
+                    "https://danielfooddiary.com/2024/08/09/singaporehawkerfood/"
+                ]
+            },
+            {
+                "hawker_name": "Maxwell Food Centre",
+                "dish_name": "Tian Tian Hainanese Chicken Rice",
+                "description": "While not inherently spicy, this dish can be enjoyed with a spicy chili sauce that complements the tender chicken and fragrant rice.",
+                "average_price": 5.0,
+                "ratings": 4.6,
+                "sources": [
+                    "https://guide.michelin.com/sg/en/article/travel/must-try-hawker-food-in-singapore"
+                ]
+            },
+            {
+                "hawker_name": "Amoy Street Food Centre",
+                "dish_name": "Xiang Ji Lor Mee",
+                "description": "A noodle dish with a thick, starchy gravy that can be spiced up with chili paste, offering a comforting yet spicy meal.",
+                "average_price": 6.0,
+                "ratings": 4.3,
+                "sources": [
+                    "https://rambletravelers.com/9-best-hawker-foods-in-singapore/"
+                ]
+            },
+            {
+                "hawker_name": "Haig Road Market & Food Centre",
+                "dish_name": "Song Kee Fried Oyster",
+                "description": "A spicy and flavorful dish featuring fried oysters with eggs and a spicy chili sauce, perfect for those who love seafood with a kick.",
+                "average_price": 12.0,
+                "ratings": 4.4,
+                "sources": [
+                    "https://danielfooddiary.com/2024/08/09/singaporehawkerfood/"
+                ]
+            }
+        ]
+    },
+    "attraction": {
+        "ATTRACTION_RECOMMENDATIONS": [
+            {
+                "attraction_name": "Gardens by the Bay",
+                "description": "A futuristic garden featuring massive Supertrees and conservatories filled with diverse plant life. Perfect for families and nature lovers.",
+                "average_price": 0.0,
+                "ratings": 4.7,
+                "sources": [
+                    "https://www.tripadvisor.com.sg/Attraction_Review-g294265-d2149128-Reviews-Gardens_by_the_Bay-Singapore.html"
+                ]
+            },
+            {
+                "attraction_name": "Marina Bay Sands SkyPark Observation Deck",
+                "description": "Offers breathtaking panoramic views of Singapore's skyline. Ideal for families, business travelers, and photographers.",
+                "average_price": 0.0,
+                "ratings": 4.0,
+                "sources": [
+                    "https://www.tripadvisor.com.sg/ShowUserReviews-g294265-d1837767-r240434052-Sands_Skypark_Observation_Deck-Singapore.html"
+                ]
+            },
+            {
+                "attraction_name": "Singapore Flyer",
+                "description": "One of the world's largest observation wheels, providing a bird's-eye view of the city. A must-visit for tourists seeking a unique perspective.",
+                "average_price": 0.0,
+                "ratings": 4.4,
+                "sources": [
+                    "https://www.tripadvisor.com.sg/Attraction_Review-g294265-d678639-Reviews-Singapore_Flyer-Singapore.html"
+                ]
+            },
+            {
+                "attraction_name": "ArtScience Museum",
+                "description": "A museum that combines art, science, culture, and technology. It's a must-visit for cultural enthusiasts.",
+                "average_price": 0.0,
+                "ratings": 4.1,
+                "sources": [
+                    "https://www.tripadvisor.com.sg/Attraction_Review-g294265-d2138895-Reviews-ArtScience_Museum_at_Marina_Bay_Sands-Singapore.html"
+                ]
+            },
+            {
+                "attraction_name": "Fort Canning Park",
+                "description": "A historic hilltop park with lush greenery, ancient ruins, and scenic walking trails. Perfect for nature lovers and history buffs.",
+                "average_price": 0.0,
+                "ratings": 4.3,
+                "sources": [
+                    "https://www.tripadvisor.com.sg/Attraction_Review-g294265-d324755-Reviews-Fort_Canning_Park-Singapore.html"
+                ]
+            }
+        ]
+    }
+}

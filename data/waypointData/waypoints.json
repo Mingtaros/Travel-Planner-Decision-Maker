@@ -1,0 +1,704 @@
+{
+  "metadata": {
+    "generated_at": "2025-03-25 14:53:40",
+    "num_locations": 87
+  },
+  "locations": [
+    {
+      "id": "A1",
+      "name": "Gardens by the Bay",
+      "type": "attraction",
+      "lat": 1.2815683,
+      "lng": 103.8636132,
+      "address": "18 Marina Gardens Dr, Singapore 018953"
+    },
+    {
+      "id": "A2",
+      "name": "Marina Bay Sands SkyPark Observation Deck",
+      "type": "attraction",
+      "lat": 1.2852044,
+      "lng": 103.8610313,
+      "address": "10 Bayfront Avenue, Hotel, Tower 3 Level 56, Marina Bay Sands, Singapore 018956"
+    },
+    {
+      "id": "A3",
+      "name": "Singapore Zoo",
+      "type": "attraction",
+      "lat": 1.4043485,
+      "lng": 103.793023,
+      "address": "80 Mandai Lake Rd, Singapore 729826"
+    },
+    {
+      "id": "A4",
+      "name": "River Wonders",
+      "type": "attraction",
+      "lat": 1.4038498,
+      "lng": 103.7906676,
+      "address": "80 Mandai Lake Rd, Singapore 729826"
+    },
+    {
+      "id": "A5",
+      "name": "Bird Paradise",
+      "type": "attraction",
+      "lat": 1.4071539,
+      "lng": 103.7812684,
+      "address": "20 Mandai Lake Rd, Singapore 729825"
+    },
+    {
+      "id": "A6",
+      "name": "Universal Studios Singapore",
+      "type": "attraction",
+      "lat": 1.2540421,
+      "lng": 103.8238084,
+      "address": "8 Sentosa Gateway, Singapore 098269"
+    },
+    {
+      "id": "A7",
+      "name": "Singapore Flyer",
+      "type": "attraction",
+      "lat": 1.2892988,
+      "lng": 103.8631368,
+      "address": "30 Raffles Ave., Singapore 039803"
+    },
+    {
+      "id": "A8",
+      "name": "ArtScience Museum",
+      "type": "attraction",
+      "lat": 1.2862738,
+      "lng": 103.8592663,
+      "address": "6 Bayfront Ave, Singapore 018974"
+    },
+    {
+      "id": "A9",
+      "name": "National Gallery Singapore",
+      "type": "attraction",
+      "lat": 1.2902217,
+      "lng": 103.8515167,
+      "address": "Singapore 178957"
+    },
+    {
+      "id": "A10",
+      "name": "Asian Civilisations Museum",
+      "type": "attraction",
+      "lat": 1.2874969,
+      "lng": 103.8513861,
+      "address": "1 Empress Pl, Singapore 179555"
+    },
+    {
+      "id": "A11",
+      "name": "National Museum of Singapore",
+      "type": "attraction",
+      "lat": 1.296613,
+      "lng": 103.8485091,
+      "address": "93 Stamford Rd, Singapore 178897"
+    },
+    {
+      "id": "A12",
+      "name": "Peranakan Museum",
+      "type": "attraction",
+      "lat": 1.2943669,
+      "lng": 103.8490391,
+      "address": "39 Armenian St, Singapore 179941"
+    },
+    {
+      "id": "A13",
+      "name": "Fort Canning Park",
+      "type": "attraction",
+      "lat": 1.2943876,
+      "lng": 103.8458033,
+      "address": "Singapore"
+    },
+    {
+      "id": "A14",
+      "name": "Merlion Park",
+      "type": "attraction",
+      "lat": 1.2867449,
+      "lng": 103.8543872,
+      "address": "1 Fullerton Rd, Singapore 049213"
+    },
+    {
+      "id": "A15",
+      "name": "Clarke Quay",
+      "type": "attraction",
+      "lat": 1.2906024,
+      "lng": 103.8464742,
+      "address": "3 River Valley Rd, Singapore 179024"
+    },
+    {
+      "id": "A16",
+      "name": "Boat Quay",
+      "type": "attraction",
+      "lat": 1.2859963,
+      "lng": 103.8501608,
+      "address": "Bonham St, Singapore 049782"
+    },
+    {
+      "id": "A17",
+      "name": "Chinatown",
+      "type": "attraction",
+      "lat": 1.2814942,
+      "lng": 103.8448202,
+      "address": "Chinatown, Singapore"
+    },
+    {
+      "id": "A18",
+      "name": "Little India",
+      "type": "attraction",
+      "lat": 1.3065597,
+      "lng": 103.851819,
+      "address": "Little India, Singapore"
+    },
+    {
+      "id": "A19",
+      "name": "Kampong Glam",
+      "type": "attraction",
+      "lat": 1.3015584,
+      "lng": 103.8623134,
+      "address": "Kampong Glam, Singapore"
+    },
+    {
+      "id": "A20",
+      "name": "Orchard Road",
+      "type": "attraction",
+      "lat": 1.3048205,
+      "lng": 103.8321984,
+      "address": "Orchard Rd, Singapore"
+    },
+    {
+      "id": "A21",
+      "name": "East Coast Park",
+      "type": "attraction",
+      "lat": 1.3007842,
+      "lng": 103.9121866,
+      "address": "E Coast Park Service Rd, Singapore"
+    },
+    {
+      "id": "A22",
+      "name": "Haw Par Villa",
+      "type": "attraction",
+      "lat": 1.2841526,
+      "lng": 103.781892,
+      "address": "262 Pasir Panjang Rd, Singapore 118628"
+    },
+    {
+      "id": "A23",
+      "name": "Southern Ridges",
+      "type": "attraction",
+      "lat": 1.2790199,
+      "lng": 103.8094952,
+      "address": "Singapore"
+    },
+    {
+      "id": "A24",
+      "name": "MacRitchie Reservoir",
+      "type": "attraction",
+      "lat": 1.3447621,
+      "lng": 103.8223506,
+      "address": "MacRitchie Reservoir, Singapore"
+    },
+    {
+      "id": "A25",
+      "name": "Bukit Timah Nature Reserve",
+      "type": "attraction",
+      "lat": 1.3483909,
+      "lng": 103.7766772,
+      "address": "177 Hindhede Dr, Singapore 589333"
+    },
+    {
+      "id": "A26",
+      "name": "Sungei Buloh Wetland Reserve",
+      "type": "attraction",
+      "lat": 1.4464304,
+      "lng": 103.723404,
+      "address": "301 Neo Tiew Cres, Singapore 718925"
+    },
+    {
+      "id": "A27",
+      "name": "Singapore Botanic Gardens",
+      "type": "attraction",
+      "lat": 1.3138397,
+      "lng": 103.8159136,
+      "address": "1 Cluny Rd, Singapore 259569"
+    },
+    {
+      "id": "A28",
+      "name": "Esplanade",
+      "type": "attraction",
+      "lat": 1.2897934,
+      "lng": 103.8558166,
+      "address": "1 Esplanade Dr, Singapore 038981"
+    },
+    {
+      "id": "A29",
+      "name": "Raffles Hotel",
+      "type": "attraction",
+      "lat": 1.294889,
+      "lng": 103.854483,
+      "address": "1 Beach Rd, Singapore 189673"
+    },
+    {
+      "id": "A30",
+      "name": "Thian Hock Keng Temple",
+      "type": "attraction",
+      "lat": 1.280939,
+      "lng": 103.8476354,
+      "address": "158 Telok Ayer St, Singapore 068613"
+    },
+    {
+      "id": "A31",
+      "name": "Sri Mariamman Temple",
+      "type": "attraction",
+      "lat": 1.2826867,
+      "lng": 103.8451462,
+      "address": "244 South Bridge Rd, Singapore 058793"
+    },
+    {
+      "id": "A32",
+      "name": "Sultan Mosque",
+      "type": "attraction",
+      "lat": 1.3022854,
+      "lng": 103.8589636,
+      "address": "3 Muscat St, Singapore 198833"
+    },
+    {
+      "id": "A33",
+      "name": "Kwan Im Thong Hood Cho Temple",
+      "type": "attraction",
+      "lat": 1.3008576,
+      "lng": 103.8529932,
+      "address": "178 Waterloo St, Singapore 187964"
+    },
+    {
+      "id": "A34",
+      "name": "Armenian Church",
+      "type": "attraction",
+      "lat": 1.2930717,
+      "lng": 103.8494467,
+      "address": "60 Hill St, Singapore 179366"
+    },
+    {
+      "id": "A35",
+      "name": "St Andrew's Cathedral",
+      "type": "attraction",
+      "lat": 1.2923914,
+      "lng": 103.8522543,
+      "address": "11 St Andrew's Rd, Singapore 178959"
+    },
+    {
+      "id": "A36",
+      "name": "Buddha Tooth Relic Temple",
+      "type": "attraction",
+      "lat": 1.2815155,
+      "lng": 103.8442397,
+      "address": "288 South Bridge Rd, Singapore 058840"
+    },
+    {
+      "id": "A37",
+      "name": "Science Centre Singapore",
+      "type": "attraction",
+      "lat": 1.3331687,
+      "lng": 103.7356443,
+      "address": "15 Science Centre Rd, Singapore 609081"
+    },
+    {
+      "id": "A38",
+      "name": "Snow City",
+      "type": "attraction",
+      "lat": 1.3351884,
+      "lng": 103.7351693,
+      "address": "21 Jurong Town Hall Rd, Singapore 609433"
+    },
+    {
+      "id": "A39",
+      "name": "Adventure Cove Waterpark",
+      "type": "attraction",
+      "lat": 1.2577149,
+      "lng": 103.8179385,
+      "address": "8 Sentosa Gateway, Sentosa Island, Singapore 098269"
+    },
+    {
+      "id": "A40",
+      "name": "S.E.A. Aquarium",
+      "type": "attraction",
+      "lat": 1.2583209,
+      "lng": 103.8205147,
+      "address": "8 Sentosa Gateway, Sentosa Island, Singapore 098269"
+    },
+    {
+      "id": "A41",
+      "name": "KidZania Singapore",
+      "type": "attraction",
+      "lat": 1.2515984,
+      "lng": 103.8202485,
+      "address": "31 Bch Vw Rd, #01-01/02 Sentosa Island, Singapore 098008"
+    },
+    {
+      "id": "A42",
+      "name": "iFly Singapore",
+      "type": "attraction",
+      "lat": 1.2520666,
+      "lng": 103.8175724,
+      "address": "43 Siloso Beach Walk, #01-01, iFly, Singapore 099010"
+    },
+    {
+      "id": "A43",
+      "name": "Skyline Luge Sentosa",
+      "type": "attraction",
+      "lat": 1.2549696,
+      "lng": 103.8173674,
+      "address": "1 Imbiah Rd, Singapore 099692"
+    },
+    {
+      "id": "A44",
+      "name": "Trick Eye Museum",
+      "type": "attraction",
+      "lat": 1.258124,
+      "lng": 103.811537,
+      "address": "80 Siloso Road, Southside, Blk B, #01-04, Singapore 098969"
+    },
+    {
+      "id": "A45",
+      "name": "Madame Tussauds Singapore",
+      "type": "attraction",
+      "lat": 1.2540373,
+      "lng": 103.8176215,
+      "address": "40 Imbiah Rd, Sentosa, Singapore 099700"
+    },
+    {
+      "id": "A46",
+      "name": "Singapore Discovery Centre",
+      "type": "attraction",
+      "lat": 1.3326904,
+      "lng": 103.6789432,
+      "address": "510 Upper Jurong Rd, Singapore 638365"
+    },
+    {
+      "id": "A47",
+      "name": "Reflections at Bukit Chandu",
+      "type": "attraction",
+      "lat": 1.2797619,
+      "lng": 103.7941812,
+      "address": "Pepys Rd, #31 - K, Singapore 118458"
+    },
+    {
+      "id": "A48",
+      "name": "Battlebox",
+      "type": "attraction",
+      "lat": 1.2961635,
+      "lng": 103.8462355,
+      "address": "179622Cox Terrace2"
+    },
+    {
+      "id": "A49",
+      "name": "Marina Barrage",
+      "type": "attraction",
+      "lat": 1.2805168,
+      "lng": 103.8714399,
+      "address": "8 Marina Gardens Dr, Singapore 018951"
+    },
+    {
+      "id": "A50",
+      "name": "Labrador Nature Reserve",
+      "type": "attraction",
+      "lat": 1.2665094,
+      "lng": 103.8020649,
+      "address": "91 Labrador Villa Rd, Singapore 119190"
+    },
+    {
+      "id": "A51",
+      "name": "Coney Island Park",
+      "type": "attraction",
+      "lat": 1.4092951,
+      "lng": 103.9216496,
+      "address": "Punggol Promenade Nature Walk, Singapore 829325"
+    },
+    {
+      "id": "A52",
+      "name": "Fort Siloso",
+      "type": "attraction",
+      "lat": 1.259363,
+      "lng": 103.8086242,
+      "address": "Siloso Rd, Singapore 099981"
+    },
+    {
+      "id": "A53",
+      "name": "Henderson Waves",
+      "type": "attraction",
+      "lat": 1.2760415,
+      "lng": 103.8155092,
+      "address": "Bukit Merah, Singapore"
+    },
+    {
+      "id": "A54",
+      "name": "Mount Faber Park",
+      "type": "attraction",
+      "lat": 1.2718742,
+      "lng": 103.8192125,
+      "address": "Mount Faber Rd, Singapore"
+    },
+    {
+      "id": "A55",
+      "name": "Telok Blangah Hill Park",
+      "type": "attraction",
+      "lat": 1.2788234,
+      "lng": 103.8106681,
+      "address": "10, Telok Blangah Green, Singapore 109178"
+    },
+    {
+      "id": "A56",
+      "name": "HortPark",
+      "type": "attraction",
+      "lat": 1.2791307,
+      "lng": 103.7998185,
+      "address": "33 Hyderabad Rd, Singapore 119578"
+    },
+    {
+      "id": "A57",
+      "name": "Kent Ridge Park",
+      "type": "attraction",
+      "lat": 1.2838852,
+      "lng": 103.7912945,
+      "address": "Vigilante Dr, Singapore 118176"
+    },
+    {
+      "id": "A58",
+      "name": "Pasir Ris Park",
+      "type": "attraction",
+      "lat": 1.3720588,
+      "lng": 103.95268,
+      "address": "Along, Pasir Ris Central, Opposite MRT Station, Singapore 519639"
+    },
+    {
+      "id": "A59",
+      "name": "West Coast Park",
+      "type": "attraction",
+      "lat": 1.2913603,
+      "lng": 103.7666534,
+      "address": "W Coast Ferry Rd, Singapore 126978"
+    },
+    {
+      "id": "A60",
+      "name": "Changi Beach Park",
+      "type": "attraction",
+      "lat": 1.3912863,
+      "lng": 103.9905464,
+      "address": "Nicoll Dr, Singapore 498991"
+    },
+    {
+      "id": "A61",
+      "name": "Punggol Waterway Park",
+      "type": "attraction",
+      "lat": 1.4111377,
+      "lng": 103.9044621,
+      "address": "Sentul Cres, Singapore 821313"
+    },
+    {
+      "id": "A62",
+      "name": "AJ Hackett Sentosa",
+      "type": "attraction",
+      "lat": 1.2551584,
+      "lng": 103.8133212,
+      "address": "30 Siloso Bch Walk, Sentosa Island, 30, Singapore 099011"
+    },
+    {
+      "id": "A63",
+      "name": "Wave House Sentosa",
+      "type": "attraction",
+      "lat": 1.2545239,
+      "lng": 103.8137499,
+      "address": "36 Siloso Bch Walk, Singapore 099007"
+    },
+    {
+      "id": "A64",
+      "name": "Ice Cream Museum",
+      "type": "attraction",
+      "lat": 1.30273,
+      "lng": 103.812423,
+      "address": "100 Loewen Rd, Singapore 248837"
+    },
+    {
+      "id": "A65",
+      "name": "Suntec City Shopping Centre",
+      "type": "attraction",
+      "lat": 1.2950324,
+      "lng": 103.8583015,
+      "address": "3 Temasek Blvd, Singapore 038983"
+    },
+    {
+      "id": "A66",
+      "name": "Jewel Changi",
+      "type": "attraction",
+      "lat": 1.3602094,
+      "lng": 103.9897598,
+      "address": "Singapore"
+    },
+    {
+      "id": "A67",
+      "name": "Punggol Waterway Point",
+      "type": "attraction",
+      "lat": 1.4064412,
+      "lng": 103.9020846,
+      "address": "83 Punggol Central, Singapore 828761"
+    },
+    {
+      "id": "H1",
+      "name": "Lau Pa Sat",
+      "type": "hawker",
+      "lat": 1.2805121,
+      "lng": 103.8503809,
+      "address": "18 Raffles Quay, Singapore 048582"
+    },
+    {
+      "id": "H2",
+      "name": "Amoy Street Food Centre",
+      "type": "hawker",
+      "lat": 1.2794274,
+      "lng": 103.8467957,
+      "address": "7 Maxwell Rd, Singapore 069111"
+    },
+    {
+      "id": "H3",
+      "name": "Hill Street Tai Hwa Pork Noodle",
+      "type": "hawker",
+      "lat": 1.3051265,
+      "lng": 103.8625357,
+      "address": "466 Crawford Ln, #01-12, Singapore 190466"
+    },
+    {
+      "id": "H4",
+      "name": "Chinatown Complex Food Centre",
+      "type": "hawker",
+      "lat": 1.2819187,
+      "lng": 103.8433447,
+      "address": "335 Smith St, Singapore 050335"
+    },
+    {
+      "id": "H5",
+      "name": "Sungei Road Laksa",
+      "type": "hawker",
+      "lat": 1.3067257,
+      "lng": 103.8578874,
+      "address": "27 Jalan Berseh, #01-100, Singapore 200027"
+    },
+    {
+      "id": "H6",
+      "name": "Muthu's Curry - Little India",
+      "type": "hawker",
+      "lat": 1.3099202,
+      "lng": 103.8522443,
+      "address": "138 Race Course Rd, #01-01, Singapore 218591"
+    },
+    {
+      "id": "H7",
+      "name": "Tekka Centre",
+      "type": "hawker",
+      "lat": 1.3063839,
+      "lng": 103.8507014,
+      "address": "665 Buffalo Road Zhujiao Centre, Tekka, Market, Singapore 210665"
+    },
+    {
+      "id": "H8",
+      "name": "Maxwell Food Centre",
+      "type": "hawker",
+      "lat": 1.2803361,
+      "lng": 103.844767,
+      "address": "1 Kadayanallur St, Singapore 069184"
+    },
+    {
+      "id": "H9",
+      "name": "One Punggol Hawker Centre",
+      "type": "hawker",
+      "lat": 1.4082229,
+      "lng": 103.9055063,
+      "address": "1 Punggol Dr., Level 2, Singapore 828629"
+    },
+    {
+      "id": "H10",
+      "name": "East Coast Lagoon Food Village",
+      "type": "hawker",
+      "lat": 1.3069299,
+      "lng": 103.9349594,
+      "address": "1220 ECP, Singapore 468960"
+    },
+    {
+      "id": "H11",
+      "name": "Changi Village Hawker Centre",
+      "type": "hawker",
+      "lat": 1.3892375,
+      "lng": 103.9883008,
+      "address": "2 Changi Village Rd, Singapore 500002"
+    },
+    {
+      "id": "H12",
+      "name": "328 Katong Laksa",
+      "type": "hawker",
+      "lat": 1.305059,
+      "lng": 103.9032669,
+      "address": "51 E Coast Rd, Singapore 428770"
+    },
+    {
+      "id": "H13",
+      "name": "Orchard Yong Tau Foo",
+      "type": "hawker",
+      "lat": 1.3019257,
+      "lng": 103.8408634,
+      "address": "5 Koek Rd, #01-09 Cuppage Plaza, Singapore 228796"
+    },
+    {
+      "id": "H14",
+      "name": "Kok Kee Wonton Noodle (Foch Road)",
+      "type": "hawker",
+      "lat": 1.312323,
+      "lng": 103.8602162,
+      "address": "30 Foch Rd, #01-02, Singapore 209276"
+    },
+    {
+      "id": "H15",
+      "name": "Tangs Market",
+      "type": "hawker",
+      "lat": 1.3048711,
+      "lng": 103.8327009,
+      "address": "310 Orchard Rd, Basement 1 Tangs Plaza, Singapore 238864"
+    },
+    {
+      "id": "H16",
+      "name": "Food Opera ION Orchard",
+      "type": "hawker",
+      "lat": 1.3039938,
+      "lng": 103.8314174,
+      "address": "2 Orchard Turn, #B4 - 03 / 04, Singapore 238801"
+    },
+    {
+      "id": "H17",
+      "name": "Liao Fan Hawker Chan",
+      "type": "hawker",
+      "lat": 1.2831077,
+      "lng": 103.8429629,
+      "address": "78 Smith St, Singapore 058972"
+    },
+    {
+      "id": "H18",
+      "name": "Tekka Centre",
+      "type": "hawker",
+      "lat": 1.3063839,
+      "lng": 103.8507014,
+      "address": "665 Buffalo Road Zhujiao Centre, Tekka, Market, Singapore 210665"
+    },
+    {
+      "id": "H19",
+      "name": "Teck Ghee Court Market & Food Centre",
+      "type": "hawker",
+      "lat": 1.3640365,
+      "lng": 103.8480712,
+      "address": "341 Ang Mo Kio Ave 1, Singapore 560341"
+    },
+    {
+      "id": "H20",
+      "name": "Singapore Zam Zam Restaurant",
+      "type": "hawker",
+      "lat": 1.3022534,
+      "lng": 103.85844,
+      "address": "697-699 N Bridge Rd, Singapore 198675"
+    }
+  ]
+}

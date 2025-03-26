@@ -1,30 +1,66 @@
+"""
+Location Utilities
+=================
+
+This module provides functions for working with location data in travel itineraries:
+- Hotel geocoding and waypoint creation
+- Computing routes between hotels and attractions/food centers
+- Location filtering and prioritization
+- Integration of hotel data with existing location datasets
+
+The module handles Google Maps API interactions and maintains a caching system
+to reduce API calls and improve performance.
+
+Usage examples:
+    # Get hotel location from name
+    hotel = get_hotel_waypoint("Marina Bay Sands")
+    
+    # Compute routes between hotel and attractions
+    hotel_routes = compute_hotel_routes(hotel, attractions)
+    
+    # Filter locations to include the best-rated
+    filtered = filter_locations(locations, max_attractions=10, max_hawkers=5)
+"""
 import logging
 import numpy as np
 from datetime import datetime
+import os
+import json
 
 # Import required utilities
-from .google_maps_client import GoogleMapsClient
-from .trip_detail import calculate_public_transport_fare, calculate_car_fare
-from .cache_manager import save_hotel_routes_to_cache, load_hotel_routes_from_cache
+from utils.google_maps_client import GoogleMapsClient
+from data.transport_utils import calculate_public_transport_fare, calculate_car_fare
+from data.cache_manager import save_hotel_routes_to_cache, load_hotel_routes_from_cache
 
 logger = logging.getLogger(__name__)
 
 def get_hotel_waypoint(hotel_name):
     """
-    Get hotel waypoint from user input (name)
+    Get hotel coordinates and details from a hotel name.
+    
+    Uses Google Maps API to geocode the hotel name and retrieve its location.
+    If geocoding fails, returns a default hotel location in central Singapore.
     
     Args:
-        hotel_name: Name of the hotel
+        hotel_name (str): Name of the hotel to geocode
         
     Returns:
-        dict: Hotel location information
+        dict: Hotel location information with the following keys:
+            - type: Always "hotel"
+            - name: Hotel name (as provided or from Google)
+            - lat: Latitude coordinate
+            - lng: Longitude coordinate
+            
+    Note:
+        This function gracefully handles errors and will return a default
+        location if the hotel cannot be found or in case of API failure.
     """
     if not hotel_name:
         logger.warning("No hotel information provided, using default hotel")
         # Return a default hotel in central Singapore if none provided
         return {
             "type": "hotel",
-            "name": "DEFAULT HOTEL",
+            "name": "Marina Bay Sands",
             "lat": 1.2904527,  # Marina Bay Sands coordinates as default
             "lng": 103.8577566,
         }
@@ -72,16 +108,95 @@ def get_hotel_waypoint(hotel_name):
             "lng": 103.8577566,
         }
 
+def get_all_locations():
+    """
+    Extract location data from the route matrix files.
+    
+    Loads the location data from the morning route matrix file and
+    converts it to a standardized format for use in the optimization.
+    
+    Returns:
+        list: List of location dictionaries with the following structure:
+            {
+                "id": unique_id,
+                "name": location_name,
+                "type": "hotel"|"attraction"|"hawker",
+                "lat": latitude,
+                "lng": longitude
+            }
+    
+    Note:
+        - Location types are inferred from names and may need validation
+        - Returns empty list if the route matrix file cannot be loaded
+    """
+    try:
+        # Determine the base path for route data
+        base_path = os.path.join("data", "routeData")
+        filepath = os.path.join(base_path, "route_matrix_morning.json")
+        
+        # Check if file exists
+        if not os.path.exists(filepath):
+            logger.error(f"Route matrix file not found: {filepath}")
+            return []
+        
+        # Load locations from the first route matrix file
+        with open(filepath, 'r') as f:
+            route_matrix = json.load(f)
+        
+        # Convert locations to standard format
+        locations = []
+        for location_id, location_data in route_matrix.get("locations", {}).items():
+            # Determine location type based on name or other heuristics
+            location_type = "attraction"  # Default assumption
+            
+            # You might want to add more sophisticated type detection logic here
+            if "hotel" in location_data.get("type", "").lower():
+                location_type = "hotel"
+            elif "food centre" in location_data.get("type", "").lower() or "hawker" in location_data.get("type", "").lower():
+                location_type = "hawker"
+            
+            # Construct location dictionary
+            location = {
+                "id": location_id,
+                "name": location_data.get("name", ""),
+                "type": location_type,
+                "lat": location_data.get("lat", 0),
+                "lng": location_data.get("lng", 0)
+            }
+            
+            locations.append(location)
+        
+        logger.info(f"Retrieved {len(locations)} locations")
+        return locations
+    
+    except Exception as e:
+        logger.error(f"Unexpected error retrieving locations: {e}")
+        return []
+
 def compute_hotel_routes(hotel, locations):
     """
-    Compute routes between the hotel and all other locations
+    Compute travel routes between a hotel and all other locations.
+    
+    Calculates transit and driving routes for different times of day between
+    the hotel and all attractions/hawker centers. Results are cached to avoid
+    repeated API calls.
     
     Args:
-        hotel: Hotel location information
-        locations: List of all other locations
+        hotel (dict): Hotel location dictionary with name, lat, lng
+        locations (list): List of location dictionaries for attractions/hawkers
         
     Returns:
-        dict: Route matrix entries for the hotel
+        dict: Route matrix entries for the hotel with structure:
+            {(origin_name, destination_name, hour): 
+                {
+                    "transit": {"duration": minutes, "price": fare},
+                    "drive": {"duration": minutes, "price": fare}
+                }
+            }
+            
+    Note:
+        This function makes multiple Google Maps API calls and may be rate-limited.
+        Results are cached and will be reused when possible.
     """
     cached_routes = load_hotel_routes_from_cache(hotel, locations)
     if cached_routes is not None:
@@ -174,7 +289,7 @@ def compute_hotel_routes(hotel, locations):
                         if (hotel["name"], dest_location["name"], hour) not in hotel_routes:
                             hotel_routes[(hotel["name"], dest_location["name"], hour)] = {
                                 "transit": {
-                                    "duration": round(duration_seconds / 60, 1),  # Convert to minutes
+                                    "duration": round(duration_seconds / 60),  # Convert to minutes
                                     "price": round(transit_fare, 2) if transit_fare else 0,
                                 },
                                 "drive": {
@@ -184,7 +299,7 @@ def compute_hotel_routes(hotel, locations):
                             }
                         else:
                             hotel_routes[(hotel["name"], dest_location["name"], hour)]["transit"] = {
-                                "duration": round(duration_seconds / 60, 1),  # Convert to minutes
+                                "duration": round(duration_seconds / 60),  # Convert to minutes
                                 "price": round(transit_fare, 2) if transit_fare else 0,
                             }
             
@@ -216,13 +331,13 @@ def compute_hotel_routes(hotel, locations):
                                     "price": 0,
                                 },
                                 "drive": {
-                                    "duration": round(duration_seconds / 60, 1),  # Convert to minutes
+                                    "duration": round(duration_seconds / 60),  # Convert to minutes
                                     "price": round(driving_fare, 2) if driving_fare else 0,
                                 }
                             }
                         else:
                             hotel_routes[(hotel["name"], dest_location["name"], hour)]["drive"] = {
-                                "duration": round(duration_seconds / 60, 1),  # Convert to minutes
+                                "duration": round(duration_seconds / 60),  # Convert to minutes
                                 "price": round(driving_fare, 2) if driving_fare else 0,
                             }
             
@@ -250,7 +365,7 @@ def compute_hotel_routes(hotel, locations):
                         if (origin_location["name"], hotel["name"], hour) not in hotel_routes:
                             hotel_routes[(origin_location["name"], hotel["name"], hour)] = {
                                 "transit": {
-                                    "duration": round(duration_seconds / 60, 1),  # Convert to minutes
+                                    "duration": round(duration_seconds / 60),  # Convert to minutes
                                     "price": round(transit_fare, 2) if transit_fare else 0,
                                 },
                                 "drive": {
@@ -260,7 +375,7 @@ def compute_hotel_routes(hotel, locations):
                             }
                         else:
                             hotel_routes[(origin_location["name"], hotel["name"], hour)]["transit"] = {
-                                "duration": round(duration_seconds / 60, 1),  # Convert to minutes
+                                "duration": round(duration_seconds / 60),  # Convert to minutes
                                 "price": round(transit_fare, 2) if transit_fare else 0,
                             }
             
@@ -292,13 +407,13 @@ def compute_hotel_routes(hotel, locations):
                                     "price": 0,
                                 },
                                 "drive": {
-                                    "duration": round(duration_seconds / 60, 1),  # Convert to minutes
+                                    "duration": round(duration_seconds / 60),  # Convert to minutes
                                     "price": round(driving_fare, 2) if driving_fare else 0,
                                 }
                             }
                         else:
                             hotel_routes[(origin_location["name"], hotel["name"], hour)]["drive"] = {
-                                "duration": round(duration_seconds / 60, 1),  # Convert to minutes
+                                "duration": round(duration_seconds / 60),  # Convert to minutes
                                 "price": round(driving_fare, 2) if driving_fare else 0,
                             }
         
@@ -315,15 +430,25 @@ def compute_hotel_routes(hotel, locations):
 
 def integrate_hotel_with_locations(hotel, locations, transport_matrix):
     """
-    Integrate hotel with existing locations and transport matrix
+    Integrate hotel data with existing locations and transport matrices.
+    
+    This function:
+    1. Adds or updates the hotel in the locations list
+    2. Computes routes between the hotel and all other locations
+    3. Merges the hotel routes with the existing transport matrix
     
     Args:
-        hotel: Hotel location dictionary
-        locations: List of location dictionaries
-        transport_matrix: Existing transport matrix
+        hotel (dict): Hotel location information
+        locations (list): Existing list of location dictionaries
+        transport_matrix (dict): Existing transport matrix
         
     Returns:
         tuple: (updated_locations, updated_transport_matrix)
+            Returns (None, None) if hotel route computation fails
+            
+    Note:
+        The hotel is always positioned at index 0 in the locations list
+        to ensure it's treated as the starting point for itineraries.
     """
     # Check if hotel already exists in locations
     hotel_exists = False
@@ -359,22 +484,31 @@ def integrate_hotel_with_locations(hotel, locations, transport_matrix):
 
 def filter_locations(locations, max_attractions=None, max_hawkers=None, filter_criteria=None):
     """
-    Filter locations by type and criteria, limiting the number of attractions and hawkers.
+    Filter and prioritize locations for itinerary planning.
+    
+    Sorts locations by criteria (e.g., rating, satisfaction) and limits
+    the number of each type to include in the itinerary optimization.
     
     Args:
-        locations: List of all location dictionaries
-        max_attractions: Maximum number of attractions to include (None = all)
-        max_hawkers: Maximum number of hawkers to include (None = all)
-        filter_criteria: Optional dict with criteria to prioritize locations
-            (e.g., {'attractions': 'satisfaction', 'hawkers': 'rating'})
+        locations (list): List of all location dictionaries
+        max_attractions (int, optional): Maximum number of attractions to include
+        max_hawkers (int, optional): Maximum number of hawkers to include
+        filter_criteria (dict, optional): Criteria for sorting locations:
+            {
+                "attractions": field_name_for_sorting, # e.g., "satisfaction"
+                "hawkers": field_name_for_sorting,     # e.g., "rating"
+            }
     
     Returns:
-        list: Filtered list of locations
+        list: Filtered list of locations with hotels first, followed by
+              the top attractions and hawkers based on criteria
     """
     # Sort hotel(s) to the front of the list
     hotels = [loc for loc in locations if loc["type"] == "hotel"]
     attractions = [loc for loc in locations if loc["type"] == "attraction"]
     hawkers = [loc for loc in locations if loc["type"] == "hawker"]
+    
+    logger.info(f"Filtering locations: {len(hotels)} hotels, {len(attractions)} attractions, {len(hawkers)} hawkers")
     
     # Default sorting criteria
     attraction_sort_key = "satisfaction" if not filter_criteria else filter_criteria.get("attractions", "satisfaction")

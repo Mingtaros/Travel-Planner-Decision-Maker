@@ -1,3 +1,30 @@
+"""
+Cache Management System
+=====================
+
+This module provides functions for caching and retrieving transportation route data.
+Caching is critical for performance as it reduces the number of API calls to 
+external services like Google Maps.
+
+Features:
+- Hotel route caching using pickle serialization
+- Cache validation to ensure data consistency
+- Automatic cache expiration and cleanup
+- MD5 hashing for cache key generation
+
+Usage:
+    # Save computed routes to cache
+    save_hotel_routes_to_cache(hotel, routes)
+    
+    # Try to load from cache first
+    cached_routes = load_hotel_routes_from_cache(hotel, locations)
+    if cached_routes:
+        # Use cached data
+    else:
+        # Compute fresh data and cache it
+        routes = compute_hotel_routes(hotel, locations)
+        save_hotel_routes_to_cache(hotel, routes)
+"""
 import os
 import json
 import hashlib
@@ -9,20 +36,45 @@ logger = logging.getLogger(__name__)
 
 def generate_cache_key(hotel):
     """
-    Generate a unique cache key for hotel routes
+    Generate a unique cache key for hotel routes.
+    
+    Creates an MD5 hash based on the hotel's name and coordinates
+    to uniquely identify the cached routes.
     
     Args:
-        hotel: Hotel location dictionary
+        hotel (dict): Hotel location dictionary with name, lat, lng
         
     Returns:
-        str: Unique cache key
+        str: MD5 hexadecimal hash string
+        
+    Example:
+        >>> hotel = {"name": "Marina Bay Sands", "lat": 1.2904, "lng": 103.8577}
+        >>> generate_cache_key(hotel)
+        'a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6'
     """
     # Create a string representation of hotel and locations for hashing
     key_str = f"{hotel['name']}_{hotel['lat']}_{hotel['lng']}"
     return hashlib.md5(key_str.encode()).hexdigest()
 
 def validate_cached_routes(hotel, hotel_routes, locations):
-    """Validate that cached routes are compatible with current locations"""
+    """
+    Validate that cached routes are compatible with current locations.
+    
+    Checks if all required routes between the hotel and locations exist
+    in the cached data to ensure it can be used for the current dataset.
+    
+    Args:
+        hotel (dict): Hotel location dictionary
+        hotel_routes (dict): Dictionary of cached routes
+        locations (list): Current location dictionaries
+        
+    Returns:
+        bool: True if the cache is valid, False otherwise
+        
+    Note:
+        A valid cache must contain routes between the hotel and each location
+        in both directions for all time brackets (8, 12, 16, 20).
+    """
     if not hotel_routes:
         return False
     
@@ -57,15 +109,22 @@ def validate_cached_routes(hotel, hotel_routes, locations):
 
 def save_hotel_routes_to_cache(hotel, hotel_routes, cache_dir="cache/hotel_routes"):
     """
-    Save hotel routes to a JSON cache file
+    Save hotel routes to a pickle cache file.
+    
+    Serializes the route data to a file in the cache directory using
+    the hotel's unique cache key as the filename.
     
     Args:
-        hotel: Hotel location dictionary
-        hotel_routes: Dictionary of computed hotel routes
-        cache_dir: Directory to store cache files
+        hotel (dict): Hotel location dictionary
+        hotel_routes (dict): Dictionary of computed hotel routes
+        cache_dir (str): Directory to store cache files
     
     Returns:
-        bool: True if successful, False otherwise
+        bool: True if successfully saved, False otherwise
+        
+    Note:
+        This function creates the cache directory if it doesn't exist.
+        The cache file uses pickle format for efficient storage.
     """
     try:
         # Ensure cache directory exists
@@ -89,16 +148,25 @@ def save_hotel_routes_to_cache(hotel, hotel_routes, cache_dir="cache/hotel_route
 
 def load_hotel_routes_from_cache(hotel, locations, cache_dir="cache/hotel_routes", max_age_hours=24):
     """
-    Load hotel routes from cache
+    Load hotel routes from cache if available and valid.
+    
+    Attempts to load cached route data for the specified hotel and validates
+    it against the current location list to ensure it's complete.
     
     Args:
-        hotel: Hotel location dictionary
-        locations: List of location dictionaries
-        cache_dir: Directory to search for cache files
-        max_age_hours: Maximum age of cache in hours
+        hotel (dict): Hotel location dictionary
+        locations (list): Current location dictionaries
+        cache_dir (str): Directory containing cache files
+        max_age_hours (int): Maximum age of cache in hours
     
     Returns:
         dict or None: Cached routes if available and valid, otherwise None
+        
+    Note:
+        Returns None if:
+        - No cache file exists
+        - Cache file exists but is invalid/incomplete
+        - Error occurs during loading
     """
     try:
         # Generate unique cache key
@@ -129,14 +197,21 @@ def load_hotel_routes_from_cache(hotel, locations, cache_dir="cache/hotel_routes
 
 def clear_old_cache(cache_dir="cache/hotel_routes", max_age_hours=72):
     """
-    Clear old cache files
+    Remove expired cache files to free up disk space.
+    
+    Deletes cache files that are older than the specified maximum age.
     
     Args:
-        cache_dir: Directory containing cache files
-        max_age_hours: Maximum age of cache files to keep
+        cache_dir (str): Directory containing cache files
+        max_age_hours (int): Maximum age of cache files to keep
     
     Returns:
         int: Number of files deleted
+        
+    Note:
+        Only deletes files with .json extension (not .pkl files).
+        This appears to be a bug in the implementation, as the actual
+        cache files are stored in .pkl format.
     """
     try:
         deleted_files = 0

@@ -1,6 +1,7 @@
 # lancedb and chromadb related files and bins data
 lancedb_data/
 chromadb_data/
+data/sgGraph
 .DS_Store
 
 mysql-data/*

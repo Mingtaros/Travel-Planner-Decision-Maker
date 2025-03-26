@@ -1,0 +1,230 @@
+{
+    "trip_summary": {
+        "duration": 3,
+        "total_budget": 500,
+        "actual_expenditure": 44.356281900393455,
+        "total_travel_time": 272.7,
+        "total_satisfaction": 36.403812249464316,
+        "is_feasible": true,
+        "starting_hotel": "Marina Bay Sands"
+    },
+    "days": [
+        {
+            "day": 1,
+            "locations": [
+                {
+                    "name": "Marina Bay Sands",
+                    "type": "hotel",
+                    "arrival_time": "09:00",
+                    "departure_time": "09:00",
+                    "transit_from_prev": null,
+                    "transit_duration": 0,
+                    "satisfaction": 0,
+                    "cost": 0,
+                    "rest_duration": 0
+                },
+                {
+                    "name": "Hill Street Tai Hwa Pork Noodle",
+                    "type": "hawker",
+                    "arrival_time": "09:20",
+                    "departure_time": "20:09",
+                    "lat": 1.3051265,
+                    "lng": 103.8625357,
+                    "transit_from_prev": "transit",
+                    "transit_duration": 20,
+                    "transit_cost": 1.19,
+                    "duration": 60,
+                    "satisfaction": 8.10422089908506,
+                    "cost": 5.779057939086969,
+                    "rest_duration": 589,
+                    "actual_arrival_time": null,
+                    "description": "Food Center with rating 8.10/5",
+                    "meal_cost": 5.779057939086969
+                },
+                {
+                    "name": "Amoy Street Food Centre",
+                    "type": "hawker",
+                    "arrival_time": "20:33",
+                    "departure_time": "22:00",
+                    "lat": 1.2794274,
+                    "lng": 103.8467957,
+                    "transit_from_prev": "transit",
+                    "transit_duration": 24.45,
+                    "transit_cost": 1.5,
+                    "duration": 60,
+                    "satisfaction": 4.030383184069712,
+                    "cost": 5.3363693610441825,
+                    "rest_duration": 27,
+                    "actual_arrival_time": null,
+                    "description": "Food Center with rating 4.03/5",
+                    "meal_cost": 5.3363693610441825
+                },
+                {
+                    "name": "Marina Bay Sands",
+                    "type": "hotel",
+                    "arrival_time": "22:20",
+                    "departure_time": "09:00",
+                    "lat": 1.2852044,
+                    "lng": 103.8610313,
+                    "transit_from_prev": "transit",
+                    "transit_duration": 20,
+                    "transit_cost": 1.19,
+                    "duration": 0,
+                    "satisfaction": null,
+                    "cost": null,
+                    "rest_duration": 640,
+                    "actual_arrival_time": null
+                }
+            ]
+        },
+        {
+            "day": 2,
+            "locations": [
+                {
+                    "name": "Marina Bay Sands",
+                    "type": "hotel",
+                    "arrival_time": "09:00",
+                    "departure_time": "09:00",
+                    "transit_from_prev": null,
+                    "transit_duration": 0,
+                    "satisfaction": 0,
+                    "cost": 0,
+                    "rest_duration": 0
+                },
+                {
+                    "name": "Hill Street Tai Hwa Pork Noodle",
+                    "type": "hawker",
+                    "arrival_time": "09:20",
+                    "departure_time": "11:00",
+                    "lat": 1.3051265,
+                    "lng": 103.8625357,
+                    "transit_from_prev": "transit",
+                    "transit_duration": 20,
+                    "transit_cost": 1.19,
+                    "duration": 60,
+                    "satisfaction": 8.10422089908506,
+                    "cost": 5.779057939086969,
+                    "rest_duration": 40,
+                    "actual_arrival_time": null,
+                    "description": "Food Center with rating 8.10/5",
+                    "meal_cost": 5.779057939086969
+                },
+                {
+                    "name": "Amoy Street Food Centre",
+                    "type": "hawker",
+                    "arrival_time": "11:24",
+                    "departure_time": "22:00",
+                    "lat": 1.2794274,
+                    "lng": 103.8467957,
+                    "transit_from_prev": "transit",
+                    "transit_duration": 24.45,
+                    "transit_cost": 1.5,
+                    "duration": 60,
+                    "satisfaction": 4.030383184069712,
+                    "cost": 5.3363693610441825,
+                    "rest_duration": 576,
+                    "actual_arrival_time": null,
+                    "description": "Food Center with rating 4.03/5",
+                    "meal_cost": 5.3363693610441825
+                },
+                {
+                    "name": "Marina Bay Sands",
+                    "type": "hotel",
+                    "arrival_time": "22:20",
+                    "departure_time": "09:00",
+                    "lat": 1.2852044,
+                    "lng": 103.8610313,
+                    "transit_from_prev": "transit",
+                    "transit_duration": 20,
+                    "transit_cost": 1.19,
+                    "duration": 0,
+                    "satisfaction": null,
+                    "cost": null,
+                    "rest_duration": 640,
+                    "actual_arrival_time": null
+                }
+            ]
+        },
+        {
+            "day": 3,
+            "locations": [
+                {
+                    "name": "Marina Bay Sands",
+                    "type": "hotel",
+                    "arrival_time": "09:00",
+                    "departure_time": "09:00",
+                    "transit_from_prev": null,
+                    "transit_duration": 0,
+                    "satisfaction": 0,
+                    "cost": 0,
+                    "rest_duration": 0
+                },
+                {
+                    "name": "Hill Street Tai Hwa Pork Noodle",
+                    "type": "hawker",
+                    "arrival_time": "09:20",
+                    "departure_time": "11:00",
+                    "lat": 1.3051265,
+                    "lng": 103.8625357,
+                    "transit_from_prev": "transit",
+                    "transit_duration": 20,
+                    "transit_cost": 1.19,
+                    "duration": 60,
+                    "satisfaction": 8.10422089908506,
+                    "cost": 5.779057939086969,
+                    "rest_duration": 40,
+                    "actual_arrival_time": null,
+                    "description": "Food Center with rating 8.10/5",
+                    "meal_cost": 5.779057939086969
+                },
+                {
+                    "name": "Amoy Street Food Centre",
+                    "type": "hawker",
+                    "arrival_time": "11:24",
+                    "departure_time": "22:00",
+                    "lat": 1.2794274,
+                    "lng": 103.8467957,
+                    "transit_from_prev": "transit",
+                    "transit_duration": 24.45,
+                    "transit_cost": 1.5,
+                    "duration": 60,
+                    "satisfaction": 4.030383184069712,
+                    "cost": 5.3363693610441825,
+                    "rest_duration": 576,
+                    "actual_arrival_time": null,
+                    "description": "Food Center with rating 4.03/5",
+                    "meal_cost": 5.3363693610441825
+                },
+                {
+                    "name": "Marina Bay Sands",
+                    "type": "hotel",
+                    "arrival_time": "22:20",
+                    "departure_time": "09:00",
+                    "lat": 1.2852044,
+                    "lng": 103.8610313,
+                    "transit_from_prev": "transit",
+                    "transit_duration": 20,
+                    "transit_cost": 1.19,
+                    "duration": 0,
+                    "satisfaction": null,
+                    "cost": null,
+                    "rest_duration": 640,
+                    "actual_arrival_time": null
+                }
+            ]
+        }
+    ],
+    "attractions_visited": [],
+    "budget_breakdown": {
+        "attractions": 0,
+        "meals": 33.34628190039346,
+        "transportation": 11.639999999999999
+    },
+    "transport_summary": {
+        "total_duration": 272.7,
+        "total_cost": 11.639999999999999
+    },
+    "rest_summary": {
+        "total_rest_duration": 3768
+    }
+}
