@@ -40,10 +40,12 @@ from utils.config import load_config
 from data.location_utils import (
     get_hotel_waypoint, 
     integrate_hotel_with_locations, 
-    filter_locations,
+    filter_locations
+)
+from data.llm_utils import (
+    load_recommendations,
     filter_by_recommendations,
-    augment_location_data,
-    load_recommendations
+    augment_location_data
 )
 
 def setup_logging():
@@ -93,10 +95,10 @@ def enrich_location_data(locations):
 def main(
     seed=42,
     config_path="./src/alns_itinerary/config.json",
-    llm_path="./src/alns_itinerary/llm.json",
-    recommendations_path=None,
+    llm_path="./data/alns_inputs/",
     max_attractions=None, 
     max_hawkers=None,
+    hotel_name='Marina Bay Sands'
 ):
     """
     Run the travel itinerary optimization process.
@@ -114,7 +116,6 @@ def main(
             - HOTEL_NAME: Name of the hotel for the trip
             - BUDGET: Total budget in SGD
             - NUM_DAYS: Number of days for the trip
-        recommendations_path (str, optional): Path to the recommendations JSON file
         max_attractions (int, optional): Maximum number of attractions to include
         max_hawkers (int, optional): Maximum number of hawker centers to include
         
@@ -134,25 +135,23 @@ def main(
     setup_logging()
     logger = logging.getLogger(__name__)
     config = load_config(config_path)
-    llm_data = load_config(llm_path)
     
     # Load recommendations if available
     recommendations = None
-    if recommendations_path and os.path.exists(recommendations_path):
-        recommendations = load_recommendations(recommendations_path)
-        logger.info(f"Loaded {len(recommendations.get('attractions', []))} attraction and "
-                   f"{len(recommendations.get('hawkers', []))} hawker recommendations")
+    parameter_data = None
+    if llm_path and os.path.exists(llm_path):
+        recommendations, parameter_data = load_recommendations(llm_path)
+        logger.info(f"Loaded {len(recommendations)} recommendations")
     
-    hotel_name = llm_data["HOTEL_NAME"]
-    budget = llm_data["BUDGET"]
-    num_days = llm_data["NUM_DAYS"]
+    budget = parameter_data["Budget"]
+    num_days = parameter_data["Number of days"]
     max_iterations = config["MAX_ITERATIONS"]
     segment_size = config["SEGMENT_SIZE"]
     time_limit = config["TIME_LIMIT"]
     early_termination_iterations = config["EARLY_TERMINATION_ITERATIONS"]
     weights_destroy = config["WEIGHTS_DESTROY"]
     weights_repair = config["WEIGHTS_REPAIR"]
-    objective_weights = config["OBJECTIVE_WEIGHTS"]
+    objective_weights = parameter_data.get('params', config["OBJECTIVE_WEIGHTS"])
     infeasible_penalty = config["INFEASIBLE_PENALTY"]
     attraction_per_day = config["MAX_ATTRACTION_PER_DAY"]
     meal_buffer_time = config["MEAL_BUFFER_TIME"]
@@ -294,6 +293,5 @@ if __name__ == "__main__":
     main(
         seed=42,
         config_path="./src/alns_itinerary/config.json",
-        llm_path="./src/alns_itinerary/llm.json",
-        recommendations_path="./src/alns_itinerary/20250323_150807.json",
+        llm_path="./data/alns_inputs/",
     )

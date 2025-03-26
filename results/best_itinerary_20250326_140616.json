@@ -1,0 +1,251 @@
+{
+  "trip_summary": {
+    "duration": 3,
+    "total_budget": 100,
+    "actual_expenditure": 88.11,
+    "total_travel_time": 168.0,
+    "total_satisfaction": 27.5,
+    "is_feasible": true,
+    "starting_hotel": "Marina Bay Sands Singapore"
+  },
+  "days": [
+    {
+      "day": 1,
+      "date": "2025-03-26",
+      "locations": [
+        {
+          "name": "Marina Bay Sands Singapore",
+          "type": "hotel",
+          "arrival_time": "09:00",
+          "departure_time": "09:00",
+          "lat": 1.2837575,
+          "lng": 103.8591065,
+          "transit_from_prev": null,
+          "transit_duration": 0,
+          "transit_cost": 0,
+          "duration": 0,
+          "satisfaction": 0,
+          "cost": 0,
+          "rest_duration": 0,
+          "actual_arrival_time": null
+        },
+        {
+          "name": "Maxwell Food Centre",
+          "type": "hawker",
+          "arrival_time": "12:00",
+          "departure_time": "13:00",
+          "lat": 1.2803361,
+          "lng": 103.844767,
+          "transit_from_prev": "transit",
+          "transit_duration": 22,
+          "transit_cost": 1.19,
+          "duration": 60,
+          "satisfaction": 4.8,
+          "cost": 13.87,
+          "rest_duration": 158,
+          "actual_arrival_time": "09:22",
+          "meal_type": "lunch",
+          "description": "Food center with rating 4.8/5. Arrived at 09:22 and waited 158 minutes for opening time.",
+          "meal_cost": 13.87
+        },
+        {
+          "name": "Tangs Market",
+          "type": "hawker",
+          "arrival_time": "18:00",
+          "departure_time": "19:00",
+          "lat": 1.3048711,
+          "lng": 103.8327009,
+          "transit_from_prev": "transit",
+          "transit_duration": 9,
+          "transit_cost": 1.29,
+          "duration": 60,
+          "satisfaction": 4.4,
+          "cost": 11.52,
+          "rest_duration": 291,
+          "actual_arrival_time": "13:09",
+          "meal_type": "dinner",
+          "description": "Food center with rating 4.4/5. Arrived at 13:09 and waited 291 minutes for opening time.",
+          "meal_cost": 11.52
+        },
+        {
+          "name": "Marina Bay Sands Singapore",
+          "type": "hotel",
+          "position": "end",
+          "arrival_time": "19:24",
+          "departure_time": "19:24",
+          "lat": 1.2837575,
+          "lng": 103.8591065,
+          "transit_from_prev": "transit",
+          "transit_duration": 24,
+          "transit_cost": 1.5,
+          "satisfaction": 0,
+          "cost": 0,
+          "rest_duration": 0
+        }
+      ]
+    },
+    {
+      "day": 2,
+      "date": "2025-03-27",
+      "locations": [
+        {
+          "name": "Marina Bay Sands Singapore",
+          "type": "hotel",
+          "arrival_time": "09:00",
+          "departure_time": "09:00",
+          "lat": 1.2837575,
+          "lng": 103.8591065,
+          "transit_from_prev": null,
+          "transit_duration": 0,
+          "transit_cost": 0,
+          "duration": 0,
+          "satisfaction": 0,
+          "cost": 0,
+          "rest_duration": 0,
+          "actual_arrival_time": null
+        },
+        {
+          "name": "Maxwell Food Centre",
+          "type": "hawker",
+          "arrival_time": "12:00",
+          "departure_time": "13:00",
+          "lat": 1.2803361,
+          "lng": 103.844767,
+          "transit_from_prev": "transit",
+          "transit_duration": 22,
+          "transit_cost": 1.19,
+          "duration": 60,
+          "satisfaction": 4.8,
+          "cost": 13.87,
+          "rest_duration": 158,
+          "actual_arrival_time": "09:22",
+          "meal_type": "lunch",
+          "description": "Food center with rating 4.8/5. Arrived at 09:22 and waited 158 minutes for opening time.",
+          "meal_cost": 13.87
+        },
+        {
+          "name": "Tangs Market",
+          "type": "hawker",
+          "arrival_time": "18:00",
+          "departure_time": "19:00",
+          "lat": 1.3048711,
+          "lng": 103.8327009,
+          "transit_from_prev": "transit",
+          "transit_duration": 9,
+          "transit_cost": 1.29,
+          "duration": 60,
+          "satisfaction": 4.4,
+          "cost": 11.52,
+          "rest_duration": 291,
+          "actual_arrival_time": "13:09",
+          "meal_type": "dinner",
+          "description": "Food center with rating 4.4/5. Arrived at 13:09 and waited 291 minutes for opening time.",
+          "meal_cost": 11.52
+        },
+        {
+          "name": "Marina Bay Sands Singapore",
+          "type": "hotel",
+          "position": "end",
+          "arrival_time": "19:24",
+          "departure_time": "19:24",
+          "lat": 1.2837575,
+          "lng": 103.8591065,
+          "transit_from_prev": "transit",
+          "transit_duration": 24,
+          "transit_cost": 1.5,
+          "satisfaction": 0,
+          "cost": 0,
+          "rest_duration": 0
+        }
+      ]
+    },
+    {
+      "day": 3,
+      "date": "2025-03-28",
+      "locations": [
+        {
+          "name": "Marina Bay Sands Singapore",
+          "type": "hotel",
+          "arrival_time": "09:00",
+          "departure_time": "09:00",
+          "lat": 1.2837575,
+          "lng": 103.8591065,
+          "transit_from_prev": null,
+          "transit_duration": 0,
+          "transit_cost": 0,
+          "duration": 0,
+          "satisfaction": 0,
+          "cost": 0,
+          "rest_duration": 0,
+          "actual_arrival_time": null
+        },
+        {
+          "name": "Maxwell Food Centre",
+          "type": "hawker",
+          "arrival_time": "12:00",
+          "departure_time": "13:00",
+          "lat": 1.2803361,
+          "lng": 103.844767,
+          "transit_from_prev": "transit",
+          "transit_duration": 22,
+          "transit_cost": 1.19,
+          "duration": 60,
+          "satisfaction": 4.8,
+          "cost": 13.87,
+          "rest_duration": 158,
+          "actual_arrival_time": "09:22",
+          "meal_type": "lunch",
+          "description": "Food center with rating 4.8/5. Arrived at 09:22 and waited 158 minutes for opening time.",
+          "meal_cost": 13.87
+        },
+        {
+          "name": "Tangs Market",
+          "type": "hawker",
+          "arrival_time": "18:00",
+          "departure_time": "19:00",
+          "lat": 1.3048711,
+          "lng": 103.8327009,
+          "transit_from_prev": "transit",
+          "transit_duration": 9,
+          "transit_cost": 1.29,
+          "duration": 60,
+          "satisfaction": 4.4,
+          "cost": 11.52,
+          "rest_duration": 291,
+          "actual_arrival_time": "13:09",
+          "meal_type": "dinner",
+          "description": "Food center with rating 4.4/5. Arrived at 13:09 and waited 291 minutes for opening time.",
+          "meal_cost": 11.52
+        },
+        {
+          "name": "Marina Bay Sands Singapore",
+          "type": "hotel",
+          "position": "end",
+          "arrival_time": "19:24",
+          "departure_time": "19:24",
+          "lat": 1.2837575,
+          "lng": 103.8591065,
+          "transit_from_prev": "transit",
+          "transit_duration": 24,
+          "transit_cost": 1.5,
+          "satisfaction": 0,
+          "cost": 0,
+          "rest_duration": 0
+        }
+      ]
+    }
+  ],
+  "attractions_visited": [],
+  "budget_breakdown": {
+    "attractions": 0,
+    "meals": 76.17,
+    "transportation": 11.940000000000001
+  },
+  "transport_summary": {
+    "total_duration": 165,
+    "total_cost": 11.940000000000001
+  },
+  "rest_summary": {
+    "total_rest_duration": 1347
+  }
+}

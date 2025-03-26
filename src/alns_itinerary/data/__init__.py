@@ -3,7 +3,11 @@ from .location_utils import (
     get_hotel_waypoint,
     compute_hotel_routes,
     integrate_hotel_with_locations,
-    filter_locations,
+    filter_locations
+)
+
+from .llm_utils import (
+    read_llm_output,
     filter_by_recommendations,
     augment_location_data,
     load_recommendations
@@ -37,6 +41,8 @@ __all__ = [
     'compute_hotel_routes',
     'integrate_hotel_with_locations',
     'filter_locations',
+    
+    'read_llm_output',
     'filter_by_recommendations',
     'augment_location_data',
     'load_recommendations'
