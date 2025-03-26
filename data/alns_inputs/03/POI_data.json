@@ -2,110 +2,154 @@
     "Query": "I only have one full day in Singapore. Can you suggest cultural attractions and a local hawker spot that fits a 60 SGD day budget?",
     "Hawker": [
         {
-            "Hawker Name": "Tiong Bahru Market",
-            "Dish Name": "Chwee Kueh",
-            "Description": "Chwee Kueh is a traditional Teochew dish consisting of steamed rice cakes topped with preserved radish. It's a simple yet flavorful dish that is a staple breakfast item for many locals.",
-            "Rating": 4.5,
-            "Avg Food Price": 2.5,
+            "Hawker Name": "Chinatown Complex Food Centre",
+            "Dish Name": "Prawn Mee",
+            "Description": "A simple yet flavorful noodle dish with prawns, perfect for a budget-friendly meal.",
+            "Satisfaction Score": 4.0,
+            "Rating": 4.2,
+            "Avg Food Price": 2.0,
             "Duration": 1,
             "Sources": [
-                "https://www.thebestsingapore.com/biz-review/tiong-bahru-market-food-centre/",
-                "https://danielfooddiary.com/2022/08/23/tiongbahrufoodcentre/"
+                "https://eatbook.sg/chinatown-complex-food/",
+                "https://danielfooddiary.com/2025/01/25/chinatowncomplex/",
+                "https://www.thebestsingapore.com/biz-review/chinatown-complex-food-centre/"
             ]
         },
         {
-            "Hawker Name": "Tiong Bahru Market",
+            "Hawker Name": "Chinatown Complex Food Centre",
+            "Dish Name": "Western Food",
+            "Description": "Hearty Western dishes available at affordable prices, offering a taste of home for Western travelers.",
+            "Satisfaction Score": 4.0,
+            "Rating": 4.2,
+            "Avg Food Price": 5.0,
+            "Duration": 1,
+            "Sources": [
+                "https://eatbook.sg/chinatown-complex-food/",
+                "https://danielfooddiary.com/2025/01/25/chinatowncomplex/",
+                "https://www.thebestsingapore.com/biz-review/chinatown-complex-food-centre/"
+            ]
+        },
+        {
+            "Hawker Name": "Changi Village Hawker Centre",
             "Dish Name": "Lor Mee",
-            "Description": "Lor Mee is a noodle dish served in a thick, starchy gravy with ingredients like fish cakes, braised egg, and pork belly. It's a comforting and hearty meal.",
-            "Rating": 4.5,
-            "Avg Food Price": 4.0,
-            "Duration": 1,
-            "Sources": [
-                "https://www.thebestsingapore.com/biz-review/tiong-bahru-market-food-centre/",
-                "https://danielfooddiary.com/2022/08/23/tiongbahrufoodcentre/"
-            ]
-        },
-        {
-            "Hawker Name": "Amoy Street Food Centre",
-            "Dish Name": "Nasi Lemak",
-            "Description": "Nasi Lemak is a fragrant rice dish cooked in coconut milk and pandan leaf, served with fried chicken, sambal, and other accompaniments. It's a beloved dish for its rich flavors and variety.",
-            "Rating": 4.0,
-            "Avg Food Price": 3.5,
-            "Duration": 1,
-            "Sources": [
-                "https://danielfooddiary.com/2020/06/19/amoystreet/",
-                "https://iwandered.net/amoy-street-food-centre-what-to-eat-best-food/"
-            ]
-        },
-        {
-            "Hawker Name": "Amoy Street Food Centre",
-            "Dish Name": "Fishball Noodles",
-            "Description": "Fishball Noodles are a popular choice, featuring springy fishballs and noodles in a savory broth or dry with a spicy sauce. It's a light yet satisfying meal.",
-            "Rating": 4.0,
+            "Description": "A hidden gem known for its quality and generous portions, offering a rich and savory noodle dish.",
+            "Satisfaction Score": 4.0,
+            "Rating": 4.2,
             "Avg Food Price": 3.0,
             "Duration": 1,
             "Sources": [
-                "https://danielfooddiary.com/2020/06/19/amoystreet/",
-                "https://iwandered.net/amoy-street-food-centre-what-to-eat-best-food/"
+                "https://hungrygowhere.com/what-to-eat/changi-village-hawker-centre/",
+                "https://eatbook.sg/changi-village-hawker-centre/",
+                "https://www.lifestyleasia.com/sg/dining/food/best-food-stalls-changi-village-hawker-centre/"
             ]
         },
         {
-            "Hawker Name": "Amoy Street Food Centre",
-            "Dish Name": "Char Kway Teow",
-            "Description": "Char Kway Teow is a stir-fried noodle dish with ingredients like prawns, Chinese sausage, and cockles. It's known for its smoky flavor and is a must-try for noodle lovers.",
-            "Rating": 4.0,
-            "Avg Food Price": 4.0,
+            "Hawker Name": "Changi Village Hawker Centre",
+            "Dish Name": "Chendol",
+            "Description": "A refreshing dessert made with freshly prepared ingredients, perfect for a sweet end to your meal.",
+            "Satisfaction Score": 4.0,
+            "Rating": 4.2,
+            "Avg Food Price": 2.0,
             "Duration": 1,
             "Sources": [
-                "https://danielfooddiary.com/2020/06/19/amoystreet/",
-                "https://iwandered.net/amoy-street-food-centre-what-to-eat-best-food/"
+                "https://hungrygowhere.com/what-to-eat/changi-village-hawker-centre/",
+                "https://eatbook.sg/changi-village-hawker-centre/",
+                "https://www.lifestyleasia.com/sg/dining/food/best-food-stalls-changi-village-hawker-centre/"
             ]
         }
     ],
     "Attraction": [
         {
+            "Attraction Name": "Merlion Park",
+            "Description": "Merlion Park is a must-visit cultural landmark in Singapore, featuring the iconic Merlion statue. It's perfect for cultural enthusiasts and those looking to capture iconic photos of Singapore.",
+            "Rating": 4.5,
+            "Satisfaction Score": 4.5,
+            "Entrance Fee": 0.0,
+            "Duration": 2,
+            "Sources": [
+                "https://forevervacation.com/singapore/merlion-park"
+            ]
+        },
+        {
+            "Attraction Name": "Clarke Quay",
+            "Description": "Clarke Quay is a historical riverside quay that offers a vibrant mix of culture and heritage. It's ideal for cultural enthusiasts and those interested in Singapore's nightlife and dining scene.",
+            "Rating": 4.3,
+            "Satisfaction Score": 4.3,
+            "Entrance Fee": 0.0,
+            "Duration": 2,
+            "Sources": [
+                "https://forevervacation.com/singapore/clarke-quay"
+            ]
+        },
+        {
             "Attraction Name": "Peranakan Museum",
-            "Description": "The Peranakan Museum offers a deep dive into the unique Peranakan culture, showcasing a rich collection of artifacts and exhibits. It's perfect for cultural enthusiasts interested in exploring the blend of Chinese and Malay influences in Singapore.",
+            "Description": "The Peranakan Museum offers a deep dive into the unique Peranakan culture, showcasing a rich collection of artifacts. It's perfect for cultural enthusiasts and history buffs.",
             "Rating": 4.4,
+            "Satisfaction Score": 4.4,
             "Entrance Fee": 6.0,
             "Duration": 2,
             "Sources": [
-                "https://www.nhb.gov.sg/peranakanmuseum/visit/plan-your-visit",
-                "https://www.tripadvisor.com.sg/Attraction_Review-g294265-d1491151-Reviews-Peranakan_Museum-Singapore.html"
+                "https://www.nhb.gov.sg/peranakanmuseum/visit/plan-your-visit"
             ]
         },
         {
             "Attraction Name": "Asian Civilisations Museum",
-            "Description": "This museum is ideal for those interested in the diverse cultures of Asia, with extensive collections from China, Southeast Asia, South Asia, and the Islamic world. It's a must-visit for cultural enthusiasts.",
-            "Rating": 4.4,
-            "Entrance Fee": 12.0,
+            "Description": "This museum explores the rich cultural heritage of Asia, with a focus on the ancestral cultures of Singaporeans. It's a great spot for cultural enthusiasts and history lovers.",
+            "Rating": 4.5,
+            "Satisfaction Score": 4.5,
+            "Entrance Fee": 25.0,
             "Duration": 2,
             "Sources": [
-                "https://www.nhb.gov.sg/acm/visit/admissions",
-                "https://www.tripadvisor.com.sg/Attraction_Review-g294265-d310896-Reviews-Asian_Civilisations_Museum-Singapore.html"
+                "https://www.nhb.gov.sg/acm/visit/admissions"
             ]
         },
         {
             "Attraction Name": "National Museum of Singapore",
-            "Description": "The National Museum of Singapore is the oldest museum in the country, offering insights into Singapore's history and culture through innovative exhibits. It's perfect for history buffs and cultural enthusiasts.",
-            "Rating": 4.5,
-            "Entrance Fee": 10.65,
+            "Description": "The National Museum of Singapore is the oldest museum in the country, offering insights into the nation's history and culture. It's a must-visit for cultural enthusiasts and history buffs.",
+            "Rating": 4.6,
+            "Satisfaction Score": 4.6,
+            "Entrance Fee": 10.0,
             "Duration": 2,
             "Sources": [
-                "https://www.nhb.gov.sg/nationalmuseum/plan-your-visit/visitor-information/admissions",
-                "https://www.tripadvisor.com.sg/Attraction_Review-g294265-d324550-Reviews-National_Museum_of_Singapore-Singapore.html"
+                "https://www.nhb.gov.sg/nationalmuseum/plan-your-visit/visitor-information/admissions"
+            ]
+        },
+        {
+            "Attraction Name": "Esplanade",
+            "Description": "Esplanade is a performing arts center located near the Singapore River. It's a cultural hub for music, theater, and dance, suitable for cultural enthusiasts and art lovers.",
+            "Rating": 4.4,
+            "Satisfaction Score": 4.4,
+            "Entrance Fee": 0.0,
+            "Duration": 2,
+            "Sources": [
+                "https://www.esplanade.com/visit-esplanade/visitor-guide/buying-tickets"
+            ]
+        },
+        {
+            "Attraction Name": "Raffles Hotel",
+            "Description": "Raffles Hotel is a historic hotel in Singapore, known for its colonial architecture and the famous Singapore Sling cocktail. It's a great spot for cultural enthusiasts and those interested in luxury history.",
+            "Rating": 4.7,
+            "Satisfaction Score": 4.7,
+            "Entrance Fee": 0.0,
+            "Duration": 2,
+            "Sources": [
+                "https://www.raffles.com/singapore/"
             ]
         },
         {
             "Attraction Name": "Chinatown Complex Food Centre",
-            "Description": "As the largest hawker centre in Singapore, Chinatown Complex Food Centre offers a vast array of local dishes at affordable prices. It's a great spot for food lovers to experience authentic Singaporean hawker fare.",
+            "Description": "Chinatown Complex Food Centre is the largest hawker centre in Singapore, offering a vast array of local dishes. It's perfect for food lovers looking to experience authentic Singaporean cuisine.",
             "Rating": 4.2,
+            "Satisfaction Score": 4.2,
             "Entrance Fee": 0.0,
             "Duration": 2,
             "Sources": [
-                "https://www.tripadvisor.com.sg/Restaurant_Review-g294265-d1145020-Reviews-Chinatown_Complex-Singapore.html",
-                "https://supasoya.com/singapore/guides/chinatown-complex-food-centre-best-hawker/"
+                "https://www.tripadvisor.com.sg/Restaurant_Review-g294265-d1145020-Reviews-Chinatown_Complex-Singapore.html"
             ]
         }
-    ]
+    ],
+    "Metrics": {
+        "Hawker Agent Time (s)": 11.56,
+        "Attraction Agent Time (s)": 29.43
+    }
 }

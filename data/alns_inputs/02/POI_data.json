@@ -2,122 +2,194 @@
     "Query": "I'm a solo backpacker staying for 2 days. My budget is tight (~50 SGD total), and I'm mainly here to try authentic hawker food and explore free attractions.",
     "Hawker": [
         {
-            "Hawker Name": "ION Orchard Food Opera",
-            "Dish Name": "Sergeant Hainanese Chicken Rice",
-            "Description": "A classic Singaporean dish featuring tender poached chicken served with fragrant rice and a side of garlicky chili. It's a must-try for its authentic taste and affordability.",
-            "Rating": 3.6,
+            "Hawker Name": "Maxwell Food Centre",
+            "Dish Name": "Tian Tian Chicken Rice",
+            "Description": "Famous for its tender poached chicken and fragrant rice, served with a garlicky chili sauce.",
+            "Satisfaction Score": 4.5,
+            "Rating": 4.3,
             "Avg Food Price": 5.0,
             "Duration": 1,
             "Sources": [
-                "https://www.yelp.com/biz/sergeant-hainanese-chicken-rice-singapore",
-                "https://www.tripadvisor.com/Restaurant_Review-g294265-d5501954-Reviews-Sergeant_Hainanese_Chicken_Rice-Singapore.html",
-                "https://www.burpple.com/sergeant-chicken-rice-at-food-republic-suntec-city"
-            ]
-        },
-        {
-            "Hawker Name": "Changi Village Hawker Centre",
-            "Dish Name": "Mizzy Corner Nasi Lemak",
-            "Description": "A beloved local favorite, this nasi lemak features fragrant coconut rice, crispy fried chicken, and spicy sambal. It's a perfect blend of flavors and textures.",
-            "Rating": 4.0,
-            "Avg Food Price": 5.0,
-            "Duration": 1,
-            "Sources": [
-                "https://sethlui.com/mizzy-corner-nasi-lemak-singapore/",
-                "https://www.foodadvisor.com.sg/restaurant/mizzy-corner-nasi-lemak/"
-            ]
-        },
-        {
-            "Hawker Name": "Changi Village Hawker Centre",
-            "Dish Name": "International Muslim Food Stall Nasi Lemak",
-            "Description": "Known for its generous portions and deliciously runny egg, this nasi lemak is a staple for those seeking a hearty meal at a great price.",
-            "Rating": 3.5,
-            "Avg Food Price": 5.0,
-            "Duration": 1,
-            "Sources": [
-                "https://www.tripadvisor.com/Restaurant_Review-g294265-d14788032-Reviews-International_Muslim_Food_Stall_Nasi_Lemak-Singapore.html",
-                "https://www.wherehalal.com/outlets/international-muslim-food-stall-nasi-lemak"
+                "https://singaporefoodie.com/singapore-hawker-food-2023/"
             ]
         },
         {
             "Hawker Name": "Chinatown Complex Food Centre",
-            "Dish Name": "Xiu Ji Ikan Bilis Yong Tau Foo",
-            "Description": "A budget-friendly option offering a variety of fresh, handmade items like bitter gourd, stuffed tofu, and meatballs, all bathed in a flavorful broth.",
-            "Rating": 4.0,
+            "Dish Name": "Char Kway Teow",
+            "Description": "A savory stir-fried noodle dish with a mix of sweet and spicy flavors, often including prawns and Chinese sausage.",
+            "Satisfaction Score": 4.3,
+            "Rating": 4.2,
             "Avg Food Price": 4.0,
             "Duration": 1,
             "Sources": [
-                "https://eatbook.sg/chinatown-complex-food/",
-                "https://danielfooddiary.com/2025/01/25/chinatowncomplex/"
+                "https://www.timeout.com/singapore/restaurants/the-best-hawker-centres-in-singapore"
             ]
         },
         {
-            "Hawker Name": "Chinatown Complex Food Centre",
-            "Dish Name": "Big Dot Chicken",
-            "Description": "Enjoy fried chicken with nostalgic flavors at an unbeatable price. The menu features a variety of combos, including a thigh and fries for just $3.00.",
-            "Rating": 4.0,
+            "Hawker Name": "Old Airport Road Food Centre",
+            "Dish Name": "Hokkien Mee",
+            "Description": "A delicious noodle dish stir-fried with prawns, squid, and a rich prawn broth, topped with sambal chili.",
+            "Satisfaction Score": 4.6,
+            "Rating": 4.4,
+            "Avg Food Price": 5.0,
+            "Duration": 1,
+            "Sources": [
+                "https://sg.reviewranger.co/singapore/best/hawker-food/"
+            ]
+        },
+        {
+            "Hawker Name": "Amoy Street Food Centre",
+            "Dish Name": "Fishball Noodles",
+            "Description": "Springy fishballs served with noodles in a light, flavorful broth, often garnished with fried shallots and chili.",
+            "Satisfaction Score": 4.2,
+            "Rating": 4.1,
+            "Avg Food Price": 3.5,
+            "Duration": 1,
+            "Sources": [
+                "https://sg.reviewranger.co/singapore/best/hawker-food/"
+            ]
+        },
+        {
+            "Hawker Name": "Tiong Bahru Market",
+            "Dish Name": "Chwee Kueh",
+            "Description": "Steamed rice cakes topped with preserved radish, a simple yet flavorful breakfast or snack option.",
+            "Satisfaction Score": 4.5,
+            "Rating": 4.3,
+            "Avg Food Price": 2.5,
+            "Duration": 1,
+            "Sources": [
+                "https://www.timeout.com/singapore/restaurants/the-best-hawker-centres-in-singapore"
+            ]
+        },
+        {
+            "Hawker Name": "Lau Pa Sat",
+            "Dish Name": "Satay",
+            "Description": "Grilled skewers of marinated meat served with a spicy peanut sauce, perfect for a light meal or snack.",
+            "Satisfaction Score": 4.3,
+            "Rating": 4.2,
+            "Avg Food Price": 6.0,
+            "Duration": 1,
+            "Sources": [
+                "https://sg.reviewranger.co/singapore/best/hawker-food/"
+            ]
+        },
+        {
+            "Hawker Name": "Tekka Centre",
+            "Dish Name": "Roti Prata",
+            "Description": "A crispy, flaky flatbread served with a side of curry, popular for breakfast or as a snack.",
+            "Satisfaction Score": 4.2,
+            "Rating": 4.1,
             "Avg Food Price": 3.0,
             "Duration": 1,
             "Sources": [
-                "https://danielfooddiary.com/2025/01/25/chinatowncomplex/",
-                "https://iwandered.net/chinatown-complex-food-centre-best-food-eat/"
+                "https://www.timeout.com/singapore/restaurants/the-best-hawker-centres-in-singapore"
+            ]
+        },
+        {
+            "Hawker Name": "Golden Mile Food Centre",
+            "Dish Name": "Laksa",
+            "Description": "A spicy noodle soup with a rich coconut milk base, often containing prawns, fish cakes, and cockles.",
+            "Satisfaction Score": 4.5,
+            "Rating": 4.3,
+            "Avg Food Price": 5.0,
+            "Duration": 1,
+            "Sources": [
+                "https://singaporefoodie.com/singapore-hawker-food-2023/"
             ]
         }
     ],
     "Attraction": [
         {
             "Attraction Name": "Merlion Park",
-            "Description": "Merlion Park is an iconic symbol of Singapore, featuring the famous Merlion statue. It's a great spot for photography and offers a beautiful view of the Marina Bay skyline. Ideal for solo travelers and those interested in iconic landmarks.",
-            "Rating": 4.3,
+            "Description": "A must-visit iconic symbol of Singapore, perfect for photo opportunities and enjoying the scenic views of Marina Bay. Ideal for cultural enthusiasts and nature lovers.",
+            "Rating": 4.2,
+            "Satisfaction Score": 4.2,
             "Entrance Fee": 0.0,
             "Duration": 2,
             "Sources": [
-                "https://www.tripadvisor.com.sg/Attraction_Review-g294265-d644919-Reviews-Merlion_Park-Singapore.html",
-                "https://www.yelp.com/biz/merlion-park-singapore"
+                "https://www.tripadvisor.com.sg/Attraction_Review-g294265-d644919-Reviews-Merlion_Park-Singapore.html"
+            ]
+        },
+        {
+            "Attraction Name": "Clarke Quay",
+            "Description": "A vibrant riverside quay known for its bustling nightlife, restaurants, and beautiful views. Great for influencers and those looking to experience Singapore's lively atmosphere.",
+            "Rating": 4.3,
+            "Satisfaction Score": 4.3,
+            "Entrance Fee": 1.0,
+            "Duration": 2,
+            "Sources": [
+                "https://www.tripadvisor.com.sg/Attraction_Review-g294265-d324756-Reviews-Clarke_Quay-Singapore.html"
+            ]
+        },
+        {
+            "Attraction Name": "Esplanade",
+            "Description": "A performing arts center known as 'The Durian' due to its unique architecture. Offers free performances and exhibitions, suitable for cultural enthusiasts.",
+            "Rating": 4.5,
+            "Satisfaction Score": 4.5,
+            "Entrance Fee": 1.0,
+            "Duration": 2,
+            "Sources": [
+                "https://en.wikipedia.org/wiki/Esplanade_%E2%80%93_Theatres_on_the_Bay"
+            ]
+        },
+        {
+            "Attraction Name": "Raffles Hotel",
+            "Description": "A historic hotel known for its colonial architecture and the birthplace of the Singapore Sling. Perfect for history buffs and those interested in Singapore's colonial past.",
+            "Rating": 4.7,
+            "Satisfaction Score": 4.7,
+            "Entrance Fee": 1.0,
+            "Duration": 2,
+            "Sources": [
+                "https://www.tripadvisor.com.sg/Hotel_Review-g294265-d301583-Reviews-Raffles_Hotel-Singapore.html"
+            ]
+        },
+        {
+            "Attraction Name": "Fort Siloso",
+            "Description": "A preserved fort on Sentosa Island, offering a glimpse into Singapore's military history. Ideal for cultural enthusiasts and history lovers.",
+            "Rating": 4.2,
+            "Satisfaction Score": 4.2,
+            "Entrance Fee": 1.0,
+            "Duration": 2,
+            "Sources": [
+                "https://www.tripadvisor.com.sg/Attraction_Review-g294264-d324747-Reviews-Fort_Siloso-Sentosa_Island.html"
             ]
         },
         {
             "Attraction Name": "Fort Canning Park",
-            "Description": "Fort Canning Park is a historic hilltop park in the heart of the city. It offers lush greenery, historical artifacts, and is a great place for a leisurely walk or a picnic. Perfect for nature lovers and history enthusiasts.",
+            "Description": "A historic hilltop park in the city center, known for its lush greenery and historical significance. Great for nature lovers and cultural enthusiasts.",
             "Rating": 4.3,
-            "Entrance Fee": 0.0,
+            "Satisfaction Score": 4.3,
+            "Entrance Fee": 1.0,
             "Duration": 2,
             "Sources": [
-                "https://www.tripadvisor.com.sg/Attraction_Review-g294265-d324755-Reviews-Fort_Canning_Park-Singapore.html",
-                "https://www.tripexpert.com/singapore/attractions/fort-canning-park"
+                "https://www.tripadvisor.com.sg/Attraction_Review-g294265-d324755-Reviews-Fort_Canning_Park-Singapore.html"
             ]
         },
         {
             "Attraction Name": "Chinatown Complex Food Centre",
-            "Description": "Chinatown Complex Food Centre is the largest hawker centre in Singapore, offering a wide variety of authentic local dishes at affordable prices. It's a must-visit for foodies looking to experience Singapore's hawker culture.",
+            "Description": "The largest hawker centre in Singapore, offering a vast array of authentic local dishes. Perfect for foodies looking to try a variety of hawker food.",
             "Rating": 4.2,
+            "Satisfaction Score": 4.2,
             "Entrance Fee": 0.0,
             "Duration": 2,
             "Sources": [
-                "https://www.tripadvisor.com.sg/Restaurant_Review-g294265-d1145020-Reviews-Chinatown_Complex-Singapore.html",
-                "https://www.yelp.com/biz/chinatown-complex-market-and-food-centre-singapore"
+                "https://www.tripadvisor.com.sg/Restaurant_Review-g294265-d1145020-Reviews-Chinatown_Complex-Singapore.html"
             ]
         },
         {
             "Attraction Name": "Changi Village Hawker Centre",
-            "Description": "Changi Village Hawker Centre is known for its laid-back atmosphere and delicious local food, including the famous nasi lemak. It's a great spot to enjoy a meal and experience the local dining culture.",
+            "Description": "A popular spot for locals and tourists alike, known for its delicious and affordable hawker food. Ideal for food enthusiasts on a budget.",
             "Rating": 4.2,
+            "Satisfaction Score": 4.2,
             "Entrance Fee": 0.0,
             "Duration": 2,
             "Sources": [
-                "https://www.tripadvisor.com.sg/Restaurant_Review-g294265-d12934535-Reviews-Changi_Village_Market_Hawker_Centre-Singapore.html",
-                "https://www.yelp.com/biz/changi-village-hawker-centre-singapore"
-            ]
-        },
-        {
-            "Attraction Name": "Esplanade - Theatres on the Bay",
-            "Description": "Esplanade is a performing arts centre located near the Marina Bay. It's known for its unique architecture and offers free performances and exhibitions. Ideal for art and culture enthusiasts.",
-            "Rating": 4.5,
-            "Entrance Fee": 0.0,
-            "Duration": 2,
-            "Sources": [
-                "https://www.tripadvisor.com.sg/Attraction_Review-g294265-d324755-Reviews-Fort_Canning_Park-Singapore.html",
-                "https://sg.trip.com/travel-guide/attraction/singapore/fort-canning-park-22846209/"
+                "https://www.tripadvisor.com.sg/Restaurant_Review-g294265-d12934535-Reviews-Changi_Village_Market_Hawker_Centre-Singapore.html"
             ]
         }
-    ]
+    ],
+    "Metrics": {
+        "Hawker Agent Time (s)": 11.4,
+        "Attraction Agent Time (s)": 24.87
+    }
 }
