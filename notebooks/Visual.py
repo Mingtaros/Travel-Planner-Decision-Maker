@@ -24,15 +24,16 @@ personas = st.sidebar.selectbox("Choose your persona", [
     "Family Tourist", "Backpacker", "Influencer", "Cultural Enthusiast", 
     "Thrill Seeker", "Nature Lover", "Shopping Enthusiast"
 ])
-date = st.sidebar.date_input("Travel Date")
-time = st.sidebar.time_input("Travel Time")
-description = st.sidebar.text_area("Trip Description", "Exploring Singapore")
+nums_of_date = st.sidebar.number_input("Number of Days (1-5)", min_value=1, max_value=5, value=1)
+budget = st.sidebar.number_input("Budget", min_value=0, value=5000)
+description = st.sidebar.text_area("Trip Description", "Your trip description here...")
 
 if st.sidebar.button("Generate Itinerary"):
-    input_data = {"personas": personas, "date": str(date), "time": str(time), "description": description}
-    json_path = "input_data.json"
+    user_input = {"personas": personas, "date": nums_of_date,
+        "budget": budget, "description": description}
+    json_path = "user_input.json"
     with open(json_path, 'w') as f:
-        json.dump(input_data, f, indent=4)
+        json.dump(user_input, f, indent=4)
     st.sidebar.success(f"Data saved to {json_path}")
 
 def find_route_between_points(G, start_point, end_point):
