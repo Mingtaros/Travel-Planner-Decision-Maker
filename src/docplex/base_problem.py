@@ -99,7 +99,7 @@ class TravelItineraryProblem(object):
         self.priority_weights = priority_weights
         # the goal here is to make the objective work in the same axis, price $
         self.travel_time_penalty_per_minute = 0.1 # for every minute spent in transit, the "cost" is this in $
-        self.satisfaction_offset = 50 # for the satisfaction, every point in satisfaction, offset the cost by this in $
+        self.satisfaction_offset = 100 # for the satisfaction, every point in satisfaction, offset the cost by this in $
 
         # check for valid inputs
         self.validate_inputs(budget, locations, transport_matrix, num_days)
@@ -397,21 +397,6 @@ class TravelItineraryProblem(object):
                     ]) == self.last_visit_var[(day, loc["name"])]
                 )
 
-            for loc in self.locations:
-                self.mdl.add_constraint(
-                    sum([
-                        self.x_var[(day, transport_type, source["name"], loc["name"])]
-                        for transport_type in self.transport_types
-                        for source in self.locations
-                        if source != loc
-                    ]) == sum([
-                        self.x_var[(day, transport_type, loc["name"], dest["name"])]
-                        for transport_type in self.transport_types
-                        for dest in self.locations
-                        if dest != loc
-                    ])
-                )
-
             # everyday, must go to hawkers at least twice (lunch & dinner)
             self.mdl.add_constraint(sum([
                 self.x_var[(day, transport_type, source["name"], dest["name"])]
@@ -419,7 +404,7 @@ class TravelItineraryProblem(object):
                 for source in self.locations
                 for dest in self.locations
                 if source != dest and dest["type"] == "hawker"
-            ]) >= 2)
+            ]) == 2)
 
             # every day, have lunch exactly once
             self.mdl.add_constraint(
@@ -530,6 +515,14 @@ class TravelItineraryProblem(object):
             self.priority_weights[1] * self.travel_time_var * self.travel_time_penalty_per_minute -
             self.priority_weights[2] * self.satisfaction_var * self.satisfaction_offset
         )
+        # sense = "min"
+        # exprs = [self.cost_var, self.travel_time_var, -self.satisfaction_var]
+        # self.mdl.set_multi_objective(
+        #     sense,
+        #     exprs,
+        #     priorities=[1,1,1],
+        #     weights=self.priority_weights,
+        # )
 
         self.solution = self.mdl.solve(log_output=True)
         # store the solution inside self.solution
@@ -814,6 +807,8 @@ class TravelItineraryProblem(object):
                     "type": dest["type"],
                     "arrival_time": f"{int(arrival_time // 60):02d}:{int(arrival_time % 60):02d}",
                     "departure_time": f"{int(departure_time // 60):02d}:{int(departure_time % 60):02d}",
+                    "lat": dest["lat"],
+                    "lng": dest["lng"],
                     "transit_from_prev": chosen_transport,
                     "transit_duration": travel_time,
                     "transit_cost": price,
@@ -860,17 +855,24 @@ class TravelItineraryProblem(object):
 if __name__ == "__main__":
     random.seed(42)
     # load locations
-    all_locations = get_all_locations()
+    raw_locations = get_all_locations()
+    unique_location_names = set()
+    all_locations = []
+    for loc in raw_locations:
+        if loc["name"] in unique_location_names:
+            continue
+        unique_location_names.add(loc["name"])
+        all_locations.append(loc)
     # for all locations, get satisfaction and rating
     for loc in all_locations:
         if loc["type"] == "hawker":
-            loc["rating"] = np.random.uniform(0, 5)
+            loc["rating"] = np.random.uniform(3, 10)
             loc["avg_food_price"] = np.random.uniform(5, 15)
-            loc["duration"] = 60 # just standardize 60 mins
+            loc["duration"] = 60 # standardize 60 mins
         elif loc["type"] == "attraction":
-            loc["satisfaction"] = np.random.uniform(0, 10)
+            loc["satisfaction"] = np.random.uniform(3, 10)
             loc["entrance_fee"] = np.random.uniform(5, 100)
-            loc["duration"] = np.random.randint(30, 90)
+            loc["duration"] = np.random.randint(45, 120)
     # get hotel, add it to selected locations
     sample_hotel = {
         "type": "hotel",
@@ -918,14 +920,14 @@ if __name__ == "__main__":
     selected_locations = selected_hotel + selected_attractions + selected_hawkers
 
     problem = TravelItineraryProblem(
-        budget=1000,
+        budget=500,
         locations=locations,
         # locations=selected_locations,
         transport_matrix=transport_matrix,
         num_days=3,
         hotel={
             "name": sample_hotel["name"],
-            "cost": 50,
+            "cost": 0,
         },
         priority_weights=[0.3, 0.3, 0.4],
     )
@@ -935,4 +937,4 @@ if __name__ == "__main__":
 
     problem.solve()
     problem.print_solution()
-    problem.export_json(f"results/docplex_itinerary_{current_time_formatted}.json")
+    problem.export_json(f"results/docplex/docplex_itinerary_{current_time_formatted}.json")

@@ -1,0 +1,230 @@
+{
+    "trip_summary": {
+        "duration": 3,
+        "total_budget": 500,
+        "actual_expenditure": 122.42883820452381,
+        "total_travel_time": 38.61,
+        "total_satisfaction": 50.05982370846952,
+        "is_feasible": true,
+        "starting_hotel": "Marina Bay Sands"
+    },
+    "days": [
+        {
+            "day": 1,
+            "locations": [
+                {
+                    "name": "Marina Bay Sands",
+                    "type": "hotel",
+                    "arrival_time": "09:00",
+                    "departure_time": "09:00",
+                    "transit_from_prev": null,
+                    "transit_duration": 0,
+                    "satisfaction": 0,
+                    "cost": 0,
+                    "rest_duration": 0
+                },
+                {
+                    "name": "Maxwell Food Centre",
+                    "type": "hawker",
+                    "arrival_time": "09:05",
+                    "departure_time": "10:05",
+                    "lat": 1.2803361,
+                    "lng": 103.844767,
+                    "transit_from_prev": "drive",
+                    "transit_duration": 5,
+                    "transit_cost": 10.1,
+                    "duration": 60,
+                    "satisfaction": 8.629423198539328,
+                    "cost": 5.121336254749461,
+                    "rest_duration": 0,
+                    "actual_arrival_time": null,
+                    "description": "Food Center with rating 8.63/5",
+                    "meal_cost": 5.121336254749461
+                },
+                {
+                    "name": "Amoy Street Food Centre",
+                    "type": "hawker",
+                    "arrival_time": "10:08",
+                    "departure_time": "20:00",
+                    "lat": 1.2794274,
+                    "lng": 103.8467957,
+                    "transit_from_prev": "drive",
+                    "transit_duration": 2.87,
+                    "transit_cost": 4.8,
+                    "duration": 60,
+                    "satisfaction": 8.057184704283845,
+                    "cost": 10.688276480091815,
+                    "rest_duration": 532,
+                    "actual_arrival_time": null,
+                    "description": "Food Center with rating 8.06/5",
+                    "meal_cost": 10.688276480091815
+                },
+                {
+                    "name": "Marina Bay Sands",
+                    "type": "hotel",
+                    "arrival_time": "20:05",
+                    "departure_time": "09:00",
+                    "lat": 1.2852044,
+                    "lng": 103.8610313,
+                    "transit_from_prev": "drive",
+                    "transit_duration": 5,
+                    "transit_cost": 10.1,
+                    "duration": 0,
+                    "satisfaction": null,
+                    "cost": null,
+                    "rest_duration": 775,
+                    "actual_arrival_time": null
+                }
+            ]
+        },
+        {
+            "day": 2,
+            "locations": [
+                {
+                    "name": "Marina Bay Sands",
+                    "type": "hotel",
+                    "arrival_time": "09:00",
+                    "departure_time": "09:00",
+                    "transit_from_prev": null,
+                    "transit_duration": 0,
+                    "satisfaction": 0,
+                    "cost": 0,
+                    "rest_duration": 0
+                },
+                {
+                    "name": "Maxwell Food Centre",
+                    "type": "hawker",
+                    "arrival_time": "09:05",
+                    "departure_time": "12:00",
+                    "lat": 1.2803361,
+                    "lng": 103.844767,
+                    "transit_from_prev": "drive",
+                    "transit_duration": 5,
+                    "transit_cost": 10.1,
+                    "duration": 60,
+                    "satisfaction": 8.629423198539328,
+                    "cost": 5.121336254749461,
+                    "rest_duration": 115,
+                    "actual_arrival_time": null,
+                    "description": "Food Center with rating 8.63/5",
+                    "meal_cost": 5.121336254749461
+                },
+                {
+                    "name": "Amoy Street Food Centre",
+                    "type": "hawker",
+                    "arrival_time": "12:03",
+                    "departure_time": "20:00",
+                    "lat": 1.2794274,
+                    "lng": 103.8467957,
+                    "transit_from_prev": "drive",
+                    "transit_duration": 2.87,
+                    "transit_cost": 4.8,
+                    "duration": 60,
+                    "satisfaction": 8.057184704283845,
+                    "cost": 10.688276480091815,
+                    "rest_duration": 417,
+                    "actual_arrival_time": null,
+                    "description": "Food Center with rating 8.06/5",
+                    "meal_cost": 10.688276480091815
+                },
+                {
+                    "name": "Marina Bay Sands",
+                    "type": "hotel",
+                    "arrival_time": "20:05",
+                    "departure_time": "09:00",
+                    "lat": 1.2852044,
+                    "lng": 103.8610313,
+                    "transit_from_prev": "drive",
+                    "transit_duration": 5,
+                    "transit_cost": 10.1,
+                    "duration": 0,
+                    "satisfaction": null,
+                    "cost": null,
+                    "rest_duration": 775,
+                    "actual_arrival_time": null
+                }
+            ]
+        },
+        {
+            "day": 3,
+            "locations": [
+                {
+                    "name": "Marina Bay Sands",
+                    "type": "hotel",
+                    "arrival_time": "09:00",
+                    "departure_time": "09:00",
+                    "transit_from_prev": null,
+                    "transit_duration": 0,
+                    "satisfaction": 0,
+                    "cost": 0,
+                    "rest_duration": 0
+                },
+                {
+                    "name": "Maxwell Food Centre",
+                    "type": "hawker",
+                    "arrival_time": "09:05",
+                    "departure_time": "12:00",
+                    "lat": 1.2803361,
+                    "lng": 103.844767,
+                    "transit_from_prev": "drive",
+                    "transit_duration": 5,
+                    "transit_cost": 10.1,
+                    "duration": 60,
+                    "satisfaction": 8.629423198539328,
+                    "cost": 5.121336254749461,
+                    "rest_duration": 115,
+                    "actual_arrival_time": null,
+                    "description": "Food Center with rating 8.63/5",
+                    "meal_cost": 5.121336254749461
+                },
+                {
+                    "name": "Amoy Street Food Centre",
+                    "type": "hawker",
+                    "arrival_time": "12:03",
+                    "departure_time": "21:40",
+                    "lat": 1.2794274,
+                    "lng": 103.8467957,
+                    "transit_from_prev": "drive",
+                    "transit_duration": 2.87,
+                    "transit_cost": 4.8,
+                    "duration": 60,
+                    "satisfaction": 8.057184704283845,
+                    "cost": 10.688276480091815,
+                    "rest_duration": 517,
+                    "actual_arrival_time": null,
+                    "description": "Food Center with rating 8.06/5",
+                    "meal_cost": 10.688276480091815
+                },
+                {
+                    "name": "Marina Bay Sands",
+                    "type": "hotel",
+                    "arrival_time": "21:45",
+                    "departure_time": "09:00",
+                    "lat": 1.2852044,
+                    "lng": 103.8610313,
+                    "transit_from_prev": "drive",
+                    "transit_duration": 5,
+                    "transit_cost": 10.1,
+                    "duration": 0,
+                    "satisfaction": null,
+                    "cost": null,
+                    "rest_duration": 675,
+                    "actual_arrival_time": null
+                }
+            ]
+        }
+    ],
+    "attractions_visited": [],
+    "budget_breakdown": {
+        "attractions": 0,
+        "meals": 47.42883820452383,
+        "transportation": 75.0
+    },
+    "transport_summary": {
+        "total_duration": 38.61,
+        "total_cost": 75.0
+    },
+    "rest_summary": {
+        "total_rest_duration": 3921
+    }
+}
