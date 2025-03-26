@@ -8,6 +8,7 @@ Not done
 4. extract moo_parameters, currently hardcoded, need to interpret from query e.g. budget, number of days etc
 5. can see data/alns_inputs/02/POI_data.json... attraction has changi village hawker why?
 6. code agent not done yet for leo side (cplex and something else)
+7. i added extra data in the json for reference e.g. query of the user, food dish name, sources etc.
 
 
 Second Attempt to fit ALNS Inputs (Daniel)
