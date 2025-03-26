@@ -40,7 +40,7 @@ class VRPSolution:
         num_days: Number of days in the itinerary
         routes: List of daily routes, where each route is a list of location tuples
                (location_idx, arrival_time, departure_time, transport_mode)
-        hotel_return_transport: Transport mode for returning to hotel (default: 'transit')
+        hotel_return_transport: Transport mode for returning to hotel (default: 'drive')
         hotel_transit_duration: Duration for hotel return in minutes
         MAX_HAWKERS_PER_DAY: Maximum number of hawker centers to visit per day (default: 2)
     """
@@ -57,7 +57,7 @@ class VRPSolution:
         # For each day, store a sequence of locations and their visit times
         # Format: (location_idx, arrival_time, departure_time, transport_mode)
         self.routes = [[] for _ in range(self.num_days)]
-        self.hotel_return_transport = 'transit'
+        self.hotel_return_transport = ['drive'] * self.num_days
         self.hotel_transit_duration = 0
         self.MAX_HAWKERS_PER_DAY = 2
         
@@ -393,7 +393,7 @@ class VRPSolution:
         if position == len(route):
             # Need to calculate return to hotel
             next_loc = hotel_idx
-            next_transport = self.hotel_return_transport
+            next_transport = self.hotel_return_transport[day]
         else:
             # Check if next location can still be reached on time
             next_loc, next_arrival, _, next_transport = route[position]
@@ -478,7 +478,7 @@ class VRPSolution:
         if last_loc == 0:
             return last_departure, 0, 0
         
-        transport_data = self._get_transport_data(last_loc, 0, last_departure, self.hotel_return_transport)
+        transport_data = self._get_transport_data(last_loc, 0, last_departure, self.hotel_return_transport[day])
         return_transit_duration = transport_data["duration"]
         return_transit_cost = transport_data["price"]
         hotel_arrival = last_departure + return_transit_duration

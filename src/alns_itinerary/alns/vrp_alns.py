@@ -318,6 +318,8 @@ class VRPALNS:
             approx_mandatory_cost = ((num_days_left * 2) - lunch_inserted - dinner_inserted) * self.avg_hawker_cost + self.approx_hotel_travel_cost
             attraction_count = 0
             
+            logger.info(f"Approx mandatory cost: {approx_mandatory_cost:.2f}")
+            
             # Skip if we don't have enough hawkers
             if len(hawker_ratings) < 2:
                 # logger.warning("Not enough unique hawkers for each day's lunch and dinner")
@@ -328,12 +330,12 @@ class VRPALNS:
             else:
                 transport_mode = "drive"
             
-            # logger.info(f"Day {day+1}: Starting with ${budget_left:.2f} budget, using {transport_mode} transport")
+            logger.info(f"Day {day+1}: Starting with ${budget_left:.2f} budget, using {transport_mode} transport")
             
             count = 0
             
             # Visit attractions until lunch time
-            while (latest_completion_time + self.meal_buffer_time) < self.problem.LUNCH_END and approx_mandatory_cost < budget_left and attraction_count < self.attraction_per_day:
+            while (latest_completion_time + self.meal_buffer_time) < self.problem.LUNCH_END and approx_mandatory_cost < budget_left and attraction_count < self.attraction_per_day and attraction_values:
                 
                 count += 1
                 attr_idx, attr_ratio = attraction_values.pop(0)
@@ -357,7 +359,7 @@ class VRPALNS:
                     # logger.warning("Could not insert enough attractions before lunch time")
                     break
             
-            # logger.info(f"Day {day+1}: Lunch time reached at {round(latest_completion_time/60, 2)} with ${budget_left:.2f} budget left")
+            logger.info(f"Day {day+1}: Lunch time reached at {round(latest_completion_time/60, 2)} with ${budget_left:.2f} budget left")
             
             lunch_hawker_idx = -1
             # Have lunch at appropriate time
@@ -378,11 +380,12 @@ class VRPALNS:
             
             approx_mandatory_cost = ((num_days_left * 2) - lunch_inserted - dinner_inserted) * self.avg_hawker_cost + self.approx_hotel_travel_cost
             
-            # logger.info(f"Day {day+1}: Lunch completed at {round(latest_completion_time/60, 2)} with ${budget_left:.2f} budget left")
+            logger.info(f"Day {day+1}: Lunch completed at {round(latest_completion_time/60, 2)} with ${budget_left:.2f} budget left")
+            logger.info(f"Approx mandatory cost: {approx_mandatory_cost:.2f}")
             
             count = 0
             # Visit attractions until dinner time
-            while (latest_completion_time + self.meal_buffer_time) < self.problem.DINNER_END and approx_mandatory_cost < budget_left and attraction_count < self.attraction_per_day:
+            while (latest_completion_time + self.meal_buffer_time) < self.problem.DINNER_END and approx_mandatory_cost < budget_left and attraction_count < self.attraction_per_day and attraction_values:
                 
                 count += 1
                 attr_idx, attr_ratio = attraction_values.pop(0)
@@ -406,7 +409,7 @@ class VRPALNS:
                     # logger.warning("Could not insert enough attractions before dinner time")
                     break
             
-            # logger.info(f"Day {day+1}: Dinner time reached at {round(latest_completion_time/60, 2)} with ${budget_left:.2f} budget left")
+            logger.info(f"Day {day+1}: Dinner time reached at {round(latest_completion_time/60, 2)} with ${budget_left:.2f} budget left")
                         
             # Have dinner at appropriate time
             while dinner_inserted == 0:
@@ -426,15 +429,21 @@ class VRPALNS:
             
             # Add hotel return at the end
             approx_mandatory_cost = ((num_days_left * 2) - lunch_inserted - dinner_inserted) * self.avg_hawker_cost + self.approx_hotel_travel_cost
+            logger.info(f"Day {day+1}: Dinner completed at {round(latest_completion_time/60, 2)} with ${budget_left:.2f} budget left")
+            logger.info(f"Approx mandatory cost: {approx_mandatory_cost:.2f}")
             
             # Find transport mode that works
             hotel_return_inserted = False
             for transport_mode in ["drive", "transit"]:
                 hotel_cost, hotel_duration = solution.get_cost_duration(day, self.hotel_idx, current_position, transport_mode)
+                logger.info(f"Day {day+1}: Hotel return cost: {hotel_cost}, duration: {hotel_duration}, transport: {transport_mode}")
                 if (latest_completion_time + hotel_duration) < self.problem.HARD_LIMIT_END_TIME and approx_mandatory_cost + hotel_cost <= budget_left:
                     hotel_return_inserted = True
-                    solution.hotel_return_transport = transport_mode
-                    solution.hotel_transit_duration = hotel_duration 
+                    solution.hotel_return_transport[day] = transport_mode
+                    solution.hotel_transit_duration = hotel_duration
+                    break
+            
+            logger.info(f"Day {day+1}: Hotel return inserted: {hotel_return_inserted}")
         
         return solution
     

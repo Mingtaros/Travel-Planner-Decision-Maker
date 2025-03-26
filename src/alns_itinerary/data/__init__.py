@@ -3,6 +3,7 @@ from .location_utils import (
     get_hotel_waypoint,
     compute_hotel_routes,
     integrate_hotel_with_locations,
+    get_all_locations,
     filter_locations
 )
 
@@ -16,8 +17,9 @@ from .llm_utils import (
 # Import key utility functions for easy access
 from .transport_utils import (
     get_transport_matrix,
-    get_all_locations,
-    get_transport_hour
+    get_transport_hour,
+    calculate_car_fare,
+    calculate_public_transport_fare
 )
 from .cache_manager import (
     save_hotel_routes_to_cache,
@@ -31,6 +33,8 @@ __all__ = [
     'get_transport_matrix',
     'get_all_locations', 
     'get_transport_hour',
+    'calculate_car_fare',
+    'calculate_public_transport_fare',
     
     # Cache Management
     'save_hotel_routes_to_cache',

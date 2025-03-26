@@ -3,6 +3,8 @@ import json
 import numpy as np
 import logging
 
+logger = logging.getLogger(__name__)
+
 def read_llm_output(base_path):
     # List all folders in the base directory that follow the naming convention
     folders = [f for f in os.listdir(base_path) if f.isdigit() and 1 <= int(f) <= 99]
@@ -55,9 +57,9 @@ def load_recommendations(json_path):
                     'name': hawker['Hawker Name'],
                     'dish': hawker['Dish Name'],
                     'description': hawker['Description'],
-                    'avg_price': hawker['Avg Food Price'],
-                    'rating': hawker['Rating'],
-                    'duration': hawker['Duration'] * 60, # Convert hours to minutes
+                    'avg_food_price': hawker['Avg Food Price'],
+                    'rating': hawker['Satisfaction Score'],
+                    'duration': hawker.get('Duration', 1) * 60, # Convert hours to minutes
                 })
         
         # Extract attraction recommendations
@@ -66,14 +68,14 @@ def load_recommendations(json_path):
                 recommendations['attractions'].append({
                     'name': attraction['Attraction Name'],
                     'description': attraction['Description'],
-                    'price': attraction['Entrance Fee'],
-                    'rating': attraction['Rating'],
-                    'duration': hawker['Duration'] * 60, # Convert hours to minutes
+                    'entrance_fee': attraction['Entrance Fee'],
+                    'satisfaction': attraction['Satisfaction Score'],
+                    'duration': attraction.get('Duration', 1) * 60, # Convert hours to minutes
                 })
         
         return recommendations, parameter_data
     except Exception as e:
-        logging.error(f"Error loading recommendations: {e}")
+        logger.error(f"Error loading recommendations: {e}")
         return {'hawkers': [], 'attractions': []}
     
 def augment_location_data(locations, recommendations=None):
@@ -106,17 +108,14 @@ def augment_location_data(locations, recommendations=None):
             # Check if we have recommendation data for this hawker
             if loc_name_lower in hawker_lookup:
                 rec = hawker_lookup[loc_name_lower]
-                # Use recommendation data if available
-                if "rating" not in loc:
-                    loc["rating"] = rec["rating"]
-                if "avg_food_price" not in loc:
-                    loc["avg_food_price"] = rec["avg_price"]
-                if "description" not in loc:
-                    loc["description"] = rec["description"]
-                if "dish" not in loc:
-                    loc["dish"] = rec["dish"]
+                
+                loc["rating"] = rec["rating"]
+                loc["avg_food_price"] = rec["avg_food_price"]
+                loc["description"] = rec["description"]
+                loc["dish"] = rec["dish"]
             else:
                 # Use randomized values for missing data
+                logger.warning(f"No recommendation data found for hawker: {loc['name']}")
                 if "rating" not in loc:
                     loc["rating"] = np.random.uniform(3, 5)  # More realistic ratings
                 if "avg_food_price" not in loc:
@@ -131,13 +130,11 @@ def augment_location_data(locations, recommendations=None):
             if loc_name_lower in attraction_lookup:
                 rec = attraction_lookup[loc_name_lower]
                 # Use recommendation data if available
-                if "satisfaction" not in loc:
-                    loc["satisfaction"] = rec["rating"]
-                if "entrance_fee" not in loc:
-                    loc["entrance_fee"] = rec["price"]
-                if "description" not in loc:
-                    loc["description"] = rec["description"]
+                loc["satisfaction"] = rec["satisfaction"]
+                loc["entrance_fee"] = rec["entrance_fee"]
+                loc["description"] = rec["description"]
             else:
+                logger.warning(f"No recommendation data found for attraction: {loc['name']}")
                 # Use randomized values for missing data
                 if "satisfaction" not in loc:
                     loc["satisfaction"] = np.random.uniform(5, 10)  # More realistic ratings
@@ -166,8 +163,7 @@ def filter_by_recommendations(locations, recommendations=None):
         list: Filtered locations
     """
     if not recommendations or (not recommendations['attractions'] and not recommendations['hawkers']):
-        # If no recommendations, return original locations
-        return locations
+        return []
     
     # Create sets of recommended location names (lowercase for case-insensitive matching)
     recommended_hawkers = {hawker['name'].lower() for hawker in recommendations['hawkers']}
@@ -176,46 +172,22 @@ def filter_by_recommendations(locations, recommendations=None):
     # Separate locations by type
     hotels = [loc for loc in locations if loc["type"] == "hotel"]
     
+    # List of recommendations not in the location data
+    missing_hawkers = recommended_hawkers - {loc["name"].lower() for loc in locations if loc["type"] == "hawker"}
+    missing_attractions = recommended_attractions - {loc["name"].lower() for loc in locations if loc["type"] == "attraction"}
+    
+    if missing_hawkers:
+        logger.warning(f"Missing hawker recommendations: {missing_hawkers}")
+    
+    if missing_attractions:
+        logger.warning(f"Missing attraction recommendations: {missing_attractions}")
+    
     # Filter hawkers and attractions based on recommendations
-    hawkers = []
-    attractions = []
-    
-    for loc in locations:
-        loc_name_lower = loc["name"].lower()
-        
-        if loc["type"] == "hawker":
-            # Check if this hawker is in recommendations
-            is_recommended = any(hawker_name in loc_name_lower or loc_name_lower in hawker_name 
-                               for hawker_name in recommended_hawkers)
-            
-            if is_recommended:
-                # Add recommended hawkers with high priority
-                hawkers.append((loc, 1, loc.get("rating", 3.0)))
-            else:
-                # Add other hawkers with lower priority
-                hawkers.append((loc, 0, loc.get("rating", 3.0)))
-        
-        elif loc["type"] == "attraction":
-            # Check if this attraction is in recommendations
-            is_recommended = any(attraction_name in loc_name_lower or loc_name_lower in attraction_name 
-                               for attraction_name in recommended_attractions)
-            
-            if is_recommended:
-                # Add recommended attractions with high priority
-                attractions.append((loc, 1, loc.get("satisfaction", 5.0)))
-            else:
-                # Add other attractions with lower priority
-                attractions.append((loc, 0, loc.get("satisfaction", 5.0)))
-    
-    # Sort hawkers and attractions by priority (recommended first) and then by rating
-    hawkers.sort(key=lambda x: (-x[1], -x[2]))
-    attractions.sort(key=lambda x: (-x[1], -x[2]))
-    
-    # Extract just the location dictionaries
-    hawkers = [h[0] for h in hawkers]
-    attractions = [a[0] for a in attractions]
-    
-    # Combine all locations with hotels first
-    filtered_locations = hotels + attractions + hawkers
+    filtered_locations = [
+        loc for loc in locations
+        if (loc["type"] == "hawker" and loc["name"].lower() in recommended_hawkers) or
+           (loc["type"] == "attraction" and loc["name"].lower() in recommended_attractions) or
+           (loc["type"] == "hotel")
+    ]
     
     return filtered_locations

@@ -33,12 +33,13 @@ from datetime import datetime
 from alns.vrp_alns import VRPALNS
 from alns.vrp_solution import VRPSolution
 from problem.itinerary_problem import TravelItineraryProblem
-from data.transport_utils import get_transport_matrix, get_all_locations
+from data.transport_utils import get_transport_matrix
 from utils.export_json_itinerary import export_json_itinerary
 from utils.google_maps_client import GoogleMapsClient
 from utils.config import load_config
 from data.location_utils import (
     get_hotel_waypoint, 
+    get_all_locations,
     integrate_hotel_with_locations, 
     filter_locations
 )
@@ -134,6 +135,10 @@ def main(
     # Set up logging
     setup_logging()
     logger = logging.getLogger(__name__)
+    
+    if seed is not None:
+        np.random.seed(seed)
+    
     config = load_config(config_path)
     
     # Load recommendations if available
@@ -141,7 +146,7 @@ def main(
     parameter_data = None
     if llm_path and os.path.exists(llm_path):
         recommendations, parameter_data = load_recommendations(llm_path)
-        logger.info(f"Loaded {len(recommendations)} recommendations")
+        logger.info(f"Loaded recommendations")
     
     budget = parameter_data["Budget"]
     num_days = parameter_data["Number of days"]
@@ -167,9 +172,6 @@ def main(
     repair_satisfaction_weights = config["REPAIR_SATISFACTION_WEIGHTS"]
     destroy_day_hawker_preserve = config["DESTROY_DAY_HAWKER_PRESERVE"]
     
-    if seed is not None:
-        np.random.seed(seed)
-    
     try:
         # Get hotel waypoint
         logger.info(f"Determining hotel location: {hotel_name or 'Using default'}")
@@ -185,7 +187,7 @@ def main(
         # Apply recommendation-based filtering first
         if recommendations:
             all_locations = filter_by_recommendations(all_locations, recommendations)
-            logger.info(f"Filtered locations based on recommendations")
+            logger.info(f"Filtered locations based on recommendations down to {len(all_locations)}")
         
         # Filter locations based on max_attractions and max_hawkers
         if max_attractions is not None or max_hawkers is not None:
@@ -261,6 +263,8 @@ def main(
         initial_json_path = f"results/initial_itinerary_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
         initial_json_file = export_json_itinerary(problem, initial_solution, initial_json_path)
         logger.info(f"Initial solution exported to: {initial_json_file}")
+        
+        # exit()
         
         # Run the optimization
         results = alns.run(verbose=True)

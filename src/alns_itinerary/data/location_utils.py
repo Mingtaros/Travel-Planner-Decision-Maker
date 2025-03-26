@@ -24,10 +24,12 @@ Usage examples:
 import logging
 import numpy as np
 from datetime import datetime
+import os
+import json
 
 # Import required utilities
 from utils.google_maps_client import GoogleMapsClient
-from .trip_detail import calculate_public_transport_fare, calculate_car_fare
+from .transport_utils import calculate_public_transport_fare, calculate_car_fare
 from .cache_manager import save_hotel_routes_to_cache, load_hotel_routes_from_cache
 
 logger = logging.getLogger(__name__)
@@ -105,6 +107,71 @@ def get_hotel_waypoint(hotel_name):
             "lat": 1.2904527,  # Default coordinates
             "lng": 103.8577566,
         }
+
+def get_all_locations():
+    """
+    Extract location data from the route matrix files.
+    
+    Loads the location data from the morning route matrix file and
+    converts it to a standardized format for use in the optimization.
+    
+    Returns:
+        list: List of location dictionaries with the following structure:
+            {
+                "id": unique_id,
+                "name": location_name,
+                "type": "hotel"|"attraction"|"hawker",
+                "lat": latitude,
+                "lng": longitude
+            }
+    
+    Note:
+        - Location types are inferred from names and may need validation
+        - Returns empty list if the route matrix file cannot be loaded
+    """
+    try:
+        # Determine the base path for route data
+        base_path = os.path.join("data", "routeData")
+        filepath = os.path.join(base_path, "route_matrix_morning.json")
+        
+        # Check if file exists
+        if not os.path.exists(filepath):
+            logger.error(f"Route matrix file not found: {filepath}")
+            return []
+        
+        # Load locations from the first route matrix file
+        with open(filepath, 'r') as f:
+            route_matrix = json.load(f)
+        
+        # Convert locations to standard format
+        locations = []
+        for location_id, location_data in route_matrix.get("locations", {}).items():
+            # Determine location type based on name or other heuristics
+            location_type = "attraction"  # Default assumption
+            
+            # You might want to add more sophisticated type detection logic here
+            if "hotel" in location_data.get("type", "").lower():
+                location_type = "hotel"
+            elif "food centre" in location_data.get("type", "").lower() or "hawker" in location_data.get("type", "").lower():
+                location_type = "hawker"
+            
+            # Construct location dictionary
+            location = {
+                "id": location_id,
+                "name": location_data.get("name", ""),
+                "type": location_type,
+                "lat": location_data.get("lat", 0),
+                "lng": location_data.get("lng", 0)
+            }
+            
+            locations.append(location)
+        
+        logger.info(f"Retrieved {len(locations)} locations")
+        return locations
+    
+    except Exception as e:
+        logger.error(f"Unexpected error retrieving locations: {e}")
+        return []
 
 def compute_hotel_routes(hotel, locations):
     """

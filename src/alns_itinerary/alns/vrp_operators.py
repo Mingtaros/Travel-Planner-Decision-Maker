@@ -352,7 +352,7 @@ class VRPOperators:
                     # If last location, use return to hotel
                     next_loc_idx = 0
                     departure = route[pos][2]
-                    next_transport = new_solution.hotel_return_transport
+                    next_transport = new_solution.hotel_return_transport[day]
                     
                 transport_hour = problem.get_transport_hour(departure)
                 transport_key = (problem.locations[loc_idx]["name"],
