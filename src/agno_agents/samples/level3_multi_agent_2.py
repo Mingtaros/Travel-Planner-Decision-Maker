@@ -79,7 +79,7 @@ def get_hawker_kb():
     hawker_chunking_type = FixedSizeChunking(chunk_size=150, overlap=20)
 
     chroma_db_path = "./chromadb_data"
-    hawker_collection_name = "ATTRACTION_fixedchunk" #depends on hawker chunking type and name appropriately
+    hawker_collection_name = "HAWKER_fixedchunk_final" #depends on hawker chunking type and name appropriately
     hawker_db = ChromaDb(
         collection=hawker_collection_name, 
         path=chroma_db_path,
@@ -104,7 +104,7 @@ def get_attraction_kb():
     attraction_chunking_type = FixedSizeChunking(chunk_size=350, overlap=50)
 
     chroma_db_path = "./chromadb_data"
-    attraction_collection_name = "ATTRACTION_fixedchunk" #depends on hawker chunking type and name appropriately
+    attraction_collection_name = "ATTRACTION_fixedchunk_final" #depends on hawker chunking type and name appropriately
     attraction_db = ChromaDb(
         collection=attraction_collection_name, 
         path=chroma_db_path,
@@ -130,7 +130,7 @@ def create_preference_agent():
             description="You are an expert in understanding based on the traveller type, if you need to look up for suitability score of attraction and/or food. Returns only the suitability score (1-10) of a location & food for a specific traveler type.",
             knowledge=csv_kb,
             instructions=[
-                # "You will be given a traveler's type, an attraction name, and optionally a hawker/food name.",
+                # "Warning: You should not mix up with .",
                 "Search the knowledge base and return ONLY the following keys as a JSON:",
                 "- score_attraction_suitability: value between 0 and 10 (0 if not found)",
                 "- score_food_suitability: value between 0 and 10 (0 if not found)",
@@ -165,7 +165,7 @@ def create_intent_agent(model_id = "deepseek-r1-distill-llama-70b"):
 def create_hawker_agent(model_id = "gpt-4o", debug_mode=True):
 # def create_hawker_agent(model_id = "deepseek-r1-distill-llama-70b", debug_mode=True):
     hawker_kb = get_hawker_kb()
-    # hawker_kb.load(recreate=False)
+    hawker_kb.load(recreate=False)
     hawker_agent = Agent(
         name="Query to Hawker Agent",
         agent_id="query_to_hawker_agent",
@@ -181,9 +181,9 @@ def create_hawker_agent(model_id = "gpt-4o", debug_mode=True):
         description="You are a Singapore hawker food recommender for foreigners! You are able to understand the traveller's personality and persona.",
         role="Search the internal knowledge base and web for information",
         instructions=[
-            "IMPORTANT: Provide at least 8 hawker food recommendations from the internal knowledge base",
+            "IMPORTANT: Provide at least 10 unique hawker recommendations from the internal knowledge base",
             "For each recommendation, include the following:",
-            "- 'Hawker Name': Name of the hawker centre.",
+            "- 'Hawker Name': Name of the unique hawker centre. it should be duplicated.",
             "- 'Dish Name': Name of the recommended dish.",
             "- 'Description': Short, compelling explanation of the dish and its appeal.",
             "- 'Average Price': In SGD, based on actual price per dish (not total order or combo). Do not inflate.",
@@ -194,25 +194,25 @@ def create_hawker_agent(model_id = "gpt-4o", debug_mode=True):
             "Avoid guessing prices. If no reliable pricing info is found, skip that dish.",
             "If conflicting prices are found, return the most commonly mentioned or lower bound.",
             "Only include dishes where both price and rating can be confirmed.",
-            "Only when no relevant hawker can be found, choose any popular hawkers in the internal knowledge base."
+            "IMPORTANT: always include 1-2 more hawkers places that you have not selected from the internal knowledge base."
         ],
         knowledge=hawker_kb,
         search_knowledge=True,
 
         tools=[DuckDuckGoTools(search=True,
-                            # news=True,
+                            # news=False,
                             fixed_max_results=3)],
         show_tool_calls=True,
         debug_mode=debug_mode,  # Comment if not needed - added to see the granularity for debug like retrieved context from vectodb
         markdown=True,
-        
+        # add_references=True, # enable RAG by adding references from AgentKnowledge to the user prompt.
     )
     return hawker_agent
 
 def create_attraction_agent(model_id = "gpt-4o", debug_mode=True):
 # def create_attraction_agent(model_id = "deepseek-r1-distill-llama-70b", debug_mode=True):
     attraction_kb = get_attraction_kb()
-    # attraction_kb.load(recreate=False)
+    attraction_kb.load(recreate=False)
     attraction_agent = Agent(
         name="Query to Attraction Agent",
         agent_id="query_to_attraction_agent",
@@ -228,7 +228,7 @@ def create_attraction_agent(model_id = "gpt-4o", debug_mode=True):
         description="You are a Singapore Attraction recommender for foreigners! You are able to understand the traveller's personality and persona.",
         role="Search the internal knowledge base",
         instructions=[
-            "IMPORTANT: Provide at least 8 relevant attraction recommendations from the knowledge base",
+            "IMPORTANT: Provide at least 30 unique attraction recommendations from the knowledge base.",
             "For each attraction, include the following:",
             "- 'Attraction Name'",
             "- 'Description' (why it is recommended, who it is suited for)",
@@ -250,6 +250,8 @@ def create_attraction_agent(model_id = "gpt-4o", debug_mode=True):
         show_tool_calls=True,
         debug_mode=debug_mode,  # Comment if not needed - added to see the granularity for debug like retrieved context from vectodb
         markdown=True,    
+        # add_references=True, # enable RAG by adding references from AgentKnowledge to the user prompt.
+
     )
     return attraction_agent
 
@@ -306,16 +308,19 @@ user_queries = {
 }
 
 user_queries = {
-    "08": "My spouse and I are retired and visiting Singapore for 5 days. We love cultural sites and relaxing parks. Prefer to avoid loud or overly touristy spots. Prefer to have less oily food in general too. Budget is 350 SGD.",
     
-    "09": "We’re a group of university students on a short trip (2 days) with a budget of 60 SGD each. Recommend cheap eats and fun, free things to do.",
+    "07": "What can I do in Singapore in 2 days if I love shopping and modern city vibes? I’d actually favour sweet stuff in general. Budget is 180 SGD.",
+
+    # "08": "My spouse and I are retired and visiting Singapore for 5 days. We love cultural sites and relaxing parks. Prefer to avoid loud or overly touristy spots. Prefer to have less oily food in general too. Budget is 350 SGD.",
     
-    "10": "This is my first time in Singapore and I’ll be here for 3 days. I’d like a mix of sightseeing, must-try foods, and some local experiences. Budget is 250 SGD."
+    # "09": "We’re a group of university students on a short trip (2 days) with a budget of 60 SGD each. Recommend cheap eats and fun, free things to do.",
+    
+    # "10": "This is my first time in Singapore and I’ll be here for 3 days. I’d like a mix of sightseeing, must-try foods, and some local experiences. Budget is 250 SGD."
 }
 
 if __name__ == "__main__":
     # Step 0: Create Agents
-    debug_mode = False
+    debug_mode = True
     intent_agent = create_intent_agent()
     hawker_agent = create_hawker_agent(debug_mode=debug_mode)
     attraction_agent = create_attraction_agent(debug_mode=debug_mode)
@@ -414,3 +419,6 @@ if __name__ == "__main__":
             json.dump(moo_params, f, indent=4)
 
         print(f"✅ Saved to: {subfolder_path}")
+
+
+        ### aggregate and check for unique for downstream task

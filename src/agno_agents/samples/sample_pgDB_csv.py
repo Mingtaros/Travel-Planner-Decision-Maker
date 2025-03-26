@@ -39,10 +39,10 @@ satisfaction_agent = Agent(
         temperature=0.1,
     ),
     agent_id="suitability_agent",
-    description="You are an expert in understanding based on the traveller type, if you need to look up for suitability score of attraction and/or food. Returns only the suitability score (1-10) of a location & food for a specific traveler type.",
+    description="You are an expert in understanding based on the traveller type, if you need to look up for suitability score of attraction table and food table. Returns only the suitability score (1-10) of a location & food for a specific traveler type.",
     knowledge=csv_kb,
     instructions=[
-        # "You will be given a traveler's type, an attraction name, and optionally a hawker/food name.",
+        # "WARNING: You should not mixed up both",
         "Search the knowledge base and return ONLY the following keys as a JSON:",
         "- score_attraction_suitability: value between 0 and 10 (0 if not found)",
         "- score_food_suitability: value between 0 and 10 (0 if not found)",

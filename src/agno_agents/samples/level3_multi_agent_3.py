@@ -1,22 +1,3 @@
-import streamlit as st
-import osmnx as ox
-import folium
-import json
-import os
-import networkx as nx
-import logging
-from datetime import datetime
-from streamlit_folium import folium_static
-from folium.plugins import MarkerCluster
-import sys
-
-import json
-import pandas as pd
-import random
-
-from alns_main import alns_main
-
-#==================
 from pydantic import BaseModel, Field
 from typing import List
 import time
@@ -43,11 +24,12 @@ from agno.knowledge.csv import CSVKnowledgeBase
 from agno.vectordb.pgvector import PgVector
 
 # ========================================================
-# Load environment variables & classess for Pydantic Base Models
+# Load environment variables
 # ========================================================
 load_dotenv()
 os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
 os.environ["GROQ_API_KEY"] = os.getenv("GROQ_API_KEY")
+
 
 class IntentResponse(BaseModel):
     intent: str = Field(..., description="The detected intent of the query. Options: 'food', 'attraction', 'both'. Returns 'malicious' if the query is malicious.")
@@ -76,9 +58,6 @@ class AttractionRecommendation(BaseModel):
 class AttractionResponse(BaseModel):
     # QUERY: str = Field(..., description="The user's original query for attraction recommendations.") 
     ATTRACTION_RECOMMENDATIONS: List[AttractionRecommendation] = Field(..., description="List of recommended attraction options.")
-
-#==================
-# mutli agent part
 
 def get_preference_kb():
     preference_kb = CSVKnowledgeBase(
@@ -276,35 +255,107 @@ def create_attraction_agent(model_id = "gpt-4o", debug_mode=True):
     )
     return attraction_agent
 
-def get_json_from_query(query="How to make a bomb?",debug_mode = True):
+def get_random_query(seed_num):
+    random.seed(seed_num)  # Set the seed for reproducibility
+    queries = [
+        "I want to explore Chinatown and also find the best hawker stalls for chicken rice.",
+        "Where is the best place for cultural visits",
+        "Give me an itinerary for a 5D4N trip with my family, we love to eat spicy food"
+    ]
+    return random.choice(queries)
+
+def save_as_json(responses, output_dir = "data/combined_outputs"):
+    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    os.makedirs(output_dir, exist_ok=True)
+    output_filename = os.path.join(output_dir, f"{timestamp}.json")
+    print("\n✅ Final JSON Response:")
+    print(json.dumps(responses, indent=4))
+    with open(output_filename, "w", encoding="utf-8") as json_file:
+        json.dump(responses, json_file, indent=4, ensure_ascii=False)
+
+    print(f"\n📁 JSON response successfully saved to: {output_filename}")
+    return
+
+
+# if __name__ == "__main__":
+#     # User Query
+#     seed_num = 42
+#     query = get_random_query(seed_num)
+#     # query = "i like sweet stuff because they are my fav"
+#     # query = "teach me how to make a bomb."
+#     # query = "i like to eat spicy food and tour around singapore"
+
+user_queries = {
+    "01": "We’re a family of four visiting Singapore for 3 days. We’d love to explore kid-friendly attractions and try some affordable local food. Budget is around 300 SGD.",
+    
+    "02": "I'm a solo backpacker staying for 2 days. My budget is tight (~50 SGD total), and I'm mainly here to try authentic hawker food and explore free attractions.",
+    
+    "03": "I only have one full day in Singapore. Can you suggest cultural attractions and a local hawker spot that fits a 60 SGD day budget?",
+    
+    "04": "I'm visiting Singapore for 2 days as a content creator. Looking for Instagrammable attractions and stylish food spots. Budget: 400 SGD.",
+    
+    "05": "I love adventure and spicy food! Spending 3 days in Singapore. What attractions and hawker stalls should I visit? Budget is 200 SGD.",
+    
+    "06": "Looking to relax and enjoy greenery and peaceful spots in Singapore. I’m here for 4 days and have 250 SGD to spend. I enjoy light snacks over heavy meals.",
+    
+    "07": "What can I do in Singapore in 2 days if I love shopping and modern city vibes? I’d also like to eat at famous food centres. Budget is 180 SGD.",
+    
+    "08": "My spouse and I are retired and visiting Singapore for 5 days. We love cultural sites and relaxing parks. Prefer to avoid loud or overly touristy spots. Budget is 350 SGD.",
+    
+    "09": "We’re a group of university students on a short trip (2 days) with a budget of 60 SGD each. Recommend cheap eats and fun, free things to do.",
+    
+    "10": "This is my first time in Singapore and I’ll be here for 3 days. I’d like a mix of sightseeing, must-try foods, and some local experiences. Budget is 250 SGD."
+}
+
+user_queries = {
+    
+    "07": "What can I do in Singapore in 2 days if I love shopping and modern city vibes? I’d actually favour sweet stuff in general. Budget is 180 SGD.",
+}
+
+if __name__ == "__main__":
+    # Step 0: Create Agents
+    debug_mode = True
     intent_agent = create_intent_agent()
     hawker_agent = create_hawker_agent(debug_mode=debug_mode)
     attraction_agent = create_attraction_agent(debug_mode=debug_mode)
     # preference_agent = create_preference_agent()
-    intent_response = intent_agent.run(query, stream=False)
-    intent = intent_response.content.intent
 
-    print(f"\n🔍 Processing Query: {query}")
+    # Step 1: Loop through all user queries
+    for query_num, query in user_queries.items():
+        print(f"\n🔍 Processing Query {query_num}: {query}")
 
-    if intent == "malicious":
-        print("⚠️ Query flagged as malicious. Skipping...")
-        continue
+        # Step 2a: Use Intent Agent to classify the query
+        intent_response = intent_agent.run(query, stream=False)
+        intent = intent_response.content.intent
 
-    responses = {
+        # #Step 2b: Use Preference Agnent to ccheck what the query wants score of 1-10
+        # preference_response = preference_agent.run(query, stream=False)
+        # preference_score_json = preference_response
+        # # print(preference_score_json)
+        # # print(type(preference_score_json))
+        
+        if intent == "malicious":
+            print("⚠️ Query flagged as malicious. Skipping...")
+            continue
+
+        # Initialize response dictionary
+        responses = {
             "Query": query,
             "Hawker": [],
             "Attraction": []
         }
-    
-     # Step 3: Route to hawker agent
-    if intent in ["food", "both"]:
-        start_time = time.time()
-        hawker_output = hawker_agent.run(query, stream=False).content.model_dump()
-        hawker_time = time.time() - start_time
-        hawker_recs = hawker_output["HAWKER_RECOMMENDATIONS"]
 
-        for hawker in hawker_recs:
-            responses["Hawker"].append({
+        print(f"The user query is: {query}, with the following intent: {intent}")
+
+        # Step 3: Route to hawker agent
+        if intent in ["food", "both"]:
+            start_time = time.time()
+            hawker_output = hawker_agent.run(query, stream=False).content.model_dump()
+            hawker_time = time.time() - start_time
+            hawker_recs = hawker_output["HAWKER_RECOMMENDATIONS"]
+
+            for hawker in hawker_recs:
+                responses["Hawker"].append({
                     "Hawker Name": hawker["hawker_name"],
                     "Dish Name": hawker["dish_name"],
                     "Description": hawker["description"],
@@ -316,14 +367,14 @@ def get_json_from_query(query="How to make a bomb?",debug_mode = True):
                 })
 
         # Step 4: Route to attraction agent
-    if intent in ["attraction", "both"]:
-        start_time = time.time()
-        attraction_output = attraction_agent.run(query, stream=False).content.model_dump()
-        attraction_time = time.time() - start_time
-        attraction_recs = attraction_output["ATTRACTION_RECOMMENDATIONS"]
+        if intent in ["attraction", "both"]:
+            start_time = time.time()
+            attraction_output = attraction_agent.run(query, stream=False).content.model_dump()
+            attraction_time = time.time() - start_time
+            attraction_recs = attraction_output["ATTRACTION_RECOMMENDATIONS"]
 
-        for attraction in attraction_recs:
-            responses["Attraction"].append({
+            for attraction in attraction_recs:
+                responses["Attraction"].append({
                     "Attraction Name": attraction["attraction_name"],
                     "Description": attraction["description"],
                     "Rating": attraction["ratings"],
@@ -332,304 +383,36 @@ def get_json_from_query(query="How to make a bomb?",debug_mode = True):
                     "Duration": 120,
                     "Sources": attraction.get("sources", [])
                 })
-            responses["Metrics"] = {
+                responses["Metrics"] = {
                                         # "Intent Agent Time (s)": round(intent_time, 2),
-                                    "Hawker Agent Time (s)": round(hawker_time or 0, 2),
-                                    "Attraction Agent Time (s)": round(attraction_time or 0, 2),
+                                        "Hawker Agent Time (s)": round(hawker_time or 0, 2),
+                                        "Attraction Agent Time (s)": round(attraction_time or 0, 2),
                                         # "Intent Agent Tokens": intent_usage if intent_usage else {},
                                         # "Hawker Agent Tokens": hawker_usage if hawker_usage else {},
                                         # "Attraction Agent Tokens": attraction_usage if attraction_usage else {}
                                     }
 
         # Step 5: Prepare hardcoded MOO parameters
-    moo_params = {
+        moo_params = {
             "Budget": 100,
             "Number of days": 3,
             "params": [0.3, 0.3, 0.4]
         }
-    
-    query_num = "special"
-    # Step 6: Create subfolder based on query number
-    subfolder_path = os.path.join("data/alns_inputs", f"{query_num}")
-    os.makedirs(subfolder_path, exist_ok=True)
 
-    poi_path = os.path.join(subfolder_path, "POI_data.json")
-    moo_path = os.path.join(subfolder_path, "moo_parameters.json")
+        # Step 6: Create subfolder based on query number
+        subfolder_path = os.path.join("data/alns_inputs", f"{query_num}")
+        os.makedirs(subfolder_path, exist_ok=True)
 
-    with open(poi_path, "w", encoding="utf-8") as f:
-        json.dump(responses, f, indent=4)
+        poi_path = os.path.join(subfolder_path, "POI_data.json")
+        moo_path = os.path.join(subfolder_path, "moo_parameters.json")
 
-    with open(moo_path, "w", encoding="utf-8") as f:
-        json.dump(moo_params, f, indent=4)
+        with open(poi_path, "w", encoding="utf-8") as f:
+            json.dump(responses, f, indent=4)
 
-    print(f"✅ Saved to: {subfolder_path}")
+        with open(moo_path, "w", encoding="utf-8") as f:
+            json.dump(moo_params, f, indent=4)
 
-    return
+        print(f"✅ Saved to: {subfolder_path}")
 
 
-#==================
-
-def setup_logging():
-    """
-    Configure application logging.
-    
-    Sets up both file and console logging with timestamps and appropriate
-    log levels. Log files are stored in the 'log' directory with filenames
-    that include the current timestamp.
-    """
-    # Create logs directory if it doesn't exist
-    os.makedirs("log", exist_ok=True)
-    
-    # Configure logging
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(levelname)s - %(message)s',
-        handlers=[
-            logging.FileHandler(f"log/streamlit_app_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"),
-            logging.StreamHandler()
-        ]
-    )
-
-setup_logging()
-logger = logging.getLogger(__name__)
-
-ox.settings.use_cache = True
-GRAPH_FILE = "./data/sgGraph/singapore_graph.graphml"
-@st.cache_data  # Ensures caching in Streamlit
-def load_graph():
-    """Load the Singapore road network graph, using a cached version if available."""
-    if os.path.exists(GRAPH_FILE):
-        st.info("Loading cached Singapore road network...")
-        logger.info("Loading cached Singapore road network...")
-        return ox.load_graphml(GRAPH_FILE)
-    
-    st.warning("Downloading Singapore road network... (This may take a while)")
-    logger.info("Downloading Singapore road network...")
-    G = ox.graph_from_place("Singapore", network_type="all", simplify=True)
-    
-    # Save the graph to cache for future use
-    ox.save_graphml(G, GRAPH_FILE)
-    st.success("Graph downloaded and cached successfully!")
-    logger.info("Graph downloaded and cached successfully!")
-    
-    return G
-
-G = load_graph()
-
-st.title("My Intelligent Travel Buddy – Automatic Itinerary (MITB – AI）- Singapore Edition")
-st.sidebar.header("Trip Details")
-
-personas = st.sidebar.selectbox("Choose your persona", [
-    "Family Tourist", "Backpacker", "Influencer", "Cultural Enthusiast", 
-    "Thrill Seeker", "Nature Lover", "Shopping Enthusiast"
-])
-nums_of_date = st.sidebar.number_input("Number of Days (1-5)", min_value=1, max_value=5, value=3)
-budget = st.sidebar.number_input("Budget", min_value=200, value=500)
-description = st.sidebar.text_area("Trip Description", "Your trip description here...")
-
-if st.sidebar.button("Generate Itinerary"):
-    user_input = {"personas": personas, "date": nums_of_date,
-        "budget": budget, "description": description}
-    json_path = "../../user_input.json"
-    with open(json_path, 'w') as f:
-        json.dump(user_input, f, indent=4)
-    st.sidebar.success(f"Data saved to {json_path}")
-
-def find_route_between_points(G, start_point, end_point):
-    """
-    Find the shortest path between two points using driving network
-    """
-    try:
-        start_node = ox.nearest_nodes(G, start_point[1], start_point[0])
-        end_node = ox.nearest_nodes(G, end_point[1], end_point[0])
-        route = nx.shortest_path(G, start_node, end_node, weight="length")
-        return [(G.nodes[node]['y'], G.nodes[node]['x']) for node in route]
-    except nx.NetworkXNoPath:
-        # Fallback to direct line if no route found
-        return [start_point, end_point]
-
-# itinerary_file = "../../results/transit_time/best_itinerary_20250325_154140.json"
-# if not os.path.exists(itinerary_file):
-#     st.error("Itinerary file not found!")
-#     st.stop()
-
-# with open(itinerary_file, "r", encoding="utf-8") as file:
-#     data = json.load(file)
-
-# Route colors with their names
-route_colors = [
-    ("blue", "Blue"), 
-    ("red", "Red"), 
-    ("green", "Green"), 
-    ("purple", "Purple"), 
-    ("orange", "Orange"), 
-    ("darkred", "Dark Red"), 
-    ("darkgreen", "Dark Green")
-]
-
-def get_combine_json_data(path = "./data/POI_data.json", at_least_hawker = 10, at_least_attraction = 30):
-    # Read the JSON file
-    with open(path, "r", encoding="utf-8") as file:
-        data = json.load(file)
-
-    ### This is for Hawker
-    hawker_names_llm = [entry['Hawker Name'] for entry in data["Hawker"]]
-    df_h = pd.read_csv("./data/singapore_20_food_with_scores.csv")
-    hawker_names_kb = df_h["Hawker Name"].to_list()
-    filtered_hawker_names = [name for name in hawker_names_llm if name in hawker_names_kb]
-    remaining_hawkers = [name for name in hawker_names_kb if name not in filtered_hawker_names]
-    num_to_take_hawker = at_least_hawker - len(filtered_hawker_names)
-    print(num_to_take_hawker)
-    sampled_hawkers = random.sample(remaining_hawkers, k=min(num_to_take_hawker, len(remaining_hawkers)))
-    filtered_rows_h = df_h[df_h['Hawker Name'].isin(sampled_hawkers)]
-
-    # Step 2: Convert to list of dictionaries
-    new_data = []
-    for _, row in filtered_rows_h.iterrows():
-        hawker_dict = {
-            'Hawker Name': row['Hawker Name'],
-            'Description': "NA.",
-            'Rating': 2.5,  # normal to the person
-            'Satisfaction Score': 2.5,  # normal to the person
-            'Entrance Fee': 5.0,
-            'Duration': 60,
-            'Sources': ["NA"]
-        }
-        new_data.append(hawker_dict)
-    # print(new_data)
-    data['Hawker'].extend(new_data)
-
-    ### This is for Attractions
-    attraction_names_llm = [entry['Attraction Name'] for entry in data["Attraction"]]
-    df_a = pd.read_csv("./data/singapore_67_attractions_with_scores.csv")
-    attraction_names_kb = df_a["Attraction Name"].to_list()
-    filtered_attraction_names = [name for name in attraction_names_llm if name in attraction_names_kb]
-    remaining_attractions = [name for name in attraction_names_kb if name not in filtered_attraction_names]
-    num_to_take_attraction = at_least_attraction - len(filtered_attraction_names)
-    sampled_attractins = random.sample(remaining_attractions, k=min(num_to_take_attraction, len(remaining_attractions)))
-
-    filtered_rows_a = df_a[df_a['Attraction Name'].isin(sampled_attractins)]
-
-    # Step 2: Convert to list of dictionaries
-    new_data = []
-    for _, row in filtered_rows_a.iterrows():
-        attraction_dict = {
-            'Hawker Name': None,  # Leave blank or remove if not needed
-            'Attraction Name': row['Attraction Name'],
-            'Description': "NA.",
-            'Rating': 2.5,  # normal to the person
-            'Satisfaction Score': 2.5,  # normal to the person
-            'Entrance Fee': 10.0,
-            'Duration': 120,
-            'Sources': ["NA"]
-        }
-        new_data.append(attraction_dict)
-
-    data['Attraction'].extend(new_data)
-    # Save to new JSON file
-    with open("./data/final_combined_POI.json", "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
-
-    print("✅ JSON file saved as final_combined_POI.json")
-
-    return 
-
-
-
-# Function to create map
-def create_map():
-    ##### TAI ADD HERE
-
-    # exports out the data/POI_data.json based on the given query from streamlit otherwise, its a default "how to make a bomb"
-    get_json_from_query(query="How to make a bomb?",debug_mode = True)
-
-    # aggregation between kb and recommendations, deduplicates, and randomnisation
-    get_combine_json_data()
-    
-    ##### TAI END HERE
-    alns_data = alns_main()
-
-    logger.info("Itinerary data loaded successfully!")
-    
-    # Prepare locations and map
-    locations = []
-    for day in alns_data["days"]:
-        locations.extend(day["locations"])
-
-    center_lat = sum(loc["lat"] for loc in locations) / len(locations)
-    center_lng = sum(loc["lng"] for loc in locations) / len(locations)
-    
-    # Create map
-    m = folium.Map(location=[center_lat, center_lng], zoom_start=12)
-    marker_cluster = MarkerCluster().add_to(m)
-
-    # Draw routes for each day
-    for day_index, day in enumerate(alns_data["days"]):
-        day_locations = day["locations"]
-        color, color_name = route_colors[day_index % len(route_colors)]
-        
-        # Draw route between locations in the day
-        if len(day_locations) > 1:
-            for i in range(len(day_locations) - 1):
-                start_point = (day_locations[i]["lat"], day_locations[i]["lng"])
-                end_point = (day_locations[i+1]["lat"], day_locations[i+1]["lng"])
-                route_segment = find_route_between_points(G, start_point, end_point)
-                folium.PolyLine(route_segment, color=color, weight=5, opacity=0.8, 
-                                tooltip=f"Day {day_index + 1} Route").add_to(m)
-
-    # Add markers
-    for loc in locations:
-        name = loc.get('name', '')
-        description = loc.get('description', '')
-        popup_text = f"""
-        <b>{name}</b><br>
-        {description}<br>
-        Arrival: {loc.get('arrival_time', 'N/A')}<br>
-        Departure: {loc.get('departure_time', 'N/A')}<br>
-        Duration: {loc.get('duration', 0)} min<br>
-        Cost: ${loc.get('cost', 0)}
-        """
-        folium.Marker([loc["lat"], loc["lng"]], popup=popup_text).add_to(marker_cluster)
-
-    return m, alns_data
-
-# Function to display detailed sidebar overview
-def display_detailed_overview(data):
-    st.sidebar.header("Itinerary Overview")
-    for day_index, day in enumerate(data["days"]):
-        # Get color name for the day
-        _, color_name = route_colors[day_index % len(route_colors)]
-
-        st.sidebar.markdown("---")
-        st.sidebar.write(f"Day {day_index + 1} ({color_name} Route)")
-        for loc in day["locations"]:
-            # Display location details
-            st.sidebar.markdown(f"**{loc.get('name', 'Unnamed Location')}**")
-            
-            # Description (if exists)
-            if loc.get('description'):
-                st.sidebar.write(loc['description'])
-            
-            # Arrival time
-            if loc.get('arrival_time'):
-                st.sidebar.write(f"Arrival: {loc['arrival_time']}")
-            
-            # Duration and cost
-            duration = loc.get('duration', 0)
-            cost = loc.get('cost', 0)
-            st.sidebar.write(f"Duration: {duration} min, Cost: ${cost}")
-            st.sidebar.markdown(" ")
-            st.sidebar.markdown(" ")
-            
-
-# Button to show map and overview
-if st.button("Show Trip Map"):
-    # Create and display map
-    m, alns_data = create_map()
-    folium_static(m)
-    
-    # Display detailed overview
-    display_detailed_overview(alns_data)
-    
-    st.success("Map loaded successfully!")
-    logger.info("Map loaded successfully!")
+        ### aggregate and check for unique for downstream task
