@@ -32,7 +32,7 @@ def read_llm_output(base_path):
 
     return parameter_data, location_data
 
-def load_recommendations(json_path):
+def load_recommendations(json_path=None, alns_input=None):
     """
     Load attraction and hawker recommendations from external JSON file
     
@@ -43,35 +43,58 @@ def load_recommendations(json_path):
         dict: Dictionary with attraction and hawker recommendations
     """
     try:
-        parameter_data, location_data = read_llm_output(json_path)
-        
-        recommendations = {
-            'hawkers': [],
-            'attractions': []
-        }
-        
-        # Extract hawker recommendations
-        if 'Hawker' in location_data:
+        if alns_input:
+            parameter_data = alns_input.get('alns_weights', {})
+            parameter_data["params"] = parameter_data.pop("alns_weights")
+            
+            recommendations = {k: alns_input[k] for k in ["attractions", "hawkers"]}
+            
             for hawker in location_data['Hawker']:
                 recommendations['hawkers'].append({
-                    'name': hawker['Hawker Name'],
-                    'dish': hawker['Dish Name'],
-                    'description': hawker['Description'],
-                    'avg_food_price': hawker['Avg Food Price'],
-                    'rating': hawker['Satisfaction Score'],
-                    'duration': hawker.get('Duration', 1) * 60, # Convert hours to minutes
+                    'name': hawker['name'],
+                    'avg_food_price': hawker['avg_food_price'],
+                    'rating': hawker['relevance_score'],
+                    'duration': 60,
                 })
-        
-        # Extract attraction recommendations
-        if 'Attraction' in location_data:
+                
             for attraction in location_data['Attraction']:
                 recommendations['attractions'].append({
-                    'name': attraction['Attraction Name'],
-                    'description': attraction['Description'],
-                    'entrance_fee': attraction['Entrance Fee'],
-                    'satisfaction': attraction['Satisfaction Score'],
-                    'duration': attraction.get('Duration', 1) * 60, # Convert hours to minutes
+                    'name': attraction['name'],
+                    'entrance_fee': attraction['entrance_fee'],
+                    'satisfaction': attraction['relevance_score'],
+                    'duration': attraction.get('estimated_duration', 60)
                 })
+            
+        elif json_path:
+            parameter_data, location_data = read_llm_output(json_path)
+        
+            recommendations = {
+                'hawkers': [],
+                'attractions': []
+            }
+            
+            # Extract hawker recommendations
+            if 'Hawker' in location_data:
+                for hawker in location_data['Hawker']:
+                    recommendations['hawkers'].append({
+                        'name': hawker['Hawker Name'],
+                        'dish': hawker['Dish Name'],
+                        'description': hawker['Description'],
+                        'avg_food_price': hawker['Avg Food Price'],
+                        'rating': hawker['Satisfaction Score'],
+                        'duration': hawker.get('Duration', 1) * 60, # Convert hours to minutes
+                    })
+            
+            # Extract attraction recommendations
+            if 'Attraction' in location_data:
+                for attraction in location_data['Attraction']:
+                    recommendations['attractions'].append({
+                        'name': attraction['Attraction Name'],
+                        'description': attraction['Description'],
+                        'entrance_fee': attraction['Entrance Fee'],
+                        'satisfaction': attraction['Satisfaction Score'],
+                        'duration': attraction.get('Duration', 1) * 60, # Convert hours to minutes
+                    })
         
         return recommendations, parameter_data
     except Exception as e:

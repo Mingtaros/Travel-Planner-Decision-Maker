@@ -97,6 +97,8 @@ def alns_main(
     seed=42,
     config_path="./src/alns_itinerary/config.json",
     llm_path="./data/alns_inputs/",
+    user_input=None,
+    alns_input=None,
     max_attractions=None, 
     max_hawkers=None,
     hotel_name='Marina Bay Sands'
@@ -144,12 +146,16 @@ def alns_main(
     # Load recommendations if available
     recommendations = None
     parameter_data = None
-    if llm_path and os.path.exists(llm_path):
+    if alns_input is not None:
+        recommendations, parameter_data = load_recommendations(alns_input)
+        logger.info(f"Loaded recommendations")
+    elif llm_path and os.path.exists(llm_path):
         recommendations, parameter_data = load_recommendations(llm_path)
         logger.info(f"Loaded recommendations")
     
-    budget = parameter_data["Budget"]
-    num_days = parameter_data["Number of days"]
+    budget = user_input["budget"]
+    num_days = user_input["num_days"]
+    persona = user_input["persona"]
     max_iterations = config["MAX_ITERATIONS"]
     segment_size = config["SEGMENT_SIZE"]
     time_limit = config["TIME_LIMIT"]
@@ -298,4 +304,6 @@ if __name__ == "__main__":
         seed=42,
         config_path="./src/alns_itinerary/config.json",
         llm_path="./data/alns_inputs/",
+        user_input=None,
+        alns_input=None,
     )
