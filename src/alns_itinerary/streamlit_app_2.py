@@ -9,6 +9,7 @@ from datetime import datetime
 from streamlit_folium import folium_static
 from folium.plugins import MarkerCluster
 import sys
+import numpy as np
 
 import json
 import pandas as pd
@@ -281,14 +282,14 @@ def create_attraction_agent(model_id = "gpt-4o", debug_mode=True):
     )
     return attraction_agent
 
-def get_combine_json_data(path = "./data/POI_data.json", at_least_hawker = 10, at_least_attraction = 30):
+def get_combine_json_data(path = "./data/alns_inputs/POI_data.json", at_least_hawker = 10, at_least_attraction = 30):
     # Read the JSON file
     with open(path, "r", encoding="utf-8") as file:
         data = json.load(file)
 
     ### This is for Hawker
     hawker_names_llm = [entry['Hawker Name'] for entry in data["Hawker"]]
-    df_h = pd.read_csv("./data/singapore_20_food_with_scores.csv")
+    df_h = pd.read_csv("./data/locationData/singapore_20_food_with_scores.csv")
     hawker_names_kb = df_h["Hawker Name"].to_list()
     filtered_hawker_names = [name for name in hawker_names_llm if name in hawker_names_kb]
     remaining_hawkers = [name for name in hawker_names_kb if name not in filtered_hawker_names]
@@ -303,9 +304,9 @@ def get_combine_json_data(path = "./data/POI_data.json", at_least_hawker = 10, a
         hawker_dict = {
             'Hawker Name': row['Hawker Name'],
             'Description': "NA.",
-            'Rating': 2.5,  # normal to the person
-            'Satisfaction Score': 2.5,  # normal to the person
-            'Entrance Fee': 5.0,
+            'Rating': np.random.uniform(2, 4),  # normal to the person
+            'Satisfaction Score': np.random.uniform(2, 4),  # normal to the person
+            'Avg Food Price': np.random.uniform(5, 15),
             'Duration': 60,
             'Sources': ["NA"]
         }
@@ -315,7 +316,7 @@ def get_combine_json_data(path = "./data/POI_data.json", at_least_hawker = 10, a
 
     ### This is for Attractions
     attraction_names_llm = [entry['Attraction Name'] for entry in data["Attraction"]]
-    df_a = pd.read_csv("./data/singapore_67_attractions_with_scores.csv")
+    df_a = pd.read_csv("./data/locationData/singapore_67_attractions_with_scores.csv")
     attraction_names_kb = df_a["Attraction Name"].to_list()
     filtered_attraction_names = [name for name in attraction_names_llm if name in attraction_names_kb]
     remaining_attractions = [name for name in attraction_names_kb if name not in filtered_attraction_names]
@@ -328,13 +329,12 @@ def get_combine_json_data(path = "./data/POI_data.json", at_least_hawker = 10, a
     new_data = []
     for _, row in filtered_rows_a.iterrows():
         attraction_dict = {
-            'Hawker Name': None,  # Leave blank or remove if not needed
             'Attraction Name': row['Attraction Name'],
             'Description': "NA.",
-            'Rating': 2.5,  # normal to the person
-            'Satisfaction Score': 2.5,  # normal to the person
-            'Entrance Fee': 10.0,
-            'Duration': 120,
+            'Rating': np.random.uniform(2, 4),  # normal to the person
+            'Satisfaction Score': np.random.uniform(2, 4),  # normal to the person
+            'Entrance Fee': np.random.uniform(0, 50),
+            'Duration': np.random.uniform(30, 120),
             'Sources': ["NA"]
         }
         new_data.append(attraction_dict)
@@ -420,10 +420,11 @@ def get_json_from_query(query="How to make a bomb?",debug_mode = True):
             "params": [0.3, 0.3, 0.4]
         }
     
-    query_num = "special"
+    # query_num = "special"
+    subfolder_path = "data/alns_inputs"
     # Step 6: Create subfolder based on query number
-    subfolder_path = os.path.join("data/alns_inputs", f"{query_num}")
-    os.makedirs(subfolder_path, exist_ok=True)
+    # subfolder_path = os.path.join("data/alns_inputs", f"{query_num}")
+    # os.makedirs(subfolder_path, exist_ok=True)
 
     poi_path = os.path.join(subfolder_path, "POI_data.json")
     moo_path = os.path.join(subfolder_path, "moo_parameters.json")

@@ -7,18 +7,18 @@ logger = logging.getLogger(__name__)
 
 def read_llm_output(base_path):
     # List all folders in the base directory that follow the naming convention
-    folders = [f for f in os.listdir(base_path) if f.isdigit() and 1 <= int(f) <= 99]
+    # folders = [f for f in os.listdir(base_path) if f.isdigit() and 1 <= int(f) <= 99]
     
-    if not folders:
-        raise ValueError("No valid numbered folders found.")
+    # if not folders:
+    #     raise ValueError("No valid numbered folders found.")
 
-    # Get the folder with the largest number
-    latest_folder = max(folders, key=int)
-    latest_folder_path = os.path.join(base_path, latest_folder)
+    # # Get the folder with the largest number
+    # latest_folder = max(folders, key=int)
+    # latest_folder_path = os.path.join(base_path, latest_folder)
 
     # Define file paths
-    parameter_file = os.path.join(latest_folder_path, "moo_parameters.json")
-    location_file = os.path.join(latest_folder_path, "POI_data.json")
+    parameter_file = os.path.join(base_path, "moo_parameters.json")
+    location_file = os.path.join(base_path, "final_combined_POI.json")
 
     # Read JSON files
     def read_json(file_path):
