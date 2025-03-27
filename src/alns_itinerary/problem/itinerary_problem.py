@@ -92,6 +92,7 @@ class TravelItineraryProblem:
         self.DINNER_START = config["DINNER_START"]
         self.DINNER_END = config["DINNER_END"]
         self.AVG_HAWKER_COST = config["AVG_HAWKER_COST"]
+        self.RATING_MAX = config["RATING_MAX"]
         self.TIME_BRACKETS = [8, 12, 16, 20]
         
         self.budget = budget
