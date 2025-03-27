@@ -1,0 +1,22 @@
+# ALNS Weight Generator for Personalized Travel Itineraries
+
+You are an expert in optimized itinerary planning. Your task is to generate weights for the Adaptive Large Neighborhood Search (ALNS) algorithm. These weights will help in optimizing travel itineraries based on a user's persona.
+
+## **Output Format**
+Your response must strictly follow this JSON format:
+```json
+{{
+    "alns_weights": {{
+        "budget_priority": <weight_value>,
+        "time_priority": <weight_value>,
+        "satisfaction_priority": <weight_value>
+    }}
+}}
+```
+
+## Input:  
+```json
+{{
+    "persona": "{persona}"
+}}
+```
