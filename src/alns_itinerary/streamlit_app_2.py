@@ -23,7 +23,6 @@ from typing import List
 import time
 
 import json
-import datetime
 from dotenv import load_dotenv
 import os
 import random
@@ -192,7 +191,7 @@ def create_intent_agent():
 def create_hawker_agent(model_id = "gpt-4o", debug_mode=True):
 # def create_hawker_agent(model_id = "deepseek-r1-distill-llama-70b", debug_mode=True):
     hawker_kb = get_hawker_kb()
-    hawker_kb.load(recreate=False)
+    # hawker_kb.load(recreate=False)
     hawker_agent = Agent(
         name="Query to Hawker Agent",
         agent_id="query_to_hawker_agent",
@@ -239,7 +238,7 @@ def create_hawker_agent(model_id = "gpt-4o", debug_mode=True):
 def create_attraction_agent(model_id = "gpt-4o", debug_mode=True):
 # def create_attraction_agent(model_id = "deepseek-r1-distill-llama-70b", debug_mode=True):
     attraction_kb = get_attraction_kb()
-    attraction_kb.load(recreate=False)
+    # attraction_kb.load(recreate=False)
     attraction_agent = Agent(
         name="Query to Attraction Agent",
         agent_id="query_to_attraction_agent",
@@ -281,6 +280,73 @@ def create_attraction_agent(model_id = "gpt-4o", debug_mode=True):
 
     )
     return attraction_agent
+
+def get_combine_json_data(path = "./data/POI_data.json", at_least_hawker = 10, at_least_attraction = 30):
+    # Read the JSON file
+    with open(path, "r", encoding="utf-8") as file:
+        data = json.load(file)
+
+    ### This is for Hawker
+    hawker_names_llm = [entry['Hawker Name'] for entry in data["Hawker"]]
+    df_h = pd.read_csv("./data/singapore_20_food_with_scores.csv")
+    hawker_names_kb = df_h["Hawker Name"].to_list()
+    filtered_hawker_names = [name for name in hawker_names_llm if name in hawker_names_kb]
+    remaining_hawkers = [name for name in hawker_names_kb if name not in filtered_hawker_names]
+    num_to_take_hawker = at_least_hawker - len(filtered_hawker_names)
+    print(num_to_take_hawker)
+    sampled_hawkers = random.sample(remaining_hawkers, k=min(num_to_take_hawker, len(remaining_hawkers)))
+    filtered_rows_h = df_h[df_h['Hawker Name'].isin(sampled_hawkers)]
+
+    # Step 2: Convert to list of dictionaries
+    new_data = []
+    for _, row in filtered_rows_h.iterrows():
+        hawker_dict = {
+            'Hawker Name': row['Hawker Name'],
+            'Description': "NA.",
+            'Rating': 2.5,  # normal to the person
+            'Satisfaction Score': 2.5,  # normal to the person
+            'Entrance Fee': 5.0,
+            'Duration': 60,
+            'Sources': ["NA"]
+        }
+        new_data.append(hawker_dict)
+    # print(new_data)
+    data['Hawker'].extend(new_data)
+
+    ### This is for Attractions
+    attraction_names_llm = [entry['Attraction Name'] for entry in data["Attraction"]]
+    df_a = pd.read_csv("./data/singapore_67_attractions_with_scores.csv")
+    attraction_names_kb = df_a["Attraction Name"].to_list()
+    filtered_attraction_names = [name for name in attraction_names_llm if name in attraction_names_kb]
+    remaining_attractions = [name for name in attraction_names_kb if name not in filtered_attraction_names]
+    num_to_take_attraction = at_least_attraction - len(filtered_attraction_names)
+    sampled_attractins = random.sample(remaining_attractions, k=min(num_to_take_attraction, len(remaining_attractions)))
+
+    filtered_rows_a = df_a[df_a['Attraction Name'].isin(sampled_attractins)]
+
+    # Step 2: Convert to list of dictionaries
+    new_data = []
+    for _, row in filtered_rows_a.iterrows():
+        attraction_dict = {
+            'Hawker Name': None,  # Leave blank or remove if not needed
+            'Attraction Name': row['Attraction Name'],
+            'Description': "NA.",
+            'Rating': 2.5,  # normal to the person
+            'Satisfaction Score': 2.5,  # normal to the person
+            'Entrance Fee': 10.0,
+            'Duration': 120,
+            'Sources': ["NA"]
+        }
+        new_data.append(attraction_dict)
+
+    data['Attraction'].extend(new_data)
+    # Save to new JSON file
+    with open("./data/final_combined_POI.json", "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+
+    print("✅ JSON file saved as final_combined_POI.json")
+
+    return 
 
 def get_json_from_query(query="How to make a bomb?",debug_mode = True):
     intent_agent = create_intent_agent()
@@ -338,14 +404,14 @@ def get_json_from_query(query="How to make a bomb?",debug_mode = True):
                     "Duration": 120,
                     "Sources": attraction.get("sources", [])
                 })
-            responses["Metrics"] = {
-                                        # "Intent Agent Time (s)": round(intent_time, 2),
-                                    "Hawker Agent Time (s)": round(hawker_time or 0, 2),
-                                    "Attraction Agent Time (s)": round(attraction_time or 0, 2),
-                                        # "Intent Agent Tokens": intent_usage if intent_usage else {},
-                                        # "Hawker Agent Tokens": hawker_usage if hawker_usage else {},
-                                        # "Attraction Agent Tokens": attraction_usage if attraction_usage else {}
-                                    }
+            # responses["Metrics"] = {
+            #                             # "Intent Agent Time (s)": round(intent_time, 2),
+            #                         "Hawker Agent Time (s)": round(hawker_time or 0, 2),
+            #                         "Attraction Agent Time (s)": round(attraction_time or 0, 2),
+            #                             # "Intent Agent Tokens": intent_usage if intent_usage else {},
+            #                             # "Hawker Agent Tokens": hawker_usage if hawker_usage else {},
+            #                             # "Attraction Agent Tokens": attraction_usage if attraction_usage else {}
+            #                         }
 
         # Step 5: Prepare hardcoded MOO parameters
     moo_params = {
@@ -548,74 +614,6 @@ route_colors = [
     ("darkred", "Dark Red"), 
     ("darkgreen", "Dark Green")
 ]
-
-def get_combine_json_data(path = "./data/POI_data.json", at_least_hawker = 10, at_least_attraction = 30):
-    # Read the JSON file
-    with open(path, "r", encoding="utf-8") as file:
-        data = json.load(file)
-
-    ### This is for Hawker
-    hawker_names_llm = [entry['Hawker Name'] for entry in data["Hawker"]]
-    df_h = pd.read_csv("./data/singapore_20_food_with_scores.csv")
-    hawker_names_kb = df_h["Hawker Name"].to_list()
-    filtered_hawker_names = [name for name in hawker_names_llm if name in hawker_names_kb]
-    remaining_hawkers = [name for name in hawker_names_kb if name not in filtered_hawker_names]
-    num_to_take_hawker = at_least_hawker - len(filtered_hawker_names)
-    print(num_to_take_hawker)
-    sampled_hawkers = random.sample(remaining_hawkers, k=min(num_to_take_hawker, len(remaining_hawkers)))
-    filtered_rows_h = df_h[df_h['Hawker Name'].isin(sampled_hawkers)]
-
-    # Step 2: Convert to list of dictionaries
-    new_data = []
-    for _, row in filtered_rows_h.iterrows():
-        hawker_dict = {
-            'Hawker Name': row['Hawker Name'],
-            'Description': "NA.",
-            'Rating': 2.5,  # normal to the person
-            'Satisfaction Score': 2.5,  # normal to the person
-            'Entrance Fee': 5.0,
-            'Duration': 60,
-            'Sources': ["NA"]
-        }
-        new_data.append(hawker_dict)
-    # print(new_data)
-    data['Hawker'].extend(new_data)
-
-    ### This is for Attractions
-    attraction_names_llm = [entry['Attraction Name'] for entry in data["Attraction"]]
-    df_a = pd.read_csv("./data/singapore_67_attractions_with_scores.csv")
-    attraction_names_kb = df_a["Attraction Name"].to_list()
-    filtered_attraction_names = [name for name in attraction_names_llm if name in attraction_names_kb]
-    remaining_attractions = [name for name in attraction_names_kb if name not in filtered_attraction_names]
-    num_to_take_attraction = at_least_attraction - len(filtered_attraction_names)
-    sampled_attractins = random.sample(remaining_attractions, k=min(num_to_take_attraction, len(remaining_attractions)))
-
-    filtered_rows_a = df_a[df_a['Attraction Name'].isin(sampled_attractins)]
-
-    # Step 2: Convert to list of dictionaries
-    new_data = []
-    for _, row in filtered_rows_a.iterrows():
-        attraction_dict = {
-            'Hawker Name': None,  # Leave blank or remove if not needed
-            'Attraction Name': row['Attraction Name'],
-            'Description': "NA.",
-            'Rating': 2.5,  # normal to the person
-            'Satisfaction Score': 2.5,  # normal to the person
-            'Entrance Fee': 10.0,
-            'Duration': 120,
-            'Sources': ["NA"]
-        }
-        new_data.append(attraction_dict)
-
-    data['Attraction'].extend(new_data)
-    # Save to new JSON file
-    with open("./data/final_combined_POI.json", "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
-
-    print("✅ JSON file saved as final_combined_POI.json")
-
-    return 
-
 
 # Function to display detailed sidebar overview
 def display_detailed_overview(data):
