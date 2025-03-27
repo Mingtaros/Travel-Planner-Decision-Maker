@@ -9,6 +9,7 @@ from datetime import datetime
 from streamlit_folium import folium_static
 from folium.plugins import MarkerCluster
 import sys
+import numpy as np
 
 import json
 import pandas as pd
@@ -19,6 +20,7 @@ from data.llm_batch_process import process_and_save
 
 #==================
 from pydantic import BaseModel, Field
+from textwrap import dedent
 from typing import List
 import time
 
@@ -49,8 +51,22 @@ load_dotenv()
 os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
 os.environ["GROQ_API_KEY"] = os.getenv("GROQ_API_KEY")
 
+# Route colors with their names
+route_colors = [
+    ("blue", "Blue"), 
+    ("red", "Red"), 
+    ("green", "Green"), 
+    ("purple", "Purple"), 
+    ("orange", "Orange"), 
+    ("darkred", "Dark Red"), 
+    ("darkgreen", "Dark Green")
+]
+
 class IntentResponse(BaseModel):
     intent: str = Field(..., description="The detected intent of the query. Options: 'food', 'attraction', 'both'. Returns 'malicious' if the query is malicious.")
+
+class VariableResponse(BaseModel):
+    alns_weights: List[float]
 
 class HawkerRecommendation(BaseModel):
     hawker_name: str = Field(..., description="The name of the Hawker Centre.")
@@ -138,6 +154,31 @@ def get_attraction_kb():
                                     )
     return attraction_kb
 
+def create_variable_agent():
+    # Create the Variable Extraction Agent
+    variable_agent = Agent(
+        name="Travel Variable Extractor",
+        agent_id="variable_extraction_agent",
+        model=OpenAIChat(
+            id="gpt-4o",  
+            response_format="json",
+            temperature=0.1,
+        ),
+        response_model=VariableResponse,  # Ensure structured output matches the schema
+        description="You are an expert in optimized itinerary planning. Your task is to generate weights for the Adaptive Large Neighborhood Search (ALNS) algorithm. These weights will help in optimizing travel itineraries based on a user's persona.",
+        instructions=dedent("""\
+        Your response must strictly follow this JSON format:
+        {
+            "alns_weights": {
+                "budget_priority": <weight_value>,
+                "time_priority": <weight_value>,
+                "satisfaction_priority": <weight_value>
+            }
+        }
+        """)
+    )
+    return variable_agent
+
 def create_preference_agent():
     csv_kb = get_preference_kb()
     preference_agent = Agent(
@@ -160,14 +201,19 @@ def create_preference_agent():
             )
     return preference_agent
 
-def create_intent_agent(model_id = "deepseek-r1-distill-llama-70b"):
+def create_intent_agent():
     # Create the Intent Classification Agent
     intent_agent = Agent(
         name="Intent Classification Agent",
         agent_id="intent_classification_agent",
-        model=Groq(id=model_id, 
-                   response_format="json", 
-                   temperature=0.0),  
+        # model=Groq(id=model_id, 
+        #            response_format="json", 
+        #            temperature=0.0),  
+        model=OpenAIChat(
+                id="gpt-4o",  # or any model you prefer
+                response_format="json", # depends what we want 
+                temperature=0.1,
+            ),
         response_model=IntentResponse,  # Enforce structured JSON output
         structured_outputs=True,
         description="You are an expert in understanding the user's intent from the query. Classify the user's query into 'food', 'attraction', or 'both' for routing. The query is classified as 'malicious' if it is malicious.",
@@ -186,7 +232,7 @@ def create_intent_agent(model_id = "deepseek-r1-distill-llama-70b"):
 def create_hawker_agent(model_id = "gpt-4o", debug_mode=True):
 # def create_hawker_agent(model_id = "deepseek-r1-distill-llama-70b", debug_mode=True):
     hawker_kb = get_hawker_kb()
-    hawker_kb.load(recreate=False)
+    # hawker_kb.load(recreate=False)
     hawker_agent = Agent(
         name="Query to Hawker Agent",
         agent_id="query_to_hawker_agent",
@@ -233,7 +279,7 @@ def create_hawker_agent(model_id = "gpt-4o", debug_mode=True):
 def create_attraction_agent(model_id = "gpt-4o", debug_mode=True):
 # def create_attraction_agent(model_id = "deepseek-r1-distill-llama-70b", debug_mode=True):
     attraction_kb = get_attraction_kb()
-    attraction_kb.load(recreate=False)
+    # attraction_kb.load(recreate=False)
     attraction_agent = Agent(
         name="Query to Attraction Agent",
         agent_id="query_to_attraction_agent",
@@ -276,11 +322,79 @@ def create_attraction_agent(model_id = "gpt-4o", debug_mode=True):
     )
     return attraction_agent
 
-def get_json_from_query(query="How to make a bomb?",debug_mode = True):
+def get_combine_json_data(path = "./data/alns_inputs/POI_data.json", at_least_hawker = 10, at_least_attraction = 30):
+    # Read the JSON file
+    with open(path, "r", encoding="utf-8") as file:
+        data = json.load(file)
+
+    ### This is for Hawker
+    hawker_names_llm = [entry['Hawker Name'] for entry in data["Hawker"]]
+    df_h = pd.read_excel("./data/locationData/Food_20_withscores.xlsx")
+    hawker_names_kb = df_h["Name"].to_list()
+    filtered_hawker_names = [name for name in hawker_names_llm if name in hawker_names_kb]
+    remaining_hawkers = [name for name in hawker_names_kb if name not in filtered_hawker_names]
+    num_to_take_hawker = at_least_hawker - len(filtered_hawker_names)
+    print(num_to_take_hawker)
+    sampled_hawkers = random.sample(remaining_hawkers, k=min(num_to_take_hawker, len(remaining_hawkers)))
+    filtered_rows_h = df_h[df_h['Name'].isin(sampled_hawkers)]
+
+    # Step 2: Convert to list of dictionaries
+    new_data = []
+    for _, row in filtered_rows_h.iterrows():
+        hawker_dict = {
+            'Hawker Name': row['Name'],
+            'Description': "NA.",
+            'Rating': np.random.uniform(2, 4),  # normal to the person
+            'Satisfaction Score': np.random.uniform(2, 4),  # normal to the person
+            'Avg Food Price': np.random.uniform(5, 15),
+            'Duration': 60,
+            'Sources': ["NA"]
+        }
+        new_data.append(hawker_dict)
+    # print(new_data)
+    data['Hawker'].extend(new_data)
+
+    ### This is for Attractions
+    attraction_names_llm = [entry['Attraction Name'] for entry in data["Attraction"]]
+    df_a = pd.read_csv("./data/locationData/singapore_67_attractions_with_scores.csv")
+    attraction_names_kb = df_a["Attraction Name"].to_list()
+    filtered_attraction_names = [name for name in attraction_names_llm if name in attraction_names_kb]
+    remaining_attractions = [name for name in attraction_names_kb if name not in filtered_attraction_names]
+    num_to_take_attraction = at_least_attraction - len(filtered_attraction_names)
+    sampled_attractins = random.sample(remaining_attractions, k=min(num_to_take_attraction, len(remaining_attractions)))
+
+    filtered_rows_a = df_a[df_a['Attraction Name'].isin(sampled_attractins)]
+
+    # Step 2: Convert to list of dictionaries
+    new_data = []
+    for _, row in filtered_rows_a.iterrows():
+        attraction_dict = {
+            'Attraction Name': row['Attraction Name'],
+            'Description': "NA.",
+            'Rating': np.random.uniform(2, 4),  # normal to the person
+            'Satisfaction Score': np.random.uniform(2, 4),  # normal to the person
+            'Entrance Fee': np.random.uniform(0, 50),
+            'Duration': np.random.uniform(30, 120),
+            'Sources': ["NA"]
+        }
+        new_data.append(attraction_dict)
+
+    data['Attraction'].extend(new_data)
+    # Save to new JSON file
+    with open("./data/alns_inputs/final_combined_POI.json", "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+
+    print("✅ JSON file saved as final_combined_POI.json")
+
+    return 
+
+def get_json_from_query(query="How to make a bomb?", travller_type="bagpacker",debug_mode = True):
     intent_agent = create_intent_agent()
     hawker_agent = create_hawker_agent(debug_mode=debug_mode)
-    attraction_agent = create_attraction_agent(debug_mode=debug_mode)
     # preference_agent = create_preference_agent()
+    attraction_agent = create_attraction_agent(debug_mode=debug_mode)
+    variable_agent = create_variable_agent()
+
     intent_response = intent_agent.run(query, stream=False)
     intent = intent_response.content.intent
 
@@ -295,6 +409,12 @@ def get_json_from_query(query="How to make a bomb?",debug_mode = True):
             "Hawker": [],
             "Attraction": []
         }
+    
+    # For alns variables
+    moo_params = variable_agent.run(travller_type).content
+    print(f'🔍 MOO Parameters: {moo_params}')
+    moo_params_list = moo_params.alns_weights
+    params = {"params":moo_params_list}
     
      # Step 3: Route to hawker agent
     if intent in ["food", "both"]:
@@ -332,26 +452,27 @@ def get_json_from_query(query="How to make a bomb?",debug_mode = True):
                     "Duration": 120,
                     "Sources": attraction.get("sources", [])
                 })
-            responses["Metrics"] = {
-                                        # "Intent Agent Time (s)": round(intent_time, 2),
-                                    "Hawker Agent Time (s)": round(hawker_time or 0, 2),
-                                    "Attraction Agent Time (s)": round(attraction_time or 0, 2),
-                                        # "Intent Agent Tokens": intent_usage if intent_usage else {},
-                                        # "Hawker Agent Tokens": hawker_usage if hawker_usage else {},
-                                        # "Attraction Agent Tokens": attraction_usage if attraction_usage else {}
-                                    }
+            # responses["Metrics"] = {
+            #                             # "Intent Agent Time (s)": round(intent_time, 2),
+            #                         "Hawker Agent Time (s)": round(hawker_time or 0, 2),
+            #                         "Attraction Agent Time (s)": round(attraction_time or 0, 2),
+            #                             # "Intent Agent Tokens": intent_usage if intent_usage else {},
+            #                             # "Hawker Agent Tokens": hawker_usage if hawker_usage else {},
+            #                             # "Attraction Agent Tokens": attraction_usage if attraction_usage else {}
+            #                         }
 
         # Step 5: Prepare hardcoded MOO parameters
-    moo_params = {
-            "Budget": 100,
-            "Number of days": 3,
-            "params": [0.3, 0.3, 0.4]
-        }
+    # moo_params = {
+    #         "Budget": 100,
+    #         "Number of days": 3,
+    #         "params": [0.3, 0.3, 0.4]
+    #     }
     
-    query_num = "special"
+    # query_num = "special"
+    subfolder_path = "data/alns_inputs"
     # Step 6: Create subfolder based on query number
-    subfolder_path = os.path.join("data/alns_inputs", f"{query_num}")
-    os.makedirs(subfolder_path, exist_ok=True)
+    # subfolder_path = os.path.join("data/alns_inputs", f"{query_num}")
+    # os.makedirs(subfolder_path, exist_ok=True)
 
     poi_path = os.path.join(subfolder_path, "POI_data.json")
     moo_path = os.path.join(subfolder_path, "moo_parameters.json")
@@ -360,12 +481,61 @@ def get_json_from_query(query="How to make a bomb?",debug_mode = True):
         json.dump(responses, f, indent=4)
 
     with open(moo_path, "w", encoding="utf-8") as f:
-        json.dump(moo_params, f, indent=4)
+        json.dump(params, f, indent=4)
 
     print(f"✅ Saved to: {subfolder_path}")
 
     return
 
+
+def find_route_between_points(G, start_point, end_point):
+    """
+    Find the shortest path between two points using driving network
+    """
+    try:
+        start_node = ox.nearest_nodes(G, start_point[1], start_point[0])
+        end_node = ox.nearest_nodes(G, end_point[1], end_point[0])
+        route = nx.shortest_path(G, start_node, end_node, weight="length")
+        return [(G.nodes[node]['y'], G.nodes[node]['x']) for node in route]
+    except nx.NetworkXNoPath:
+        # Fallback to direct line if no route found
+        return [start_point, end_point]
+
+# itinerary_file = "../../results/transit_time/best_itinerary_20250325_154140.json"
+# if not os.path.exists(itinerary_file):
+#     st.error("Itinerary file not found!")
+#     st.stop()
+
+# with open(itinerary_file, "r", encoding="utf-8") as file:
+#     data = json.load(file)
+
+# Function to display detailed sidebar overview
+def display_detailed_overview(data):
+    st.sidebar.header("Itinerary Overview")
+    for day_index, day in enumerate(data["days"]):
+        # Get color name for the day
+        _, color_name = route_colors[day_index % len(route_colors)]
+
+        st.sidebar.markdown("---")
+        st.sidebar.write(f"Day {day_index + 1} ({color_name} Route)")
+        for loc in day["locations"]:
+            # Display location details
+            st.sidebar.markdown(f"**{loc.get('name', 'Unnamed Location')}**")
+            
+            # Description (if exists)
+            if loc.get('description'):
+                st.sidebar.write(loc['description'])
+            
+            # Arrival time
+            if loc.get('arrival_time'):
+                st.sidebar.write(f"Arrival: {loc['arrival_time']}")
+            
+            # Duration and cost
+            duration = loc.get('duration', 0)
+            cost = loc.get('cost', 0)
+            st.sidebar.write(f"Duration: {duration} min, Cost: ${cost}")
+            st.sidebar.markdown(" ")
+            st.sidebar.markdown(" ")
 
 #==================
 
@@ -419,7 +589,7 @@ def create_map(user_input):
     ##### TAI ADD HERE
 
     # exports out the data/POI_data.json based on the given query from streamlit otherwise, its a default "how to make a bomb"
-    get_json_from_query(query=user_input['description'],debug_mode = True)
+    get_json_from_query(query=user_input['description'],travller_type=user_input["persona"], debug_mode = True)
 
     # aggregation between kb and recommendations, deduplicates, and randomnisation
     get_combine_json_data()
@@ -510,134 +680,6 @@ if st.sidebar.button("Generate Itinerary"):
     
     st.success("Map loaded successfully!")
     logger.info("Map loaded successfully!")
-
-def find_route_between_points(G, start_point, end_point):
-    """
-    Find the shortest path between two points using driving network
-    """
-    try:
-        start_node = ox.nearest_nodes(G, start_point[1], start_point[0])
-        end_node = ox.nearest_nodes(G, end_point[1], end_point[0])
-        route = nx.shortest_path(G, start_node, end_node, weight="length")
-        return [(G.nodes[node]['y'], G.nodes[node]['x']) for node in route]
-    except nx.NetworkXNoPath:
-        # Fallback to direct line if no route found
-        return [start_point, end_point]
-
-# itinerary_file = "../../results/transit_time/best_itinerary_20250325_154140.json"
-# if not os.path.exists(itinerary_file):
-#     st.error("Itinerary file not found!")
-#     st.stop()
-
-# with open(itinerary_file, "r", encoding="utf-8") as file:
-#     data = json.load(file)
-
-# Route colors with their names
-route_colors = [
-    ("blue", "Blue"), 
-    ("red", "Red"), 
-    ("green", "Green"), 
-    ("purple", "Purple"), 
-    ("orange", "Orange"), 
-    ("darkred", "Dark Red"), 
-    ("darkgreen", "Dark Green")
-]
-
-def get_combine_json_data(path = "./data/POI_data.json", at_least_hawker = 10, at_least_attraction = 30):
-    # Read the JSON file
-    with open(path, "r", encoding="utf-8") as file:
-        data = json.load(file)
-
-    ### This is for Hawker
-    hawker_names_llm = [entry['Hawker Name'] for entry in data["Hawker"]]
-    df_h = pd.read_csv("./data/singapore_20_food_with_scores.csv")
-    hawker_names_kb = df_h["Hawker Name"].to_list()
-    filtered_hawker_names = [name for name in hawker_names_llm if name in hawker_names_kb]
-    remaining_hawkers = [name for name in hawker_names_kb if name not in filtered_hawker_names]
-    num_to_take_hawker = at_least_hawker - len(filtered_hawker_names)
-    print(num_to_take_hawker)
-    sampled_hawkers = random.sample(remaining_hawkers, k=min(num_to_take_hawker, len(remaining_hawkers)))
-    filtered_rows_h = df_h[df_h['Hawker Name'].isin(sampled_hawkers)]
-
-    # Step 2: Convert to list of dictionaries
-    new_data = []
-    for _, row in filtered_rows_h.iterrows():
-        hawker_dict = {
-            'Hawker Name': row['Hawker Name'],
-            'Description': "NA.",
-            'Rating': 2.5,  # normal to the person
-            'Satisfaction Score': 2.5,  # normal to the person
-            'Entrance Fee': 5.0,
-            'Duration': 60,
-            'Sources': ["NA"]
-        }
-        new_data.append(hawker_dict)
-    # print(new_data)
-    data['Hawker'].extend(new_data)
-
-    ### This is for Attractions
-    attraction_names_llm = [entry['Attraction Name'] for entry in data["Attraction"]]
-    df_a = pd.read_csv("./data/singapore_67_attractions_with_scores.csv")
-    attraction_names_kb = df_a["Attraction Name"].to_list()
-    filtered_attraction_names = [name for name in attraction_names_llm if name in attraction_names_kb]
-    remaining_attractions = [name for name in attraction_names_kb if name not in filtered_attraction_names]
-    num_to_take_attraction = at_least_attraction - len(filtered_attraction_names)
-    sampled_attractins = random.sample(remaining_attractions, k=min(num_to_take_attraction, len(remaining_attractions)))
-
-    filtered_rows_a = df_a[df_a['Attraction Name'].isin(sampled_attractins)]
-
-    # Step 2: Convert to list of dictionaries
-    new_data = []
-    for _, row in filtered_rows_a.iterrows():
-        attraction_dict = {
-            'Hawker Name': None,  # Leave blank or remove if not needed
-            'Attraction Name': row['Attraction Name'],
-            'Description': "NA.",
-            'Rating': 2.5,  # normal to the person
-            'Satisfaction Score': 2.5,  # normal to the person
-            'Entrance Fee': 10.0,
-            'Duration': 120,
-            'Sources': ["NA"]
-        }
-        new_data.append(attraction_dict)
-
-    data['Attraction'].extend(new_data)
-    # Save to new JSON file
-    with open("./data/final_combined_POI.json", "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
-
-    print("✅ JSON file saved as final_combined_POI.json")
-
-    return 
-
-
-# Function to display detailed sidebar overview
-def display_detailed_overview(data):
-    st.sidebar.header("Itinerary Overview")
-    for day_index, day in enumerate(data["days"]):
-        # Get color name for the day
-        _, color_name = route_colors[day_index % len(route_colors)]
-
-        st.sidebar.markdown("---")
-        st.sidebar.write(f"Day {day_index + 1} ({color_name} Route)")
-        for loc in day["locations"]:
-            # Display location details
-            st.sidebar.markdown(f"**{loc.get('name', 'Unnamed Location')}**")
-            
-            # Description (if exists)
-            if loc.get('description'):
-                st.sidebar.write(loc['description'])
-            
-            # Arrival time
-            if loc.get('arrival_time'):
-                st.sidebar.write(f"Arrival: {loc['arrival_time']}")
-            
-            # Duration and cost
-            duration = loc.get('duration', 0)
-            cost = loc.get('cost', 0)
-            st.sidebar.write(f"Duration: {duration} min, Cost: ${cost}")
-            st.sidebar.markdown(" ")
-            st.sidebar.markdown(" ")
             
 
 # Button to show map and overview

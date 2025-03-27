@@ -44,6 +44,7 @@ def load_recommendations(json_path=None, alns_input=None):
     """
     try:
         if alns_input:
+            logger.info("Loading recommendations from ALNS input")
             parameter_data = alns_input.get('alns_weights', {})
             parameter_data["params"] = parameter_data.pop("alns_weights")
             
@@ -66,6 +67,7 @@ def load_recommendations(json_path=None, alns_input=None):
                 })
             
         elif json_path:
+            logger.info(f"Loading recommendations from JSON file: {json_path}")
             parameter_data, location_data = read_llm_output(json_path)
         
             recommendations = {
@@ -78,8 +80,6 @@ def load_recommendations(json_path=None, alns_input=None):
                 for hawker in location_data['Hawker']:
                     recommendations['hawkers'].append({
                         'name': hawker['Hawker Name'],
-                        'dish': hawker['Dish Name'],
-                        'description': hawker['Description'],
                         'avg_food_price': hawker['Avg Food Price'],
                         'rating': hawker['Satisfaction Score'],
                         'duration': hawker.get('Duration', 1) * 60, # Convert hours to minutes
@@ -90,7 +90,6 @@ def load_recommendations(json_path=None, alns_input=None):
                 for attraction in location_data['Attraction']:
                     recommendations['attractions'].append({
                         'name': attraction['Attraction Name'],
-                        'description': attraction['Description'],
                         'entrance_fee': attraction['Entrance Fee'],
                         'satisfaction': attraction['Satisfaction Score'],
                         'duration': attraction.get('Duration', 1) * 60, # Convert hours to minutes
@@ -134,8 +133,6 @@ def augment_location_data(locations, recommendations=None):
                 
                 loc["rating"] = rec["rating"]
                 loc["avg_food_price"] = rec["avg_food_price"]
-                loc["description"] = rec["description"]
-                loc["dish"] = rec["dish"]
             else:
                 # Use randomized values for missing data
                 logger.warning(f"No recommendation data found for hawker: {loc['name']}")
@@ -155,7 +152,6 @@ def augment_location_data(locations, recommendations=None):
                 # Use recommendation data if available
                 loc["satisfaction"] = rec["satisfaction"]
                 loc["entrance_fee"] = rec["entrance_fee"]
-                loc["description"] = rec["description"]
             else:
                 logger.warning(f"No recommendation data found for attraction: {loc['name']}")
                 # Use randomized values for missing data

@@ -1,0 +1,534 @@
+{
+  "Query": "I am a student from India looking to have a budget friendly trip to Singapore. I like spicy food.",
+  "Hawker": [
+    {
+      "Hawker Name": "Chinatown Complex Food Centre",
+      "Dish Name": "Bak Chor Mee",
+      "Description": "A spicy noodle dish with minced pork, pork slices, pork liver, stewed mushrooms, and pork lard. It's a flavorful and budget-friendly option.",
+      "Satisfaction Score": 4.5,
+      "Rating": 4.2,
+      "Avg Food Price": 5.0,
+      "Duration": 60,
+      "Sources": [
+        "https://danielfooddiary.com/2024/08/09/singaporehawkerfood/"
+      ]
+    },
+    {
+      "Hawker Name": "People's Park Complex Food Centre",
+      "Dish Name": "Mala Xiang Guo",
+      "Description": "A spicy and numbing stir-fry dish with a variety of ingredients like meats and vegetables, cooked in a Sichuan-style spicy sauce.",
+      "Satisfaction Score": 4.6,
+      "Rating": 4.3,
+      "Avg Food Price": 8.0,
+      "Duration": 60,
+      "Sources": [
+        "https://singaporefoodie.com/singapore-hawker-food-2023/"
+      ]
+    },
+    {
+      "Hawker Name": "Maxwell Food Centre",
+      "Dish Name": "Hainanese Chicken Rice",
+      "Description": "Tender poached chicken served with fragrant rice and a spicy garlicky chili sauce. A must-try classic Singaporean dish.",
+      "Satisfaction Score": 4.7,
+      "Rating": 4.5,
+      "Avg Food Price": 5.0,
+      "Duration": 60,
+      "Sources": [
+        "https://danielfooddiary.com/2024/08/09/singaporehawkerfood/"
+      ]
+    },
+    {
+      "Hawker Name": "Old Airport Road Food Centre",
+      "Dish Name": "Char Kway Teow",
+      "Description": "A spicy stir-fried noodle dish with Chinese sausage, eggs, and cockles. It's rich in flavor and a local favorite.",
+      "Satisfaction Score": 4.6,
+      "Rating": 4.4,
+      "Avg Food Price": 4.0,
+      "Duration": 60,
+      "Sources": [
+        "https://rambletravelers.com/9-best-hawker-foods-in-singapore/"
+      ]
+    },
+    {
+      "Hawker Name": "Tiong Bahru Market",
+      "Dish Name": "Laksa",
+      "Description": "A spicy coconut-based noodle soup with prawns, fish cakes, and cockles. It's a comforting and spicy dish.",
+      "Satisfaction Score": 4.5,
+      "Rating": 4.3,
+      "Avg Food Price": 5.0,
+      "Duration": 60,
+      "Sources": [
+        "https://rambletravelers.com/9-best-hawker-foods-in-singapore/"
+      ]
+    },
+    {
+      "Hawker Name": "Amoy Street Food Centre",
+      "Dish Name": "Curry Chicken Noodles",
+      "Description": "A spicy noodle dish with tender chicken pieces in a rich curry broth. It's both filling and flavorful.",
+      "Satisfaction Score": 4.4,
+      "Rating": 4.2,
+      "Avg Food Price": 5.0,
+      "Duration": 60,
+      "Sources": [
+        "https://singaporefoodie.com/singapore-hawker-food-2023/"
+      ]
+    },
+    {
+      "Hawker Name": "Golden Mile Food Centre",
+      "Dish Name": "Tom Yum Soup",
+      "Description": "A spicy and sour Thai soup with shrimp, mushrooms, and lemongrass. It's a refreshing and spicy option.",
+      "Satisfaction Score": 4.3,
+      "Rating": 4.1,
+      "Avg Food Price": 6.0,
+      "Duration": 60,
+      "Sources": [
+        "https://danielfooddiary.com/2024/08/09/singaporehawkerfood/"
+      ]
+    },
+    {
+      "Hawker Name": "Newton Food Centre",
+      "Dish Name": "Sambal Stingray",
+      "Description": "Grilled stingray slathered in a spicy sambal sauce. It's a unique and spicy seafood dish.",
+      "Satisfaction Score": 4.6,
+      "Rating": 4.4,
+      "Avg Food Price": 10.0,
+      "Duration": 60,
+      "Sources": [
+        "https://rambletravelers.com/9-best-hawker-foods-in-singapore/"
+      ]
+    },
+    {
+      "Hawker Name": "Lau Pa Sat",
+      "Dish Name": "Satay",
+      "Description": "Grilled skewers of meat served with a spicy peanut sauce. It's a popular and affordable street food option.",
+      "Satisfaction Score": 4.5,
+      "Rating": 4.3,
+      "Avg Food Price": 0.7,
+      "Duration": 60,
+      "Sources": [
+        "https://singaporefoodie.com/singapore-hawker-food-2023/"
+      ]
+    },
+    {
+      "Hawker Name": "Tekka Centre",
+      "Dish Name": "Nasi Briyani",
+      "Description": "A spicy Indian rice dish with aromatic spices and tender meat. It's a hearty and flavorful meal.",
+      "Satisfaction Score": 4.4,
+      "Rating": 4.2,
+      "Avg Food Price": 6.0,
+      "Duration": 60,
+      "Sources": [
+        "https://danielfooddiary.com/2024/08/09/singaporehawkerfood/"
+      ]
+    },
+    {
+      "Hawker Name": "Hill Street Tai Hwa Pork Noodle",
+      "Description": "NA.",
+      "Rating": 2.749080237694725,
+      "Satisfaction Score": 3.9014286128198323,
+      "Avg Food Price": 12.31993941811405,
+      "Duration": 60,
+      "Sources": [
+        "NA"
+      ]
+    },
+    {
+      "Hawker Name": "​Chinatown Complex Food Centre​",
+      "Description": "NA.",
+      "Rating": 3.197316968394073,
+      "Satisfaction Score": 2.312037280884873,
+      "Avg Food Price": 6.559945203362027,
+      "Duration": 60,
+      "Sources": [
+        "NA"
+      ]
+    },
+    {
+      "Hawker Name": "Changi Village Hawker Centre",
+      "Description": "NA.",
+      "Rating": 2.116167224336399,
+      "Satisfaction Score": 3.73235229154987,
+      "Avg Food Price": 11.011150117432088,
+      "Duration": 60,
+      "Sources": [
+        "NA"
+      ]
+    },
+    {
+      "Hawker Name": "Orchard Yong Tau Foo",
+      "Description": "NA.",
+      "Rating": 3.416145155592091,
+      "Satisfaction Score": 2.041168988591605,
+      "Avg Food Price": 14.699098521619943,
+      "Duration": 60,
+      "Sources": [
+        "NA"
+      ]
+    },
+    {
+      "Hawker Name": "Kok Kee Wonton Noodle (Foch Road)",
+      "Description": "NA.",
+      "Rating": 3.6648852816008435,
+      "Satisfaction Score": 2.4246782213565523,
+      "Avg Food Price": 6.818249672071007,
+      "Duration": 60,
+      "Sources": [
+        "NA"
+      ]
+    },
+    {
+      "Hawker Name": "Tangs Market",
+      "Description": "NA.",
+      "Rating": 2.3668090197068676,
+      "Satisfaction Score": 2.6084844859190754,
+      "Avg Food Price": 10.247564316322379,
+      "Duration": 60,
+      "Sources": [
+        "NA"
+      ]
+    },
+    {
+      "Hawker Name": "Singapore Zam Zam Restaurant",
+      "Description": "NA.",
+      "Rating": 2.8638900372842313,
+      "Satisfaction Score": 2.582458280396084,
+      "Avg Food Price": 11.118528947223794,
+      "Duration": 60,
+      "Sources": [
+        "NA"
+      ]
+    }
+  ],
+  "Attraction": [
+    {
+      "Attraction Name": "Marina Bay Sands SkyPark Observation Deck",
+      "Description": "NA.",
+      "Rating": 2.278987721304084,
+      "Satisfaction Score": 2.5842892970704363,
+      "Entrance Fee": 18.318092164684586,
+      "Duration": 71.04629857953324,
+      "Sources": [
+        "NA"
+      ]
+    },
+    {
+      "Attraction Name": "River Wonders",
+      "Description": "NA.",
+      "Rating": 3.570351922786027,
+      "Satisfaction Score": 2.3993475643167193,
+      "Entrance Fee": 25.71172192068058,
+      "Duration": 83.31731119758382,
+      "Sources": [
+        "NA"
+      ]
+    },
+    {
+      "Attraction Name": "Singapore Flyer",
+      "Description": "NA.",
+      "Rating": 2.0929008254399957,
+      "Satisfaction Score": 3.2150897038028767,
+      "Entrance Fee": 8.526206184364577,
+      "Duration": 35.854643368675156,
+      "Sources": [
+        "NA"
+      ]
+    },
+    {
+      "Attraction Name": "Asian Civilisations Museum",
+      "Description": "NA.",
+      "Rating": 3.8977710745066663,
+      "Satisfaction Score": 3.9312640661491187,
+      "Entrance Fee": 40.419867405823055,
+      "Duration": 57.41523922560336,
+      "Sources": [
+        "NA"
+      ]
+    },
+    {
+      "Attraction Name": "Fort Canning Park",
+      "Description": "NA.",
+      "Rating": 2.1953442280127677,
+      "Satisfaction Score": 3.3684660530243136,
+      "Entrance Fee": 22.007624686980066,
+      "Duration": 40.983441136030095,
+      "Sources": [
+        "NA"
+      ]
+    },
+    {
+      "Attraction Name": "Merlion Park",
+      "Description": "NA.",
+      "Rating": 2.9903538202225404,
+      "Satisfaction Score": 2.068777042230437,
+      "Entrance Fee": 45.4660201039391,
+      "Duration": 53.290198344001524,
+      "Sources": [
+        "NA"
+      ]
+    },
+    {
+      "Attraction Name": "Boat Quay",
+      "Description": "NA.",
+      "Rating": 3.325044568707964,
+      "Satisfaction Score": 2.623422152178822,
+      "Entrance Fee": 26.00340105889054,
+      "Duration": 79.20392514089517,
+      "Sources": [
+        "NA"
+      ]
+    },
+    {
+      "Attraction Name": "Orchard Road",
+      "Description": "NA.",
+      "Rating": 2.3697089110510543,
+      "Satisfaction Score": 3.939169255529117,
+      "Entrance Fee": 38.75664116805573,
+      "Duration": 114.55490474077702,
+      "Sources": [
+        "NA"
+      ]
+    },
+    {
+      "Attraction Name": "East Coast Park",
+      "Description": "NA.",
+      "Rating": 3.789654700855298,
+      "Satisfaction Score": 3.19579995762217,
+      "Entrance Fee": 46.093711751155844,
+      "Duration": 37.96432518467275,
+      "Sources": [
+        "NA"
+      ]
+    },
+    {
+      "Attraction Name": "Haw Par Villa",
+      "Description": "NA.",
+      "Rating": 2.3919657248382906,
+      "Satisfaction Score": 2.090454577821076,
+      "Entrance Fee": 16.266516538163216,
+      "Duration": 64.98095607205337,
+      "Sources": [
+        "NA"
+      ]
+    },
+    {
+      "Attraction Name": "MacRitchie Reservoir",
+      "Description": "NA.",
+      "Rating": 2.5426980635477916,
+      "Satisfaction Score": 3.6574750183038587,
+      "Entrance Fee": 17.837666334679465,
+      "Duration": 55.28410587186427,
+      "Sources": [
+        "NA"
+      ]
+    },
+    {
+      "Attraction Name": "Sungei Buloh Wetland Reserve",
+      "Description": "NA.",
+      "Rating": 3.085392166316497,
+      "Satisfaction Score": 2.2818484499495253,
+      "Entrance Fee": 40.109849037701984,
+      "Duration": 36.709557931179376,
+      "Sources": [
+        "NA"
+      ]
+    },
+    {
+      "Attraction Name": "Raffles Hotel",
+      "Description": "NA.",
+      "Rating": 3.9737738732010346,
+      "Satisfaction Score": 3.544489538593315,
+      "Entrance Fee": 9.93578407670862,
+      "Duration": 30.496990541124216,
+      "Sources": [
+        "NA"
+      ]
+    },
+    {
+      "Attraction Name": "Sultan Mosque",
+      "Description": "NA.",
+      "Rating": 3.6309228569096685,
+      "Satisfaction Score": 3.4137146876952342,
+      "Entrance Fee": 36.45035840204937,
+      "Duration": 99.41433120173512,
+      "Sources": [
+        "NA"
+      ]
+    },
+    {
+      "Attraction Name": "Kwan Im Thong Hood Cho Temple",
+      "Description": "NA.",
+      "Rating": 2.148089303468181,
+      "Satisfaction Score": 2.7169314570885454,
+      "Entrance Fee": 5.793452976256486,
+      "Duration": 107.67930832880342,
+      "Sources": [
+        "NA"
+      ]
+    },
+    {
+      "Attraction Name": "Science Centre Singapore",
+      "Description": "NA.",
+      "Rating": 3.246596253655116,
+      "Satisfaction Score": 2.6617960497052984,
+      "Entrance Fee": 3.177917514301182,
+      "Duration": 57.9884089544096,
+      "Sources": [
+        "NA"
+      ]
+    },
+    {
+      "Attraction Name": "Snow City",
+      "Description": "NA.",
+      "Rating": 2.650366644053494,
+      "Satisfaction Score": 3.459212356676128,
+      "Entrance Fee": 31.877873567760656,
+      "Duration": 109.84914683186939,
+      "Sources": [
+        "NA"
+      ]
+    },
+    {
+      "Attraction Name": "KidZania Singapore",
+      "Description": "NA.",
+      "Rating": 2.944429850323899,
+      "Satisfaction Score": 2.2391884918766034,
+      "Entrance Fee": 35.66223936114975,
+      "Duration": 98.47065437552077,
+      "Sources": [
+        "NA"
+      ]
+    },
+    {
+      "Attraction Name": "Skyline Luge Sentosa",
+      "Description": "NA.",
+      "Rating": 3.1225543951389927,
+      "Satisfaction Score": 3.541934359909122,
+      "Entrance Fee": 24.689779818219538,
+      "Duration": 77.04595464437946,
+      "Sources": [
+        "NA"
+      ]
+    },
+    {
+      "Attraction Name": "Trick Eye Museum",
+      "Description": "NA.",
+      "Rating": 2.855082036717099,
+      "Satisfaction Score": 2.05083825348819,
+      "Entrance Fee": 5.394571349665222,
+      "Duration": 32.82862671180608,
+      "Sources": [
+        "NA"
+      ]
+    },
+    {
+      "Attraction Name": "Madame Tussauds Singapore",
+      "Description": "NA.",
+      "Rating": 3.272820822527561,
+      "Satisfaction Score": 2.6287119621526536,
+      "Entrance Fee": 25.42853455823514,
+      "Duration": 111.68098265334837,
+      "Sources": [
+        "NA"
+      ]
+    },
+    {
+      "Attraction Name": "Labrador Nature Reserve",
+      "Description": "NA.",
+      "Rating": 2.49858445829775,
+      "Satisfaction Score": 2.8207658460712595,
+      "Entrance Fee": 37.77755692715243,
+      "Duration": 50.59183489424602,
+      "Sources": [
+        "NA"
+      ]
+    },
+    {
+      "Attraction Name": "Coney Island Park",
+      "Description": "NA.",
+      "Rating": 2.1539598196575858,
+      "Satisfaction Score": 2.5795029058275363,
+      "Entrance Fee": 8.061064362700222,
+      "Duration": 113.67278871083158,
+      "Sources": [
+        "NA"
+      ]
+    },
+    {
+      "Attraction Name": "Henderson Waves",
+      "Description": "NA.",
+      "Rating": 3.616240759128834,
+      "Satisfaction Score": 3.266807513020847,
+      "Entrance Fee": 43.57302950938588,
+      "Duration": 102.33048692092031,
+      "Sources": [
+        "NA"
+      ]
+    },
+    {
+      "Attraction Name": "West Coast Park",
+      "Description": "NA.",
+      "Rating": 2.3731401177720715,
+      "Satisfaction Score": 3.7851179969799555,
+      "Entrance Fee": 26.967112095782536,
+      "Duration": 102.66961396476563,
+      "Sources": [
+        "NA"
+      ]
+    },
+    {
+      "Attraction Name": "Changi Beach Park",
+      "Description": "NA.",
+      "Rating": 3.7921825998469867,
+      "Satisfaction Score": 2.6360069499437278,
+      "Entrance Fee": 5.502596226383838,
+      "Duration": 50.51416462877475,
+      "Sources": [
+        "NA"
+      ]
+    },
+    {
+      "Attraction Name": "Punggol Waterway Park",
+      "Description": "NA.",
+      "Rating": 2.8542155772525124,
+      "Satisfaction Score": 3.6360295318449865,
+      "Entrance Fee": 43.036529162817175,
+      "Duration": 30.625691747807164,
+      "Sources": [
+        "NA"
+      ]
+    },
+    {
+      "Attraction Name": "Ice Cream Museum",
+      "Description": "NA.",
+      "Rating": 3.0214946051551315,
+      "Satisfaction Score": 2.834822006297558,
+      "Entrance Fee": 11.105390523536512,
+      "Duration": 40.787883060031454,
+      "Sources": [
+        "NA"
+      ]
+    },
+    {
+      "Attraction Name": "Suntec City Shopping Centre",
+      "Description": "NA.",
+      "Rating": 2.675230342807256,
+      "Satisfaction Score": 3.8858194078250383,
+      "Entrance Fee": 16.160146601037763,
+      "Duration": 76.69115595690295,
+      "Sources": [
+        "NA"
+      ]
+    },
+    {
+      "Attraction Name": "Jewel Changi",
+      "Description": "NA.",
+      "Rating": 3.4060379177903557,
+      "Satisfaction Score": 2.727259204758588,
+      "Entrance Fee": 48.589104136048036,
+      "Duration": 116.62025654479001,
+      "Sources": [
+        "NA"
+      ]
+    }
+  ]
+}

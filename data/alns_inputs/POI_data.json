@@ -1,0 +1,126 @@
+{
+    "Query": "I am a student from India looking to have a budget friendly trip to Singapore. I like spicy food.",
+    "Hawker": [
+        {
+            "Hawker Name": "Chinatown Complex Food Centre",
+            "Dish Name": "Bak Chor Mee",
+            "Description": "A spicy noodle dish with minced pork, pork slices, pork liver, stewed mushrooms, and pork lard. It's a flavorful and budget-friendly option.",
+            "Satisfaction Score": 4.5,
+            "Rating": 4.2,
+            "Avg Food Price": 5.0,
+            "Duration": 60,
+            "Sources": [
+                "https://danielfooddiary.com/2024/08/09/singaporehawkerfood/"
+            ]
+        },
+        {
+            "Hawker Name": "People's Park Complex Food Centre",
+            "Dish Name": "Mala Xiang Guo",
+            "Description": "A spicy and numbing stir-fry dish with a variety of ingredients like meats and vegetables, cooked in a Sichuan-style spicy sauce.",
+            "Satisfaction Score": 4.6,
+            "Rating": 4.3,
+            "Avg Food Price": 8.0,
+            "Duration": 60,
+            "Sources": [
+                "https://singaporefoodie.com/singapore-hawker-food-2023/"
+            ]
+        },
+        {
+            "Hawker Name": "Maxwell Food Centre",
+            "Dish Name": "Hainanese Chicken Rice",
+            "Description": "Tender poached chicken served with fragrant rice and a spicy garlicky chili sauce. A must-try classic Singaporean dish.",
+            "Satisfaction Score": 4.7,
+            "Rating": 4.5,
+            "Avg Food Price": 5.0,
+            "Duration": 60,
+            "Sources": [
+                "https://danielfooddiary.com/2024/08/09/singaporehawkerfood/"
+            ]
+        },
+        {
+            "Hawker Name": "Old Airport Road Food Centre",
+            "Dish Name": "Char Kway Teow",
+            "Description": "A spicy stir-fried noodle dish with Chinese sausage, eggs, and cockles. It's rich in flavor and a local favorite.",
+            "Satisfaction Score": 4.6,
+            "Rating": 4.4,
+            "Avg Food Price": 4.0,
+            "Duration": 60,
+            "Sources": [
+                "https://rambletravelers.com/9-best-hawker-foods-in-singapore/"
+            ]
+        },
+        {
+            "Hawker Name": "Tiong Bahru Market",
+            "Dish Name": "Laksa",
+            "Description": "A spicy coconut-based noodle soup with prawns, fish cakes, and cockles. It's a comforting and spicy dish.",
+            "Satisfaction Score": 4.5,
+            "Rating": 4.3,
+            "Avg Food Price": 5.0,
+            "Duration": 60,
+            "Sources": [
+                "https://rambletravelers.com/9-best-hawker-foods-in-singapore/"
+            ]
+        },
+        {
+            "Hawker Name": "Amoy Street Food Centre",
+            "Dish Name": "Curry Chicken Noodles",
+            "Description": "A spicy noodle dish with tender chicken pieces in a rich curry broth. It's both filling and flavorful.",
+            "Satisfaction Score": 4.4,
+            "Rating": 4.2,
+            "Avg Food Price": 5.0,
+            "Duration": 60,
+            "Sources": [
+                "https://singaporefoodie.com/singapore-hawker-food-2023/"
+            ]
+        },
+        {
+            "Hawker Name": "Golden Mile Food Centre",
+            "Dish Name": "Tom Yum Soup",
+            "Description": "A spicy and sour Thai soup with shrimp, mushrooms, and lemongrass. It's a refreshing and spicy option.",
+            "Satisfaction Score": 4.3,
+            "Rating": 4.1,
+            "Avg Food Price": 6.0,
+            "Duration": 60,
+            "Sources": [
+                "https://danielfooddiary.com/2024/08/09/singaporehawkerfood/"
+            ]
+        },
+        {
+            "Hawker Name": "Newton Food Centre",
+            "Dish Name": "Sambal Stingray",
+            "Description": "Grilled stingray slathered in a spicy sambal sauce. It's a unique and spicy seafood dish.",
+            "Satisfaction Score": 4.6,
+            "Rating": 4.4,
+            "Avg Food Price": 10.0,
+            "Duration": 60,
+            "Sources": [
+                "https://rambletravelers.com/9-best-hawker-foods-in-singapore/"
+            ]
+        },
+        {
+            "Hawker Name": "Lau Pa Sat",
+            "Dish Name": "Satay",
+            "Description": "Grilled skewers of meat served with a spicy peanut sauce. It's a popular and affordable street food option.",
+            "Satisfaction Score": 4.5,
+            "Rating": 4.3,
+            "Avg Food Price": 0.7,
+            "Duration": 60,
+            "Sources": [
+                "https://singaporefoodie.com/singapore-hawker-food-2023/"
+            ]
+        },
+        {
+            "Hawker Name": "Tekka Centre",
+            "Dish Name": "Nasi Briyani",
+            "Description": "A spicy Indian rice dish with aromatic spices and tender meat. It's a hearty and flavorful meal.",
+            "Satisfaction Score": 4.4,
+            "Rating": 4.2,
+            "Avg Food Price": 6.0,
+            "Duration": 60,
+            "Sources": [
+                "https://danielfooddiary.com/2024/08/09/singaporehawkerfood/"
+            ]
+        }
+    ],
+    "Attraction": []
+}

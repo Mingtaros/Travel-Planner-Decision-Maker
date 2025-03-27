@@ -96,7 +96,7 @@ def enrich_location_data(locations):
 def alns_main(
     seed=42,
     config_path="./src/alns_itinerary/config.json",
-    llm_path="./data/alns_inputs/special/",
+    llm_path="./data/alns_inputs/",
     user_input=None,
     alns_input=None,
     max_attractions=None, 
