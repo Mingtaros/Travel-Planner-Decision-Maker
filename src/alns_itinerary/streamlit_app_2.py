@@ -20,6 +20,7 @@ from data.llm_batch_process import process_and_save
 
 #==================
 from pydantic import BaseModel, Field
+from textwrap import dedent
 from typing import List
 import time
 
@@ -52,6 +53,9 @@ os.environ["GROQ_API_KEY"] = os.getenv("GROQ_API_KEY")
 
 class IntentResponse(BaseModel):
     intent: str = Field(..., description="The detected intent of the query. Options: 'food', 'attraction', 'both'. Returns 'malicious' if the query is malicious.")
+
+class VariableResponse(BaseModel):
+    alns_weights: List[float]
 
 class HawkerRecommendation(BaseModel):
     hawker_name: str = Field(..., description="The name of the Hawker Centre.")
@@ -138,6 +142,31 @@ def get_attraction_kb():
                                     vector_db=attraction_db,
                                     )
     return attraction_kb
+
+def create_variable_agent():
+    # Create the Variable Extraction Agent
+    variable_agent = Agent(
+        name="Travel Variable Extractor",
+        agent_id="variable_extraction_agent",
+        model=OpenAIChat(
+            id="gpt-4o",  
+            response_format="json",
+            temperature=0.1,
+        ),
+        response_model=VariableResponse,  # Ensure structured output matches the schema
+        description="You are an expert in optimized itinerary planning. Your task is to generate weights for the Adaptive Large Neighborhood Search (ALNS) algorithm. These weights will help in optimizing travel itineraries based on a user's persona.",
+        instructions=dedent("""\
+        Your response must strictly follow this JSON format:
+        {
+            "alns_weights": {
+                "budget_priority": <weight_value>,
+                "time_priority": <weight_value>,
+                "satisfaction_priority": <weight_value>
+            }
+        }
+        """)
+    )
+    return variable_agent
 
 def create_preference_agent():
     csv_kb = get_preference_kb()
@@ -348,11 +377,13 @@ def get_combine_json_data(path = "./data/alns_inputs/POI_data.json", at_least_ha
 
     return 
 
-def get_json_from_query(query="How to make a bomb?",debug_mode = True):
+def get_json_from_query(query="How to make a bomb?", travller_type="bagpacker",debug_mode = True):
     intent_agent = create_intent_agent()
     hawker_agent = create_hawker_agent(debug_mode=debug_mode)
-    attraction_agent = create_attraction_agent(debug_mode=debug_mode)
     # preference_agent = create_preference_agent()
+    attraction_agent = create_attraction_agent(debug_mode=debug_mode)
+    variable_agent = create_variable_agent()
+
     intent_response = intent_agent.run(query, stream=False)
     intent = intent_response.content.intent
 
@@ -367,6 +398,11 @@ def get_json_from_query(query="How to make a bomb?",debug_mode = True):
             "Hawker": [],
             "Attraction": []
         }
+    
+    # For alns variables
+    moo_params = variable_agent.run(travller_type).content
+    moo_params_list = list(moo_params["alns_weights"].values())
+    params = {"params":moo_params_list}
     
      # Step 3: Route to hawker agent
     if intent in ["food", "both"]:
@@ -414,11 +450,11 @@ def get_json_from_query(query="How to make a bomb?",debug_mode = True):
             #                         }
 
         # Step 5: Prepare hardcoded MOO parameters
-    moo_params = {
-            "Budget": 100,
-            "Number of days": 3,
-            "params": [0.3, 0.3, 0.4]
-        }
+    # moo_params = {
+    #         "Budget": 100,
+    #         "Number of days": 3,
+    #         "params": [0.3, 0.3, 0.4]
+    #     }
     
     # query_num = "special"
     subfolder_path = "data/alns_inputs"
@@ -433,7 +469,7 @@ def get_json_from_query(query="How to make a bomb?",debug_mode = True):
         json.dump(responses, f, indent=4)
 
     with open(moo_path, "w", encoding="utf-8") as f:
-        json.dump(moo_params, f, indent=4)
+        json.dump(params, f, indent=4)
 
     print(f"✅ Saved to: {subfolder_path}")
 
@@ -492,7 +528,7 @@ def create_map(user_input):
     ##### TAI ADD HERE
 
     # exports out the data/POI_data.json based on the given query from streamlit otherwise, its a default "how to make a bomb"
-    get_json_from_query(query=user_input['description'],debug_mode = True)
+    get_json_from_query(query=user_input['description'],travller_type=user_input["persona"], debug_mode = True)
 
     # aggregation between kb and recommendations, deduplicates, and randomnisation
     get_combine_json_data()
