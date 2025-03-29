@@ -139,7 +139,7 @@ After optimization completes, you can find the itineraries in the `results` dire
 
 ## Project Structure
 ```
-itinerary_optimizer/
+alns_itinerary/
 │
 ├── alns/                 # ALNS algorithm implementation
 │   ├── vrp_alns.py       # Enhanced ALNS for VRP representation

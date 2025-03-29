@@ -196,10 +196,10 @@ def export_json_itinerary(problem, solution, filename=None):
             
             # Add additional details based on location type
             if location_type == "attraction":
-                location_entry["description"] = f"Attraction with satisfaction rating {satisfaction:.1f}/{problem.MAX_RATING}"
+                location_entry["description"] = f"Attraction with satisfaction rating {satisfaction:.1f}/{problem.RATING_MAX}"
                 location_entry["entrance_fee"] = round(problem.locations[location_idx].get("entrance_fee", 0), 2)
             elif location_type == "hawker":
-                location_entry["description"] = f"Food center with rating {satisfaction:.1f}/{problem.MAX_RATING}"
+                location_entry["description"] = f"Food center with rating {satisfaction:.1f}/{problem.RATING_MAX}"
                 location_entry["meal_cost"] = round(problem.locations[location_idx].get("avg_food_price", 0), 2)
                 
                 # Add rest information to description if applicable
