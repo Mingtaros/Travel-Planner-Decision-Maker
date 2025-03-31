@@ -6,8 +6,6 @@ import sys
 from alns_main import alns_main
 from data.llm_batch_process import process_and_save
 
-load_dotenv()
-
 def setup_logging():
     """
     Configure application logging.

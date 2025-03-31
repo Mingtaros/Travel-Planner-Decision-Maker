@@ -267,7 +267,7 @@ def alns_main(
         # Export the initial solution as JSON
         initial_solution = alns.current_solution
         initial_json_path = f"results/initial_itinerary_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
-        stats = {"best_objective": initial_solution.best_objective}
+        stats = {"best_objective": alns.best_objective}
         initial_json_file, initial_itinerary = export_json_itinerary(problem=problem, solution=initial_solution, stats=stats, filename=initial_json_path)
         logger.info(f"Initial solution exported to: {initial_json_file}")
         

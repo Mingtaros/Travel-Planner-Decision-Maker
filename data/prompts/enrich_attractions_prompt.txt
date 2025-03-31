@@ -8,7 +8,7 @@ Your response must follow this JSON format:
     "attractions": [
         {{
             "name": "{{attraction_name}}",
-            "relevance_score": {{score_out_of_10}},
+            "relevance_score": {{score_out_of_5}},
             "entrance_fee": "{{fee_in_SGD}}",
             "estimated_duration": "{{duration_in_minutes}}"
         }}
@@ -17,7 +17,7 @@ Your response must follow this JSON format:
 ```
 
 ### **Evaluation Criteria:**  
-1. **Relevance Score (0-10):** Rate how suitable the attraction is for the given persona. Consider factors such as atmosphere, activities, and traveler interests.
+1. **Relevance Score (0-5):** Rate how suitable the attraction is for the given persona. Consider factors such as atmosphere, activities, and traveler interests.
 2. **Entrance Fee:** Provide the ticket price in SGD (Singapore Dollars) as a single number. Do not use ranges (e.g., "10-15"). If unsure, estimate a single representative number. If free, use 0.
 3. **Estimated Duration:** Indicate the average time a traveler is likely to spend at the location in minutes.
 

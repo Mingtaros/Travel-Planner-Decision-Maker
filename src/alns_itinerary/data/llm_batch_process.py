@@ -12,29 +12,7 @@ from datetime import datetime
 load_dotenv()
 
 PROMPT_DIR = './data/prompts/'
-
-def setup_logging():
-    """
-    Configure application logging.
     
-    Sets up both file and console logging with timestamps and appropriate
-    log levels. Log files are stored in the 'log' directory with filenames
-    that include the current timestamp.
-    """
-    # Create logs directory if it doesn't exist
-    os.makedirs("log", exist_ok=True)
-    
-    # Configure logging
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(levelname)s - %(message)s',
-        handlers=[
-            logging.FileHandler(f"log/groq_llm_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"),
-            logging.StreamHandler()
-        ]
-    )
-    
-setup_logging()
 logger = logging.getLogger(__name__)
 
 def load_prompt(filename: str) -> str:
@@ -47,7 +25,7 @@ def load_prompt(filename: str) -> str:
     except Exception as e:
         raise
 
-def read_data(data_path: str, max_rows: int) -> pd.DataFrame:
+def read_data(data_path: str, max_rows: int = None) -> pd.DataFrame:
     """Read and merge data from an Excel file and a CSV file."""
     if data_path.endswith(".xlsx"):
         df = pd.read_excel(data_path, nrows=max_rows)
@@ -111,11 +89,11 @@ def process_and_save(persona: str, attraction_path: str, hawker_path: str, outpu
     
     logger.info(f"Processing data for persona: {persona}")
     
-    attraction_df = read_data(attraction_path, 10)
+    attraction_df = read_data(attraction_path)
     attraction_df = attraction_df[["Attraction Name", "Typical Expenditure (SGD)", "Typical Time Spent (hours)"]]
     attraction_df.columns = ["name", "cost", "duration"]
     
-    hawker_df = read_data(hawker_path, 10)
+    hawker_df = read_data(hawker_path)
     hawker_df = hawker_df[["Name", "Ratings (Google Reviews)", "Highlights"]]
     hawker_df.columns = ["name", "rating", "description"]
     

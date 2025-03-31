@@ -63,17 +63,17 @@ def load_recommendations(json_path=None, alns_input=None):
             for hawker in location_data['hawkers']:
                 recommendations['hawkers'].append({
                     'name': hawker['name'],
-                    'avg_food_price': hawker['avg_food_price'],
-                    'rating': hawker['relevance_score'],
+                    'avg_food_price': float(hawker['avg_food_price']),
+                    'rating': float(hawker['relevance_score']),
                     'duration': 60,
                 })
                 
             for attraction in location_data['attractions']:
                 recommendations['attractions'].append({
                     'name': attraction['name'],
-                    'entrance_fee': attraction['entrance_fee'],
-                    'satisfaction': attraction['relevance_score'],
-                    'duration': attraction.get('estimated_duration', 60)
+                    'entrance_fee': float(attraction['entrance_fee']),
+                    'satisfaction': float(attraction['relevance_score']),
+                    'duration': int(attraction.get('estimated_duration', 60))
                 })
             
         elif json_path:
