@@ -2,7 +2,7 @@
     "attractions": [
         {
             "name": "Gardens by the Bay",
-            "relevance_score": 8,
+            "relevance_score": 4,
             "entrance_fee": 28,
             "estimated_duration": 180
         },
@@ -14,19 +14,19 @@
         },
         {
             "name": "Singapore Zoo",
-            "relevance_score": 7,
+            "relevance_score": 3,
             "entrance_fee": 50,
             "estimated_duration": 240
         },
         {
             "name": "River Wonders",
-            "relevance_score": 6.5,
+            "relevance_score": 3,
             "entrance_fee": 40,
             "estimated_duration": 180
         },
         {
             "name": "Bird Paradise",
-            "relevance_score": 6,
+            "relevance_score": 3,
             "entrance_fee": 38,
             "estimated_duration": 180
         },
@@ -38,25 +38,25 @@
         },
         {
             "name": "Singapore Flyer",
-            "relevance_score": 6,
+            "relevance_score": 3,
             "entrance_fee": 33,
             "estimated_duration": 60
         },
         {
             "name": "ArtScience Museum",
-            "relevance_score": 7,
+            "relevance_score": 4,
             "entrance_fee": 30,
             "estimated_duration": 120
         },
         {
             "name": "National Gallery Singapore",
-            "relevance_score": 7,
+            "relevance_score": 4,
             "entrance_fee": 20,
             "estimated_duration": 150
         },
         {
             "name": "Asian Civilisations Museum",
-            "relevance_score": 8.5,
+            "relevance_score": 4,
             "entrance_fee": 12,
             "estimated_duration": 120
         }
@@ -65,57 +65,57 @@
         {
             "name": "Lau Pa Sat",
             "relevance_score": 9,
-            "avg_food_price": 10
+            "avg_food_price": 15
         },
         {
             "name": "Amoy Street Food Centre",
-            "relevance_score": 8.5,
+            "relevance_score": 8,
             "avg_food_price": 12
         },
         {
             "name": "Hill Street Tai Hwa Pork Noodle",
-            "relevance_score": 7.5,
-            "avg_food_price": 15
+            "relevance_score": 7,
+            "avg_food_price": 14
         },
         {
             "name": "Chinatown Complex Food Centre",
-            "relevance_score": 9.5,
+            "relevance_score": 8,
             "avg_food_price": 10
         },
         {
             "name": "Sungei Road Laksa",
-            "relevance_score": 9,
+            "relevance_score": 6,
             "avg_food_price": 8
         },
         {
             "name": "Muthu's Curry - Little India",
-            "relevance_score": 8.5,
-            "avg_food_price": 10
+            "relevance_score": 7,
+            "avg_food_price": 12
         },
         {
             "name": "Tekka Centre",
-            "relevance_score": 8.5,
+            "relevance_score": 7,
             "avg_food_price": 10
         },
         {
             "name": "Maxwell Food Centre",
-            "relevance_score": 9,
-            "avg_food_price": 10
-        },
-        {
-            "name": "One Punggol Hawker Centre",
-            "relevance_score": 7.5,
+            "relevance_score": 8,
             "avg_food_price": 12
         },
         {
+            "name": "One Punggol Hawker Centre",
+            "relevance_score": 5,
+            "avg_food_price": 10
+        },
+        {
             "name": "East Coast Lagoon Food Village",
-            "relevance_score": 8,
+            "relevance_score": 7,
             "avg_food_price": 15
         }
     ],
     "alns_weights": {
-        "budget_priority": 0.5,
+        "budget_priority": 0.3,
         "time_priority": 0.2,
-        "satisfaction_priority": 0.3
+        "satisfaction_priority": 0.5
     }
 }

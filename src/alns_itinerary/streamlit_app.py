@@ -109,8 +109,6 @@ def get_preference_kb():
 
 def get_hawker_kb():
     pdf_urls = [
-        # "https://raw.githubusercontent.com/Mingtaros/Travel-Planner-Decision-Maker/main/data/hawker/Summary_Singapore_Food.pdf",
-        # "https://raw.githubusercontent.com/Mingtaros/Travel-Planner-Decision-Maker/main/data/hawker/inputs/hawker_centres_singapore.pdf",
         "https://raw.githubusercontent.com/Mingtaros/Travel-Planner-Decision-Maker/main/data/locationData/20_hawker.pdf"]
 
     hawker_chunking_type = FixedSizeChunking(chunk_size=150, overlap=20)
@@ -132,8 +130,6 @@ def get_hawker_kb():
 
 def get_attraction_kb():
     pdf_urls = [
-        # "https://raw.githubusercontent.com/Mingtaros/Travel-Planner-Decision-Maker/main/data/hawker/Summary_Singapore_Food.pdf",
-        # "https://raw.githubusercontent.com/Mingtaros/Travel-Planner-Decision-Maker/main/data/attraction/inputs/Singapore_Attractions_Guide.pdf"
         "https://raw.githubusercontent.com/Mingtaros/Travel-Planner-Decision-Maker/main/data/locationData/67_attractions.pdf"
 
     ]

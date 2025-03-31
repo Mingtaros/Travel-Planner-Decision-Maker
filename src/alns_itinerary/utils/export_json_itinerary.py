@@ -28,7 +28,7 @@ def format_time(minutes):
     minute = int(minutes % 60)
     return f"{hour:02d}:{minute:02d}"
 
-def export_json_itinerary(problem, solution, filename=None):
+def export_json_itinerary(problem, solution, stats=None, filename=None):
     """
     Export an optimized travel itinerary as a detailed JSON file.
     
@@ -43,6 +43,7 @@ def export_json_itinerary(problem, solution, filename=None):
     Args:
         problem: TravelItineraryProblem instance containing location data and constraints
         solution: VRPSolution instance with the optimized route
+        stats: Evaluation statistics from the solution
         filename: Path to the output JSON file (optional, auto-generated if None)
         
     Returns:
@@ -65,6 +66,7 @@ def export_json_itinerary(problem, solution, filename=None):
             "actual_expenditure": evaluation["total_cost"],
             "total_travel_time": evaluation["total_travel_time"],
             "total_satisfaction": evaluation["total_satisfaction"],
+            "objective_value": stats.get('best_objective', 0),
             "is_feasible": evaluation["is_feasible"],
             "starting_hotel": problem.locations[0]["name"]
         },

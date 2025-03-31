@@ -43,14 +43,24 @@ def load_recommendations(json_path=None, alns_input=None):
         dict: Dictionary with attraction and hawker recommendations
     """
     try:
+        logger.info("ALNS Input: %s", alns_input)
+        parameter_data = {}
+        recommendations = {
+                'hawkers': [],
+                'attractions': []
+            }
         if alns_input:
             logger.info("Loading recommendations from ALNS input")
-            parameter_data = alns_input.get('alns_weights', {})
-            parameter_data["params"] = parameter_data.pop("alns_weights")
+            alns_weights = alns_input.get('alns_weights', {})
             
-            recommendations = {k: alns_input[k] for k in ["attractions", "hawkers"]}
+            logger.info("ALNS Weights: %s", alns_weights)
             
-            for hawker in location_data['Hawker']:
+            parameter_data["params"] = list(alns_weights.values())
+            
+            location_data = {k: alns_input[k] for k in ["attractions", "hawkers"]}
+            logger.info("Location Data: %s", location_data)
+            
+            for hawker in location_data['hawkers']:
                 recommendations['hawkers'].append({
                     'name': hawker['name'],
                     'avg_food_price': hawker['avg_food_price'],
@@ -58,7 +68,7 @@ def load_recommendations(json_path=None, alns_input=None):
                     'duration': 60,
                 })
                 
-            for attraction in location_data['Attraction']:
+            for attraction in location_data['attractions']:
                 recommendations['attractions'].append({
                     'name': attraction['name'],
                     'entrance_fee': attraction['entrance_fee'],
@@ -69,11 +79,6 @@ def load_recommendations(json_path=None, alns_input=None):
         elif json_path:
             logger.info(f"Loading recommendations from JSON file: {json_path}")
             parameter_data, location_data = read_llm_output(json_path)
-        
-            recommendations = {
-                'hawkers': [],
-                'attractions': []
-            }
             
             # Extract hawker recommendations
             if 'Hawker' in location_data:
@@ -94,6 +99,9 @@ def load_recommendations(json_path=None, alns_input=None):
                         'satisfaction': attraction['Satisfaction Score'],
                         'duration': attraction.get('Duration', 1) * 60, # Convert hours to minutes
                     })
+        
+        logger.info(f"Loaded {len(recommendations['hawkers'])} hawker recommendations and {len(recommendations['attractions'])} attraction recommendations")
+        logger.info(f"Loaded parameters: {parameter_data}")
         
         return recommendations, parameter_data
     except Exception as e:

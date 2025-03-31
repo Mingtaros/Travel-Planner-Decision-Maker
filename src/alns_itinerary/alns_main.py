@@ -147,10 +147,10 @@ def alns_main(
     recommendations = None
     parameter_data = None
     if alns_input is not None:
-        recommendations, parameter_data = load_recommendations(alns_input)
+        recommendations, parameter_data = load_recommendations(alns_input=alns_input)
         logger.info(f"Loaded recommendations")
     elif llm_path and os.path.exists(llm_path):
-        recommendations, parameter_data = load_recommendations(llm_path)
+        recommendations, parameter_data = load_recommendations(json_path=llm_path)
         logger.info(f"Loaded recommendations")
     
     budget = user_input["budget"]
@@ -267,7 +267,8 @@ def alns_main(
         # Export the initial solution as JSON
         initial_solution = alns.current_solution
         initial_json_path = f"results/initial_itinerary_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
-        initial_json_file, initial_itinerary = export_json_itinerary(problem, initial_solution, initial_json_path)
+        stats = {"best_objective": initial_solution.best_objective}
+        initial_json_file, initial_itinerary = export_json_itinerary(problem=problem, solution=initial_solution, stats=stats, filename=initial_json_path)
         logger.info(f"Initial solution exported to: {initial_json_file}")
         
         # exit()
@@ -277,10 +278,11 @@ def alns_main(
         
         # Get best solution
         best_vrp_solution = results['best_solution']
+        stats = results['stats']
         
         # Export the best solution as JSON
         json_path = f"results/best_itinerary_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
-        json_file, best_itinerary = export_json_itinerary(problem, best_vrp_solution, json_path)
+        json_file, best_itinerary = export_json_itinerary(problem=problem, solution=best_vrp_solution, stats=stats, filename=json_path)
         
         # Log optimization results
         logger.info(f"Optimization completed. Solutions exported to:")
