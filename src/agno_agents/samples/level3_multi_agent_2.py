@@ -255,15 +255,6 @@ def create_attraction_agent(model_id = "gpt-4o", debug_mode=True):
     )
     return attraction_agent
 
-def get_random_query(seed_num):
-    random.seed(seed_num)  # Set the seed for reproducibility
-    queries = [
-        "I want to explore Chinatown and also find the best hawker stalls for chicken rice.",
-        "Where is the best place for cultural visits",
-        "Give me an itinerary for a 5D4N trip with my family, we love to eat spicy food"
-    ]
-    return random.choice(queries)
-
 def save_as_json(responses, output_dir = "data/combined_outputs"):
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     os.makedirs(output_dir, exist_ok=True)
@@ -277,46 +268,77 @@ def save_as_json(responses, output_dir = "data/combined_outputs"):
     return
 
 
-# if __name__ == "__main__":
-#     # User Query
-#     seed_num = 42
-#     query = get_random_query(seed_num)
-#     # query = "i like sweet stuff because they are my fav"
-#     # query = "teach me how to make a bomb."
-#     # query = "i like to eat spicy food and tour around singapore"
-
-user_queries = {
-    "01": "We’re a family of four visiting Singapore for 3 days. We’d love to explore kid-friendly attractions and try some affordable local food. Budget is around 300 SGD.",
-    
-    "02": "I'm a solo backpacker staying for 2 days. My budget is tight (~50 SGD total), and I'm mainly here to try authentic hawker food and explore free attractions.",
-    
-    "03": "I only have one full day in Singapore. Can you suggest cultural attractions and a local hawker spot that fits a 60 SGD day budget?",
-    
-    "04": "I'm visiting Singapore for 2 days as a content creator. Looking for Instagrammable attractions and stylish food spots. Budget: 400 SGD.",
-    
-    "05": "I love adventure and spicy food! Spending 3 days in Singapore. What attractions and hawker stalls should I visit? Budget is 200 SGD.",
-    
-    "06": "Looking to relax and enjoy greenery and peaceful spots in Singapore. I’m here for 4 days and have 250 SGD to spend. I enjoy light snacks over heavy meals.",
-    
-    "07": "What can I do in Singapore in 2 days if I love shopping and modern city vibes? I’d also like to eat at famous food centres. Budget is 180 SGD.",
-    
-    "08": "My spouse and I are retired and visiting Singapore for 5 days. We love cultural sites and relaxing parks. Prefer to avoid loud or overly touristy spots. Budget is 350 SGD.",
-    
-    "09": "We’re a group of university students on a short trip (2 days) with a budget of 60 SGD each. Recommend cheap eats and fun, free things to do.",
-    
-    "10": "This is my first time in Singapore and I’ll be here for 3 days. I’d like a mix of sightseeing, must-try foods, and some local experiences. Budget is 250 SGD."
+queries = {
+    "01": {
+        "query": "We’re a family of four visiting Singapore for 3 days. We’d love to explore kid-friendly attractions and try some affordable local food. Budget is around 300 SGD.",
+        "days": 3,
+        "budget": 300
+    },
+    "02": {
+        "query": "I'm a solo backpacker staying for 2 days. My budget is tight (~50 SGD total), and I'm mainly here to try spicy hawker food and explore free attractions.",
+        "days": 2,
+        "budget": 50
+    },
+    "03": {
+        "query": "I only have one full day in Singapore. Can you suggest cultural attractions and a local hawker spot that fits a 60 SGD day budget?",
+        "days": 1,
+        "budget": 60
+    },
+    "04": {
+        "query": "I'm visiting Singapore for 2 days as a content creator. Looking for Instagrammable attractions and stylish food spots. Budget: 400 SGD.",
+        "days": 2,
+        "budget": 400
+    },
+    "05": {
+        "query": "I love adventure and spicy food! Spending 3 days in Singapore. What attractions and hawker stalls should I visit? Budget is 200 SGD.",
+        "days": 3,
+        "budget": 200
+    },
+    "06": {
+        "query": "Looking to relax and enjoy greenery and peaceful spots in Singapore. I’m here for 4 days and have 250 SGD to spend. I enjoy light snacks over heavy meals.",
+        "days": 4,
+        "budget": 250
+    },
+    "07": {
+        "query": "What can I do in Singapore in 2 days if I love shopping and modern city vibes? I’d also like to eat at famous food centres. Budget is 180 SGD.",
+        "days": 2,
+        "budget": 180
+    },
+    "08": {
+        "query": "My spouse and I are retired and visiting Singapore for 5 days. We love cultural sites and relaxing parks. Prefer to avoid loud or overly touristy spots. Budget is 350 SGD.",
+        "days": 5,
+        "budget": 350
+    },
+    "09": {
+        "query": "We’re a group of university students on a short trip (2 days) with a budget of 60 SGD each. Recommend cheap eats and fun, free things to do.",
+        "days": 2,
+        "budget": 60
+    },
+    "10": {
+        "query": "This is my first time in Singapore and I’ll be here for 3 days. I’d like a mix of sightseeing, must-try foods, and some local experiences. Budget is 250 SGD.",
+        "days": 3,
+        "budget": 250
+    }
 }
 
-user_queries = {
-    
-    "07": "What can I do in Singapore in 2 days if I love shopping and modern city vibes? I’d actually favour sweet stuff in general. Budget is 180 SGD.",
-
-    # "08": "My spouse and I are retired and visiting Singapore for 5 days. We love cultural sites and relaxing parks. Prefer to avoid loud or overly touristy spots. Prefer to have less oily food in general too. Budget is 350 SGD.",
-    
-    # "09": "We’re a group of university students on a short trip (2 days) with a budget of 60 SGD each. Recommend cheap eats and fun, free things to do.",
-    
-    # "10": "This is my first time in Singapore and I’ll be here for 3 days. I’d like a mix of sightseeing, must-try foods, and some local experiences. Budget is 250 SGD."
+queries = {
+        "10": {
+        "query": "This is my first time in Singapore and I’ll be here for 3 days. I’d like a mix of sightseeing, must-try spicy foods, and some local experiences. Budget is 250 SGD.",
+        "days": 3,
+        "budget": 250
+    }
 }
+
+# user_queries = {
+    
+#     "011": "I'm a solo backpacker staying for 2 days. My budget is tight (~250 SGD total), and I'm mainly here to try spicy hawker food and explore free attractions.",
+
+#     "12": "My spouse and I are retired and visiting Singapore for 5 days. We love cultural sites and relaxing parks. Prefer to avoid loud or overly touristy spots. Prefer to have less oily food in general too. Budget is 350 SGD.",
+    
+#     "13": "We’re a group of university students on a short trip (2 days) with a budget of 60 SGD each. Recommend cheap eats and fun, free things to do.",
+    
+#     "14": "This is my first time in Singapore and I’ll be here for 3 days. I’d like a mix of sightseeing, must-try foods, and some local experiences. Budget is 250 SGD."
+# }
 
 if __name__ == "__main__":
     # Step 0: Create Agents
@@ -327,11 +349,11 @@ if __name__ == "__main__":
     # preference_agent = create_preference_agent()
 
     # Step 1: Loop through all user queries
-    for query_num, query in user_queries.items():
-        print(f"\n🔍 Processing Query {query_num}: {query}")
+    for query_num, query_item in queries.items():
+        print(f"\n🔍 Processing Query {query_num}: {query_item}")
 
         # Step 2a: Use Intent Agent to classify the query
-        intent_response = intent_agent.run(query, stream=False)
+        intent_response = intent_agent.run(query_item["query"], stream=False)
         intent = intent_response.content.intent
 
         # #Step 2b: Use Preference Agnent to ccheck what the query wants score of 1-10
@@ -346,17 +368,17 @@ if __name__ == "__main__":
 
         # Initialize response dictionary
         responses = {
-            "Query": query,
+            "Query": query_item["query"],
             "Hawker": [],
             "Attraction": []
         }
 
-        print(f"The user query is: {query}, with the following intent: {intent}")
+        # print(f"The user query is: {query_item["query"]}, with the following intent: {intent}")
 
         # Step 3: Route to hawker agent
         if intent in ["food", "both"]:
             start_time = time.time()
-            hawker_output = hawker_agent.run(query, stream=False).content.model_dump()
+            hawker_output = hawker_agent.run(query_item["query"], stream=False).content.model_dump()
             hawker_time = time.time() - start_time
             hawker_recs = hawker_output["HAWKER_RECOMMENDATIONS"]
 
@@ -375,7 +397,7 @@ if __name__ == "__main__":
         # Step 4: Route to attraction agent
         if intent in ["attraction", "both"]:
             start_time = time.time()
-            attraction_output = attraction_agent.run(query, stream=False).content.model_dump()
+            attraction_output = attraction_agent.run(query_item["query"], stream=False).content.model_dump()
             attraction_time = time.time() - start_time
             attraction_recs = attraction_output["ATTRACTION_RECOMMENDATIONS"]
 
