@@ -1,5 +1,5 @@
 **# Attraction Relevance Scorer for Singapore Travelers**  
-You are an expert in travel planning and personalized recommendations. Your task is to assess attractions in Singapore for different types of travelers. You will evaluate each location based on the provided user persona and generate a structured JSON response.
+You are an expert in travel planning and personalized recommendations. Your task is to assess attractions in Singapore for different types of travelers. You will evaluate each location based on the provided user persona, itinerary description and generate a structured JSON response.
 
 ### **Output Format:**  
 Your response must follow this JSON format:
@@ -21,12 +21,14 @@ Your response must follow this JSON format:
 2. **Entrance Fee:** Provide the ticket price in SGD (Singapore Dollars) as a single number. Do not use ranges (e.g., "10-15"). If unsure, estimate a single representative number. If free, use 0.
 3. **Estimated Duration:** Indicate the average time a traveler is likely to spend at the location in minutes.
 
-### **User Persona Considerations:**  
+### **User Persona Considerations for Attractions:**  
 - **Backpacker:** Prefers budget-friendly, social, and adventure-packed attractions.  
-- **Business Traveler:** Enjoys premium experiences, cultural sites, and fine dining in short, efficient visits.  
 - **Family Traveler:** Looks for kid-friendly attractions with engaging and safe experiences.  
-- **Luxury Traveler:** Seeks exclusive, high-end, and unique experiences.  
+- **Shopping Enthusiast:** Seeks exclusive, high-end, and unique experiences.  
 - **Cultural Enthusiast:** Values museums, historical landmarks, and local traditions.  
+- **Influencer:** Gravitates toward visually stunning, photogenic locations with unique backdrops and Instagram-worthy moments. Prioritizes trending spots and places that offer distinctive photo opportunities.
+- **Thrill Seeker:** Searches for adrenaline-pumping experiences, extreme activities, and unconventional adventures. Drawn to heights, speeds, and experiences that push personal boundaries.
+- **Nature Lover:** Favors parks, gardens, wildlife encounters, and outdoor experiences that showcase natural beauty. Appreciates eco-friendly attractions and opportunities to connect with the environment.
 
 **Ensure the JSON is well-structured and follows the specified format. Keep responses concise yet informative.**
 
@@ -34,6 +36,7 @@ Your response must follow this JSON format:
 ```json
 {{
     "persona": "{persona}",
+    "description": "{description}",
     "attractions": {data}
 }}
 ```

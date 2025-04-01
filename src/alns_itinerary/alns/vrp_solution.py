@@ -124,7 +124,7 @@ class VRPSolution:
             else:
                 loc_cost = 0
                 
-            return transport_data["price"] + loc_cost, transport_data["duration"] + self.problem.locations[location_idx].get('duration', 60)
+            return transport_data["price"] + loc_cost, round(transport_data["duration"]) + round(self.problem.locations[location_idx].get('duration', 60))
         except KeyError:
             # Missing transport data, use defaults
             logger.warning(f"Missing transport data for {self.problem.locations[location_idx]}")
@@ -169,7 +169,7 @@ class VRPSolution:
             transport_data = self._get_transport_data(prev_loc, location_idx, prev_departure, transport_mode)
             
             # Calculate arrival time
-            arrival_time = prev_departure + transport_data["duration"]
+            arrival_time = prev_departure + round(transport_data["duration"])
             
             # Special handling for hawkers (enforce meal windows)
             if self.problem.locations[location_idx]["type"] == "hawker":
@@ -182,7 +182,7 @@ class VRPSolution:
                     arrival_time = max(arrival_time, self.problem.DINNER_START)
             
             # Calculate departure time
-            location_duration = self.problem.locations[location_idx]["duration"]
+            location_duration = round(self.problem.locations[location_idx]["duration"])
             departure_time = arrival_time + location_duration
             
             # Insert the new location
@@ -248,7 +248,7 @@ class VRPSolution:
             # Calculate travel time
             transport_data = self._get_transport_data(prev_loc, curr_loc, prev_departure, transport_mode)
             # Calculate arrival time
-            actual_arrival_time = prev_departure + transport_data["duration"]
+            actual_arrival_time = prev_departure + round(transport_data["duration"])
             
             # Special handling for hawkers (enforce meal windows)
             if self.problem.locations[curr_loc]["type"] == "hawker" and arrival_time > actual_arrival_time:
@@ -263,7 +263,7 @@ class VRPSolution:
                 arrival_time = actual_arrival_time
             
             # Calculate departure time
-            location_duration = self.problem.locations[curr_loc]["duration"]
+            location_duration = round(self.problem.locations[curr_loc]["duration"])
             departure_time = arrival_time + location_duration
             
             # Update the route with new times
@@ -315,7 +315,7 @@ class VRPSolution:
         
         # Calculate arrival time
         transport_data = self._get_transport_data(prev_loc, location_idx, prev_departure, transport_mode)
-        arrival_time = prev_departure + transport_data["duration"]
+        arrival_time = prev_departure + round(transport_data["duration"])
         arr_transit_cost = transport_data["price"]
         loc_cost = 0
         # Check uniqueness constraints based on location type
@@ -385,7 +385,7 @@ class VRPSolution:
         
         # Now perform the original feasibility checks
         # Calculate departure time
-        location_duration = self.problem.locations[location_idx]["duration"]
+        location_duration = round(self.problem.locations[location_idx]["duration"])
         departure_time = arrival_time + location_duration
         
         # Check if we return to hotel too late
@@ -403,7 +403,7 @@ class VRPSolution:
             return False
         
         transport_data = self._get_transport_data(location_idx, next_loc, departure_time, next_transport)
-        new_next_arrival = departure_time + transport_data["duration"]
+        new_next_arrival = departure_time + round(transport_data["duration"])
         dep_transit_cost = transport_data["price"]
         
         if position == len(route):
@@ -479,7 +479,7 @@ class VRPSolution:
             return last_departure, 0, 0
         
         transport_data = self._get_transport_data(last_loc, 0, last_departure, self.hotel_return_transport[day])
-        return_transit_duration = transport_data["duration"]
+        return_transit_duration = round(transport_data["duration"])
         return_transit_cost = transport_data["price"]
         hotel_arrival = last_departure + return_transit_duration
         
@@ -595,12 +595,8 @@ class VRPSolution:
                 curr_loc, _, _, transport_mode = route[i]
                 
                 # Calculate transport cost
-                try:
-                    transport_data = self._get_transport_data(prev_loc, curr_loc, prev_departure, transport_mode)
-                    total_cost += transport_data["price"]
-                except KeyError:
-                    # Missing transport data, use default
-                    total_cost += 5  # Default cost
+                transport_data = self._get_transport_data(prev_loc, curr_loc, prev_departure, transport_mode)
+                total_cost += transport_data["price"]
                 
                 # Add location costs
                 loc_type = self.problem.locations[curr_loc]["type"]
@@ -608,9 +604,13 @@ class VRPSolution:
                     total_cost += self.problem.locations[curr_loc]["entrance_fee"]
                 elif loc_type == "hawker":
                     total_cost += self.problem.locations[curr_loc]["avg_food_price"]
+                
+                # logger.info(f"Adding cost for {self.problem.locations[curr_loc]['name']}: {transport_data['price']} + {self.problem.locations[curr_loc]['entrance_fee' if loc_type == 'attraction' else 'avg_food_price']}")
             
             hotel_arrival, return_cost, _ = self.get_hotel_return(day)
             total_cost += return_cost
+            
+            # logger.info(f"Adding return cost for day {day+1}: {return_cost}")
             
         return round(total_cost, 2)
     
@@ -641,7 +641,7 @@ class VRPSolution:
                     
                     # Calculate transport cost
                     transport_data = self._get_transport_data(prev_loc, curr_loc, prev_departure, transport_mode)
-                    actual_transit_time = transport_data["duration"]
+                    actual_transit_time = round(transport_data["duration"])
                     rest_period = raw_transit_time - actual_transit_time
                     
                 # Subtract rest period from transit time

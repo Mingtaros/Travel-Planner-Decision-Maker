@@ -8,10 +8,12 @@ from typing import List, Dict, Any
 from dotenv import load_dotenv
 import logging
 from datetime import datetime
+import time
 
 load_dotenv()
 
 PROMPT_DIR = './data/prompts/'
+delay_seconds = 2  # Adjust this value based on API rate limits
     
 logger = logging.getLogger(__name__)
 
@@ -45,7 +47,7 @@ def get_llm():
         temperature=float(os.getenv("GROQ_TEMPERATURE", 0.5)),
     )
 
-def process_batch(persona: str, batch: List[Dict[str, Any]], location_type: str) -> Dict[str, Any]:
+def process_batch(persona: str, description: str, batch: List[Dict[str, Any]], location_type: str) -> Dict[str, Any]:
     """Send a batch of rows to the Groq API and return the JSON response."""
     llm = get_llm()
     system_prompt = load_prompt(f"enrich_{location_type}_prompt.txt")
@@ -57,6 +59,7 @@ def process_batch(persona: str, batch: List[Dict[str, Any]], location_type: str)
     
     params = {
         "persona": persona,
+        "description": description,
         "data": batch
     }
     
@@ -65,7 +68,7 @@ def process_batch(persona: str, batch: List[Dict[str, Any]], location_type: str)
     
     return response
 
-def generate_alns_weights(persona: str) -> Dict[str, Any]:
+def generate_alns_weights(persona: str, description: str) -> Dict[str, Any]:
     """Generate ALNS weights for budget, travel time, and satisfaction."""
     llm = get_llm()
     system_prompt = load_prompt("generate_alns_weights_prompt.txt")
@@ -76,7 +79,8 @@ def generate_alns_weights(persona: str) -> Dict[str, Any]:
     ])
 
     params = {
-        "persona": persona
+        "persona": persona,
+        "description": description
     }
 
     chain = prompt | llm | JsonOutputParser()
@@ -84,16 +88,16 @@ def generate_alns_weights(persona: str) -> Dict[str, Any]:
 
     return response
 
-def process_and_save(persona: str, attraction_path: str, hawker_path: str, output_json_path: str, batch_size: int) -> Dict[str, Any]:
+def process_and_save(persona: str, description: str, attraction_path: str, hawker_path: str, output_json_path: str, batch_size: int, max_rows: int = None) -> Dict[str, Any]:
     """Process data in batches, generate ALNS weights, and save the final JSON output."""
     
     logger.info(f"Processing data for persona: {persona}")
     
-    attraction_df = read_data(attraction_path)
+    attraction_df = read_data(attraction_path, max_rows)
     attraction_df = attraction_df[["Attraction Name", "Typical Expenditure (SGD)", "Typical Time Spent (hours)"]]
     attraction_df.columns = ["name", "cost", "duration"]
     
-    hawker_df = read_data(hawker_path)
+    hawker_df = read_data(hawker_path, max_rows)
     hawker_df = hawker_df[["Name", "Ratings (Google Reviews)", "Highlights"]]
     hawker_df.columns = ["name", "rating", "description"]
     
@@ -110,15 +114,19 @@ def process_and_save(persona: str, attraction_path: str, hawker_path: str, outpu
         
         for batch in batches:
             logger.info(f"Processing batch {len(results[location_type]) + 1}...")
-            response = process_batch(persona, batch, location_type)
+            response = process_batch(persona, description, batch, location_type)
             
             if isinstance(response, dict) and location_type in response:
                 results[location_type].extend(response[location_type])
             else:
                 logger.info(f"Warning: Unexpected response format for {location_type}: {response}")
+            
+            # Add delay before next API call
+            logger.info(f"Waiting {delay_seconds} seconds before next API call...")
+            time.sleep(delay_seconds)
     
     # Generate ALNS weights
-    alns_weights = generate_alns_weights(persona)
+    alns_weights = generate_alns_weights(persona, description)
     if isinstance(alns_weights, dict) and "alns_weights" in alns_weights:
         results["alns_weights"] = alns_weights["alns_weights"]
     else:
@@ -134,6 +142,7 @@ def process_and_save(persona: str, attraction_path: str, hawker_path: str, outpu
 if __name__ == "__main__":
     result = process_and_save(
         persona="Backpacker",
+        description="I am a student who wants to explore Singapore on a budget. I love local food and unique attractions.",
         attraction_path="./data/locationData/singapore_67_attractions_with_scores.csv", 
         hawker_path="./data/locationData/Food_20_withscores.xlsx", 
         output_json_path="./data/alns_inputs/groq/location_data.json", 

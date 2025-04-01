@@ -330,7 +330,7 @@ class VRPALNS:
             else:
                 transport_mode = "drive"
             
-            logger.info(f"Day {day+1}: Starting with ${budget_left:.2f} budget, using {transport_mode} transport")
+            logger.info(f"Day {day+1}: Starting with ${budget_left} budget, using {transport_mode} transport")
             
             count = 0
             
@@ -352,6 +352,7 @@ class VRPALNS:
                         budget_left -= attr_cost
                         # Remove this attraction from consideration for other days
                         attraction_values = [(a, v) for a, v in attraction_values if a != attr_idx]
+                        logger.info(f"Day {day+1}: Inserted attraction {attr_idx} with cost {attr_cost} and duration {attr_duration}")
                 else:
                     attraction_values.append((attr_idx, attr_ratio))  # Add back to the end of the list
                 
@@ -359,7 +360,7 @@ class VRPALNS:
                     # logger.warning("Could not insert enough attractions before lunch time")
                     break
             
-            logger.info(f"Day {day+1}: Lunch time reached at {round(latest_completion_time/60, 2)} with ${budget_left:.2f} budget left")
+            logger.info(f"Day {day+1}: Lunch time reached {latest_completion_time//60}:{latest_completion_time%60} with ${budget_left} budget left")
             
             lunch_hawker_idx = -1
             # Have lunch at appropriate time
@@ -376,11 +377,12 @@ class VRPALNS:
                             latest_completion_time = lunch_departure_time
                             budget_left -= hwk_cost
                             lunch_inserted = 1
-                            hawker_ratings.append((lunch_hawker_idx, hwk_ratio))
+                            logger.info(f"Day {day+1}: Inserted lunch at hawker {lunch_hawker_idx} with cost {hwk_cost} and duration {hwk_duration}")
+                            # hawker_ratings.append((lunch_hawker_idx, hwk_ratio))
             
             approx_mandatory_cost = ((num_days_left * 2) - lunch_inserted - dinner_inserted) * self.avg_hawker_cost + self.approx_hotel_travel_cost
             
-            logger.info(f"Day {day+1}: Lunch completed at {round(latest_completion_time/60, 2)} with ${budget_left:.2f} budget left")
+            logger.info(f"Day {day+1}: Lunch completed at {latest_completion_time//60}:{latest_completion_time%60} with ${budget_left} budget left")
             logger.info(f"Approx mandatory cost: {approx_mandatory_cost:.2f}")
             
             count = 0
@@ -402,6 +404,7 @@ class VRPALNS:
                         budget_left -= attr_cost
                         # Remove this attraction from consideration for other days
                         attraction_values = [(a, v) for a, v in attraction_values if a != attr_idx]
+                        logger.info(f"Day {day+1}: Inserted attraction {attr_idx} with cost {attr_cost} and duration {attr_duration}")
                 else:
                     attraction_values.append((attr_idx, attr_ratio))  # Add back to the end of the list
                     
@@ -409,7 +412,7 @@ class VRPALNS:
                     # logger.warning("Could not insert enough attractions before dinner time")
                     break
             
-            logger.info(f"Day {day+1}: Dinner time reached at {round(latest_completion_time/60, 2)} with ${budget_left:.2f} budget left")
+            logger.info(f"Day {day+1}: Dinner time reached at {latest_completion_time//60}:{latest_completion_time%60} with ${budget_left} budget left")
                         
             # Have dinner at appropriate time
             while dinner_inserted == 0:
@@ -425,7 +428,8 @@ class VRPALNS:
                             latest_completion_time = dinner_departure_time
                             budget_left -= hwk_cost
                             dinner_inserted = 1
-                            hawker_ratings.append((dinner_hawker_idx, hwk_ratio))
+                            logger.info(f"Day {day+1}: Inserted dinner at hawker {dinner_hawker_idx} with cost {hwk_cost} and duration {hwk_duration}")
+                            # hawker_ratings.append((dinner_hawker_idx, hwk_ratio))
             
             # Add hotel return at the end
             approx_mandatory_cost = ((num_days_left * 2) - lunch_inserted - dinner_inserted) * self.avg_hawker_cost + self.approx_hotel_travel_cost

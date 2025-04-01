@@ -593,6 +593,7 @@ def create_map(user_input):
     alns_input = None
     # alns_input = process_and_save(
     #     persona=user_input['persona'],
+    #     description=user_input['description'],
     #     attraction_path="./data/locationData/singapore_67_attractions_with_scores.csv", 
     #     hawker_path="./data/locationData/Food_20_withscores.xlsx", 
     #     output_json_path="./data/alns_inputs/groq/location_data.json", 
