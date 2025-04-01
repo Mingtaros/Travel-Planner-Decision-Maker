@@ -135,7 +135,7 @@ def alns_main(
         destroy/repair operators, and termination conditions.
     """
     # Set up logging
-    setup_logging()
+    # setup_logging()
     logger = logging.getLogger(__name__)
     
     if seed is not None:
@@ -274,7 +274,7 @@ def alns_main(
         # exit()
         
         # Run the optimization
-        results = alns.run(verbose=True)
+        results = alns.run(verbose=False)
         
         # Get best solution
         best_vrp_solution = results['best_solution']

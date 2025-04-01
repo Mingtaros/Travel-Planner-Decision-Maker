@@ -96,7 +96,7 @@ logger = logging.getLogger(__name__)
 def alns_evaluate(user_input):
 
     batch_size = 10
-    max_rows = 20
+    max_rows = None
     alns_input = None
     alns_input = process_and_save(
         persona=user_input['persona'],
@@ -105,7 +105,8 @@ def alns_evaluate(user_input):
         hawker_path="./data/locationData/Food_20_withscores.xlsx", 
         output_json_path="./data/alns_inputs/groq/location_data.json", 
         batch_size=batch_size,
-        max_rows=max_rows
+        max_rows=max_rows,
+        llm_data_path="./data/alns_inputs/groq/location_data.json",
     )
 
     alns_data = alns_main(user_input=user_input, alns_input=alns_input)

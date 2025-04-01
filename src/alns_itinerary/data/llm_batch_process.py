@@ -88,56 +88,73 @@ def generate_alns_weights(persona: str, description: str) -> Dict[str, Any]:
 
     return response
 
-def process_and_save(persona: str, description: str, attraction_path: str, hawker_path: str, output_json_path: str, batch_size: int, max_rows: int = None) -> Dict[str, Any]:
+def process_and_save(persona: str, description: str, attraction_path: str, hawker_path: str, output_json_path: str, batch_size: int, max_rows: int = None, llm_data_path: str = None) -> Dict[str, Any]:
     """Process data in batches, generate ALNS weights, and save the final JSON output."""
     
-    logger.info(f"Processing data for persona: {persona}")
+    if not llm_data_path:
     
-    attraction_df = read_data(attraction_path, max_rows)
-    attraction_df = attraction_df[["Attraction Name", "Typical Expenditure (SGD)", "Typical Time Spent (hours)"]]
-    attraction_df.columns = ["name", "cost", "duration"]
-    
-    hawker_df = read_data(hawker_path, max_rows)
-    hawker_df = hawker_df[["Name", "Ratings (Google Reviews)", "Highlights"]]
-    hawker_df.columns = ["name", "rating", "description"]
-    
-    results = {
-        "attractions": [],
-        "hawkers": [],
-        "alns_weights": {}
-    }
-    
-    for location_type, df in [("attractions", attraction_df), ("hawkers", hawker_df)]:
-        logger.info(f"Processing {location_type}...")
-        batches = batch_data(df, batch_size)
-        logger.info(f"Total batches: {len(batches)}")
+        logger.info(f"Processing data for persona: {persona}")
         
-        for batch in batches:
-            logger.info(f"Processing batch {len(results[location_type]) + 1}...")
-            response = process_batch(persona, description, batch, location_type)
+        attraction_df = read_data(attraction_path, max_rows)
+        attraction_df = attraction_df[["Attraction Name", "Typical Expenditure (SGD)", "Typical Time Spent (hours)"]]
+        attraction_df.columns = ["name", "cost", "duration"]
+        
+        hawker_df = read_data(hawker_path, max_rows)
+        hawker_df = hawker_df[["Name", "Ratings (Google Reviews)", "Highlights"]]
+        hawker_df.columns = ["name", "rating", "description"]
+        
+        results = {
+            "attractions": [],
+            "hawkers": [],
+            "alns_weights": {}
+        }
+        
+        for location_type, df in [("attractions", attraction_df), ("hawkers", hawker_df)]:
+            logger.info(f"Processing {location_type}...")
+            batches = batch_data(df, batch_size)
+            logger.info(f"Total batches: {len(batches)}")
             
-            if isinstance(response, dict) and location_type in response:
-                results[location_type].extend(response[location_type])
-            else:
-                logger.info(f"Warning: Unexpected response format for {location_type}: {response}")
-            
-            # Add delay before next API call
-            logger.info(f"Waiting {delay_seconds} seconds before next API call...")
-            time.sleep(delay_seconds)
-    
-    # Generate ALNS weights
-    alns_weights = generate_alns_weights(persona, description)
-    if isinstance(alns_weights, dict) and "alns_weights" in alns_weights:
-        results["alns_weights"] = alns_weights["alns_weights"]
-    else:
-        logger.info(f"Warning: Unexpected response format for ALNS weights: {alns_weights}")
+            for batch in batches:
+                logger.info(f"Processing batch {len(results[location_type]) + 1}...")
+                response = process_batch(persona, description, batch, location_type)
+                
+                if isinstance(response, dict) and location_type in response:
+                    results[location_type].extend(response[location_type])
+                else:
+                    logger.info(f"Warning: Unexpected response format for {location_type}: {response}")
+                
+                # Add delay before next API call
+                logger.info(f"Waiting {delay_seconds} seconds before next API call...")
+                time.sleep(delay_seconds)
+        
+        # Generate ALNS weights
+        alns_weights = generate_alns_weights(persona, description)
+        if isinstance(alns_weights, dict) and "alns_weights" in alns_weights:
+            results["alns_weights"] = alns_weights["alns_weights"]
+        else:
+            logger.info(f"Warning: Unexpected response format for ALNS weights: {alns_weights}")
 
-    with open(output_json_path, 'w', encoding='utf-8') as f:
-        json.dump(results, f, indent=4)
-    
-    logger.info(f"Results saved to {output_json_path}")
-    
-    return results
+        with open(output_json_path, 'w', encoding='utf-8') as f:
+            json.dump(results, f, indent=4)
+        
+        logger.info(f"Results saved to {output_json_path}")
+        
+        return results
+
+    else:
+        
+        logger.info(f"Loading LLM Location data from {llm_data_path}...")
+        
+        with open(llm_data_path, 'r', encoding='utf-8') as f:
+            llm_data = json.load(f)
+        
+        results = {
+            "attractions": llm_data["attractions"],
+            "hawkers": llm_data["hawkers"],
+            "alns_weights": llm_data["alns_weights"]
+        }
+        
+        return results
 
 if __name__ == "__main__":
     result = process_and_save(

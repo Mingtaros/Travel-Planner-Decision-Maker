@@ -73,7 +73,7 @@ def load_recommendations(json_path=None, alns_input=None):
                     'name': attraction['name'],
                     'entrance_fee': round(float(attraction['entrance_fee']),2),
                     'satisfaction': round(float(attraction['relevance_score']),1),
-                    'duration': round(attraction.get('estimated_duration', 60))
+                    'duration': round(float(attraction.get('estimated_duration', 60)))
                 })
             
         elif json_path:
@@ -85,9 +85,9 @@ def load_recommendations(json_path=None, alns_input=None):
                 for hawker in location_data['Hawker']:
                     recommendations['hawkers'].append({
                         'name': hawker['Hawker Name'],
-                        'avg_food_price': hawker['Avg Food Price'],
-                        'rating': hawker['Satisfaction Score'],
-                        'duration': hawker.get('Duration', 1) * 60, # Convert hours to minutes
+                        'avg_food_price': round(float(hawker['Avg Food Price']), 2),
+                        'rating': round(float(hawker['Satisfaction Score']), 1),
+                        'duration': round(float(hawker.get('Duration', 1)) * 60), # Convert hours to minutes
                     })
             
             # Extract attraction recommendations
@@ -95,9 +95,9 @@ def load_recommendations(json_path=None, alns_input=None):
                 for attraction in location_data['Attraction']:
                     recommendations['attractions'].append({
                         'name': attraction['Attraction Name'],
-                        'entrance_fee': attraction['Entrance Fee'],
-                        'satisfaction': attraction['Satisfaction Score'],
-                        'duration': attraction.get('Duration', 1) * 60, # Convert hours to minutes
+                        'entrance_fee': round(float(attraction['Entrance Fee']), 2),
+                        'satisfaction': round(float(attraction['Satisfaction Score']), 1),
+                        'duration': round(float(attraction.get('Duration', 1)) * 60), # Convert hours to minutes
                     })
         
         logger.info(f"Loaded {len(recommendations['hawkers'])} hawker recommendations and {len(recommendations['attractions'])} attraction recommendations")

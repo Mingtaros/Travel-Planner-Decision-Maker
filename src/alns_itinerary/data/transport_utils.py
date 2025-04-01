@@ -98,12 +98,12 @@ def get_transport_matrix():
                     # Add route to transport matrix
                     transport_matrix[matrix_key] = {
                         "transit": {
-                            "duration": route_data.get("transit", {}).get("duration_minutes", 0),
-                            "price": route_data.get("transit", {}).get("fare_sgd", 0)
+                            "duration": round(route_data.get("transit", {}).get("duration_minutes", 0)),
+                            "price": round(route_data.get("transit", {}).get("fare_sgd", 0), 2)
                         },
                         "drive": {
-                            "duration": route_data.get("drive", {}).get("duration_minutes", 0),
-                            "price": route_data.get("drive", {}).get("fare_sgd", 0)
+                            "duration": round(route_data.get("drive", {}).get("duration_minutes", 0)),
+                            "price": round(route_data.get("drive", {}).get("fare_sgd", 0), 2)
                         }
                     }
                 

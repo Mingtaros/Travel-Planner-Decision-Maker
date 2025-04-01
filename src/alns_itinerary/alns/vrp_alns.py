@@ -318,7 +318,7 @@ class VRPALNS:
             approx_mandatory_cost = ((num_days_left * 2) - lunch_inserted - dinner_inserted) * self.avg_hawker_cost + self.approx_hotel_travel_cost
             attraction_count = 0
             
-            logger.info(f"Approx mandatory cost: {approx_mandatory_cost:.2f}")
+            logger.info(f"Approx mandatory cost: {approx_mandatory_cost}")
             
             # Skip if we don't have enough hawkers
             if len(hawker_ratings) < 2:
@@ -330,7 +330,7 @@ class VRPALNS:
             else:
                 transport_mode = "drive"
             
-            logger.info(f"Day {day+1}: Starting with ${budget_left} budget, using {transport_mode} transport")
+            logger.info(f"Day {day+1}: Starting with ${round(budget_left, 2)} budget, using {transport_mode} transport")
             
             count = 0
             
@@ -360,7 +360,7 @@ class VRPALNS:
                     # logger.warning("Could not insert enough attractions before lunch time")
                     break
             
-            logger.info(f"Day {day+1}: Lunch time reached {latest_completion_time//60}:{latest_completion_time%60} with ${budget_left} budget left")
+            logger.info(f"Day {day+1}: Leaving for Lunch at {latest_completion_time//60}:{latest_completion_time%60} with ${round(budget_left, 2)} budget left")
             
             lunch_hawker_idx = -1
             # Have lunch at appropriate time
@@ -382,8 +382,8 @@ class VRPALNS:
             
             approx_mandatory_cost = ((num_days_left * 2) - lunch_inserted - dinner_inserted) * self.avg_hawker_cost + self.approx_hotel_travel_cost
             
-            logger.info(f"Day {day+1}: Lunch completed at {latest_completion_time//60}:{latest_completion_time%60} with ${budget_left} budget left")
-            logger.info(f"Approx mandatory cost: {approx_mandatory_cost:.2f}")
+            logger.info(f"Day {day+1}: Lunch completed at {latest_completion_time//60}:{latest_completion_time%60} with ${round(budget_left, 2)} budget left")
+            logger.info(f"Approx mandatory cost: {approx_mandatory_cost}")
             
             count = 0
             # Visit attractions until dinner time
@@ -412,7 +412,7 @@ class VRPALNS:
                     # logger.warning("Could not insert enough attractions before dinner time")
                     break
             
-            logger.info(f"Day {day+1}: Dinner time reached at {latest_completion_time//60}:{latest_completion_time%60} with ${budget_left} budget left")
+            logger.info(f"Day {day+1}: Leaving for Dinner at {latest_completion_time//60}:{latest_completion_time%60} with ${round(budget_left, 2)} budget left")
                         
             # Have dinner at appropriate time
             while dinner_inserted == 0:
@@ -433,8 +433,8 @@ class VRPALNS:
             
             # Add hotel return at the end
             approx_mandatory_cost = ((num_days_left * 2) - lunch_inserted - dinner_inserted) * self.avg_hawker_cost + self.approx_hotel_travel_cost
-            logger.info(f"Day {day+1}: Dinner completed at {round(latest_completion_time/60, 2)} with ${budget_left:.2f} budget left")
-            logger.info(f"Approx mandatory cost: {approx_mandatory_cost:.2f}")
+            logger.info(f"Day {day+1}: Dinner completed at {latest_completion_time//60}:{latest_completion_time%60} with ${round(budget_left, 2)} budget left")
+            logger.info(f"Approx mandatory cost: {approx_mandatory_cost}")
             
             # Find transport mode that works
             hotel_return_inserted = False
@@ -445,6 +445,7 @@ class VRPALNS:
                     hotel_return_inserted = True
                     solution.hotel_return_transport[day] = transport_mode
                     solution.hotel_transit_duration = hotel_duration
+                    budget_left -= hotel_cost
                     break
             
             logger.info(f"Day {day+1}: Hotel return inserted: {hotel_return_inserted}")
@@ -764,12 +765,14 @@ class VRPALNS:
                         self.diverse_solutions.sort(key=lambda x: x["objective"])
                         self.diverse_solutions = self.diverse_solutions[:self.diverse_solution_limit]
                 elif new_evaluation["is_feasible"]:
-                    logger.info(f"Iteration {iteration}: New solution accepted (objective: {new_objective:.4f}, feasible: {new_evaluation['is_feasible']})")
+                    if verbose:
+                        logger.info(f"Iteration {iteration}: New solution accepted (objective: {new_objective:.4f}, feasible: {new_evaluation['is_feasible']})")
                     # Update weight scores - feasible but not best
                     self.scores_destroy[destroy_idx] += SCORE_BETTER
                     self.scores_repair[repair_idx] += SCORE_BETTER
                 else:
-                    logger.info(f"Iteration {iteration}: New worse solution accepted (objective: {new_objective:.4f}, feasible: {new_evaluation['is_feasible']})")
+                    if verbose:
+                        logger.info(f"Iteration {iteration}: New worse solution accepted (objective: {new_objective:.4f}, feasible: {new_evaluation['is_feasible']})")
                     # Update weight scores - feasible but not best
                     self.scores_destroy[destroy_idx] += SCORE_ACCEPTED
                     self.scores_repair[repair_idx] += SCORE_ACCEPTED
@@ -778,7 +781,8 @@ class VRPALNS:
                 # Increment counter for early termination
                 self.iterations_since_improvement += 1
             else:
-                logger.info(f"Iteration {iteration}: New solution rejected (objective: {new_objective:.4f})")
+                if verbose:
+                    logger.info(f"Iteration {iteration}: New solution rejected (objective: {new_objective:.4f})")
                 # Update weight scores - solution rejected
                 self.scores_destroy[destroy_idx] += SCORE_REJECTED
                 self.scores_repair[repair_idx] += SCORE_REJECTED
