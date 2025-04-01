@@ -1,0 +1,236 @@
+{
+    "Query": "This is my first time in Singapore and I\u2019ll be here for 3 days. I\u2019d like a mix of sightseeing, must-try foods, and some local experiences. Budget is 250 SGD.",
+    "Hawker": [
+        {
+            "Hawker Name": "Chinatown Complex Food Centre",
+            "Dish Name": "Hainanese Chicken Rice",
+            "Description": "Tender poached chicken served with fragrant rice and a garlicky chili sauce, a quintessential Singaporean dish.",
+            "Satisfaction Score": 4.5,
+            "Rating": 4.2,
+            "Avg Food Price": 5.0,
+            "Duration": 60,
+            "Sources": [
+                "https://danielfooddiary.com/2024/08/09/singaporehawkerfood/"
+            ]
+        },
+        {
+            "Hawker Name": "Maxwell Food Centre",
+            "Dish Name": "Tian Tian Hainanese Chicken Rice",
+            "Description": "Famous for its succulent chicken and flavorful rice, often with long queues but worth the wait.",
+            "Satisfaction Score": 4.6,
+            "Rating": 4.3,
+            "Avg Food Price": 5.0,
+            "Duration": 60,
+            "Sources": [
+                "https://singaporefoodie.com/singapore-hawker-food-2023/"
+            ]
+        },
+        {
+            "Hawker Name": "Old Airport Road Food Centre",
+            "Dish Name": "Char Kway Teow",
+            "Description": "A stir-fried noodle dish with a smoky flavor, mixed with prawns, Chinese sausage, and cockles.",
+            "Satisfaction Score": 4.7,
+            "Rating": 4.4,
+            "Avg Food Price": 4.0,
+            "Duration": 60,
+            "Sources": [
+                "https://rambletravelers.com/9-best-hawker-foods-in-singapore/"
+            ]
+        },
+        {
+            "Hawker Name": "Tiong Bahru Market",
+            "Dish Name": "Chwee Kueh",
+            "Description": "Steamed rice cakes topped with preserved radish, a simple yet delightful breakfast or snack.",
+            "Satisfaction Score": 4.6,
+            "Rating": 4.3,
+            "Avg Food Price": 3.0,
+            "Duration": 60,
+            "Sources": [
+                "https://danielfooddiary.com/2024/08/09/singaporehawkerfood/"
+            ]
+        },
+        {
+            "Hawker Name": "Amoy Street Food Centre",
+            "Dish Name": "Fish Soup",
+            "Description": "A light and refreshing soup with slices of fish, tofu, and vegetables, perfect for a healthy meal.",
+            "Satisfaction Score": 4.5,
+            "Rating": 4.2,
+            "Avg Food Price": 5.0,
+            "Duration": 60,
+            "Sources": [
+                "https://singaporefoodie.com/singapore-hawker-food-2023/"
+            ]
+        },
+        {
+            "Hawker Name": "Lau Pa Sat",
+            "Dish Name": "Satay",
+            "Description": "Grilled skewers of meat served with a spicy peanut sauce, a popular street food delight.",
+            "Satisfaction Score": 4.4,
+            "Rating": 4.1,
+            "Avg Food Price": 0.7,
+            "Duration": 60,
+            "Sources": [
+                "https://rambletravelers.com/9-best-hawker-foods-in-singapore/"
+            ]
+        },
+        {
+            "Hawker Name": "Newton Food Centre",
+            "Dish Name": "BBQ Stingray",
+            "Description": "Grilled stingray slathered in spicy sambal sauce, a must-try for seafood lovers.",
+            "Satisfaction Score": 4.5,
+            "Rating": 4.2,
+            "Avg Food Price": 12.0,
+            "Duration": 60,
+            "Sources": [
+                "https://danielfooddiary.com/2024/08/09/singaporehawkerfood/"
+            ]
+        },
+        {
+            "Hawker Name": "Golden Mile Food Centre",
+            "Dish Name": "Hokkien Mee",
+            "Description": "A flavorful noodle dish stir-fried with prawns, squid, and a rich prawn broth.",
+            "Satisfaction Score": 4.6,
+            "Rating": 4.3,
+            "Avg Food Price": 5.0,
+            "Duration": 60,
+            "Sources": [
+                "https://singaporefoodie.com/singapore-hawker-food-2023/"
+            ]
+        },
+        {
+            "Hawker Name": "Tekka Centre",
+            "Dish Name": "Roti Prata",
+            "Description": "A crispy and flaky Indian flatbread served with curry, perfect for breakfast or a snack.",
+            "Satisfaction Score": 4.5,
+            "Rating": 4.2,
+            "Avg Food Price": 1.5,
+            "Duration": 60,
+            "Sources": [
+                "https://rambletravelers.com/9-best-hawker-foods-in-singapore/"
+            ]
+        },
+        {
+            "Hawker Name": "Geylang Serai Market",
+            "Dish Name": "Nasi Lemak",
+            "Description": "A fragrant rice dish cooked in coconut milk, served with fried chicken, sambal, and anchovies.",
+            "Satisfaction Score": 4.6,
+            "Rating": 4.3,
+            "Avg Food Price": 4.0,
+            "Duration": 60,
+            "Sources": [
+                "https://danielfooddiary.com/2024/08/09/singaporehawkerfood/"
+            ]
+        }
+    ],
+    "Attraction": [
+        {
+            "Attraction Name": "Merlion Park",
+            "Description": "Merlion Park is a must-visit for first-time visitors to Singapore. It features the iconic Merlion statue, a symbol of Singapore, and offers great views of Marina Bay. It's perfect for cultural enthusiasts and photographers.",
+            "Rating": 4.5,
+            "Satisfaction Score": 4.5,
+            "Entrance Fee": 0.0,
+            "Duration": 120,
+            "Sources": [
+                "https://www.tripadvisor.com/FAQ_Answers-g294265-d644919-t8212238-Is_there_an_entrance_fee.html",
+                "https://www.tripadvisor.com/Attraction_Review-g294265-d644919-Reviews-Merlion_Park-Singapore.html"
+            ]
+        },
+        {
+            "Attraction Name": "Clarke Quay",
+            "Description": "Clarke Quay is a vibrant riverside quay known for its nightlife, dining, and entertainment options. It's ideal for those looking to experience Singapore's lively atmosphere and enjoy a night out.",
+            "Rating": 4.5,
+            "Satisfaction Score": 4.5,
+            "Entrance Fee": 0.0,
+            "Duration": 120,
+            "Sources": [
+                "https://www.tripadvisor.com/FAQ_Answers-g294265-d324756-t4106552-Is_there_any_entry_fees.html",
+                "https://www.tripadvisor.com/Attraction_Review-g294265-d324756-Reviews-Clarke_Quay-Singapore.html"
+            ]
+        },
+        {
+            "Attraction Name": "Esplanade",
+            "Description": "The Esplanade is a performing arts center located along the Singapore River. It's a great spot for cultural enthusiasts and those interested in the arts, offering a variety of performances and exhibitions.",
+            "Rating": 4.0,
+            "Satisfaction Score": 4.0,
+            "Entrance Fee": 0.0,
+            "Duration": 120,
+            "Sources": [
+                "https://www.tripadvisor.com/Attraction_Review-g294265-d324756-Reviews-Clarke_Quay-Singapore.html"
+            ]
+        },
+        {
+            "Attraction Name": "Raffles Hotel",
+            "Description": "Raffles Hotel is a historic luxury hotel in Singapore, known for its colonial architecture and the famous Singapore Sling cocktail. It's perfect for those interested in history and luxury experiences.",
+            "Rating": 4.0,
+            "Satisfaction Score": 4.0,
+            "Entrance Fee": 0.0,
+            "Duration": 120,
+            "Sources": [
+                "https://www.tripadvisor.com.sg/Hotel_Review-g294265-d301583-Reviews-Raffles_Hotel-Singapore.html"
+            ]
+        },
+        {
+            "Attraction Name": "Battlebox",
+            "Description": "Battlebox is a former WWII British underground command center located in Fort Canning Park. It's a fascinating site for history buffs and those interested in military history.",
+            "Rating": 4.5,
+            "Satisfaction Score": 4.5,
+            "Entrance Fee": 0.0,
+            "Duration": 120,
+            "Sources": [
+                "https://battlebox.sg/faqs/",
+                "https://battlebox.sg/"
+            ]
+        },
+        {
+            "Attraction Name": "Sentosa",
+            "Description": "Sentosa is a popular island resort in Singapore, offering a variety of attractions including beaches, theme parks, and nature trails. It's ideal for families and thrill-seekers.",
+            "Rating": 4.5,
+            "Satisfaction Score": 4.5,
+            "Entrance Fee": 4.0,
+            "Duration": 120,
+            "Sources": [
+                "https://www.sentosa.com.sg/en/faqs/",
+                "https://www.singsaver.com.sg/car-insurance/blog/sentosa-island-entrance-fee-and-parking-rates"
+            ]
+        },
+        {
+            "Attraction Name": "Ice Cream Museum",
+            "Description": "The Ice Cream Museum is a fun and interactive museum dedicated to all things ice cream. It's perfect for families and those looking for a unique and sweet experience.",
+            "Rating": 4.0,
+            "Satisfaction Score": 4.0,
+            "Entrance Fee": 30.0,
+            "Duration": 120,
+            "Sources": [
+                "https://www.tripadvisor.com/Attraction_Review-g60763-d19623240-Reviews-Museum_Of_Ice_Cream_Nyc-New_York_City_New_York.html"
+            ]
+        },
+        {
+            "Attraction Name": "ArtScience Museum",
+            "Description": "The ArtScience Museum at Marina Bay Sands is known for its unique architecture and innovative exhibitions. It's a great spot for art and science enthusiasts.",
+            "Rating": 4.5,
+            "Satisfaction Score": 4.5,
+            "Entrance Fee": 30.0,
+            "Duration": 120,
+            "Sources": [
+                "https://www.tripadvisor.com/FAQ_Answers-g294265-d2138895-t6452349-How_much_is_the_entry_fee_for_tourist_to_go_into.html",
+                "https://www.marinabaysands.com/museum/ticket/search.html"
+            ]
+        },
+        {
+            "Attraction Name": "National Gallery Singapore",
+            "Description": "National Gallery Singapore houses the largest public collection of modern art in Singapore and Southeast Asia. It's a must-visit for art lovers and those interested in Southeast Asian culture.",
+            "Rating": 4.5,
+            "Satisfaction Score": 4.5,
+            "Entrance Fee": 20.0,
+            "Duration": 120,
+            "Sources": [
+                "https://www.nationalgallery.sg/admissions",
+                "https://www.headout.com/blog/national-gallery-singapore/"
+            ]
+        }
+    ],
+    "Metrics": {
+        "Hawker Agent Time (s)": 14.61,
+        "Attraction Agent Time (s)": 40.28
+    }
+}

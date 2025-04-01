@@ -1,0 +1,139 @@
+{
+    "Query": "We\u2019re a group of university students on a short trip (2 days) with a budget of 60 SGD each. Recommend cheap eats and fun, free things to do.",
+    "Hawker": [
+        {
+            "Hawker Name": "Chinatown Complex Food Centre",
+            "Dish Name": "Yong Tau Foo",
+            "Description": "A delightful dish featuring a variety of stuffed tofu and vegetables, served with noodles or bee hoon, topped with fragrant ikan bilis.",
+            "Satisfaction Score": 4.5,
+            "Rating": 4.2,
+            "Avg Food Price": 4.0,
+            "Duration": 60,
+            "Sources": [
+                "https://danielfooddiary.com/2025/01/25/chinatowncomplex/",
+                "https://iwandered.net/chinatown-complex-food-centre-best-food-eat/",
+                "https://eatbook.sg/chinatown-complex-food/"
+            ]
+        },
+        {
+            "Hawker Name": "Changi Village Hawker Centre",
+            "Dish Name": "Nasi Lemak",
+            "Description": "A fragrant coconut rice dish served with crispy fried chicken, sambal, and a variety of sides. A must-try for its rich flavors and satisfying portions.",
+            "Satisfaction Score": 4.5,
+            "Rating": 4.2,
+            "Avg Food Price": 3.5,
+            "Duration": 60,
+            "Sources": [
+                "https://www.lifestyleasia.com/sg/dining/food/best-food-stalls-changi-village-hawker-centre/",
+                "https://hungrygowhere.com/what-to-eat/changi-village-hawker-centre/",
+                "https://singaporeverified.com/food/food-stalls-in-changi-village-hawker-centre/"
+            ]
+        },
+        {
+            "Hawker Name": "Sergeant Hainanese Chicken Rice",
+            "Dish Name": "Hainanese Chicken Rice",
+            "Description": "Tender poached chicken served with fragrant rice and a side of garlicky chili sauce. A classic Singaporean dish that is both delicious and affordable.",
+            "Satisfaction Score": 4.0,
+            "Rating": 4.0,
+            "Avg Food Price": 6.0,
+            "Duration": 60,
+            "Sources": [
+                "https://foodrepublic.com.sg/our-brands/",
+                "https://www.foodadvisor.com.sg/eatery/sergeant-hainanese-chicken-rice/",
+                "https://www.yelp.com/biz/sergeant-hainanese-chicken-rice-singapore"
+            ]
+        },
+        {
+            "Hawker Name": "Soon Heng Roasted Delights",
+            "Dish Name": "Char Siew and Roasted Duck",
+            "Description": "Succulent char siew and roasted duck, known for their rich flavors and tender meat. A favorite among locals for its authentic taste.",
+            "Satisfaction Score": 4.0,
+            "Rating": 4.0,
+            "Avg Food Price": 5.0,
+            "Duration": 60,
+            "Sources": [
+                "https://www.foodadvisor.com.sg/restaurant/soon-heng-hong-kong-roasted/",
+                "https://www.facebook.com/profile.php/?id=100067528682350",
+                "https://www.foodadvisor.com.sg/eatery/soon-heng/"
+            ]
+        }
+    ],
+    "Attraction": [
+        {
+            "Attraction Name": "Esplanade \u2013 Theatres on the Bay",
+            "Description": "A performing arts centre located in the Downtown Core of Singapore, known for its unique architecture and cultural performances. Suitable for cultural enthusiasts and those interested in the arts.",
+            "Rating": 4.4,
+            "Satisfaction Score": 4.4,
+            "Entrance Fee": 0.0,
+            "Duration": 120,
+            "Sources": [
+                "https://en.wikipedia.org/wiki/Esplanade_%E2%80%93_Theatres_on_the_Bay",
+                "https://www.tripadvisor.com.sg/Attraction_Review-g294265-d324752-Reviews-Esplanade_Theatres_on_the_Bay-Singapore.html"
+            ]
+        },
+        {
+            "Attraction Name": "Raffles Hotel",
+            "Description": "An iconic luxury hotel in Singapore, known for its colonial architecture and historical significance. Ideal for those interested in history and luxury experiences.",
+            "Rating": 4.7,
+            "Satisfaction Score": 4.7,
+            "Entrance Fee": 0.0,
+            "Duration": 120,
+            "Sources": [
+                "https://www.raffles.com/singapore/",
+                "https://www.tripadvisor.com.sg/Hotel_Review-g294265-d301583-Reviews-Raffles_Hotel-Singapore.html"
+            ]
+        },
+        {
+            "Attraction Name": "Merlion Park",
+            "Description": "A major tourist attraction featuring the iconic Merlion statue, symbolizing Singapore's origins as a fishing village. Perfect for first-time visitors and those interested in iconic landmarks.",
+            "Rating": 4.2,
+            "Satisfaction Score": 4.2,
+            "Entrance Fee": 0.0,
+            "Duration": 120,
+            "Sources": [
+                "https://forevervacation.com/singapore/merlion-park",
+                "https://www.tripadvisor.com.sg/Attraction_Review-g294265-d644919-Reviews-Merlion_Park-Singapore.html"
+            ]
+        },
+        {
+            "Attraction Name": "Clarke Quay",
+            "Description": "A historical riverside quay known for its vibrant nightlife and dining options. Suitable for those looking to experience Singapore's nightlife and cultural heritage.",
+            "Rating": 4.3,
+            "Satisfaction Score": 4.3,
+            "Entrance Fee": 0.0,
+            "Duration": 120,
+            "Sources": [
+                "https://forevervacation.com/singapore/clarke-quay",
+                "https://www.tripadvisor.com.sg/Attraction_Review-g294265-d324756-Reviews-Clarke_Quay-Singapore.html"
+            ]
+        },
+        {
+            "Attraction Name": "Chinatown",
+            "Description": "A vibrant neighborhood offering a mix of traditional and modern experiences, including food, shopping, and cultural sites. Ideal for cultural enthusiasts and food lovers.",
+            "Rating": 4.2,
+            "Satisfaction Score": 4.2,
+            "Entrance Fee": 0.0,
+            "Duration": 120,
+            "Sources": [
+                "https://chinatown.sg/",
+                "https://www.tripadvisor.com.sg/Attraction_Review-g294265-d317415-Reviews-Chinatown-Singapore.html"
+            ]
+        },
+        {
+            "Attraction Name": "Little India",
+            "Description": "A bustling area known for its vibrant culture, colorful shops, and delicious Indian cuisine. Perfect for those interested in cultural diversity and culinary experiences.",
+            "Rating": 3.8,
+            "Satisfaction Score": 3.8,
+            "Entrance Fee": 0.0,
+            "Duration": 120,
+            "Sources": [
+                "https://forevervacation.com/singapore/little-india",
+                "https://www.tripadvisor.com.sg/Attraction_Review-g294265-d324541-Reviews-Little_India-Singapore.html"
+            ]
+        }
+    ],
+    "Metrics": {
+        "Hawker Agent Time (s)": 17.96,
+        "Attraction Agent Time (s)": 25.56
+    }
+}
