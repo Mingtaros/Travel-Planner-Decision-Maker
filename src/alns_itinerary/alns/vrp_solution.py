@@ -123,7 +123,9 @@ class VRPSolution:
                 loc_cost = self.problem.locations[location_idx].get('avg_food_price', 0)
             else:
                 loc_cost = 0
-                
+            
+            # logger.debug(f"Transport data for {self.problem.locations[prev_loc]} to {self.problem.locations[location_idx]}: Transit Duration: {transport_data['duration']}, Location Duration: {self.problem.locations[location_idx].get('duration', 60)}")
+            
             return transport_data["price"] + loc_cost, transport_data["duration"] + self.problem.locations[location_idx].get('duration', 60)
         except KeyError:
             # Missing transport data, use defaults
@@ -961,9 +963,9 @@ class VRPSolution:
         
         return {
             "is_feasible": is_feasible,
-            "total_cost": float(total_cost),
-            "total_travel_time": float(total_travel_time),
-            "total_satisfaction": float(total_satisfaction),
+            "total_cost": round(float(total_cost), 2),
+            "total_travel_time": round(float(total_travel_time)),
+            "total_satisfaction": round(float(total_satisfaction), 1),
             "daily_routes": daily_routes,
             "visited_attractions": visited_attractions,
             "constraint_violations": violations,  # New field with all violations

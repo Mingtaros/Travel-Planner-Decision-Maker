@@ -1,0 +1,513 @@
+{
+    "attractions": [
+        {
+            "name": "Gardens by the Bay",
+            "relevance_score": 4,
+            "entrance_fee": 28,
+            "estimated_duration": 180
+        },
+        {
+            "name": "Marina Bay Sands SkyPark Observation Deck",
+            "relevance_score": 3,
+            "entrance_fee": 26,
+            "estimated_duration": 60
+        },
+        {
+            "name": "Singapore Zoo",
+            "relevance_score": 2,
+            "entrance_fee": 50,
+            "estimated_duration": 240
+        },
+        {
+            "name": "River Wonders",
+            "relevance_score": 2,
+            "entrance_fee": 40,
+            "estimated_duration": 180
+        },
+        {
+            "name": "Bird Paradise",
+            "relevance_score": 2,
+            "entrance_fee": 38,
+            "estimated_duration": 180
+        },
+        {
+            "name": "Universal Studios Singapore",
+            "relevance_score": 1,
+            "entrance_fee": 79,
+            "estimated_duration": 360
+        },
+        {
+            "name": "Singapore Flyer",
+            "relevance_score": 2,
+            "entrance_fee": 33,
+            "estimated_duration": 60
+        },
+        {
+            "name": "ArtScience Museum",
+            "relevance_score": 3,
+            "entrance_fee": 30,
+            "estimated_duration": 120
+        },
+        {
+            "name": "National Gallery Singapore",
+            "relevance_score": 4,
+            "entrance_fee": 20,
+            "estimated_duration": 150
+        },
+        {
+            "name": "Asian Civilisations Museum",
+            "relevance_score": 4,
+            "entrance_fee": 12,
+            "estimated_duration": 120
+        },
+        {
+            "name": "National Museum of Singapore",
+            "relevance_score": 3,
+            "entrance_fee": 15,
+            "estimated_duration": 120
+        },
+        {
+            "name": "Peranakan Museum",
+            "relevance_score": 3,
+            "entrance_fee": 10,
+            "estimated_duration": 90
+        },
+        {
+            "name": "Fort Canning Park",
+            "relevance_score": 4,
+            "entrance_fee": 0,
+            "estimated_duration": 90
+        },
+        {
+            "name": "Merlion Park",
+            "relevance_score": 5,
+            "entrance_fee": 0,
+            "estimated_duration": 30
+        },
+        {
+            "name": "Clarke Quay",
+            "relevance_score": 5,
+            "entrance_fee": 0,
+            "estimated_duration": 120
+        },
+        {
+            "name": "Boat Quay",
+            "relevance_score": 5,
+            "entrance_fee": 0,
+            "estimated_duration": 90
+        },
+        {
+            "name": "Chinatown",
+            "relevance_score": 5,
+            "entrance_fee": 0,
+            "estimated_duration": 120
+        },
+        {
+            "name": "Little India",
+            "relevance_score": 5,
+            "entrance_fee": 0,
+            "estimated_duration": 120
+        },
+        {
+            "name": "Kampong Glam",
+            "relevance_score": 5,
+            "entrance_fee": 0,
+            "estimated_duration": 90
+        },
+        {
+            "name": "Orchard Road",
+            "relevance_score": 4,
+            "entrance_fee": 0,
+            "estimated_duration": 120
+        },
+        {
+            "name": "East Coast Park",
+            "relevance_score": 5,
+            "entrance_fee": 0,
+            "estimated_duration": 180
+        },
+        {
+            "name": "Haw Par Villa",
+            "relevance_score": 4,
+            "entrance_fee": 0,
+            "estimated_duration": 90
+        },
+        {
+            "name": "Southern Ridges",
+            "relevance_score": 5,
+            "entrance_fee": 0,
+            "estimated_duration": 150
+        },
+        {
+            "name": "MacRitchie Reservoir",
+            "relevance_score": 5,
+            "entrance_fee": 0,
+            "estimated_duration": 180
+        },
+        {
+            "name": "Bukit Timah Nature Reserve",
+            "relevance_score": 5,
+            "entrance_fee": 0,
+            "estimated_duration": 120
+        },
+        {
+            "name": "Sungei Buloh Wetland Reserve",
+            "relevance_score": 4,
+            "entrance_fee": 0,
+            "estimated_duration": 150
+        },
+        {
+            "name": "Singapore Botanic Gardens",
+            "relevance_score": 5,
+            "entrance_fee": 0,
+            "estimated_duration": 120
+        },
+        {
+            "name": "Esplanade",
+            "relevance_score": 3,
+            "entrance_fee": 0,
+            "estimated_duration": 120
+        },
+        {
+            "name": "Raffles Hotel",
+            "relevance_score": 2,
+            "entrance_fee": 20,
+            "estimated_duration": 60
+        },
+        {
+            "name": "Thian Hock Keng Temple",
+            "relevance_score": 3,
+            "entrance_fee": 0,
+            "estimated_duration": 30
+        },
+        {
+            "name": "Sri Mariamman Temple",
+            "relevance_score": 4,
+            "entrance_fee": 0,
+            "estimated_duration": 30
+        },
+        {
+            "name": "Sultan Mosque",
+            "relevance_score": 4,
+            "entrance_fee": 0,
+            "estimated_duration": 30
+        },
+        {
+            "name": "Kwan Im Thong Hood Cho Temple",
+            "relevance_score": 4,
+            "entrance_fee": 0,
+            "estimated_duration": 30
+        },
+        {
+            "name": "Armenian Church",
+            "relevance_score": 4,
+            "entrance_fee": 0,
+            "estimated_duration": 30
+        },
+        {
+            "name": "St Andrew's Cathedral",
+            "relevance_score": 4,
+            "entrance_fee": 0,
+            "estimated_duration": 30
+        },
+        {
+            "name": "Buddha Tooth Relic Temple",
+            "relevance_score": 4,
+            "entrance_fee": 0,
+            "estimated_duration": 60
+        },
+        {
+            "name": "Science Centre Singapore",
+            "relevance_score": 3,
+            "entrance_fee": 12,
+            "estimated_duration": 180
+        },
+        {
+            "name": "Snow City",
+            "relevance_score": 2,
+            "entrance_fee": 18,
+            "estimated_duration": 90
+        },
+        {
+            "name": "Adventure Cove Waterpark",
+            "relevance_score": 1,
+            "entrance_fee": 38,
+            "estimated_duration": 240
+        },
+        {
+            "name": "S.E.A. Aquarium",
+            "relevance_score": 1,
+            "entrance_fee": 41,
+            "estimated_duration": 150
+        },
+        {
+            "name": "KidZania Singapore",
+            "relevance_score": 2,
+            "entrance_fee": 58,
+            "estimated_duration": 240
+        },
+        {
+            "name": "iFly Singapore",
+            "relevance_score": 1,
+            "entrance_fee": 144,
+            "estimated_duration": 90
+        },
+        {
+            "name": "Skyline Luge Sentosa",
+            "relevance_score": 4,
+            "entrance_fee": 24,
+            "estimated_duration": 90
+        },
+        {
+            "name": "Trick Eye Museum",
+            "relevance_score": 3,
+            "entrance_fee": 25,
+            "estimated_duration": 90
+        },
+        {
+            "name": "Madame Tussauds Singapore",
+            "relevance_score": 2,
+            "entrance_fee": 32,
+            "estimated_duration": 120
+        },
+        {
+            "name": "Singapore Discovery Centre",
+            "relevance_score": 3,
+            "entrance_fee": 10,
+            "estimated_duration": 120
+        },
+        {
+            "name": "Reflections at Bukit Chandu",
+            "relevance_score": 2,
+            "entrance_fee": 5,
+            "estimated_duration": 60
+        },
+        {
+            "name": "Battlebox",
+            "relevance_score": 3,
+            "entrance_fee": 20,
+            "estimated_duration": 120
+        },
+        {
+            "name": "Marina Barrage",
+            "relevance_score": 4,
+            "entrance_fee": 1,
+            "estimated_duration": 60
+        },
+        {
+            "name": "Labrador Nature Reserve",
+            "relevance_score": 4,
+            "entrance_fee": 1,
+            "estimated_duration": 120
+        },
+        {
+            "name": "Coney Island Park",
+            "relevance_score": 4,
+            "entrance_fee": 0,
+            "estimated_duration": 120
+        },
+        {
+            "name": "Fort Siloso",
+            "relevance_score": 3,
+            "entrance_fee": 0,
+            "estimated_duration": 60
+        },
+        {
+            "name": "Henderson Waves",
+            "relevance_score": 5,
+            "entrance_fee": 0,
+            "estimated_duration": 60
+        },
+        {
+            "name": "Mount Faber Park",
+            "relevance_score": 4,
+            "entrance_fee": 0,
+            "estimated_duration": 90
+        },
+        {
+            "name": "Telok Blangah Hill Park",
+            "relevance_score": 4,
+            "entrance_fee": 0,
+            "estimated_duration": 90
+        },
+        {
+            "name": "HortPark",
+            "relevance_score": 4,
+            "entrance_fee": 0,
+            "estimated_duration": 90
+        },
+        {
+            "name": "Kent Ridge Park",
+            "relevance_score": 4,
+            "entrance_fee": 0,
+            "estimated_duration": 90
+        },
+        {
+            "name": "Pasir Ris Park",
+            "relevance_score": 4,
+            "entrance_fee": 0,
+            "estimated_duration": 120
+        },
+        {
+            "name": "West Coast Park",
+            "relevance_score": 4,
+            "entrance_fee": 0,
+            "estimated_duration": 120
+        },
+        {
+            "name": "Changi Beach Park",
+            "relevance_score": 4,
+            "entrance_fee": 0,
+            "estimated_duration": 120
+        },
+        {
+            "name": "Punggol Waterway Park",
+            "relevance_score": 5,
+            "entrance_fee": 0,
+            "estimated_duration": 120
+        },
+        {
+            "name": "AJ Hackett Sentosa",
+            "relevance_score": 3,
+            "entrance_fee": 79,
+            "estimated_duration": 120
+        },
+        {
+            "name": "Wave House Sentosa",
+            "relevance_score": 4,
+            "entrance_fee": 30,
+            "estimated_duration": 120
+        },
+        {
+            "name": "Ice Cream Museum",
+            "relevance_score": 2,
+            "entrance_fee": 30,
+            "estimated_duration": 120
+        },
+        {
+            "name": "Suntec City Shopping Centre",
+            "relevance_score": 1,
+            "entrance_fee": 0,
+            "estimated_duration": 120
+        },
+        {
+            "name": "Jewel Changi",
+            "relevance_score": 2,
+            "entrance_fee": 0,
+            "estimated_duration": 240
+        },
+        {
+            "name": "Punggol Waterway Point",
+            "relevance_score": 1,
+            "entrance_fee": 0,
+            "estimated_duration": 180
+        }
+    ],
+    "hawkers": [
+        {
+            "name": "Lau Pa Sat",
+            "relevance_score": 4,
+            "avg_food_price": 8.0
+        },
+        {
+            "name": "Amoy Street Food Centre",
+            "relevance_score": 4,
+            "avg_food_price": 7.5
+        },
+        {
+            "name": "Hill Street Tai Hwa Pork Noodle",
+            "relevance_score": 3,
+            "avg_food_price": 6.0
+        },
+        {
+            "name": "Chinatown Complex Food Centre",
+            "relevance_score": 5,
+            "avg_food_price": 8.5
+        },
+        {
+            "name": "Sungei Road Laksa",
+            "relevance_score": 4,
+            "avg_food_price": 5.0
+        },
+        {
+            "name": "Muthu's Curry - Little India",
+            "relevance_score": 3,
+            "avg_food_price": 10.0
+        },
+        {
+            "name": "Tekka Centre",
+            "relevance_score": 4,
+            "avg_food_price": 9.0
+        },
+        {
+            "name": "Maxwell Food Centre",
+            "relevance_score": 5,
+            "avg_food_price": 8.0
+        },
+        {
+            "name": "One Punggol Hawker Centre",
+            "relevance_score": 3,
+            "avg_food_price": 7.0
+        },
+        {
+            "name": "East Coast Lagoon Food Village",
+            "relevance_score": 5,
+            "avg_food_price": 12.0
+        },
+        {
+            "name": "Changi Village Hawker Centre",
+            "relevance_score": 4,
+            "avg_food_price": 5.5
+        },
+        {
+            "name": "328 Katong Laksa",
+            "relevance_score": 4,
+            "avg_food_price": 4.8
+        },
+        {
+            "name": "Orchard Yong Tau Foo",
+            "relevance_score": 3,
+            "avg_food_price": 6.0
+        },
+        {
+            "name": "Kok Kee Wonton Noodle (Foch Road)",
+            "relevance_score": 3,
+            "avg_food_price": 5.0
+        },
+        {
+            "name": "Tangs Market",
+            "relevance_score": 3,
+            "avg_food_price": 7.0
+        },
+        {
+            "name": "Food Opera ION Orchard",
+            "relevance_score": 3,
+            "avg_food_price": 8.0
+        },
+        {
+            "name": "Liao Fan Hawker Chan",
+            "relevance_score": 4,
+            "avg_food_price": 5.5
+        },
+        {
+            "name": "Tekka Centre",
+            "relevance_score": 4,
+            "avg_food_price": 6.5
+        },
+        {
+            "name": "Teck Ghee Court Market & Food Centre",
+            "relevance_score": 3,
+            "avg_food_price": 5.5
+        },
+        {
+            "name": "Singapore Zam Zam Restaurant",
+            "relevance_score": 4,
+            "avg_food_price": 6.0
+        }
+    ],
+    "alns_weights": {
+        "budget_priority": 0.6,
+        "time_priority": 0.2,
+        "satisfaction_priority": 0.2
+    }
+}

@@ -72,31 +72,47 @@ def setup_logging():
 
 def enrich_location_data(locations):
     """Add missing data fields to locations with reasonable defaults."""
+    
+    # Define meaningful means and standard deviations for different attributes
+    HAWKER_RATING_MEAN = 4.0
+    HAWKER_RATING_STD = 0.5  # Most hawkers have high ratings, with some variance
+    HAWKER_PRICE_MEAN = 12
+    HAWKER_PRICE_STD = 3  # Typical hawker meal prices range between 8-18 SGD
+
+    ATTRACTION_SATISFACTION_MEAN = 4.0
+    ATTRACTION_SATISFACTION_STD = 1.0  # Some attractions are more niche than others
+    ATTRACTION_FEE_MEAN = 30
+    ATTRACTION_FEE_STD = 15  # Some attractions are free, while others (e.g., Sentosa) can be expensive
+
+    ATTRACTION_DURATION_MEAN = 75  # Most attractions take about 1-1.5 hours
+    ATTRACTION_DURATION_STD = 20  # Some attractions (like museums) may take longer
+    
     for loc in locations:
         if loc["type"] == "hawker":
             if "rating" not in loc:
-                loc["rating"] = np.random.uniform(3, 10)
+                loc["rating"] = round(np.clip(np.random.normal(HAWKER_RATING_MEAN, HAWKER_RATING_STD), 1, 5), 1)
             if "avg_food_price" not in loc:
-                loc["avg_food_price"] = np.random.uniform(5, 15)
+                loc["avg_food_price"] = round(np.clip(np.random.normal(HAWKER_PRICE_MEAN, HAWKER_PRICE_STD), 5, 20), 2)
             if "duration" not in loc:
-                loc["duration"] = 60  # standardize 60 mins for meals
+                loc["duration"] = 60  # Standardized meal duration
+
         elif loc["type"] == "attraction":
             if "satisfaction" not in loc:
-                loc["satisfaction"] = np.random.uniform(3, 10)
+                loc["satisfaction"] = round(np.clip(np.random.normal(ATTRACTION_SATISFACTION_MEAN, ATTRACTION_SATISFACTION_STD), 1, 5), 1)
             if "entrance_fee" not in loc:
-                loc["entrance_fee"] = np.random.uniform(5, 100)
+                loc["entrance_fee"] = round(np.clip(np.random.normal(ATTRACTION_FEE_MEAN, ATTRACTION_FEE_STD), 0, 100), 2)
             if "duration" not in loc:
-                loc["duration"] = np.random.randint(45, 120)
+                loc["duration"] = int(np.clip(np.random.normal(ATTRACTION_DURATION_MEAN, ATTRACTION_DURATION_STD), 30, 120))
+
         elif loc["type"] == "hotel":
-            # Set hotel duration to 0 (no time spent at hotel for activities)
-            loc["duration"] = 0
+            loc["duration"] = 0  # No activity time spent at the hotel
     
     return locations
 
 def alns_main(
     seed=42,
     config_path="./src/alns_itinerary/config.json",
-    llm_path="./data/alns_inputs/",
+    llm_path=None,
     user_input=None,
     alns_input=None,
     max_attractions=None, 
@@ -135,7 +151,7 @@ def alns_main(
         destroy/repair operators, and termination conditions.
     """
     # Set up logging
-    # setup_logging()
+    setup_logging()
     logger = logging.getLogger(__name__)
     
     if seed is not None:
@@ -145,7 +161,7 @@ def alns_main(
     
     # Load recommendations if available
     recommendations = None
-    parameter_data = None
+    parameter_data = {}
     if alns_input is not None:
         recommendations, parameter_data = load_recommendations(alns_input=alns_input)
         logger.info(f"Loaded recommendations")
@@ -215,6 +231,7 @@ def alns_main(
         if recommendations:
             updated_locations = augment_location_data(updated_locations, recommendations)
         else:
+            logger.info("No recommendations provided, skipping augmentation and enriching using uniform distribution")
             updated_locations = enrich_location_data(updated_locations)
         
         # Create problem instance
@@ -302,10 +319,18 @@ def alns_main(
 
 if __name__ == "__main__":
     # Example usage with default parameters
+    
+    user_input = {
+        "persona": "Family Tourist",
+        "num_days": 3,
+        "budget": 300,
+        "description": "We're a family of four visiting Singapore for 3 days. We'd love to explore kid-friendly attractions and try some affordable local food. Budget is around 300 SGD."
+    }
+    
     alns_main(
         seed=42,
         config_path="./src/alns_itinerary/config.json",
-        llm_path="./data/alns_inputs/",
-        user_input=None,
+        llm_path=None, #"./data/alns_inputs/",
+        user_input=user_input,
         alns_input=None,
     )

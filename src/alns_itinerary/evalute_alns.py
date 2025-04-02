@@ -106,7 +106,7 @@ def alns_evaluate(user_input):
         output_json_path="./data/alns_inputs/groq/location_data.json", 
         batch_size=batch_size,
         max_rows=max_rows,
-        llm_data_path="./data/alns_inputs/groq/location_data.json",
+        # llm_data_path="./data/alns_inputs/groq/location_data.json",
     )
 
     alns_data = alns_main(user_input=user_input, alns_input=alns_input)
@@ -116,15 +116,16 @@ def alns_evaluate(user_input):
 
 if __name__ == "__main__":
     
-    user_query = user_queries["01"]
-    
-    # persona = "Shopping Enthusiast"
-    # num_days = 3
-    # budget = 500
-    # description = 'I love shopping and spending money. I want to enjoy my time here in Singapore with unique local food and fun attractions.'
-    
-    user_input = {"persona": user_query['persona'], "num_days": user_query['days'], "budget": user_query['budget'], "description": user_query['query']}
-    
-    alns_data = alns_evaluate(
-        user_input=user_input
-    )
+    for key in ["10"]: # ["06", "07", "08", "09", "10"]:
+        
+        logger.info(f"Processing query {key}")
+        
+        # Uncomment the next line to process all queries
+        # alns_data = alns_evaluate(user_input=user_query)
+        user_query = user_queries[key]
+        
+        user_input = {"persona": user_query['persona'], "num_days": user_query['days'], "budget": user_query['budget'], "description": user_query['query']}
+        
+        alns_data = alns_evaluate(
+            user_input=user_input
+        )
