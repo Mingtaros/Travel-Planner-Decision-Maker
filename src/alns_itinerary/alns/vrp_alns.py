@@ -422,7 +422,7 @@ class VRPALNS:
             
             # --- Insert Attractions after Dinner until Hotel Return ---
             latest_completion_time, current_position, budget_available, attraction_count = self.insert_attractions(
-                solution, day, latest_completion_time, current_position, budget_available, transport_mode, attraction_values, self.problem.HARD_LIMIT_END_TIME, attraction_count, approx_mandatory_cost
+                solution, day, latest_completion_time, current_position, budget_available, transport_mode, attraction_values, self.problem.HARD_LIMIT_END_TIME - 30, attraction_count, approx_mandatory_cost
             )
 
             # --- Return to Hotel ---
@@ -508,12 +508,12 @@ class VRPALNS:
         cost = evaluation["total_cost"]
         travel_time = evaluation["total_travel_time"]
         satisfaction = evaluation["total_satisfaction"]
-        max_satisfaction = (self.problem.NUM_DAYS * 6) * self.rating_max
-        reference_time = 6 * 60  # 6 hours as a reference point
+        max_satisfaction = (self.problem.NUM_DAYS * 6) * (self.rating_max)
+        reference_time = 8 * 60  # 8 hours as a reference point
         
-        budget_objective = self.objective_weights[0] * (cost / self.problem.budget)
-        travel_time_objective = self.objective_weights[1] * (travel_time / (travel_time + reference_time))
-        satisfaction_objective = self.objective_weights[2] * (satisfaction / max_satisfaction)
+        budget_objective = self.objective_weights[0] * max((cost / self.problem.budget), 0.7)
+        travel_time_objective = self.objective_weights[1] * max((travel_time / (travel_time + reference_time)), 0.3)
+        satisfaction_objective = self.objective_weights[2] * min((satisfaction / max_satisfaction), 1)
         
         # logger.info("Budget_Objective: {}, Satisfaction_Objective: {}, Travel_Time_Objective: {}".format(budget_objective, satisfaction_objective, travel_time_objective))
         

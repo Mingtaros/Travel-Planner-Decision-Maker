@@ -135,6 +135,8 @@ This script:
 
 Run the following command to generate route matrices for different times of day:
 
+**NOTE: PLEASE CHECK API USAGE LIMITS FOR FREE TIER AND ADJUST NUMBER OF LOCATIONS USED ACCORDINGLY**
+
 ```bash
 python ./src/route_matrix/generate_route_matrix.py --waypoints data/waypointData/waypoints.json --output-dir data/routeData
 ```

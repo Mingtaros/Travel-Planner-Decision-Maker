@@ -106,7 +106,7 @@ def alns_evaluate(user_input):
         output_json_path="./data/alns_inputs/groq/location_data.json", 
         batch_size=batch_size,
         max_rows=max_rows,
-        # llm_data_path="./data/alns_inputs/groq/location_data.json",
+        llm_data_path="./data/alns_inputs/groq/location_data.json",
     )
 
     alns_data = alns_main(user_input=user_input, alns_input=alns_input)
@@ -116,7 +116,7 @@ def alns_evaluate(user_input):
 
 if __name__ == "__main__":
     
-    for key in ["10"]: # ["06", "07", "08", "09", "10"]:
+    for key in ["05"]: # ["06", "07", "08", "09", "10"]:
         
         logger.info(f"Processing query {key}")
         
