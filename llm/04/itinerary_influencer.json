@@ -1,0 +1,124 @@
+{
+    "Day 1": [
+        {
+            "type": "hawker",
+            "name": "Lau Pa Sat",
+            "cost": 10,
+            "duration": 30
+        },
+        {
+            "type": "attraction",
+            "name": "Gardens by the Bay",
+            "cost": 28,
+            "duration": 180
+        },
+        {
+            "type": "hawker",
+            "name": "Chinatown Complex Food Centre",
+            "cost": 8,
+            "duration": 30
+        },
+        {
+            "type": "attraction",
+            "name": "ArtScience Museum",
+            "cost": 30,
+            "duration": 120
+        },
+        {
+            "type": "attraction",
+            "name": "Marina Bay Sands SkyPark Observation Deck",
+            "cost": 26,
+            "duration": 60
+        },
+        {
+            "type": "hawker",
+            "name": "East Coast Lagoon Food Village",
+            "cost": 10,
+            "duration": 30
+        }
+    ],
+    "Day 2": [
+        {
+            "type": "hawker",
+            "name": "Amoy Street Food Centre",
+            "cost": 8,
+            "duration": 30
+        },
+        {
+            "type": "attraction",
+            "name": "Singapore Zoo",
+            "cost": 50,
+            "duration": 240
+        },
+        {
+            "type": "hawker",
+            "name": "Hill Street Tai Hwa Pork Noodle",
+            "cost": 6,
+            "duration": 30
+        },
+        {
+            "type": "attraction",
+            "name": "Singapore Flyer",
+            "cost": 33,
+            "duration": 60
+        },
+        {
+            "type": "attraction",
+            "name": "National Gallery Singapore",
+            "cost": 20,
+            "duration": 150
+        },
+        {
+            "type": "hawker",
+            "name": "Tekka Centre",
+            "cost": 8,
+            "duration": 30
+        }
+    ],
+    "Day 3": [
+        {
+            "type": "hawker",
+            "name": "Maxwell Food Centre",
+            "cost": 5,
+            "duration": 30
+        },
+        {
+            "type": "attraction",
+            "name": "Bird Paradise",
+            "cost": 38,
+            "duration": 180
+        },
+        {
+            "type": "hawker",
+            "name": "Sungei Road Laksa",
+            "cost": 6,
+            "duration": 30
+        },
+        {
+            "type": "attraction",
+            "name": "River Wonders",
+            "cost": 40,
+            "duration": 180
+        },
+        {
+            "type": "attraction",
+            "name": "Universal Studios Singapore",
+            "cost": 79,
+            "duration": 360
+        },
+        {
+            "type": "hawker",
+            "name": "One Punggol Hawker Centre",
+            "cost": 6,
+            "duration": 30
+        }
+    ],
+    "Total Cost": 600,
+    "meta": {
+        "persona": "Influencer",
+        "budget": 600,
+        "days": 3,
+        "query": "I'm visiting Singapore for 3 days as a content creator. I'm looking for Instagrammable attractions and stylish food spots. Budget is 600 SGD.",
+        "generation_time_seconds": 8.61
+    }
+}

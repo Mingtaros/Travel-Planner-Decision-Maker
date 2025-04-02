@@ -1,0 +1,94 @@
+{
+    "Day 1": [
+        {
+            "type": "attraction",
+            "name": "Gardens by the Bay",
+            "cost": 28,
+            "duration": 180
+        },
+        {
+            "type": "hawker",
+            "name": "Lau Pa Sat",
+            "cost": 12,
+            "duration": 45
+        },
+        {
+            "type": "hawker",
+            "name": "Maxwell Food Centre",
+            "cost": 8,
+            "duration": 45
+        },
+        {
+            "type": "hawker",
+            "name": "Tekka Centre",
+            "cost": 10,
+            "duration": 45
+        }
+    ],
+    "Day 2": [
+        {
+            "type": "attraction",
+            "name": "Singapore Zoo",
+            "cost": 50,
+            "duration": 240
+        },
+        {
+            "type": "hawker",
+            "name": "Maxwell Food Centre",
+            "cost": 10,
+            "duration": 45
+        },
+        {
+            "type": "hawker",
+            "name": "East Coast Lagoon Food Village",
+            "cost": 10,
+            "duration": 45
+        },
+        {
+            "type": "hawker",
+            "name": "Maxwell Food Centre",
+            "cost": 8,
+            "duration": 45
+        }
+    ],
+    "Day 3": [
+        {
+            "type": "attraction",
+            "name": "Bird Paradise",
+            "cost": 38,
+            "duration": 180
+        },
+        {
+            "type": "attraction",
+            "name": "River Wonders",
+            "cost": 40,
+            "duration": 180
+        },
+        {
+            "type": "hawker",
+            "name": "Amoy Street Food Centre",
+            "cost": 8,
+            "duration": 45
+        },
+        {
+            "type": "hawker",
+            "name": "East Coast Lagoon Food Village",
+            "cost": 15,
+            "duration": 45
+        },
+        {
+            "type": "hawker",
+            "name": "One Punggol Hawker Centre",
+            "cost": 10,
+            "duration": 45
+        }
+    ],
+    "Total Cost": 247,
+    "meta": {
+        "persona": "Family Tourist",
+        "budget": 250,
+        "days": 3,
+        "query": "This is my first time in Singapore and I\u2019ll be here for 3 days. I\u2019d like a mix of sightseeing, must-try foods, and some local experiences. Budget is 250 SGD.",
+        "generation_time_seconds": 46.35
+    }
+}

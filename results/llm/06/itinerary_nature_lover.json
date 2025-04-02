@@ -1,0 +1,88 @@
+{
+    "Day 1": [
+        {
+            "type": "attraction",
+            "name": "Gardens by the Bay",
+            "cost": 28,
+            "duration": 180
+        },
+        {
+            "type": "hawker",
+            "name": "Amoy Street Food Centre",
+            "cost": 8,
+            "duration": 30
+        },
+        {
+            "type": "hawker",
+            "name": "Hill Street Tai Hwa Pork Noodle",
+            "cost": 6,
+            "duration": 30
+        },
+        {
+            "type": "hawker",
+            "name": "Sungei Road Laksa",
+            "cost": 6,
+            "duration": 30
+        }
+    ],
+    "Day 2": [
+        {
+            "type": "attraction",
+            "name": "Singapore Zoo",
+            "cost": 50,
+            "duration": 240
+        },
+        {
+            "type": "hawker",
+            "name": "Lau Pa Sat",
+            "cost": 10,
+            "duration": 30
+        },
+        {
+            "type": "hawker",
+            "name": "Maxwell Food Centre",
+            "cost": 7,
+            "duration": 30
+        },
+        {
+            "type": "hawker",
+            "name": "Tekka Centre",
+            "cost": 8,
+            "duration": 30
+        }
+    ],
+    "Day 3": [
+        {
+            "type": "attraction",
+            "name": "River Wonders",
+            "cost": 40,
+            "duration": 180
+        },
+        {
+            "type": "hawker",
+            "name": "One Punggol Hawker Centre",
+            "cost": 7,
+            "duration": 30
+        },
+        {
+            "type": "hawker",
+            "name": "East Coast Lagoon Food Village",
+            "cost": 12,
+            "duration": 30
+        },
+        {
+            "type": "hawker",
+            "name": "Chinatown Complex Food Centre",
+            "cost": 8,
+            "duration": 30
+        }
+    ],
+    "Total Cost": 190,
+    "meta": {
+        "persona": "Nature Lover",
+        "budget": 190,
+        "days": 3,
+        "query": "Looking to relax and enjoy greenery and peaceful spots in Singapore. I\u2019ll be there for 3 days and have 190 SGD to spend. I enjoy light snacks over heavy meals.",
+        "generation_time_seconds": 14.18
+    }
+}

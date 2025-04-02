@@ -1,0 +1,88 @@
+{
+    "Day 1": [
+        {
+            "type": "attraction",
+            "name": "Gardens by the Bay",
+            "cost": 28,
+            "duration": 180
+        },
+        {
+            "type": "hawker",
+            "name": "Lau Pa Sat",
+            "cost": 10,
+            "duration": 30
+        },
+        {
+            "type": "hawker",
+            "name": "Maxwell Food Centre",
+            "cost": 10,
+            "duration": 30
+        },
+        {
+            "type": "hawker",
+            "name": "East Coast Lagoon Food Village",
+            "cost": 15,
+            "duration": 30
+        }
+    ],
+    "Day 2": [
+        {
+            "type": "attraction",
+            "name": "Marina Bay Sands SkyPark Observation Deck",
+            "cost": 26,
+            "duration": 60
+        },
+        {
+            "type": "hawker",
+            "name": "Amoy Street Food Centre",
+            "cost": 12,
+            "duration": 30
+        },
+        {
+            "type": "hawker",
+            "name": "Tekka Centre",
+            "cost": 10,
+            "duration": 30
+        },
+        {
+            "type": "hawker",
+            "name": "Chinatown Complex Food Centre",
+            "cost": 10,
+            "duration": 30
+        }
+    ],
+    "Day 3": [
+        {
+            "type": "attraction",
+            "name": "Asian Civilisations Museum",
+            "cost": 12,
+            "duration": 120
+        },
+        {
+            "type": "hawker",
+            "name": "One Punggol Hawker Centre",
+            "cost": 10,
+            "duration": 30
+        },
+        {
+            "type": "hawker",
+            "name": "Sungei Road Laksa",
+            "cost": 10,
+            "duration": 30
+        },
+        {
+            "type": "hawker",
+            "name": "Muthu's Curry - Little India",
+            "cost": 12,
+            "duration": 30
+        }
+    ],
+    "Total Cost": 153,
+    "meta": {
+        "persona": "Backpacker",
+        "budget": 150,
+        "days": 3,
+        "query": "I'm a solo backpacker staying for 3 days. My budget is tight (~150 SGD total), and I'm mainly here to try spicy food and explore free attractions.",
+        "generation_time_seconds": 56.73
+    }
+}

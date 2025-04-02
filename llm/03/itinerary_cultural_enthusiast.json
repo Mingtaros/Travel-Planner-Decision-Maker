@@ -1,0 +1,100 @@
+{
+    "Day 1": [
+        {
+            "type": "attraction",
+            "name": "ArtScience Museum",
+            "cost": 30,
+            "duration": 120
+        },
+        {
+            "type": "hawker",
+            "name": "Maxwell Food Centre",
+            "cost": 5,
+            "duration": 45
+        },
+        {
+            "type": "attraction",
+            "name": "National Gallery Singapore",
+            "cost": 20,
+            "duration": 150
+        },
+        {
+            "type": "hawker",
+            "name": "Amoy Street Food Centre",
+            "cost": 8,
+            "duration": 45
+        },
+        {
+            "type": "hawker",
+            "name": "Lau Pa Sat",
+            "cost": 10,
+            "duration": 45
+        }
+    ],
+    "Day 2": [
+        {
+            "type": "attraction",
+            "name": "Asian Civilisations Museum",
+            "cost": 12,
+            "duration": 120
+        },
+        {
+            "type": "hawker",
+            "name": "Maxwell Food Centre",
+            "cost": 5,
+            "duration": 45
+        },
+        {
+            "type": "attraction",
+            "name": "Gardens by the Bay",
+            "cost": 28,
+            "duration": 180
+        },
+        {
+            "type": "hawker",
+            "name": "Sungei Road Laksa",
+            "cost": 6,
+            "duration": 45
+        },
+        {
+            "type": "hawker",
+            "name": "Tekka Centre",
+            "cost": 7,
+            "duration": 45
+        }
+    ],
+    "Day 3": [
+        {
+            "type": "hawker",
+            "name": "Amoy Street Food Centre",
+            "cost": 8,
+            "duration": 45
+        },
+        {
+            "type": "attraction",
+            "name": "Marina Bay Sands SkyPark Observation Deck",
+            "cost": 26,
+            "duration": 60
+        },
+        {
+            "type": "hawker",
+            "name": "Lau Pa Sat",
+            "cost": 10,
+            "duration": 45
+        },
+        {
+            "type": "hawker",
+            "name": "Maxwell Food Centre",
+            "cost": 5,
+            "duration": 45
+        }
+    ],
+    "Total Cost": 180,
+    "meta": {
+        "persona": "Cultural Enthusiast",
+        "budget": 180,
+        "days": 3,
+        "query": "I\u2019ll be spending 3 days in Singapore and I'm really interested in cultural attractions and sampling traditional hawker food on a modest budget. Budget is 180 SGD.",
+        "generation_time_seconds": 11.51
+    }
+}

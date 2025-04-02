@@ -240,7 +240,7 @@ if __name__ == "__main__":
             print("⚠️ Warning: LLM-generated itinerary has incorrect total cost.")
 
         # Save the result
-        out_path = f"./llm/{scenario}/itinerary_{query_item['persona'].lower().replace(' ', '_')}.json"
+        out_path = f"./results/llm/{scenario}/itinerary_{query_item['persona'].lower().replace(' ', '_')}.json"
         os.makedirs(os.path.dirname(out_path), exist_ok=True)
         with open(out_path, "w", encoding="utf-8") as f:
             json.dump(itinerary, f, indent=4)

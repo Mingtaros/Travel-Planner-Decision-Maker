@@ -1,0 +1,106 @@
+{
+    "Day 1": [
+        {
+            "type": "hawker",
+            "name": "Lau Pa Sat",
+            "cost": 10,
+            "duration": 45
+        },
+        {
+            "type": "attraction",
+            "name": "Asian Civilisations Museum",
+            "cost": 12,
+            "duration": 120
+        },
+        {
+            "type": "hawker",
+            "name": "Maxwell Food Centre",
+            "cost": 5,
+            "duration": 45
+        },
+        {
+            "type": "attraction",
+            "name": "National Gallery Singapore",
+            "cost": 20,
+            "duration": 150
+        },
+        {
+            "type": "hawker",
+            "name": "Chinatown Complex Food Centre",
+            "cost": 7,
+            "duration": 45
+        }
+    ],
+    "Day 2": [
+        {
+            "type": "hawker",
+            "name": "Hill Street Tai Hwa Pork Noodle",
+            "cost": 6,
+            "duration": 45
+        },
+        {
+            "type": "attraction",
+            "name": "Gardens by the Bay",
+            "cost": 28,
+            "duration": 180
+        },
+        {
+            "type": "hawker",
+            "name": "Sungei Road Laksa",
+            "cost": 6,
+            "duration": 45
+        },
+        {
+            "type": "attraction",
+            "name": "River Wonders",
+            "cost": 40,
+            "duration": 180
+        },
+        {
+            "type": "hawker",
+            "name": "Amoy Street Food Centre",
+            "cost": 8,
+            "duration": 45
+        }
+    ],
+    "Day 3": [
+        {
+            "type": "hawker",
+            "name": "Chinatown Complex Food Centre",
+            "cost": 7,
+            "duration": 45
+        },
+        {
+            "type": "attraction",
+            "name": "ArtScience Museum",
+            "cost": 30,
+            "duration": 120
+        },
+        {
+            "type": "hawker",
+            "name": "Tekka Centre",
+            "cost": 7,
+            "duration": 45
+        },
+        {
+            "type": "attraction",
+            "name": "Bird Paradise",
+            "cost": 38,
+            "duration": 180
+        },
+        {
+            "type": "hawker",
+            "name": "East Coast Lagoon Food Village",
+            "cost": 10,
+            "duration": 45
+        }
+    ],
+    "Total Cost": 210,
+    "meta": {
+        "persona": "Cultural Enthusiast",
+        "budget": 210,
+        "days": 3,
+        "query": "My spouse and I are retired and visiting Singapore for 3 days. We love cultural sites and relaxing parks. Prefer to avoid loud or overly touristy spots. Budget is 210 SGD.",
+        "generation_time_seconds": 22.21
+    }
+}
