@@ -148,6 +148,15 @@ This script:
 - Calculates fares for each route type
 - Saves the results in JSON files (`data/routeData/route_matrix_*.json`)
 
+## Streamlit Application
+
+### Basic Usage
+```bash
+streamlit run ./src/alns_itinerary/streamlit_app.py
+```
+
+Enter the itinerary details and click on Generate Itinerary
+
 ## Itinerary Optimization
 
 ### Basic Usage
@@ -198,16 +207,6 @@ Contains algorithm parameters and constraints:
     "DESTROY_DAY_HAWKER_PRESERVE": 0.7,
     "REPAIR_TRANSIT_WEIGHTS": [0.5, 0.5],
     "REPAIR_SATISFACTION_WEIGHTS": [0.5, 0.5]
-}
-```
-
-#### `llm.json`
-Contains trip-specific parameters:
-```json
-{
-    "HOTEL_NAME": "Marina Bay Sands",
-    "BUDGET": 750,
-    "NUM_DAYS": 3
 }
 ```
 
