@@ -104,10 +104,13 @@ travel-planner-decision-maker/
 
 1. Clone this repository
 2. Place your CSV files in the `data` directory
-3. Create a `.env` file in the root directory with your Google Maps API key:
+3. Create a `.env` file in the root directory with your Google Maps,OpenAI, and Groq API key:
    ```
    GOOGLE_MAPS_API_KEY=your_api_key_here
+   OPENAI_API_KEY=your_api_key_here
+   GROQ_API_KEY=your_api_key_here
    ```
+   See `.env.example` file for the template.
 4. Install required Python packages:
    ```bash
    pip install -r requirements.txt
