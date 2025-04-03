@@ -920,7 +920,7 @@ if __name__ == "__main__":
     selected_locations = selected_hotel + selected_attractions + selected_hawkers
 
     problem = TravelItineraryProblem(
-        budget=500,
+        budget=2000,
         locations=locations,
         # locations=selected_locations,
         transport_matrix=transport_matrix,
@@ -929,7 +929,7 @@ if __name__ == "__main__":
             "name": sample_hotel["name"],
             "cost": 0,
         },
-        priority_weights=[0.3, 0.3, 0.4],
+        priority_weights=[0.5, 0.5, 0],
     )
 
     current_time = datetime.datetime.now()
