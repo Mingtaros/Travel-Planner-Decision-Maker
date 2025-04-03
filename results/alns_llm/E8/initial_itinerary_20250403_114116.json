@@ -2,17 +2,17 @@
   "trip_summary": {
     "duration": 3,
     "total_budget": 210,
-    "actual_expenditure": 142.25,
-    "total_travel_time": 812,
+    "actual_expenditure": 140.87,
+    "total_travel_time": 529,
     "total_satisfaction": 82.0,
-    "objective_value": 9.886225283059755,
-    "is_feasible": false,
+    "objective_value": -0.14069926219579337,
+    "is_feasible": true,
     "starting_hotel": "Marina Bay Sands Singapore"
   },
   "days": [
     {
       "day": 1,
-      "date": "2025-04-02",
+      "date": "2025-04-03",
       "locations": [
         {
           "name": "Marina Bay Sands Singapore",
@@ -153,7 +153,7 @@
     },
     {
       "day": 2,
-      "date": "2025-04-03",
+      "date": "2025-04-04",
       "locations": [
         {
           "name": "Marina Bay Sands Singapore",
@@ -260,26 +260,27 @@
         {
           "name": "328 Katong Laksa",
           "type": "hawker",
-          "arrival_time": "22:59",
-          "departure_time": "23:59",
+          "arrival_time": "18:00",
+          "departure_time": "19:00",
           "lat": 1.305059,
           "lng": 103.9032669,
-          "transit_from_prev": "transit",
-          "transit_duration": 339,
-          "transit_cost": 2.35,
+          "transit_from_prev": "drive",
+          "transit_duration": 24,
+          "transit_cost": 14.68,
           "duration": 60,
           "satisfaction": 5.0,
           "cost": 4.8,
-          "rest_duration": 0,
-          "actual_arrival_time": null,
-          "description": "Food center with rating 5.0/5"
+          "rest_duration": 16,
+          "actual_arrival_time": "17:44",
+          "meal_type": "dinner",
+          "description": "Food center with rating 5.0/5. Arrived at 17:44 and waited 16 minutes for opening time."
         },
         {
           "name": "Marina Bay Sands Singapore",
           "type": "hotel",
           "position": "end",
-          "arrival_time": "24:12",
-          "departure_time": "24:12",
+          "arrival_time": "19:13",
+          "departure_time": "19:13",
           "lat": 1.2837575,
           "lng": 103.8591065,
           "transit_from_prev": "drive",
@@ -293,7 +294,7 @@
     },
     {
       "day": 3,
-      "date": "2025-04-04",
+      "date": "2025-04-05",
       "locations": [
         {
           "name": "Marina Bay Sands Singapore",
@@ -348,26 +349,26 @@
         {
           "name": "Tekka Centre",
           "type": "hawker",
-          "arrival_time": "12:00",
-          "departure_time": "13:00",
+          "arrival_time": "12:14",
+          "departure_time": "13:14",
           "lat": 1.3063839,
           "lng": 103.8507014,
-          "transit_from_prev": "drive",
-          "transit_duration": 14,
-          "transit_cost": 9.74,
+          "transit_from_prev": "transit",
+          "transit_duration": 39,
+          "transit_cost": 1.77,
           "duration": 60,
           "satisfaction": 5.0,
           "cost": 6.5,
-          "rest_duration": 11,
-          "actual_arrival_time": "11:49",
+          "rest_duration": 0,
+          "actual_arrival_time": null,
           "meal_type": "lunch",
-          "description": "Food center with rating 5.0/5. Arrived at 11:49 and waited 11 minutes for opening time."
+          "description": "Food center with rating 5.0/5"
         },
         {
           "name": "Haw Par Villa",
           "type": "attraction",
-          "arrival_time": "13:23",
-          "departure_time": "14:56",
+          "arrival_time": "13:37",
+          "departure_time": "15:10",
           "lat": 1.2841526,
           "lng": 103.781892,
           "transit_from_prev": "drive",
@@ -383,8 +384,8 @@
         {
           "name": "Sri Mariamman Temple",
           "type": "attraction",
-          "arrival_time": "15:13",
-          "departure_time": "16:48",
+          "arrival_time": "15:27",
+          "departure_time": "17:02",
           "lat": 1.2826867,
           "lng": 103.8451462,
           "transit_from_prev": "drive",
@@ -404,16 +405,16 @@
           "departure_time": "19:00",
           "lat": 1.3022534,
           "lng": 103.85844,
-          "transit_from_prev": "drive",
-          "transit_duration": 14,
-          "transit_cost": 7.14,
+          "transit_from_prev": "transit",
+          "transit_duration": 21,
+          "transit_cost": 1.4,
           "duration": 60,
           "satisfaction": 5.0,
           "cost": 6.0,
-          "rest_duration": 58,
-          "actual_arrival_time": "17:02",
+          "rest_duration": 37,
+          "actual_arrival_time": "17:23",
           "meal_type": "dinner",
-          "description": "Food center with rating 5.0/5. Arrived at 17:02 and waited 58 minutes for opening time."
+          "description": "Food center with rating 5.0/5. Arrived at 17:23 and waited 37 minutes for opening time."
         },
         {
           "name": "Marina Bay Sands Singapore",
@@ -450,27 +451,13 @@
   "budget_breakdown": {
     "attractions": 0.0,
     "meals": 41.8,
-    "transportation": 100.44999999999999
+    "transportation": 99.07000000000001
   },
   "transport_summary": {
-    "total_duration": 812,
-    "total_cost": 100.44999999999999
+    "total_duration": 529,
+    "total_cost": 99.07000000000001
   },
   "rest_summary": {
-    "total_rest_duration": 218
-  },
-  "constraint_violations": [
-    {
-      "type": "late_return",
-      "details": "Day 2 would return to hotel after 22:00 PM"
-    },
-    {
-      "type": "hawker_outside_meal_time",
-      "details": "Day 2 visits hawker 328 Katong Laksa outside of meal times"
-    },
-    {
-      "type": "missing_dinner",
-      "details": "Day 2 has no dinner visit"
-    }
-  ]
+    "total_rest_duration": 202
+  }
 }

@@ -285,7 +285,19 @@ class VRPALNS:
 
         reconsider_list = [] 
         hawker_idx, hawker_ratio = hawker_ratings.pop(0)
-        cost, duration = solution.get_cost_duration(day, hawker_idx, current_position, transport_mode)
+        # cost, duration = solution.get_cost_duration(day, hawker_idx, current_position, transport_mode)
+        
+        drive_cost, drive_duration = solution.get_cost_duration(day, hawker_idx, current_position, 'drive')
+        transit_cost, transit_duration = solution.get_cost_duration(day, hawker_idx, current_position, 'transit')
+        
+        if latest_completion_time + transit_duration < self.problem.HARD_LIMIT_END_TIME - 20 or drive_cost >= budget_left:
+            cost = transit_cost
+            duration = transit_duration
+            transport_mode = 'transit'
+        else:
+            cost = drive_cost
+            duration = drive_duration
+            transport_mode = 'drive'
 
         if budget_left >= cost:
             check, departure_time = solution.insert_location(day, current_position, hawker_idx, transport_mode, meal_type)

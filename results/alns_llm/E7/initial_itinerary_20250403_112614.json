@@ -2,17 +2,17 @@
   "trip_summary": {
     "duration": 3,
     "total_budget": 270,
-    "actual_expenditure": 208.79,
-    "total_travel_time": 383,
-    "total_satisfaction": 74.0,
-    "objective_value": 0.21729518967150196,
+    "actual_expenditure": 196.37,
+    "total_travel_time": 367,
+    "total_satisfaction": 75.0,
+    "objective_value": 0.1709067121430758,
     "is_feasible": true,
     "starting_hotel": "Marina Bay Sands Singapore"
   },
   "days": [
     {
       "day": 1,
-      "date": "2025-04-02",
+      "date": "2025-04-03",
       "locations": [
         {
           "name": "Marina Bay Sands Singapore",
@@ -65,18 +65,18 @@
           "description": "Attraction with satisfaction rating 4.0/5"
         },
         {
-          "name": "Lau Pa Sat",
+          "name": "Amoy Street Food Centre",
           "type": "hawker",
-          "arrival_time": "12:27",
-          "departure_time": "13:27",
-          "lat": 1.2805121,
-          "lng": 103.8503809,
+          "arrival_time": "12:25",
+          "departure_time": "13:25",
+          "lat": 1.2794274,
+          "lng": 103.8467957,
           "transit_from_prev": "transit",
-          "transit_duration": 45,
+          "transit_duration": 43,
           "transit_cost": 2.06,
           "duration": 60,
           "satisfaction": 5.0,
-          "cost": 10.0,
+          "cost": 8.0,
           "rest_duration": 0,
           "actual_arrival_time": null,
           "meal_type": "lunch",
@@ -85,12 +85,12 @@
         {
           "name": "Little India",
           "type": "attraction",
-          "arrival_time": "13:46",
-          "departure_time": "14:51",
+          "arrival_time": "13:45",
+          "departure_time": "14:50",
           "lat": 1.3065597,
           "lng": 103.851819,
           "transit_from_prev": "transit",
-          "transit_duration": 19,
+          "transit_duration": 20,
           "transit_cost": 1.4,
           "duration": 65,
           "satisfaction": 4.0,
@@ -102,8 +102,8 @@
         {
           "name": "Kampong Glam",
           "type": "attraction",
-          "arrival_time": "15:12",
-          "departure_time": "16:29",
+          "arrival_time": "15:11",
+          "departure_time": "16:28",
           "lat": 1.3015584,
           "lng": 103.8623134,
           "transit_from_prev": "transit",
@@ -117,22 +117,22 @@
           "description": "Attraction with satisfaction rating 4.0/5"
         },
         {
-          "name": "Amoy Street Food Centre",
+          "name": "Hill Street Tai Hwa Pork Noodle",
           "type": "hawker",
           "arrival_time": "18:00",
           "departure_time": "19:00",
-          "lat": 1.2794274,
-          "lng": 103.8467957,
+          "lat": 1.3051265,
+          "lng": 103.8625357,
           "transit_from_prev": "transit",
-          "transit_duration": 20,
-          "transit_cost": 1.29,
+          "transit_duration": 16,
+          "transit_cost": 1.19,
           "duration": 60,
           "satisfaction": 5.0,
-          "cost": 8.0,
-          "rest_duration": 71,
-          "actual_arrival_time": "16:49",
+          "cost": 6.0,
+          "rest_duration": 76,
+          "actual_arrival_time": "16:44",
           "meal_type": "dinner",
-          "description": "Food center with rating 5.0/5. Arrived at 16:49 and waited 71 minutes for opening time."
+          "description": "Food center with rating 5.0/5. Arrived at 16:44 and waited 76 minutes for opening time."
         },
         {
           "name": "Marina Bay Sands Singapore",
@@ -144,7 +144,7 @@
           "lng": 103.8591065,
           "transit_from_prev": "drive",
           "transit_duration": 8,
-          "transit_cost": 5.84,
+          "transit_cost": 6.62,
           "satisfaction": 0,
           "cost": 0,
           "rest_duration": 0
@@ -153,7 +153,7 @@
     },
     {
       "day": 2,
-      "date": "2025-04-03",
+      "date": "2025-04-04",
       "locations": [
         {
           "name": "Marina Bay Sands Singapore",
@@ -269,7 +269,7 @@
           "transit_cost": 6.88,
           "duration": 60,
           "satisfaction": 5.0,
-          "cost": 7.0,
+          "cost": 6.0,
           "rest_duration": 9,
           "actual_arrival_time": "17:51",
           "meal_type": "dinner",
@@ -294,7 +294,7 @@
     },
     {
       "day": 3,
-      "date": "2025-04-04",
+      "date": "2025-04-05",
       "locations": [
         {
           "name": "Marina Bay Sands Singapore",
@@ -358,23 +358,23 @@
           "transit_cost": 14.42,
           "duration": 60,
           "satisfaction": 5.0,
-          "cost": 10.0,
+          "cost": 6.5,
           "rest_duration": 0,
           "actual_arrival_time": null,
           "meal_type": "lunch",
           "description": "Food center with rating 5.0/5"
         },
         {
-          "name": "Boat Quay",
+          "name": "Esplanade",
           "type": "attraction",
-          "arrival_time": "13:35",
-          "departure_time": "15:23",
-          "lat": 1.2859963,
-          "lng": 103.8501608,
+          "arrival_time": "13:31",
+          "departure_time": "15:17",
+          "lat": 1.2897934,
+          "lng": 103.8558166,
           "transit_from_prev": "drive",
-          "transit_duration": 19,
-          "transit_cost": 10.78,
-          "duration": 108,
+          "transit_duration": 15,
+          "transit_cost": 10.26,
+          "duration": 106,
           "satisfaction": 4.0,
           "cost": 0.0,
           "rest_duration": 0,
@@ -382,21 +382,21 @@
           "description": "Attraction with satisfaction rating 4.0/5"
         },
         {
-          "name": "Merlion Park",
+          "name": "Boat Quay",
           "type": "attraction",
-          "arrival_time": "15:34",
-          "departure_time": "16:56",
-          "lat": 1.2867449,
-          "lng": 103.8543872,
+          "arrival_time": "15:23",
+          "departure_time": "17:11",
+          "lat": 1.2859963,
+          "lng": 103.8501608,
           "transit_from_prev": "drive",
-          "transit_duration": 11,
-          "transit_cost": 6.62,
-          "duration": 82,
-          "satisfaction": 3.0,
+          "transit_duration": 6,
+          "transit_cost": 5.32,
+          "duration": 108,
+          "satisfaction": 4.0,
           "cost": 0.0,
           "rest_duration": 0,
           "actual_arrival_time": null,
-          "description": "Attraction with satisfaction rating 3.0/5"
+          "description": "Attraction with satisfaction rating 4.0/5"
         },
         {
           "name": "Food Opera ION Orchard",
@@ -406,15 +406,15 @@
           "lat": 1.3039938,
           "lng": 103.8314174,
           "transit_from_prev": "drive",
-          "transit_duration": 15,
-          "transit_cost": 7.66,
+          "transit_duration": 13,
+          "transit_cost": 6.88,
           "duration": 60,
           "satisfaction": 5.0,
-          "cost": 12.0,
-          "rest_duration": 49,
-          "actual_arrival_time": "17:11",
+          "cost": 10.0,
+          "rest_duration": 36,
+          "actual_arrival_time": "17:24",
           "meal_type": "dinner",
-          "description": "Food center with rating 5.0/5. Arrived at 17:11 and waited 49 minutes for opening time."
+          "description": "Food center with rating 5.0/5. Arrived at 17:24 and waited 36 minutes for opening time."
         },
         {
           "name": "Marina Bay Sands Singapore",
@@ -438,7 +438,6 @@
     "Suntec City Shopping Centre",
     "Jewel Changi",
     "Punggol Waterway Point",
-    "Merlion Park",
     "Clarke Quay",
     "Boat Quay",
     "Chinatown",
@@ -446,18 +445,19 @@
     "Kampong Glam",
     "Orchard Road",
     "Telok Blangah Hill Park",
-    "HortPark"
+    "HortPark",
+    "Esplanade"
   ],
   "budget_breakdown": {
     "attractions": 0.0,
-    "meals": 55.0,
-    "transportation": 153.79
+    "meals": 44.5,
+    "transportation": 151.86999999999998
   },
   "transport_summary": {
-    "total_duration": 383,
-    "total_cost": 153.79
+    "total_duration": 367,
+    "total_cost": 151.86999999999998
   },
   "rest_summary": {
-    "total_rest_duration": 129
+    "total_rest_duration": 121
   }
 }

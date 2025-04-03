@@ -2,17 +2,17 @@
   "trip_summary": {
     "duration": 3,
     "total_budget": 300,
-    "actual_expenditure": 159.99,
-    "total_travel_time": 83,
-    "total_satisfaction": 32.8,
-    "objective_value": 0.1530485369116295,
+    "actual_expenditure": 190.56,
+    "total_travel_time": 109,
+    "total_satisfaction": 42.0,
+    "objective_value": 0.4033333333333333,
     "is_feasible": true,
     "starting_hotel": "Marina Bay Sands Singapore"
   },
   "days": [
     {
       "day": 1,
-      "date": "2025-04-02",
+      "date": "2025-04-03",
       "locations": [
         {
           "name": "Marina Bay Sands Singapore",
@@ -66,34 +66,34 @@
           "description": "Food center with rating 5.0/5. Arrived at 10:25 and waited 95 minutes for opening time."
         },
         {
-          "name": "Muthu's Curry - Little India",
+          "name": "Singapore Zam Zam Restaurant",
           "type": "hawker",
           "arrival_time": "18:00",
           "departure_time": "19:00",
-          "lat": 1.3099202,
-          "lng": 103.8522443,
+          "lat": 1.3022534,
+          "lng": 103.85844,
           "transit_from_prev": "drive",
-          "transit_duration": 6,
-          "transit_cost": 5.06,
+          "transit_duration": 4,
+          "transit_cost": 4.8,
           "duration": 60,
-          "satisfaction": 4.6,
-          "cost": 14.86,
-          "rest_duration": 294,
-          "actual_arrival_time": "13:06",
+          "satisfaction": 4.4,
+          "cost": 9.62,
+          "rest_duration": 296,
+          "actual_arrival_time": "13:04",
           "meal_type": "dinner",
-          "description": "Food center with rating 4.6/5. Arrived at 13:06 and waited 294 minutes for opening time."
+          "description": "Food center with rating 4.4/5. Arrived at 13:04 and waited 296 minutes for opening time."
         },
         {
           "name": "Marina Bay Sands Singapore",
           "type": "hotel",
           "position": "end",
-          "arrival_time": "19:10",
-          "departure_time": "19:10",
+          "arrival_time": "19:07",
+          "departure_time": "19:07",
           "lat": 1.2837575,
           "lng": 103.8591065,
           "transit_from_prev": "drive",
-          "transit_duration": 10,
-          "transit_cost": 7.14,
+          "transit_duration": 7,
+          "transit_cost": 6.1,
           "satisfaction": 0,
           "cost": 0,
           "rest_duration": 0
@@ -102,7 +102,97 @@
     },
     {
       "day": 2,
-      "date": "2025-04-03",
+      "date": "2025-04-04",
+      "locations": [
+        {
+          "name": "Marina Bay Sands Singapore",
+          "type": "hotel",
+          "arrival_time": "09:00",
+          "departure_time": "09:00",
+          "lat": 1.2837575,
+          "lng": 103.8591065,
+          "transit_from_prev": null,
+          "transit_duration": 0,
+          "transit_cost": 0,
+          "duration": 0,
+          "satisfaction": 0,
+          "cost": 0,
+          "rest_duration": 0,
+          "actual_arrival_time": null
+        },
+        {
+          "name": "Gardens by the Bay",
+          "type": "attraction",
+          "arrival_time": "09:20",
+          "departure_time": "10:47",
+          "lat": 1.2815683,
+          "lng": 103.8636132,
+          "transit_from_prev": "transit",
+          "transit_duration": 20,
+          "transit_cost": 1.19,
+          "duration": 87,
+          "satisfaction": 4.5,
+          "cost": 27.93,
+          "rest_duration": 0,
+          "actual_arrival_time": null,
+          "description": "Attraction with satisfaction rating 4.5/5"
+        },
+        {
+          "name": "Sungei Road Laksa",
+          "type": "hawker",
+          "arrival_time": "12:00",
+          "departure_time": "13:00",
+          "lat": 1.3067257,
+          "lng": 103.8578874,
+          "transit_from_prev": "drive",
+          "transit_duration": 15,
+          "transit_cost": 8.18,
+          "duration": 60,
+          "satisfaction": 5.0,
+          "cost": 13.71,
+          "rest_duration": 58,
+          "actual_arrival_time": "11:02",
+          "meal_type": "lunch",
+          "description": "Food center with rating 5.0/5. Arrived at 11:02 and waited 58 minutes for opening time."
+        },
+        {
+          "name": "Singapore Zam Zam Restaurant",
+          "type": "hawker",
+          "arrival_time": "18:00",
+          "departure_time": "19:00",
+          "lat": 1.3022534,
+          "lng": 103.85844,
+          "transit_from_prev": "drive",
+          "transit_duration": 4,
+          "transit_cost": 4.8,
+          "duration": 60,
+          "satisfaction": 4.4,
+          "cost": 9.62,
+          "rest_duration": 296,
+          "actual_arrival_time": "13:04",
+          "meal_type": "dinner",
+          "description": "Food center with rating 4.4/5. Arrived at 13:04 and waited 296 minutes for opening time."
+        },
+        {
+          "name": "Marina Bay Sands Singapore",
+          "type": "hotel",
+          "position": "end",
+          "arrival_time": "19:07",
+          "departure_time": "19:07",
+          "lat": 1.2837575,
+          "lng": 103.8591065,
+          "transit_from_prev": "drive",
+          "transit_duration": 7,
+          "transit_cost": 6.1,
+          "satisfaction": 0,
+          "cost": 0,
+          "rest_duration": 0
+        }
+      ]
+    },
+    {
+      "day": 3,
+      "date": "2025-04-05",
       "locations": [
         {
           "name": "Marina Bay Sands Singapore",
@@ -157,88 +247,32 @@
           "description": "Food center with rating 4.4/5. Arrived at 13:04 and waited 296 minutes for opening time."
         },
         {
-          "name": "Marina Bay Sands Singapore",
-          "type": "hotel",
-          "position": "end",
-          "arrival_time": "19:07",
-          "departure_time": "19:07",
-          "lat": 1.2837575,
-          "lng": 103.8591065,
-          "transit_from_prev": "drive",
-          "transit_duration": 7,
-          "transit_cost": 6.1,
-          "satisfaction": 0,
-          "cost": 0,
-          "rest_duration": 0
-        }
-      ]
-    },
-    {
-      "day": 3,
-      "date": "2025-04-04",
-      "locations": [
-        {
-          "name": "Marina Bay Sands Singapore",
-          "type": "hotel",
-          "arrival_time": "09:00",
-          "departure_time": "09:00",
-          "lat": 1.2837575,
-          "lng": 103.8591065,
-          "transit_from_prev": null,
-          "transit_duration": 0,
-          "transit_cost": 0,
-          "duration": 0,
-          "satisfaction": 0,
-          "cost": 0,
-          "rest_duration": 0,
-          "actual_arrival_time": null
-        },
-        {
-          "name": "Maxwell Food Centre",
-          "type": "hawker",
-          "arrival_time": "12:00",
-          "departure_time": "13:00",
-          "lat": 1.2803361,
-          "lng": 103.844767,
-          "transit_from_prev": "drive",
-          "transit_duration": 10,
-          "transit_cost": 6.88,
-          "duration": 60,
-          "satisfaction": 4.4,
-          "cost": 9.68,
-          "rest_duration": 170,
-          "actual_arrival_time": "09:10",
-          "meal_type": "lunch",
-          "description": "Food center with rating 4.4/5. Arrived at 09:10 and waited 170 minutes for opening time."
-        },
-        {
-          "name": "Singapore Zam Zam Restaurant",
-          "type": "hawker",
-          "arrival_time": "18:00",
-          "departure_time": "19:00",
-          "lat": 1.3022534,
-          "lng": 103.85844,
-          "transit_from_prev": "drive",
+          "name": "Chinatown",
+          "type": "attraction",
+          "arrival_time": "19:13",
+          "departure_time": "20:34",
+          "lat": 1.2814942,
+          "lng": 103.8448202,
+          "transit_from_prev": "transit",
           "transit_duration": 13,
-          "transit_cost": 6.88,
-          "duration": 60,
-          "satisfaction": 4.4,
-          "cost": 9.62,
-          "rest_duration": 287,
-          "actual_arrival_time": "13:13",
-          "meal_type": "dinner",
-          "description": "Food center with rating 4.4/5. Arrived at 13:13 and waited 287 minutes for opening time."
+          "transit_cost": 1.19,
+          "duration": 81,
+          "satisfaction": 4.3,
+          "cost": 3.55,
+          "rest_duration": 0,
+          "actual_arrival_time": null,
+          "description": "Attraction with satisfaction rating 4.3/5"
         },
         {
           "name": "Marina Bay Sands Singapore",
           "type": "hotel",
           "position": "end",
-          "arrival_time": "19:07",
-          "departure_time": "19:07",
+          "arrival_time": "20:43",
+          "departure_time": "20:43",
           "lat": 1.2837575,
           "lng": 103.8591065,
           "transit_from_prev": "drive",
-          "transit_duration": 7,
+          "transit_duration": 9,
           "transit_cost": 6.1,
           "satisfaction": 0,
           "cost": 0,
@@ -248,18 +282,20 @@
     }
   ],
   "attractions_visited": [
-    "Marina Bay Sands SkyPark Observation Deck"
+    "Gardens by the Bay",
+    "Marina Bay Sands SkyPark Observation Deck",
+    "Chinatown"
   ],
   "budget_breakdown": {
-    "attractions": 26.49,
-    "meals": 71.2,
-    "transportation": 62.300000000000004
+    "attractions": 57.97,
+    "meals": 69.99,
+    "transportation": 62.599999999999994
   },
   "transport_summary": {
-    "total_duration": 83,
-    "total_cost": 62.300000000000004
+    "total_duration": 109,
+    "total_cost": 62.599999999999994
   },
   "rest_summary": {
-    "total_rest_duration": 1311
+    "total_rest_duration": 1210
   }
 }
