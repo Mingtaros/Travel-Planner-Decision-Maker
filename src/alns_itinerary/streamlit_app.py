@@ -68,25 +68,23 @@ class IntentResponse(BaseModel):
 class VariableResponse(BaseModel):
     alns_weights: List[float]
 
-class HawkerRecommendation(BaseModel):
+class HawkerDetail(BaseModel):
     hawker_name: str = Field(..., description="The name of the Hawker Centre. The name must match the one from DB.")
     average_price: float = Field(..., description="The maximum price in SGD of the dish, retrieved from web sources. If unavailable, make a guess.")
-    satisfaction_score: float = Field(..., description="The Satisfaction Score after unstanding the traveller preference and the Google rating of the Hawker Centre, range from 1 to 5.")
-    duration: int = Field(..., description="The average duration of eating in this hawker centre IN MINUTES, retrieved from web sources. If unavailable, use 60 minutes.")
+    satisfaction_score: float = Field(..., description="The Satisfaction Score that the traveler would get from coming to this hawker. Ranges from 1 to 5. 1 being the least satisfactory for this traveler, and 5 being the most satisfactory. Pick a number that most suited the traveler's persona.")
+    duration: int = Field(..., description="The average duration of eating in this hawker centre IN MINUTES, retrieved from web sources. If unavailable, make an approximation.")
 
 class HawkerResponse(BaseModel):
-    # QUERY: str = Field(..., description="The user's original query for hawker recommendations.")
-    HAWKER_DETAILS: List[HawkerRecommendation] = Field(..., description="List of detailed hawker food options.")
+    HAWKER_DETAILS: List[HawkerDetail] = Field(..., description="List of detailed hawker food options.")
 
-class AttractionRecommendation(BaseModel):
+class AttractionDetail(BaseModel):
     attraction_name: str = Field(..., description="The name of the attraction. The name must match the one from DB.")
     average_price: float = Field(..., description="The maximum price in SGD of the attraction, retrieved from web sources. If unavailable, make a guess. If free, return 0.")
-    satisfaction_score: float = Field(..., description="The Satisfaction Score after unstanding the traveller preference and the Google rating of the Hawker Centre, range from 1 to 5.")
-    duration: int = Field(..., description="The estimated duration the traveller would spend in this place IN MINUTES, retrieved from web sources. If unavailable, use 60 minutes.")
+    satisfaction_score: float = Field(..., description="The Satisfaction Score that the traveler would get from coming to this attraction. Ranges from 1 to 5. 1 being the least satisfactory for this traveler, and 5 being the most satisfactory. Pick a number that most suited the traveler's persona.")
+    duration: int = Field(..., description="The estimated duration the traveller would spend in this place IN MINUTES, retrieved from web sources. If unavailable, make an approximation.")
 
 class AttractionResponse(BaseModel):
-    # QUERY: str = Field(..., description="The user's original query for attraction recommendations.") 
-    ATTRACTION_DETAILS: List[AttractionRecommendation] = Field(..., description="List of detailed attraction options.")
+    ATTRACTION_DETAILS: List[AttractionDetail] = Field(..., description="List of detailed attraction options.")
 
 class CodeResponse(BaseModel):
     constraints: List[str] = Field(..., description="List of additional constraints to add to the code.")
@@ -107,7 +105,7 @@ def get_hawker_kb(batch_no):
 
 def get_attraction_kb(batch_no):
     attraction_kb = CSVKnowledgeBase(
-        path=f"data/locationData/csv/hawkers/{batch_no}",
+        path=f"data/locationData/csv/attractions/{batch_no}",
         vector_db=PgVector(
             table_name=f"sg_attractions_{batch_no}",
             db_url="postgresql+psycopg://ai:ai@localhost:5532/ai",
@@ -177,7 +175,7 @@ def create_intent_agent():
 def create_hawker_agent(model_id = "gpt-4o", batch_no=0, debug_mode=True):
 # def create_hawker_agent(model_id="deepseek-r1-distill-llama-70b", batch_no=0, debug_mode=True):
     hawker_kb = get_hawker_kb(batch_no)
-    # hawker_kb.load(recreate=False)
+    hawker_kb.load(recreate=False)
     hawker_agent = Agent(
         name="Query to Hawker Agent",
         agent_id="query_to_hawker_agent",
@@ -190,12 +188,12 @@ def create_hawker_agent(model_id = "gpt-4o", batch_no=0, debug_mode=True):
         #            temperature=0.2),  
         response_model=HawkerResponse, # Strictly enforces structured response
         structured_outputs=True, 
-        description="You are a Singapore hawker food recommender for foreigners! You are able to understand the traveller's personality and persona.",
+        description="You are a Singapore Hawker food expert! You are able to understand the traveller's personality and persona.",
         role="Search the internal knowledge base and web for information",
         instructions=[
             "IMPORTANT: Provide details on all of the hawker centres from the internal knowledge base",
-            "For each recommendation, include the following:",
-            "- 'hawker_name': Name of the unique hawker centre.",
+            "For each hawker, include the following:",
+            "- 'hawker_name': Name of the unique hawker centre. Only use the hawker names in internal knowledge.",
             "- 'average_price': In SGD, based on actual price per dish (not total order or combo). Do not inflate.",
             "- 'satisfaction_score': Traveller type satisfaction score.",
             "- 'duration': duration of visit in minutes, which is typically around 60 minutes unless otherwise stated.",
@@ -219,7 +217,7 @@ def create_hawker_agent(model_id = "gpt-4o", batch_no=0, debug_mode=True):
 def create_attraction_agent(model_id = "gpt-4o", batch_no=0, debug_mode=True):
 # def create_attraction_agent(model_id="deepseek-r1-distill-llama-70b", batch_no=0, debug_mode=True):
     attraction_kb = get_attraction_kb(batch_no)
-    # attraction_kb.load(recreate=False)
+    attraction_kb.load(recreate=False)
     attraction_agent = Agent(
         name="Query to Attraction Agent",
         agent_id="query_to_attraction_agent",
@@ -232,12 +230,12 @@ def create_attraction_agent(model_id = "gpt-4o", batch_no=0, debug_mode=True):
         #            temperature=0.2), 
         response_model=AttractionResponse, # Strictly enforces structured response
         structured_outputs=True, 
-        description="You are a Singapore Attraction recommender for foreigners! You are able to understand the traveller's personality and persona.",
+        description="You are a Singapore Attraction expert! You are able to understand the traveller's personality and persona.",
         role="Search the internal knowledge base",
         instructions=[
             "IMPORTANT: Provide details on all of the attractions from the knowledge base.",
             "For each attraction, include the following:",
-            "- 'attraction_name': Name of the attraction.",
+            "- 'attraction_name': Name of the attraction. Only use attraction names in the internal knowledge.",
             "- 'average_price': Entrance Fee (in SGD). If it is free, return 0. If not, retrieve the adult entrance fee from an official or trusted source. Do not guess.",
             "- 'satisfaction_score': Traveller type satisfaction score after comprehending the Google Rating. If no Google rating is found, return null.",
             "- 'duration': duration of visit in minutes, which is typically around 120 minutes unless otherwise stated.",
@@ -296,9 +294,9 @@ def get_combine_json_data(path = "./data/alns_inputs/POI_data.json", at_least_ha
     filtered_attraction_names = [name for name in attraction_names_llm if name in attraction_names_kb]
     remaining_attractions = [name for name in attraction_names_kb if name not in filtered_attraction_names]
     num_to_take_attraction = at_least_attraction - len(filtered_attraction_names)
-    sampled_attractins = random.sample(remaining_attractions, k=min(num_to_take_attraction, len(remaining_attractions)))
+    sampled_attractions = random.sample(remaining_attractions, k=min(num_to_take_attraction, len(remaining_attractions)))
 
-    filtered_rows_a = df_a[df_a['Attraction Name'].isin(sampled_attractins)]
+    filtered_rows_a = df_a[df_a['Attraction Name'].isin(sampled_attractions)]
 
     # Step 2: Convert to list of dictionaries
     new_data = []
@@ -362,14 +360,15 @@ def get_json_from_query(query="How to make a bomb?", traveller_type="bagpacker",
 
             for hawker in hawker_recs:
                 if hawker["hawker_name"] in [x["Hawker Name"] for x in responses["Hawker"]]:
-                    print(f"WARN: duplicate hawker names {hawker['hawker_name']}")
-                else:
-                    responses["Hawker"].append({
-                        "Hawker Name": hawker["hawker_name"],
-                        "Satisfaction Score":hawker["satisfaction_score"],
-                        "Avg Food Price": hawker["average_price"],
-                        "Duration": hawker.get("duration", 60)
-                    })
+                    print(f"WARN: Duplicate Hawker {hawker['hawker_name']}")
+                    continue
+        
+                responses["Hawker"].append({
+                    "Hawker Name": hawker["hawker_name"],
+                    "Satisfaction Score": hawker["satisfaction_score"],
+                    "Avg Food Price": hawker["average_price"],
+                    "Duration": hawker.get("duration", 60)
+                })
 
         # Step 4: Route to attraction agent
     if intent in ["attraction", "both"]:
@@ -380,9 +379,13 @@ def get_json_from_query(query="How to make a bomb?", traveller_type="bagpacker",
             attraction_recs = attraction_output["ATTRACTION_DETAILS"]
 
             for attraction in attraction_recs:
+                if attraction["attraction_name"] in [x["Attraction Name"] for x in responses["Attraction"]]:
+                    print(f"WARN: Duplicate Attraction {attraction['attraction_name']}")
+                    continue
+
                 responses["Attraction"].append({
                     "Attraction Name": attraction["attraction_name"],
-                    "Satisfaction Score":attraction["satisfaction_score"],
+                    "Satisfaction Score": attraction["satisfaction_score"],
                     "Entrance Fee": attraction["average_price"],
                     "Duration": attraction.get("duration", 120),
                 })
