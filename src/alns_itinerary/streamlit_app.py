@@ -51,6 +51,8 @@ load_dotenv()
 # os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
 os.environ["GROQ_API_KEY"] = os.getenv("GROQ_API_KEY")
 
+st.set_page_config(page_title="Travel Itinerary Planner", layout="wide")
+
 # Route colors with their names
 route_colors = [
     ("blue", "Blue"), 
@@ -423,41 +425,55 @@ def find_route_between_points(G, start_point, end_point):
         # Fallback to direct line if no route found
         return [start_point, end_point]
 
-# itinerary_file = "../../results/transit_time/best_itinerary_20250325_154140.json"
-# if not os.path.exists(itinerary_file):
-#     st.error("Itinerary file not found!")
-#     st.stop()
+def display_itinerary():
+    """Display the itinerary in a structured table format."""
+    alns_data = st.session_state["alns_data"]
+    if "days" in alns_data:
+        all_days = []
+        for day in alns_data["days"]:
+            for event in day["locations"]:
+                all_days.append({
+                    "Day": day["day"],
+                    "Location": event["name"],
+                    "Type": event["type"],
+                    "Arrival Time": event["arrival_time"],
+                    "Departure Time": event["departure_time"],
+                    "Transport Mode": event["transit_from_prev"],
+                    "Transit Duration": event["transit_duration"],
+                    "Transit Cost": event["transit_cost"],
+                    "Activity Duration": event.get("duration", 0),
+                    "Satisfaction Rating": event["satisfaction"],
+                    "Cost": event["cost"],
+                    "Rest Time": event["rest_duration"],
+                })
+        df = pd.DataFrame(all_days)
+        st.dataframe(df, use_container_width=True)
+    else:
+        st.warning("No itinerary data found.")
 
-# with open(itinerary_file, "r", encoding="utf-8") as file:
-#     data = json.load(file)
+# Function to process ALNS data
+def process_alns_data():
+    alns_data = st.session_state["alns_data"]
+    if "trip_summary" in alns_data:
+        st.subheader("Trip Summary")
+        st.json(alns_data["trip_summary"])
 
-# Function to display detailed sidebar overview
-def display_detailed_overview(data):
-    st.sidebar.header("Itinerary Overview")
-    for day_index, day in enumerate(data["days"]):
-        # Get color name for the day
-        _, color_name = route_colors[day_index % len(route_colors)]
+    if "attractions_visited" in alns_data:
+        st.subheader("Attractions Visited")
+        st.write(", ".join(alns_data["attractions_visited"]))
 
-        st.sidebar.markdown("---")
-        st.sidebar.write(f"Day {day_index + 1} ({color_name} Route)")
-        for loc in day["locations"]:
-            # Display location details
-            st.sidebar.markdown(f"**{loc.get('name', 'Unnamed Location')}**")
-            
-            # Description (if exists)
-            if loc.get('description'):
-                st.sidebar.write(loc['description'])
-            
-            # Arrival time
-            if loc.get('arrival_time'):
-                st.sidebar.write(f"Arrival: {loc['arrival_time']}")
-            
-            # Duration and cost
-            duration = loc.get('duration', 0)
-            cost = loc.get('cost', 0)
-            st.sidebar.write(f"Duration: {duration} min, Cost: ${cost}")
-            st.sidebar.markdown(" ")
-            st.sidebar.markdown(" ")
+    if "budget_breakdown" in alns_data:
+        st.subheader("Budget Breakdown")
+        budget_df = pd.DataFrame(list(alns_data["budget_breakdown"].items()), columns=["Category", "Cost"])
+        st.table(budget_df)
+
+    if "transport_summary" in alns_data:
+        st.subheader("Transport Summary")
+        st.json(alns_data["transport_summary"])
+
+    if "rest_summary" in alns_data:
+        st.subheader("Rest Summary")
+        st.json(alns_data["rest_summary"])
 
 #==================
 
@@ -506,8 +522,17 @@ def load_graph():
     
     return G
 
+def display_map():
+    """Display locations on a map using Folium."""
+    route_map = st.session_state["route_map"]
+    if route_map:
+        folium_static(route_map)
+    else:
+        st.warning("No location data available for mapping.")
+
 # Function to create map
-def create_map(user_input):
+def generate_itinerary(user_input):
+    ##### TAI ADD HERE
 
     # exports out the data/POI_data.json based on the given query from streamlit otherwise, its a default "how to make a bomb"
     get_json_from_query(query=user_input['description'], traveller_type=user_input["persona"], debug_mode = True)
@@ -570,48 +595,59 @@ def create_map(user_input):
         """
         folium.Marker([loc["lat"], loc["lng"]], popup=popup_text).add_to(marker_cluster)
 
-    return m, alns_data
+    st.session_state["itinerary_ready"] = True
+    st.session_state["route_map"], st.session_state["alns_data"] = m, alns_data
 
 G = load_graph()
 
-st.title("My Intelligent Travel Buddy – Automatic Itinerary (MITB – AI）- Singapore Edition")
-st.sidebar.header("Trip Details")
+# State to track whether itinerary has been generated
+if "itinerary_ready" not in st.session_state:
+    st.session_state["itinerary_ready"] = False
 
+# User Inputs
+st.sidebar.header("Trip Inputs")
 persona = st.sidebar.selectbox("Choose your persona", [
     "Family Tourist", "Backpacker", "Influencer", "Cultural Enthusiast", 
     "Thrill Seeker", "Nature Lover", "Shopping Enthusiast"
 ])
 num_days = st.sidebar.number_input("Number of Days (1-5)", min_value=1, max_value=5, value=3)
-budget = st.sidebar.number_input("Budget", min_value=200, value=500)
+budget = st.sidebar.number_input("Budget", min_value=100, value=600)
 description = st.sidebar.text_area("Trip Description", "Your trip description here...")
 
-if st.sidebar.button("Generate Itinerary"):
-    user_input = {"persona": persona, "num_days": num_days,
-        "budget": budget, "description": description}
-    json_path = "../../user_input.json"
-    with open(json_path, 'w') as f:
-        json.dump(user_input, f, indent=4)
-    st.sidebar.success(f"Data saved to {json_path}")
-    
-    # Create and display map
-    m, alns_data = create_map(user_input)
-    folium_static(m)
-    
-    # Display detailed overview
-    display_detailed_overview(alns_data)
-    
-    st.success("Map loaded successfully!")
-    logger.info("Map loaded successfully!")
-            
+st.title("My Intelligent Travel Buddy – Automatic Itinerary (MITB – AI）- Singapore Edition")
 
-# Button to show map and overview
-# if st.button("Show Trip Map"):
-#     # Create and display map
-#     m, alns_data = create_map()
-#     folium_static(m)
+st.sidebar.header("Navigation")
+page = "Itinerary" 
+
+# State to track whether itinerary has been generated
+if "itinerary_ready" not in st.session_state:
+    st.session_state["itinerary_ready"] = False
+if "alns_data" not in st.session_state:
+    st.session_state["alns_data"] = None
+if "route_map" not in st.session_state:
+    st.session_state["route_map"] = None
+
+if page == "Itinerary":
+    st.header("Your Optimized Itinerary")
+    if st.button("Generate Itinerary"):
+        user_input = {"persona": persona, "num_days": num_days,
+            "budget": budget, "description": description}  
+        generate_itinerary(user_input)
     
-#     # Display detailed overview
-#     display_detailed_overview(alns_data)
-    
-#     st.success("Map loaded successfully!")
-#     logger.info("Map loaded successfully!")
+    if st.session_state["itinerary_ready"]:
+        display_itinerary()
+        page = st.sidebar.radio("Go to", ["Itinerary", "Trip Details", "Map", "About"])
+
+if st.session_state["itinerary_ready"]:
+    if page == "Trip Details":
+        st.header("Detailed Trip Insights")
+        process_alns_data()
+    elif page == "Map":
+        st.header("Map of Your Itinerary")
+        display_map()
+    elif page == "About":
+        st.header("About")
+        st.write("This app helps plan your optimized travel itineraries using ALNS algorithms.")
+        
+st.sidebar.write("---")
+st.sidebar.write("Developed with ❤️ using Streamlit.")

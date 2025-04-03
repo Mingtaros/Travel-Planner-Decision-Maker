@@ -8,7 +8,7 @@
         },
         {
             "name": "Marina Bay Sands SkyPark Observation Deck",
-            "relevance_score": 5,
+            "relevance_score": 3,
             "entrance_fee": 26,
             "estimated_duration": 60
         },
@@ -44,38 +44,38 @@
         },
         {
             "name": "ArtScience Museum",
-            "relevance_score": 4,
+            "relevance_score": 3,
             "entrance_fee": 30,
             "estimated_duration": 120
         },
         {
             "name": "National Gallery Singapore",
-            "relevance_score": 3,
+            "relevance_score": 2,
             "entrance_fee": 20,
             "estimated_duration": 150
         },
         {
             "name": "Asian Civilisations Museum",
-            "relevance_score": 3,
+            "relevance_score": 2,
             "entrance_fee": 12,
             "estimated_duration": 120
         },
         {
             "name": "National Museum of Singapore",
-            "relevance_score": 4,
+            "relevance_score": 2,
             "entrance_fee": 15,
             "estimated_duration": 120
         },
         {
             "name": "Peranakan Museum",
-            "relevance_score": 4,
+            "relevance_score": 2,
             "entrance_fee": 10,
             "estimated_duration": 90
         },
         {
             "name": "Fort Canning Park",
-            "relevance_score": 5,
-            "entrance_fee": 0,
+            "relevance_score": 4,
+            "entrance_fee": 1,
             "estimated_duration": 90
         },
         {
@@ -116,7 +116,7 @@
         },
         {
             "name": "Orchard Road",
-            "relevance_score": 3,
+            "relevance_score": 5,
             "entrance_fee": 0,
             "estimated_duration": 120
         },
@@ -134,7 +134,7 @@
         },
         {
             "name": "Southern Ridges",
-            "relevance_score": 4,
+            "relevance_score": 3,
             "entrance_fee": 0,
             "estimated_duration": 150
         },
@@ -146,7 +146,7 @@
         },
         {
             "name": "Bukit Timah Nature Reserve",
-            "relevance_score": 4,
+            "relevance_score": 3,
             "entrance_fee": 0,
             "estimated_duration": 120
         },
@@ -164,61 +164,61 @@
         },
         {
             "name": "Esplanade",
-            "relevance_score": 3,
+            "relevance_score": 2,
             "entrance_fee": 0,
             "estimated_duration": 120
         },
         {
             "name": "Raffles Hotel",
-            "relevance_score": 2,
+            "relevance_score": 1,
             "entrance_fee": 20,
             "estimated_duration": 60
         },
         {
             "name": "Thian Hock Keng Temple",
-            "relevance_score": 2,
+            "relevance_score": 1,
             "entrance_fee": 0,
             "estimated_duration": 30
         },
         {
             "name": "Sri Mariamman Temple",
-            "relevance_score": 3,
+            "relevance_score": 2,
             "entrance_fee": 0,
             "estimated_duration": 30
         },
         {
             "name": "Sultan Mosque",
-            "relevance_score": 3,
+            "relevance_score": 2,
             "entrance_fee": 0,
             "estimated_duration": 30
         },
         {
             "name": "Kwan Im Thong Hood Cho Temple",
-            "relevance_score": 3,
+            "relevance_score": 2,
             "entrance_fee": 0,
             "estimated_duration": 30
         },
         {
             "name": "Armenian Church",
-            "relevance_score": 3,
+            "relevance_score": 2,
             "entrance_fee": 0,
             "estimated_duration": 30
         },
         {
             "name": "St Andrew's Cathedral",
-            "relevance_score": 3,
+            "relevance_score": 2,
             "entrance_fee": 0,
             "estimated_duration": 30
         },
         {
             "name": "Buddha Tooth Relic Temple",
-            "relevance_score": 3,
+            "relevance_score": 2,
             "entrance_fee": 0,
             "estimated_duration": 60
         },
         {
             "name": "Science Centre Singapore",
-            "relevance_score": 5,
+            "relevance_score": 4,
             "entrance_fee": 12,
             "estimated_duration": 180
         },
@@ -248,7 +248,7 @@
         },
         {
             "name": "iFly Singapore",
-            "relevance_score": 3,
+            "relevance_score": 4,
             "entrance_fee": 144,
             "estimated_duration": 90
         },
@@ -290,13 +290,13 @@
         },
         {
             "name": "Marina Barrage",
-            "relevance_score": 2,
+            "relevance_score": 1,
             "entrance_fee": 1,
             "estimated_duration": 60
         },
         {
             "name": "Labrador Nature Reserve",
-            "relevance_score": 2,
+            "relevance_score": 1,
             "entrance_fee": 1,
             "estimated_duration": 120
         },
@@ -309,7 +309,7 @@
         {
             "name": "Fort Siloso",
             "relevance_score": 3,
-            "entrance_fee": 0,
+            "entrance_fee": 10,
             "estimated_duration": 60
         },
         {
@@ -362,7 +362,7 @@
         },
         {
             "name": "Punggol Waterway Park",
-            "relevance_score": 4,
+            "relevance_score": 3,
             "entrance_fee": 0,
             "estimated_duration": 120
         },
@@ -374,31 +374,31 @@
         },
         {
             "name": "Wave House Sentosa",
-            "relevance_score": 3,
+            "relevance_score": 2,
             "entrance_fee": 30,
             "estimated_duration": 120
         },
         {
             "name": "Ice Cream Museum",
-            "relevance_score": 5,
+            "relevance_score": 4,
             "entrance_fee": 30,
             "estimated_duration": 120
         },
         {
             "name": "Suntec City Shopping Centre",
-            "relevance_score": 2,
+            "relevance_score": 5,
             "entrance_fee": 0,
             "estimated_duration": 120
         },
         {
             "name": "Jewel Changi",
-            "relevance_score": 4,
+            "relevance_score": 5,
             "entrance_fee": 0,
             "estimated_duration": 240
         },
         {
             "name": "Punggol Waterway Point",
-            "relevance_score": 3,
+            "relevance_score": 4,
             "entrance_fee": 0,
             "estimated_duration": 180
         }
@@ -451,7 +451,7 @@
         },
         {
             "name": "Orchard Yong Tau Foo",
-            "relevance_score": 4,
+            "relevance_score": 5,
             "avg_food_price": 7.0
         },
         {
@@ -461,33 +461,33 @@
         },
         {
             "name": "Tangs Market",
-            "relevance_score": 4,
-            "avg_food_price": 8.5
-        },
-        {
-            "name": "Food Opera ION Orchard",
             "relevance_score": 5,
             "avg_food_price": 10.0
         },
         {
+            "name": "Food Opera ION Orchard",
+            "relevance_score": 5,
+            "avg_food_price": 12.0
+        },
+        {
             "name": "Liao Fan Hawker Chan",
-            "relevance_score": 3,
+            "relevance_score": 4,
             "avg_food_price": 6.0
         },
         {
             "name": "Tekka Centre",
             "relevance_score": 4,
-            "avg_food_price": 7.5
+            "avg_food_price": 8.0
         },
         {
             "name": "Teck Ghee Court Market & Food Centre",
             "relevance_score": 4,
-            "avg_food_price": 6.0
+            "avg_food_price": 7.5
         },
         {
             "name": "Singapore Zam Zam Restaurant",
-            "relevance_score": 4,
-            "avg_food_price": 8.0
+            "relevance_score": 3,
+            "avg_food_price": 10.0
         }
     ],
     "alns_weights": {

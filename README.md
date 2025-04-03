@@ -66,6 +66,10 @@ travel-planner-decision-maker/
 ├── data/
 │   ├── attractions.csv
 │   ├── hawker_centers.csv
+│   ├── locationData/
+│   │   └── csv/
+│   │       ├── singapore_20_food_with_scores.csv
+│   │       └── singapore_67_attractions_with_scores.csv
 │   ├── waypointData/  (will be created automatically)
 │   │   └── waypoints.json
 │   └── routeData/  (will be created automatically)
@@ -104,10 +108,13 @@ travel-planner-decision-maker/
 
 1. Clone this repository
 2. Place your CSV files in the `data` directory
-3. Create a `.env` file in the root directory with your Google Maps API key:
+3. Create a `.env` file in the root directory with your Google Maps,OpenAI, and Groq API key:
    ```
    GOOGLE_MAPS_API_KEY=your_api_key_here
+   OPENAI_API_KEY=your_api_key_here
+   GROQ_API_KEY=your_api_key_here
    ```
+   See `.env.example` file for the template.
 4. Install required Python packages:
    ```bash
    pip install -r requirements.txt
@@ -147,6 +154,15 @@ This script:
 - Computes transit and driving routes between all locations for different times of day
 - Calculates fares for each route type
 - Saves the results in JSON files (`data/routeData/route_matrix_*.json`)
+
+## Streamlit Application
+
+### Basic Usage
+```bash
+streamlit run ./src/alns_itinerary/streamlit_app.py
+```
+
+Enter the itinerary details and click on Generate Itinerary
 
 ## Itinerary Optimization
 
@@ -198,16 +214,6 @@ Contains algorithm parameters and constraints:
     "DESTROY_DAY_HAWKER_PRESERVE": 0.7,
     "REPAIR_TRANSIT_WEIGHTS": [0.5, 0.5],
     "REPAIR_SATISFACTION_WEIGHTS": [0.5, 0.5]
-}
-```
-
-#### `llm.json`
-Contains trip-specific parameters:
-```json
-{
-    "HOTEL_NAME": "Marina Bay Sands",
-    "BUDGET": 750,
-    "NUM_DAYS": 3
 }
 ```
 
