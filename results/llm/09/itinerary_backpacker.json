@@ -1,0 +1,106 @@
+{
+    "Day 1": [
+        {
+            "type": "attraction",
+            "name": "Gardens by the Bay",
+            "cost": 28,
+            "duration": 180
+        },
+        {
+            "type": "hawker",
+            "name": "Chinatown Complex Food Centre",
+            "cost": 10,
+            "duration": 30
+        },
+        {
+            "type": "attraction",
+            "name": "Marina Bay Sands SkyPark Observation Deck",
+            "cost": 26,
+            "duration": 60
+        },
+        {
+            "type": "hawker",
+            "name": "Maxwell Food Centre",
+            "cost": 10,
+            "duration": 30
+        },
+        {
+            "type": "hawker",
+            "name": "Tekka Centre",
+            "cost": 10,
+            "duration": 30
+        }
+    ],
+    "Day 2": [
+        {
+            "type": "attraction",
+            "name": "Marina Bay Sands SkyPark Observation Deck",
+            "cost": 26,
+            "duration": 60
+        },
+        {
+            "type": "hawker",
+            "name": "Maxwell Food Centre",
+            "cost": 10,
+            "duration": 30
+        },
+        {
+            "type": "attraction",
+            "name": "ArtScience Museum",
+            "cost": 30,
+            "duration": 120
+        },
+        {
+            "type": "hawker",
+            "name": "Amoy Street Food Centre",
+            "cost": 12,
+            "duration": 30
+        },
+        {
+            "type": "hawker",
+            "name": "East Coast Lagoon Food Village",
+            "cost": 15,
+            "duration": 30
+        }
+    ],
+    "Day 3": [
+        {
+            "type": "attraction",
+            "name": "ArtScience Museum",
+            "cost": 30,
+            "duration": 120
+        },
+        {
+            "type": "hawker",
+            "name": "One Punggol Hawker Centre",
+            "cost": 10,
+            "duration": 30
+        },
+        {
+            "type": "attraction",
+            "name": "Asian Civilisations Museum",
+            "cost": 12,
+            "duration": 120
+        },
+        {
+            "type": "hawker",
+            "name": "Lau Pa Sat",
+            "cost": 10,
+            "duration": 30
+        },
+        {
+            "type": "hawker",
+            "name": "Maxwell Food Centre",
+            "cost": 10,
+            "duration": 30
+        }
+    ],
+    "Total Cost": 174,
+    "meta": {
+        "persona": "Backpacker",
+        "budget": 180,
+        "days": 3,
+        "query": "We\u2019re a group of university students spending 3 days in Singapore on a budget of 180 SGD total. Recommend cheap eats and fun, free things to do.",
+        "generation_time_seconds": 44.23
+    }
+}

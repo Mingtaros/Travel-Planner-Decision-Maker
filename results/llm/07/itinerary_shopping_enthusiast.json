@@ -1,0 +1,106 @@
+{
+    "Day 1": [
+        {
+            "type": "attraction",
+            "name": "Marina Bay Sands SkyPark Observation Deck",
+            "cost": 26,
+            "duration": 60
+        },
+        {
+            "type": "hawker",
+            "name": "Maxwell Food Centre",
+            "cost": 10,
+            "duration": 30
+        },
+        {
+            "type": "attraction",
+            "name": "Gardens by the Bay",
+            "cost": 28,
+            "duration": 180
+        },
+        {
+            "type": "hawker",
+            "name": "Lau Pa Sat",
+            "cost": 15,
+            "duration": 45
+        },
+        {
+            "type": "hawker",
+            "name": "Amoy Street Food Centre",
+            "cost": 12,
+            "duration": 45
+        }
+    ],
+    "Day 2": [
+        {
+            "type": "attraction",
+            "name": "ArtScience Museum",
+            "cost": 30,
+            "duration": 120
+        },
+        {
+            "type": "hawker",
+            "name": "Maxwell Food Centre",
+            "cost": 10,
+            "duration": 30
+        },
+        {
+            "type": "attraction",
+            "name": "River Wonders",
+            "cost": 0,
+            "duration": 180
+        },
+        {
+            "type": "hawker",
+            "name": "Lau Pa Sat",
+            "cost": 15,
+            "duration": 45
+        },
+        {
+            "type": "hawker",
+            "name": "East Coast Lagoon Food Village",
+            "cost": 15,
+            "duration": 45
+        }
+    ],
+    "Day 3": [
+        {
+            "type": "attraction",
+            "name": "One Punggol Hawker Centre",
+            "cost": 0,
+            "duration": 90
+        },
+        {
+            "type": "hawker",
+            "name": "Sungei Road Laksa",
+            "cost": 10,
+            "duration": 30
+        },
+        {
+            "type": "attraction",
+            "name": "Tekka Centre",
+            "cost": 0,
+            "duration": 90
+        },
+        {
+            "type": "hawker",
+            "name": "Maxwell Food Centre",
+            "cost": 10,
+            "duration": 30
+        },
+        {
+            "type": "hawker",
+            "name": "Maxwell Food Centre",
+            "cost": 10,
+            "duration": 30
+        }
+    ],
+    "Total Cost": 270,
+    "meta": {
+        "persona": "Shopping Enthusiast",
+        "budget": 270,
+        "days": 3,
+        "query": "What can I do in Singapore in 3 days if I love shopping and modern city vibes? I\u2019d also like to eat at famous food centres. Budget is 270 SGD.",
+        "generation_time_seconds": 32.48
+    }
+}
