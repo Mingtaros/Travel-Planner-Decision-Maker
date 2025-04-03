@@ -66,6 +66,10 @@ travel-planner-decision-maker/
 ├── data/
 │   ├── attractions.csv
 │   ├── hawker_centers.csv
+│   ├── locationData/
+│   │   └── csv/
+│   │       ├── singapore_20_food_with_scores.csv
+│   │       └── singapore_67_attractions_with_scores.csv
 │   ├── waypointData/  (will be created automatically)
 │   │   └── waypoints.json
 │   └── routeData/  (will be created automatically)
