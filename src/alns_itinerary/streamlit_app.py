@@ -191,6 +191,7 @@ def create_intent_agent():
     return intent_agent
 
 def create_hawker_agent(model_id = "gpt-4o", batch_no=0, debug_mode=True):
+# Create the Hawker Agent to get all the relevant Hawkers/POIs based on the routed query from Supervisor Agent
 # def create_hawker_agent(model_id="deepseek-r1-distill-llama-70b", batch_no=0, debug_mode=True):
     hawker_kb = get_hawker_kb(batch_no)
     hawker_kb.load(recreate=False)
@@ -215,7 +216,7 @@ def create_hawker_agent(model_id = "gpt-4o", batch_no=0, debug_mode=True):
             "- 'dish_name': Name of the specific dish from this hawker centre that you recommend the traveller to try.",
             "- 'average_price': In SGD, based on actual price per dish (not total order or combo). Do not inflate.",
             "- 'satisfaction_score': Traveller type satisfaction score.",
-            "- 'duration': duration of visit in minutes, which is typically around 60 minutes. Please estimate the amount of duration required based on the tourist's personality and preference.",
+            "- 'duration': duration of visit in minutes, retrieve this information from a trusted source. If unavailable, lease estimate the amount of duration required based on the tourist's personality and preference.",
             "If conflicting prices are found, return the most commonly mentioned or lower bound.",
             "If the price per dish isn't available, try to find price per person.",
             "Try your best to use ONLY information retrieved from web search or internal knowledge base.",
@@ -257,7 +258,7 @@ def create_attraction_agent(model_id = "gpt-4o", batch_no=0, debug_mode=True):
             "- 'attraction_name': Name of the attraction. Only use attraction names in the internal knowledge.",
             "- 'average_price': Entrance Fee (in SGD). If it is free, return 0. If not, retrieve the adult entrance fee from an official or trusted source. Do not guess.",
             "- 'satisfaction_score': Traveller type satisfaction score after comprehending the Google Rating. If no Google rating is found, return null.",
-            "- 'duration': duration of visit in minutes, which is typically around 120 minutes. Please estimate the amount of duration required based on the tourist's personality and preference.",
+            "- 'duration': duration of visit in minutes, retrieve this information from a trusted source. If unavailable, lease estimate the amount of duration required based on the tourist's personality and preference.",
             "If an attraction's entrance fee or rating cannot be verified, use a guess from similar attractions.",
             "Try your best to use ONLY information retrieved from web search or internal knowledge base.",
             "Return the output in List of JSON format. Do not provide any summaries, analyses, or other additional content."
