@@ -250,6 +250,53 @@ def create_attraction_agent(model_id="gpt-4o", batch_no=0, debug_mode=True):
     )
     return attraction_agent
 
+def create_itinerary_agent(query: str, hawkers: list, attractions: list, model_id="gpt-4o", debug_mode=True):
+    """
+    This is the agent that creates the itinerary; closest competitor would be the optimizer method (e.g. alns) given a list of POIs.
+    
+    requires query as string
+    requires list of hawkers and list of attractions
+    """
+    itinerary_agent = Agent(
+        name="Itinerary Generator Agent",
+        agent_id="itinerary_agent",
+        model=OpenAIChat(
+            id=model_id,
+            response_format="json",
+            temperature=0.3,
+            top_p=0.2
+        ),
+        structured_outputs=True,
+        description="Expert in building multi-day travel itineraries within a given budget.",
+        role="Create a detailed daily plan with time slots, alternating attractions and food stops.",
+        instructions=[
+            "You are an expert itinerary planner for Singapore.",
+            "You will receive a JSON containing the user's travel query, list of hawkers, and attractions.",
+            "Use this information to plan a detailed itinerary over multiple days.",
+            "Ensure that the total budget does not exceed the one mentioned in the query.",
+            "The plan should include 2-3 attractions per day and 2 food stops (lunch and dinner).",
+            "Prioritize high-satisfaction locations with good value.",
+            "Distribute long-duration attractions across different days.",
+            "Alternate expensive and free attractions to stay within budget.",
+            "Return a list of days, each containing an ordered list of activity blocks:",
+            "- 'activity_type': 'attraction' or 'food'",
+            "- 'name': Name of the attraction or hawker center",
+            "- 'duration': Duration in minutes",
+            "- 'estimated_cost': Cost in SGD",
+            "- 'notes': Any relevant info, e.g., 'Good for kids' or 'Must try satay'."
+        ],
+        input_data={
+            "query": query,
+            "hawkers": hawkers,
+            "attractions": attractions
+        },
+        show_tool_calls=debug_mode,
+        markdown=True,
+    )
+
+    return itinerary_agent
+
+
 def create_code_agent(model_id="gpt-4o", debug_mode=True):
     code_kb = get_vrp_code_kb()
     code_kb.load(recreate=True)
