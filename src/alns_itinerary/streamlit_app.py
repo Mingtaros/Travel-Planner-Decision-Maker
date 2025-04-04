@@ -16,7 +16,6 @@ import pandas as pd
 import random
 
 from alns_main import alns_main
-from data.llm_batch_process import process_and_save
 
 #==================
 import time
@@ -168,15 +167,6 @@ def generate_itinerary(user_input):
     multiagent_time = time.time()
     multiagent_runtime = multiagent_time - start_time
     logger.info(f"Multi-Agent runs for {multiagent_runtime:.2f} s")
-    
-    # alns_input = None
-    # alns_input = process_and_save(
-    #     description=user_input['description'],
-    #     attraction_path="./data/locationData/singapore_67_attractions_with_scores.csv", 
-    #     hawker_path="./data/locationData/Food_20_withscores.xlsx", 
-    #     output_json_path="./data/alns_inputs/groq/location_data.json", 
-    #     batch_size=10
-    # )
 
     alns_data = alns_main(user_input=user_input, 
                         #   alns_input=alns_input,
