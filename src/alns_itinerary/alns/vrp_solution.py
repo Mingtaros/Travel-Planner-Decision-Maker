@@ -89,7 +89,7 @@ class VRPSolution:
     
     def clone(self):
         """Create a deep copy of this solution"""
-        new_solution = VRPSolution(self.problem)
+        new_solution = self.__class__(self.problem)
         new_solution.routes = copy.deepcopy(self.routes)
         return new_solution
     
@@ -426,11 +426,11 @@ class VRPSolution:
             return False
 
         try:
-            pass
+            pass # if there are new errors on this constraint, it will behave exactly like the intended class
             # <ADD NEW INSERTION FEASIBILITY CHECK HERE>
 
         except Exception as e:
-            logger.error(f"Error on new Insertion Constraints: {e}")
+            logger.debug(f"Error on new Insertion Constraints: {e}")
         
         return True
     
@@ -584,11 +584,11 @@ class VRPSolution:
             return False
         
         try:
-            pass
+            pass # if there are new errors on this constraint, it will behave exactly like the intended class
             # <ADD NEW FEASIBILITY CHECK HERE>
 
         except Exception as e:
-            logger.error(f"Error on new Constraints: {e}")
+            logger.debug(f"Error on new Constraints: {e}")
         
         return True
     

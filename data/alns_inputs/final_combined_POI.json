@@ -4,85 +4,85 @@
     {
       "Hawker Name": "East Coast Lagoon Food Village",
       "Dish Name": "Haron Satay",
-      "Satisfaction Score": 5.0,
-      "Avg Food Price": 0.7,
-      "Duration": 60
+      "Satisfaction Score": 4.0,
+      "Avg Food Price": 5.0,
+      "Duration": 45
     },
     {
       "Hawker Name": "Changi Village Hawker Centre",
-      "Dish Name": "Nasi Lemak",
-      "Satisfaction Score": 4.0,
-      "Avg Food Price": 3.5,
+      "Dish Name": "International Muslim Food Stall Nasi Lemak",
+      "Satisfaction Score": 5.0,
+      "Avg Food Price": 4.0,
+      "Duration": 45
+    },
+    {
+      "Hawker Name": "Tangs Market",
+      "Dish Name": "Punggol Nasi Lemak",
+      "Satisfaction Score": 3.0,
+      "Avg Food Price": 5.0,
+      "Duration": 45
+    },
+    {
+      "Hawker Name": "Food Opera ION Orchard",
+      "Dish Name": "Sergeant Hainanese Chicken Rice",
+      "Satisfaction Score": 3.0,
+      "Avg Food Price": 6.0,
       "Duration": 45
     },
     {
       "Hawker Name": "Teck Ghee Court Market & Food Centre",
-      "Dish Name": "Lian Xiang Carrot Cake",
+      "Dish Name": "Soon Heng Roasted Delights",
       "Satisfaction Score": 4.0,
-      "Avg Food Price": 2.5,
-      "Duration": 30
+      "Avg Food Price": 4.0,
+      "Duration": 45
     },
     {
       "Hawker Name": "Lau Pa Sat",
       "Dish Name": "Satay",
       "Satisfaction Score": 4.0,
-      "Avg Food Price": 0.7,
+      "Avg Food Price": 1.5,
       "Duration": 60
     },
     {
       "Hawker Name": "Amoy Street Food Centre",
-      "Dish Name": "Singapore-style Ramen",
+      "Dish Name": "A Noodle Story (Singapore-style ramen)",
       "Satisfaction Score": 3.0,
-      "Avg Food Price": 5.0,
+      "Avg Food Price": 8.0,
       "Duration": 45
     },
     {
       "Hawker Name": "Chinatown Complex Food Centre",
-      "Dish Name": "Claypot Rice",
+      "Dish Name": "Hong Kong Soya Sauce Chicken Rice and Noodle",
+      "Satisfaction Score": 5.0,
+      "Avg Food Price": 3.0,
+      "Duration": 60
+    },
+    {
+      "Hawker Name": "Tekka Centre",
+      "Dish Name": "Allauddin's Briyani",
       "Satisfaction Score": 4.0,
       "Avg Food Price": 5.0,
       "Duration": 60
     },
     {
-      "Hawker Name": "Tekka Centre",
-      "Dish Name": "Ayam Penyet",
-      "Satisfaction Score": 5.0,
+      "Hawker Name": "Maxwell Food Centre",
+      "Dish Name": "Tian Tian Hainanese Chicken Rice",
+      "Satisfaction Score": 4.0,
       "Avg Food Price": 5.0,
       "Duration": 60
     },
     {
-      "Hawker Name": "Maxwell Food Centre",
-      "Dish Name": "Hainanese Chicken Rice",
-      "Satisfaction Score": 3.0,
-      "Avg Food Price": 5.0,
-      "Duration": 45
-    },
-    {
       "Hawker Name": "​Maxwell Food Centre",
       "Dish Name": "NA",
-      "Satisfaction Score": 2.2822613092615898,
-      "Avg Food Price": 6.7856650598176005,
+      "Satisfaction Score": 2.749080237694725,
+      "Avg Food Price": 14.50714306409916,
       "Duration": 60
     },
     {
       "Hawker Name": "One Punggol Hawker Centre",
       "Dish Name": "NA",
-      "Satisfaction Score": 3.480573873833925,
-      "Avg Food Price": 7.617969816354979,
-      "Duration": 60
-    },
-    {
-      "Hawker Name": "Tangs Market",
-      "Dish Name": "NA",
-      "Satisfaction Score": 3.4293732411807913,
-      "Avg Food Price": 8.491086955019131,
-      "Duration": 60
-    },
-    {
-      "Hawker Name": "Food Opera ION Orchard",
-      "Dish Name": "NA",
-      "Satisfaction Score": 2.8653736698274206,
-      "Avg Food Price": 14.631606451754033,
+      "Satisfaction Score": 3.46398788362281,
+      "Avg Food Price": 10.986584841970366,
       "Duration": 60
     }
   ],
@@ -90,12 +90,12 @@
     {
       "Attraction Name": "Gardens by the Bay",
       "Satisfaction Score": 5.0,
-      "Entrance Fee": 20.0,
+      "Entrance Fee": 0.0,
       "Duration": 120
     },
     {
       "Attraction Name": "Marina Bay Sands SkyPark Observation Deck",
-      "Satisfaction Score": 4.0,
+      "Satisfaction Score": 3.0,
       "Entrance Fee": 35.0,
       "Duration": 60
     },
@@ -121,36 +121,36 @@
       "Attraction Name": "Universal Studios Singapore",
       "Satisfaction Score": 2.0,
       "Entrance Fee": 83.0,
-      "Duration": 300
+      "Duration": 240
     },
     {
       "Attraction Name": "Singapore Flyer",
-      "Satisfaction Score": 4.0,
+      "Satisfaction Score": 3.0,
       "Entrance Fee": 40.0,
       "Duration": 30
     },
     {
       "Attraction Name": "ArtScience Museum",
-      "Satisfaction Score": 4.0,
+      "Satisfaction Score": 3.0,
       "Entrance Fee": 32.0,
       "Duration": 90
     },
     {
       "Attraction Name": "National Gallery Singapore",
-      "Satisfaction Score": 4.0,
+      "Satisfaction Score": 3.0,
       "Entrance Fee": 25.0,
       "Duration": 120
     },
     {
       "Attraction Name": "Asian Civilisations Museum",
-      "Satisfaction Score": 4.0,
+      "Satisfaction Score": 3.0,
       "Entrance Fee": 25.0,
       "Duration": 90
     },
     {
       "Attraction Name": "National Museum of Singapore",
       "Satisfaction Score": 4.0,
-      "Entrance Fee": 10.0,
+      "Entrance Fee": 15.0,
       "Duration": 120
     },
     {
@@ -233,7 +233,7 @@
     },
     {
       "Attraction Name": "Bukit Timah Nature Reserve",
-      "Satisfaction Score": 5.0,
+      "Satisfaction Score": 4.0,
       "Entrance Fee": 0.0,
       "Duration": 120
     },
@@ -271,25 +271,25 @@
       "Attraction Name": "Sri Mariamman Temple",
       "Satisfaction Score": 4.0,
       "Entrance Fee": 0.0,
-      "Duration": 60
+      "Duration": 30
     },
     {
       "Attraction Name": "Sultan Mosque",
       "Satisfaction Score": 4.0,
       "Entrance Fee": 0.0,
-      "Duration": 45
+      "Duration": 30
     },
     {
       "Attraction Name": "Kwan Im Thong Hood Cho Temple",
       "Satisfaction Score": 4.0,
       "Entrance Fee": 0.0,
-      "Duration": 45
+      "Duration": 30
     },
     {
       "Attraction Name": "Armenian Church",
       "Satisfaction Score": 3.0,
       "Entrance Fee": 0.0,
-      "Duration": 30
+      "Duration": 20
     },
     {
       "Attraction Name": "St Andrew's Cathedral",
@@ -301,19 +301,19 @@
       "Attraction Name": "Buddha Tooth Relic Temple",
       "Satisfaction Score": 4.0,
       "Entrance Fee": 0.0,
-      "Duration": 60
+      "Duration": 45
     },
     {
       "Attraction Name": "Marina Barrage",
-      "Satisfaction Score": 4.2,
+      "Satisfaction Score": 4.0,
       "Entrance Fee": 0.0,
-      "Duration": 120
+      "Duration": 90
     },
     {
       "Attraction Name": "Labrador Nature Reserve",
-      "Satisfaction Score": 4.4,
+      "Satisfaction Score": 4.0,
       "Entrance Fee": 0.0,
-      "Duration": 90
+      "Duration": 120
     },
     {
       "Attraction Name": "Coney Island Park",
@@ -377,9 +377,15 @@
     },
     {
       "Attraction Name": "Punggol Waterway Park",
-      "Satisfaction Score": 4.0,
+      "Satisfaction Score": 4.2,
       "Entrance Fee": 0.0,
       "Duration": 120
+    },
+    {
+      "Attraction Name": "Jewel Changi",
+      "Satisfaction Score": 4.5,
+      "Entrance Fee": 0.0,
+      "Duration": 300
     }
   ]
 }

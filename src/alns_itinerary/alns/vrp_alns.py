@@ -386,7 +386,6 @@ class VRPALNS:
         exec_namespace = {}
         exec("".join(base_problem_str), globals(), exec_namespace)
         VRPSolutionUpdated = exec_namespace["VRPSolutionUpdated"]
-        print("!!!!", exec_namespace)
 
         return VRPSolutionUpdated
 
@@ -447,7 +446,7 @@ class VRPALNS:
         
         # update class declaration, make new class name
         base_problem_str[class_declaration_line] = base_problem_str[class_declaration_line].replace("VRPSolution", "VRPSolutionUpdated")
-        
+
         return base_problem_str
 
     

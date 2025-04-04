@@ -252,13 +252,14 @@ def create_attraction_agent(model_id="gpt-4o", batch_no=0, debug_mode=True):
 
 def create_code_agent(model_id="gpt-4o", debug_mode=True):
     code_kb = get_vrp_code_kb()
-    code_kb.load(recreate=False)
+    code_kb.load(recreate=True)
     code_agent = Agent(
         name="Query to Code Agent",
         agent_id="query_to_code_agent",
         model=OpenAIChat(id=model_id, 
                          response_format="json",
-                         temperature=0.2,top_p=0.2
+                         temperature=0.0,
+                         top_p=0.2,
                          ), 
         # model=Groq(id=model_id, 
         #            response_format={ "type": "json_object" }, 
@@ -274,6 +275,7 @@ def create_code_agent(model_id="gpt-4o", debug_mode=True):
             "ONLY add the code pieces if it's necessary. If it's not needed, return an empty list for both `is_feasible` and `is_feasible_insertion` function.",
             "For `is_feasible` function, look for a comment line `# <ADD NEW FEASIBILITY CHECK HERE>`. That's where to put the code.",
             "For `is_feasible_insertion` function, look for a comment line `# <ADD NEW INSERTION FEASIBILITY CHECK HERE>`. That's where to put the code.",
+            "The code MUST WORK, no error, must be integrated nicely to the code."
             "Return the output in List of string format. Do not provide any summaries, analysis, or other additional content."
         ],
         knowledge=code_kb,
