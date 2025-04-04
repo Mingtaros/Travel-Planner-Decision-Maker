@@ -55,13 +55,16 @@ This implementation specifically addresses time constraint challenges by using a
 ```
 travel-planner-decision-maker/
 ├── log/  (will be created automatically)
+├── results/ (all itinerary results are generated here)
 ├── data/
 │   ├── attractions.csv
 │   ├── hawker_centers.csv
 │   ├── locationData/
 │   │   └── csv/
 │   │       ├── singapore_20_food_with_scores.csv
-│   │       └── singapore_67_attractions_with_scores.csv
+│   │       ├── singapore_67_attractions_with_scores.csv
+│   │       ├── attractions.csv
+│   │       └── hawker_centers.csv
 │   ├── waypointData/  (will be created automatically)
 │   │   └── waypoints.json
 │   └── routeData/  (will be created automatically)
@@ -133,7 +136,7 @@ The itinerary optimization requires two preprocessing steps:
 Run the following command to geocode all locations and store them in JSON format:
 
 ```bash
-python ./src/route_matrix/waypoint_generator.py --attractions data/attractions.csv --hawkers data/hawker_centers.csv --output data/waypointData/waypoints.json
+python ./src/route_matrix/waypoint_generator.py --attractions data/locationData/singapore_67_attractions_with_scores.csv --hawkers data/locationData/singapore_20_food_with_scores.csv --output data/waypointData/waypoints.json
 ```
 
 This script:
@@ -168,53 +171,51 @@ streamlit run ./src/alns_itinerary/streamlit_app.py
 
 Enter the itinerary details and click on Generate Itinerary
 
-## ALNS Optimization
+## Evaluation
 
 ### Basic Usage
-```python
-from alns_itinerary.main import main
-
-# Run optimization with default parameters
-results = main(
-    seed=42,
-    config_path="./alns_itinerary/config.json",
-    llm_path="./alns_itinerary/llm.json",
-    max_attractions=16,
-    max_hawkers=12
-)
+Update the dictionary `user_queries` and update line 115 with the query key.
+```bash
+python ./src/alns_itinerary/evalute_alns_agentic_rag.py
 ```
 
 ### `config.json`
 Contains algorithm parameters and constraints:
 ```json
 {
-    "MAX_ITERATIONS": 5000,
-    "SEGMENT_SIZE": 100,
-    "TIME_LIMIT": 3600,
-    "EARLY_TERMINATION_ITERATIONS": 500,
-    "MAX_ATTRACTION_PER_DAY": 4,
+    "MAX_ATTRACTION_PER_DAY": 4, 
+    "RICH_THRESHOLD": 100,
+    "MEAL_BUFFER_TIME": 240,
+    "AVG_HAWKER_COST": 20,
+    "RATING_MAX": 5,
     "START_TIME": 540,
     "HARD_LIMIT_END_TIME": 1320,
-    "LUNCH_START": 660,
+    "LUNCH_START": 720,
     "LUNCH_END": 900,
-    "DINNER_START": 1020,
+    "DINNER_START": 1080,
     "DINNER_END": 1260,
+    "HAWKER_TIME_SPENT": 60,
+    "APPROX_HOTEL_TRAVEL_COST": 15,
+    "MAX_ITERATIONS": 2000,
+    "SEGMENT_SIZE": 100,
+    "TIME_LIMIT": 600,
+    "EARLY_TERMINATION_ITERATIONS": 500,
     "WEIGHTS_DESTROY": [1.0, 1.0, 1.0, 1.0, 1.0],
     "WEIGHTS_REPAIR": [1.0, 1.0, 1.0],
-    "OBJECTIVE_WEIGHTS": [0.3, 0.3, 0.4],
-    "INFEASIBLE_PENALTY": 10.0,
-    "RICH_THRESHOLD": 100,
-    "AVG_HAWKER_COST": 15,
-    "RATING_MAX": 10,
-    "MEAL_BUFFER_TIME": 90,
-    "APPROX_HOTEL_TRAVEL_COST": 10,
+    "OBJECTIVE_WEIGHTS": [0.33, 0.33, 0.33],
     "WEIGHTS_SCORES": [3, 2, 1, 0],
+    "INFEASIBLE_PENALTY": 10,
     "DESTROY_REMOVE_PERCENTAGE": 0.3,
-    "DESTROY_DISTANT_LOC_WEIGHTS": [0.5, 0.5],
+    "DESTROY_DISTANT_LOC_WEIGHTS": [0.7, 0.3],
+    "DESTROY_DISTANT_LOC_PERCENTAGE": 0.3,
     "DESTROY_EXPENSIVE_THRESHOLD": 0.9,
     "DESTROY_DAY_HAWKER_PRESERVE": 0.7,
-    "REPAIR_TRANSIT_WEIGHTS": [0.5, 0.5],
-    "REPAIR_SATISFACTION_WEIGHTS": [0.5, 0.5]
+    "REPAIR_TRANSIT_WEIGHTS": [0.7, 0.3],
+    "REPAIR_SATISFACTION_WEIGHTS": [0.3, 0.7],
+    "BUDGET_OBJECTIVE_LIMIT": 0.7,
+    "TRAVEL_TIME_OBJECTIVE_LIMIT": 0.3,
+    "SATISFACTION_OBJECTIVE_LIMIT": 1.0,
+    "TRAVEL_TIME_REFERENCE": 150
 }
 ```
 
