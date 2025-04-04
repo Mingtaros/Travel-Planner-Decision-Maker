@@ -169,7 +169,7 @@ def generate_itinerary(user_input):
     multiagent_duration = multiagent_time - start_time
     logger.info(f"Multi-Agent runs for {multiagent_duration:.2f} s")
     
-    alns_input = None
+    # alns_input = None
     # alns_input = process_and_save(
     #     description=user_input['description'],
     #     attraction_path="./data/locationData/singapore_67_attractions_with_scores.csv", 
@@ -178,7 +178,9 @@ def generate_itinerary(user_input):
     #     batch_size=10
     # )
 
-    alns_data = alns_main(user_input=user_input, alns_input=alns_input)
+    alns_data = alns_main(user_input=user_input, 
+                        #   alns_input=alns_input,
+                          llm_path="./data/alns_inputs/")
     alns_time = time.time()
     alns_duration = alns_time - multiagent_duration
 

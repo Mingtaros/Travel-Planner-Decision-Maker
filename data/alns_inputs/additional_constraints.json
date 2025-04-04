@@ -1,8 +1,8 @@
 {
     "is_feasible": [
-        "# Check if the total cost is within the budget\nif self.get_total_cost() > self.problem.budget:\n    return False\n\n# Ensure that the number of hawker visits per day does not exceed the maximum\nfor day in range(self.num_days):\n    hawker_count = sum(1 for loc in self.routes[day] if self.problem.locations[loc[0]][\"type\"] == \"hawker\")\n    if hawker_count > self.MAX_HAWKERS_PER_DAY:\n        return False"
+        "# Ensure the total cost does not exceed the budget\nif self.get_total_cost() > self.problem.budget:\n    return False"
     ],
     "is_feasible_insertion": [
-        "# Check if inserting this location will exceed the budget\nnew_cost, _ = self.get_cost_duration(day, location_idx, position, transport_mode)\nif self.get_total_cost() + new_cost > self.problem.budget:\n    return False\n\n# Ensure that inserting a hawker does not exceed the maximum per day\nif self.problem.locations[location_idx][\"type\"] == \"hawker\":\n    hawker_count = sum(1 for loc in self.routes[day] if self.problem.locations[loc[0]][\"type\"] == \"hawker\")\n    if hawker_count >= self.MAX_HAWKERS_PER_DAY:\n        return False"
+        "# Ensure the insertion does not exceed the budget\nif self.get_total_cost() + self.problem.locations[location_idx].get('avg_food_price', 0) > self.problem.budget:\n    return False"
     ]
 }

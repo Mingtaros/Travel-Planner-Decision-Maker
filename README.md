@@ -168,7 +168,7 @@ streamlit run ./src/alns_itinerary/streamlit_app.py
 
 Enter the itinerary details and click on Generate Itinerary
 
-## Itinerary Optimization
+## ALNS Optimization
 
 ### Basic Usage
 ```python
@@ -184,10 +184,7 @@ results = main(
 )
 ```
 
-### Configuration Files
-The system uses two main configuration files:
-
-#### `config.json`
+### `config.json`
 Contains algorithm parameters and constraints:
 ```json
 {
@@ -223,7 +220,7 @@ Contains algorithm parameters and constraints:
 
 ### Examining Results
 
-After optimization completes, you can find the itineraries in the `results` directory:
+After ALNS optimization completes, you can find the itineraries in the `results` directory:
 - `initial_itinerary_TIMESTAMP.json`: The initial solution before optimization
 - `best_itinerary_TIMESTAMP.json`: The optimized itinerary
 

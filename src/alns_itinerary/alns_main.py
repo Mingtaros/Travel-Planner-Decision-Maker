@@ -18,7 +18,7 @@ Usage:
     results = main(
         seed=42,
         config_path="./config.json",
-        llm_path="./llm.json",
+        llm_path="./data/alns_inputs/",
         max_attractions=15,
         max_hawkers=10
     )
