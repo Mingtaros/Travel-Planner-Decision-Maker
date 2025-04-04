@@ -40,13 +40,13 @@
             "Hawker Name": "Lau Pa Sat",
             "Dish Name": "Satay",
             "Satisfaction Score": 4.0,
-            "Avg Food Price": 1.5,
-            "Duration": 60
+            "Avg Food Price": 10.0,
+            "Duration": 45
         },
         {
             "Hawker Name": "Amoy Street Food Centre",
-            "Dish Name": "A Noodle Story (Singapore-style ramen)",
-            "Satisfaction Score": 3.0,
+            "Dish Name": "A Noodle Story",
+            "Satisfaction Score": 4.0,
             "Avg Food Price": 8.0,
             "Duration": 45
         },
@@ -54,22 +54,22 @@
             "Hawker Name": "Chinatown Complex Food Centre",
             "Dish Name": "Hong Kong Soya Sauce Chicken Rice and Noodle",
             "Satisfaction Score": 5.0,
-            "Avg Food Price": 3.0,
-            "Duration": 60
+            "Avg Food Price": 5.0,
+            "Duration": 45
         },
         {
             "Hawker Name": "Tekka Centre",
             "Dish Name": "Allauddin's Briyani",
             "Satisfaction Score": 4.0,
-            "Avg Food Price": 5.0,
-            "Duration": 60
+            "Avg Food Price": 6.0,
+            "Duration": 45
         },
         {
             "Hawker Name": "Maxwell Food Centre",
             "Dish Name": "Tian Tian Hainanese Chicken Rice",
-            "Satisfaction Score": 4.0,
+            "Satisfaction Score": 5.0,
             "Avg Food Price": 5.0,
-            "Duration": 60
+            "Duration": 45
         }
     ],
     "Attraction": [
@@ -87,27 +87,27 @@
         },
         {
             "Attraction Name": "Singapore Zoo",
-            "Satisfaction Score": 3.0,
+            "Satisfaction Score": 2.0,
             "Entrance Fee": 49.0,
             "Duration": 180
         },
         {
             "Attraction Name": "River Wonders",
-            "Satisfaction Score": 3.0,
+            "Satisfaction Score": 2.0,
             "Entrance Fee": 43.0,
             "Duration": 120
         },
         {
             "Attraction Name": "Bird Paradise",
-            "Satisfaction Score": 3.0,
+            "Satisfaction Score": 2.0,
             "Entrance Fee": 49.0,
             "Duration": 120
         },
         {
             "Attraction Name": "Universal Studios Singapore",
-            "Satisfaction Score": 2.0,
+            "Satisfaction Score": 1.0,
             "Entrance Fee": 83.0,
-            "Duration": 240
+            "Duration": 300
         },
         {
             "Attraction Name": "Singapore Flyer",
@@ -134,37 +134,13 @@
             "Duration": 90
         },
         {
-            "Attraction Name": "National Museum of Singapore",
-            "Satisfaction Score": 4.0,
-            "Entrance Fee": 15.0,
-            "Duration": 120
-        },
-        {
-            "Attraction Name": "Peranakan Museum",
-            "Satisfaction Score": 4.0,
-            "Entrance Fee": 6.0,
-            "Duration": 90
-        },
-        {
             "Attraction Name": "Fort Canning Park",
-            "Satisfaction Score": 5.0,
+            "Satisfaction Score": 4.0,
             "Entrance Fee": 0.0,
             "Duration": 120
         },
         {
             "Attraction Name": "Merlion Park",
-            "Satisfaction Score": 5.0,
-            "Entrance Fee": 0.0,
-            "Duration": 60
-        },
-        {
-            "Attraction Name": "Clarke Quay",
-            "Satisfaction Score": 4.0,
-            "Entrance Fee": 0.0,
-            "Duration": 90
-        },
-        {
-            "Attraction Name": "Boat Quay",
             "Satisfaction Score": 4.0,
             "Entrance Fee": 0.0,
             "Duration": 60
@@ -173,25 +149,19 @@
             "Attraction Name": "Chinatown",
             "Satisfaction Score": 5.0,
             "Entrance Fee": 0.0,
-            "Duration": 120
+            "Duration": 180
         },
         {
             "Attraction Name": "Little India",
             "Satisfaction Score": 5.0,
             "Entrance Fee": 0.0,
-            "Duration": 120
+            "Duration": 180
         },
         {
             "Attraction Name": "Kampong Glam",
-            "Satisfaction Score": 5.0,
+            "Satisfaction Score": 4.0,
             "Entrance Fee": 0.0,
-            "Duration": 90
-        },
-        {
-            "Attraction Name": "Orchard Road",
-            "Satisfaction Score": 3.0,
-            "Entrance Fee": 0.0,
-            "Duration": 60
+            "Duration": 120
         },
         {
             "Attraction Name": "East Coast Park",
@@ -219,7 +189,7 @@
         },
         {
             "Attraction Name": "Bukit Timah Nature Reserve",
-            "Satisfaction Score": 4.0,
+            "Satisfaction Score": 5.0,
             "Entrance Fee": 0.0,
             "Duration": 120
         },
@@ -227,7 +197,7 @@
             "Attraction Name": "Sungei Buloh Wetland Reserve",
             "Satisfaction Score": 4.0,
             "Entrance Fee": 0.0,
-            "Duration": 150
+            "Duration": 120
         },
         {
             "Attraction Name": "Singapore Botanic Gardens",
@@ -245,7 +215,7 @@
             "Attraction Name": "Raffles Hotel",
             "Satisfaction Score": 3.0,
             "Entrance Fee": 0.0,
-            "Duration": 30
+            "Duration": 60
         },
         {
             "Attraction Name": "Thian Hock Keng Temple",
@@ -363,15 +333,15 @@
         },
         {
             "Attraction Name": "Punggol Waterway Park",
-            "Satisfaction Score": 4.2,
+            "Satisfaction Score": 4.0,
             "Entrance Fee": 0.0,
             "Duration": 120
         },
         {
             "Attraction Name": "Jewel Changi",
-            "Satisfaction Score": 4.5,
+            "Satisfaction Score": 4.0,
             "Entrance Fee": 0.0,
-            "Duration": 300
+            "Duration": 90
         }
     ]
 }

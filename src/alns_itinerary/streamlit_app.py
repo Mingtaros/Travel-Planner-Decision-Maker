@@ -19,28 +19,10 @@ from alns_main import alns_main
 from data.llm_batch_process import process_and_save
 
 #==================
-from pydantic import BaseModel, Field
-from textwrap import dedent
-from typing import List
 import time
-
-import json
-from dotenv import load_dotenv
-import os
 import random
 
-from agno.agent import Agent
-from agno.models.openai import OpenAIChat
-# from agno.models.groq import Groq
-
-from agno.tools.duckduckgo import DuckDuckGoTools
-from agno.tools.googlesearch import GoogleSearchTools
-
-from agno.knowledge.csv import CSVKnowledgeBase
-from agno.knowledge.text import TextKnowledgeBase
-from agno.vectordb.pgvector import PgVector
-
-from eval_multiagent import get_json_from_query, get_combine_json_data
+from multiagent import get_json_from_query, get_combine_json_data
 
 
 st.set_page_config(page_title="Travel Itinerary Planner", layout="wide")
@@ -176,15 +158,19 @@ def display_map():
 
 # Function to create map
 def generate_itinerary(user_input):
+    start_time = time.time()
     # exports out the data/POI_data.json based on the given query from streamlit otherwise, its a default "how to make a bomb"
-    get_json_from_query(query=user_input['description'], traveller_type=user_input["persona"], debug_mode = True)
+    get_json_from_query(query=user_input['description'], debug_mode=True)
 
     # aggregation between kb and recommendations, deduplicates, and randomnisation
     get_combine_json_data()
+
+    multiagent_time = time.time()
+    multiagent_duration = multiagent_time - start_time
+    logger.info(f"Multi-Agent runs for {multiagent_duration:.2f} s")
     
     alns_input = None
     # alns_input = process_and_save(
-    #     persona=user_input['persona'],
     #     description=user_input['description'],
     #     attraction_path="./data/locationData/singapore_67_attractions_with_scores.csv", 
     #     hawker_path="./data/locationData/Food_20_withscores.xlsx", 
@@ -193,6 +179,10 @@ def generate_itinerary(user_input):
     # )
 
     alns_data = alns_main(user_input=user_input, alns_input=alns_input)
+    alns_time = time.time()
+    alns_duration = alns_time - multiagent_duration
+
+    logger.info(f"ALNS runs for {alns_duration:.2f} s")
 
     logger.info("Itinerary data loaded successfully!")
     
@@ -247,10 +237,6 @@ if "itinerary_ready" not in st.session_state:
 
 # User Inputs
 st.sidebar.header("Trip Inputs")
-persona = st.sidebar.selectbox("Choose your persona", [
-    "Family Tourist", "Backpacker", "Influencer", "Cultural Enthusiast", 
-    "Thrill Seeker", "Nature Lover", "Shopping Enthusiast"
-])
 num_days = st.sidebar.number_input("Number of Days (1-5)", min_value=1, max_value=5, value=3)
 budget = st.sidebar.number_input("Budget", min_value=100, value=500)
 description = st.sidebar.text_area("Trip Description", "Your trip description here...")
@@ -271,8 +257,11 @@ if "route_map" not in st.session_state:
 if page == "Itinerary":
     st.header("Your Optimized Itinerary")
     if st.button("Generate Itinerary"):
-        user_input = {"persona": persona, "num_days": num_days,
-            "budget": budget, "description": description}  
+        user_input = {
+            "num_days": num_days,
+            "budget": budget,
+            "description": description
+        }  
         generate_itinerary(user_input)
     
     if st.session_state["itinerary_ready"]:
