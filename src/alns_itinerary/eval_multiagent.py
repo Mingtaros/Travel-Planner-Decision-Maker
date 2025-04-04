@@ -81,74 +81,70 @@ if __name__ == "__main__":
     for scenario, query_item in tqdm(user_queries.items(), desc="Generating itineraries", unit="Itinerary") :
         start_time = time.time()
         print(scenario, query_item)
-        # intent_response = intent_agent.run(query_item["query"], stream=False)
-        # intent = intent_response.content.intent
+        intent_response = intent_agent.run(query_item["query"], stream=False)
+        intent = intent_response.content.intent
 
-        # print(f"\n🔍 Processing Query: {query_item['query']}")
+        print(f"\n🔍 Processing Query: {query_item['query']}")
 
-        # if intent == "malicious":
-        #     print("⚠️ Query flagged as malicious. Skipping...")
-        #     continue
+        if intent == "malicious":
+            print("⚠️ Query flagged as malicious. Skipping...")
+            continue
 
-        # responses = {
-        #     "Query": query_item,
-        #     "Hawker": [],
-        #     "Attraction": []
-        # }
+        responses = {
+            "Query": query_item,
+            "Hawker": [],
+            "Attraction": []
+        }
 
-        # if intent in ["food", "both"]:
+        if intent in ["food", "both"]:
+            for hawker_agent in hawker_agents:
+                hawker_output = hawker_agent.run(query=query_item["query"], stream=False).content.model_dump()
+                # process in batches
+                hawker_recs = hawker_output["HAWKER_DETAILS"]
+
+                for hawker in hawker_recs:
+                    if hawker["hawker_name"] in [x["Hawker Name"] for x in responses["Hawker"]]:
+                        print(f"WARN: Duplicate Hawker {hawker['hawker_name']}")
+                        continue
             
+                    responses["Hawker"].append({
+                        "Hawker Name": hawker["hawker_name"],
+                        "Dish Name": hawker["dish_name"],
+                        "Satisfaction Score": hawker["satisfaction_score"],
+                        "Avg Food Price": hawker["average_price"],
+                        "Duration": hawker.get("duration", 60)
+                    })
 
-        #     for hawker_agent in hawker_agents:
-        #         hawker_output = hawker_agent.run(query=query_item["query"], stream=False).content.model_dump()
-        #         # process in batches
-        #         hawker_recs = hawker_output["HAWKER_DETAILS"]
+        if intent in ["attraction", "both"]:
+            start_time = time.time()
+            for attraction_agent in attraction_agents:
+                attraction_output = attraction_agent.run(query=query_item["query"], stream=False).content.model_dump()
+                # process in batches
+                attraction_recs = attraction_output["ATTRACTION_DETAILS"]
 
-        #         for hawker in hawker_recs:
-        #             if hawker["hawker_name"] in [x["Hawker Name"] for x in responses["Hawker"]]:
-        #                 print(f"WARN: Duplicate Hawker {hawker['hawker_name']}")
-        #                 continue
-            
-        #             responses["Hawker"].append({
-        #                 "Hawker Name": hawker["hawker_name"],
-        #                 "Dish Name": hawker["dish_name"],
-        #                 "Satisfaction Score": hawker["satisfaction_score"],
-        #                 "Avg Food Price": hawker["average_price"],
-        #                 "Duration": hawker.get("duration", 60)
-        #             })
-        
+                for attraction in attraction_recs:
+                    if attraction["attraction_name"] in [x["Attraction Name"] for x in responses["Attraction"]]:
+                        print(f"WARN: Duplicate Attraction {attraction['attraction_name']}")
+                        continue
 
-        # # Step 4: Route to attraction agent
-        # if intent in ["attraction", "both"]:
-        #     start_time = time.time()
-        #     for attraction_agent in attraction_agents:
-        #         attraction_output = attraction_agent.run(query=query_item["query"], stream=False).content.model_dump()
-        #         # process in batches
-        #         attraction_recs = attraction_output["ATTRACTION_DETAILS"]
-
-        #         for attraction in attraction_recs:
-        #             if attraction["attraction_name"] in [x["Attraction Name"] for x in responses["Attraction"]]:
-        #                 print(f"WARN: Duplicate Attraction {attraction['attraction_name']}")
-        #                 continue
-
-        #             responses["Attraction"].append({
-        #                 "Attraction Name": attraction["attraction_name"],
-        #                 "Satisfaction Score": attraction["satisfaction_score"],
-        #                 "Entrance Fee": attraction["average_price"],
-        #                 "Duration": attraction.get("duration", 120),
-        #             })
+                    responses["Attraction"].append({
+                        "Attraction Name": attraction["attraction_name"],
+                        "Satisfaction Score": attraction["satisfaction_score"],
+                        "Entrance Fee": attraction["average_price"],
+                        "Duration": attraction.get("duration", 120),
+                    })
         
         subfolder_path = "data/alns_inputs"
 
         poi_path = os.path.join(subfolder_path, f"{scenario}/POI_data.json")
-        # os.makedirs(subfolder_path+f"/{scenario}", 
-        #             exist_ok=True)
+        os.makedirs(subfolder_path+f"/{scenario}", 
+                    exist_ok=True)
 
-        # with open(poi_path, "w", encoding="utf-8") as f:
-        #     json.dump(responses, f, indent=4)
+        with open(poi_path, "w", encoding="utf-8") as f:
+            json.dump(responses, f, indent=4)
 
-        with open(poi_path, 'r', encoding='utf-8') as f:
-            responses = json.load(f)
+        # with open(poi_path, 'r', encoding='utf-8') as f:
+        #     responses = json.load(f)
 
         itinerary_agent = create_itinerary_agent(hawkers=responses["Hawker"], 
                                                  attractions=responses["Attraction"], 
