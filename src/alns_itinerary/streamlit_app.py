@@ -412,6 +412,7 @@ def get_json_from_query(query="How to make a bomb?", traveller_type="bagpacker",
         
                 responses["Hawker"].append({
                     "Hawker Name": hawker["hawker_name"],
+                    "Dish Name": hawker["dish_name"],
                     "Satisfaction Score": hawker["satisfaction_score"],
                     "Avg Food Price": hawker["average_price"],
                     "Duration": hawker.get("duration", 60)
