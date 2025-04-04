@@ -340,7 +340,12 @@ def get_combine_json_data(path="./data/alns_inputs/POI_data.json", at_least_hawk
 
     ### Add Hawkers if necessary
     hawker_names_llm = [entry['Hawker Name'] for entry in data["Hawker"]]
-    df_h = pd.read_excel("./data/locationData/Food_20_withscores.xlsx")
+    BASE_PATH = "./data/locationData/csv"
+    df_h = []
+    for batch_no in range(2):
+        hawker_df = pd.read_csv(f"{BASE_PATH}/hawkers/{batch_no}/hawkers.csv")
+        df_h.append(hawker_df)
+    df_h = pd.concat(df_h, ignore_index=True)
     hawker_names_kb = df_h["Name"].to_list()
     filtered_hawker_names = [name for name in hawker_names_llm if name in hawker_names_kb]
     remaining_hawkers = [name for name in hawker_names_kb if name not in filtered_hawker_names]
@@ -364,7 +369,11 @@ def get_combine_json_data(path="./data/alns_inputs/POI_data.json", at_least_hawk
 
     ### Add Attractions if necessary
     attraction_names_llm = [entry['Attraction Name'] for entry in data["Attraction"]]
-    df_a = pd.read_csv("./data/locationData/singapore_67_attractions_with_scores.csv")
+    df_a = []
+    for batch_no in range(7):
+        attraction_df = pd.read_csv(f"{BASE_PATH}/attractions/{batch_no}/attractions.csv")
+        df_a.append(attraction_df)
+    df_a = pd.concat(df_a, ignore_index=True)
     attraction_names_kb = df_a["Attraction Name"].to_list()
     filtered_attraction_names = [name for name in attraction_names_llm if name in attraction_names_kb]
     remaining_attractions = [name for name in attraction_names_kb if name not in filtered_attraction_names]
