@@ -424,6 +424,8 @@ class VRPSolution:
         if total_cost > self.problem.budget:
             # logger.warning(f"Exceeding budget constraint (${self.problem.budget})")
             return False
+
+        # <ADD NEW INSERTION FEASIBILITY CHECK HERE>
         
         return True
     
@@ -575,6 +577,8 @@ class VRPSolution:
         total_cost = self.get_total_cost()
         if total_cost > self.problem.budget:
             return False
+        
+        # <ADD NEW FEASIBILITY CHECK HERE>
         
         return True
     

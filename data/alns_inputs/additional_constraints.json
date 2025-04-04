@@ -1,0 +1,8 @@
+{
+    "is_feasible": [
+        "# Check if the total cost is within the budget\nif self.get_total_cost() > self.problem.budget:\n    return False\n\n# Ensure that at least one spicy hawker food location is included\nspicy_hawker_included = any(loc for loc in self.visited_attractions if self.problem.locations[loc]['type'] == 'hawker' and 'spicy' in self.problem.locations[loc].get('tags', []))\nif not spicy_hawker_included:\n    return False\n\n# Ensure that only free attractions are included\nfor loc in self.visited_attractions:\n    if self.problem.locations[loc]['type'] == 'attraction' and self.problem.locations[loc].get('cost', 0) > 0:\n        return False"
+    ],
+    "is_feasible_insertion": [
+        "# Check if inserting this location keeps the total cost within the budget\nnew_cost = self.get_total_cost() + self.problem.locations[loc_idx].get('cost', 0)\nif new_cost > self.problem.budget:\n    return False\n\n# Ensure that the location is either a spicy hawker or a free attraction\nif self.problem.locations[loc_idx]['type'] == 'hawker' and 'spicy' not in self.problem.locations[loc_idx].get('tags', []):\n    return False\nif self.problem.locations[loc_idx]['type'] == 'attraction' and self.problem.locations[loc_idx].get('cost', 0) > 0:\n    return False"
+    ]
+}

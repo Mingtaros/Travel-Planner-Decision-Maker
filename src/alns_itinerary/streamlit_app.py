@@ -42,6 +42,7 @@ from agno.tools.duckduckgo import DuckDuckGoTools
 from agno.tools.googlesearch import GoogleSearchTools
 
 from agno.knowledge.csv import CSVKnowledgeBase
+from agno.knowledge.text import TextKnowledgeBase
 from agno.vectordb.pgvector import PgVector
 
 # ========================================================
@@ -72,6 +73,7 @@ class VariableResponse(BaseModel):
 
 class HawkerDetail(BaseModel):
     hawker_name: str = Field(..., description="The name of the Hawker Centre. The name must match the one from DB.")
+    dish_name: str = Field(..., description="The specific dish name offered in this Hawker Centre that is recommended.")
     average_price: float = Field(..., description="The maximum price in SGD of the dish, retrieved from web sources. If unavailable, make a guess.")
     satisfaction_score: float = Field(..., description="The Satisfaction Score that the traveler would get from coming to this hawker. Ranges from 1 to 5. 1 being the least satisfactory for this traveler, and 5 being the most satisfactory. Pick a number that most suited the traveler's persona.")
     duration: int = Field(..., description="The average duration of eating in this hawker centre IN MINUTES, retrieved from web sources. If unavailable, make an approximation.")
@@ -89,7 +91,8 @@ class AttractionResponse(BaseModel):
     ATTRACTION_DETAILS: List[AttractionDetail] = Field(..., description="List of detailed attraction options.")
 
 class CodeResponse(BaseModel):
-    constraints: List[str] = Field(..., description="List of additional constraints to add to the code.")
+    is_feasible: List[str] = Field(..., description="List of additional constraints to add to the `is_feasible function` of VRPSolution.")
+    is_feasible_insertion: List[str] = Field(..., description="List of additional constraints to add to the `is_feasible_insertion` function of VRPSolution.")
 
 #==================
 # mutli agent part
@@ -115,6 +118,19 @@ def get_attraction_kb(batch_no):
     )
 
     return attraction_kb
+
+def get_vrp_code_kb():
+    code_kb = TextKnowledgeBase(
+        path=f"src/alns_itinerary/alns",
+        formats=[".py"],
+        vector_db=PgVector(
+            table_name="vrp_alns_codes",
+            db_url="postgresql+psycopg://ai:ai@localhost:5532/ai",
+        ),
+        num_documents=5,
+    )
+
+    return code_kb
 
 def create_variable_agent():
     # Create the Variable Extraction Agent
@@ -196,6 +212,7 @@ def create_hawker_agent(model_id = "gpt-4o", batch_no=0, debug_mode=True):
             "IMPORTANT: Provide details on all of the hawker centres from the internal knowledge base",
             "For each hawker, include the following:",
             "- 'hawker_name': Name of the unique hawker centre. Only use the hawker names in internal knowledge.",
+            "- 'dish_name': Name of the specific dish from this hawker centre that you recommend the traveller to try.",
             "- 'average_price': In SGD, based on actual price per dish (not total order or combo). Do not inflate.",
             "- 'satisfaction_score': Traveller type satisfaction score.",
             "- 'duration': duration of visit in minutes, which is typically around 60 minutes. Please estimate the amount of duration required based on the tourist's personality and preference.",
@@ -208,7 +225,7 @@ def create_hawker_agent(model_id = "gpt-4o", batch_no=0, debug_mode=True):
         search_knowledge=True,
         tools=[DuckDuckGoTools(search=True,
                             # news=False,
-                            fixed_max_results=3)],
+                            fixed_max_results=3,)],
         show_tool_calls=True,
         debug_mode=debug_mode,  # Comment if not needed - added to see the granularity for debug like retrieved context from vectodb
         markdown=True,
@@ -257,64 +274,92 @@ def create_attraction_agent(model_id = "gpt-4o", batch_no=0, debug_mode=True):
     )
     return attraction_agent
 
+def create_code_agent(model_id="gpt-4o", debug_mode=True):
+    code_kb = get_vrp_code_kb()
+    code_kb.load(recreate=False)
+    code_agent = Agent(
+        name="Query to Code Agent",
+        agent_id="query_to_code_agent",
+        model=OpenAIChat(id=model_id, 
+                         response_format="json",
+                         temperature=0.2,top_p=0.2
+                         ), 
+        # model=Groq(id=model_id, 
+        #            response_format={ "type": "json_object" }, 
+        #            temperature=0.2), 
+        response_model=CodeResponse,
+        structured_outputs=True,
+        description="You are an OR engineer programming ALNS. You are able to understand the traveller's persona and unique needs and translate it into a code.",
+        role="Reference the internal knowledge base and make the necessary constraints.",
+        instructions=[
+            "IMPORTANT: Read the code for VRPSolution. This is an ALNS implementation of the travel itinerary problem.",
+            "In VRPSolution class, look for the `is_feasible` and `is_feasible_insertion` function.",
+            "Based on the traveller's persona and description, make new constraints to add to these functions if necessary.",
+            "ONLY add the code pieces if it's necessary. If it's not needed, return an empty list for both `is_feasible` and `is_feasible_insertion` function.",
+            "For `is_feasible` function, look for a comment line `# <ADD NEW FEASIBILITY CHECK HERE>`. That's where to put the code.",
+            "For `is_feasible_insertion` function, look for a comment line `# <ADD NEW INSERTION FEASIBILITY CHECK HERE>`. That's where to put the code.",
+            "Return the output in List of string format. Do not provide any summaries, analysis, or other additional content."
+        ],
+        knowledge=code_kb,
+        search_knowledge=True,
+        debug_mode=debug_mode,
+        markdown=True
+    )
+
+    return code_agent
+
 def get_combine_json_data(path = "./data/alns_inputs/POI_data.json", at_least_hawker = 10, at_least_attraction = 30):
     # Read the JSON file
     with open(path, "r", encoding="utf-8") as file:
         data = json.load(file)
 
-    ### This is for Hawker
+    ### Add Hawkers if necessary
     hawker_names_llm = [entry['Hawker Name'] for entry in data["Hawker"]]
     df_h = pd.read_excel("./data/locationData/Food_20_withscores.xlsx")
     hawker_names_kb = df_h["Name"].to_list()
     filtered_hawker_names = [name for name in hawker_names_llm if name in hawker_names_kb]
     remaining_hawkers = [name for name in hawker_names_kb if name not in filtered_hawker_names]
     num_to_take_hawker = at_least_hawker - len(filtered_hawker_names)
-    print(num_to_take_hawker)
-    sampled_hawkers = random.sample(remaining_hawkers, k=min(num_to_take_hawker, len(remaining_hawkers)))
-    filtered_rows_h = df_h[df_h['Name'].isin(sampled_hawkers)]
+    if num_to_take_hawker > 0: # if no need to sample anymore, don't make random
+        sampled_hawkers = random.sample(remaining_hawkers, k=min(num_to_take_hawker, len(remaining_hawkers)))
+        filtered_rows_h = df_h[df_h['Name'].isin(sampled_hawkers)]
 
-    # Step 2: Convert to list of dictionaries
-    new_data = []
-    for _, row in filtered_rows_h.iterrows():
-        hawker_dict = {
-            'Hawker Name': row['Name'],
-            'Description': "NA.",
-            'Rating': np.random.uniform(2, 4),  # normal to the person
-            'Satisfaction Score': np.random.uniform(2, 4),  # normal to the person
-            'Avg Food Price': np.random.uniform(5, 15),
-            'Duration': 60,
-            'Sources': ["NA"]
-        }
-        new_data.append(hawker_dict)
-    # print(new_data)
-    data['Hawker'].extend(new_data)
+        # Step 2: Convert to list of dictionaries
+        new_data = []
+        for _, row in filtered_rows_h.iterrows():
+            hawker_dict = {
+                'Hawker Name': row['Name'],
+                'Dish Name': "NA",
+                'Satisfaction Score': np.random.uniform(2, 4),  # normal to the person
+                'Avg Food Price': np.random.uniform(5, 15),
+                'Duration': 60
+            }
+            new_data.append(hawker_dict)
+        data['Hawker'].extend(new_data)
 
-    ### This is for Attractions
+    ### Add Attractions if necessary
     attraction_names_llm = [entry['Attraction Name'] for entry in data["Attraction"]]
     df_a = pd.read_csv("./data/locationData/singapore_67_attractions_with_scores.csv")
     attraction_names_kb = df_a["Attraction Name"].to_list()
     filtered_attraction_names = [name for name in attraction_names_llm if name in attraction_names_kb]
     remaining_attractions = [name for name in attraction_names_kb if name not in filtered_attraction_names]
     num_to_take_attraction = at_least_attraction - len(filtered_attraction_names)
-    sampled_attractions = random.sample(remaining_attractions, k=min(num_to_take_attraction, len(remaining_attractions)))
+    if num_to_take_attraction > 0: # if no need to sample anymore, don't make random
+        sampled_attractions = random.sample(remaining_attractions, k=min(num_to_take_attraction, len(remaining_attractions)))
+        filtered_rows_a = df_a[df_a['Attraction Name'].isin(sampled_attractions)]
 
-    filtered_rows_a = df_a[df_a['Attraction Name'].isin(sampled_attractions)]
+        # Step 2: Convert to list of dictionaries
+        new_data = []
+        for _, row in filtered_rows_a.iterrows():
+            attraction_dict = {
+                'Attraction Name': row['Attraction Name'],
+                'Satisfaction Score': np.random.uniform(2, 4),  # normal to the person
+                'Entrance Fee': np.random.uniform(0, 50),
+                'Duration': np.random.uniform(30, 120),
+            }
+            new_data.append(attraction_dict)
+        data['Attraction'].extend(new_data)
 
-    # Step 2: Convert to list of dictionaries
-    new_data = []
-    for _, row in filtered_rows_a.iterrows():
-        attraction_dict = {
-            'Attraction Name': row['Attraction Name'],
-            'Description': "NA.",
-            'Rating': np.random.uniform(2, 4),  # normal to the person
-            'Satisfaction Score': np.random.uniform(2, 4),  # normal to the person
-            'Entrance Fee': np.random.uniform(0, 50),
-            'Duration': np.random.uniform(30, 120),
-            'Sources': ["NA"]
-        }
-        new_data.append(attraction_dict)
-
-    data['Attraction'].extend(new_data)
     # Save to new JSON file
     with open("./data/alns_inputs/final_combined_POI.json", "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
@@ -351,7 +396,7 @@ def get_json_from_query(query="How to make a bomb?", traveller_type="bagpacker",
     moo_params_list = moo_params.alns_weights
     params = {"params":moo_params_list}
     
-     # Step 3: Route to hawker agent
+    # Step 3: Route to hawker agent
     if intent in ["food", "both"]:
         start_time = time.time()
 
@@ -372,7 +417,7 @@ def get_json_from_query(query="How to make a bomb?", traveller_type="bagpacker",
                     "Duration": hawker.get("duration", 60)
                 })
 
-        # Step 4: Route to attraction agent
+    # Step 4: Route to attraction agent
     if intent in ["attraction", "both"]:
         start_time = time.time()
         for attraction_agent in attraction_agents:
@@ -392,6 +437,13 @@ def get_json_from_query(query="How to make a bomb?", traveller_type="bagpacker",
                     "Duration": attraction.get("duration", 120),
                 })
     
+    # Step 5: Add Code requirements
+    code_agent = create_code_agent(debug_mode=debug_mode)
+    code_response = code_agent.run(query, stream=False)
+    is_feasible_constraints = code_response.content.is_feasible
+    is_feasible_insertion_constraints = code_response.content.is_feasible_insertion
+    print(f"🔍 Additional Constraints:", is_feasible_constraints, "\n", is_feasible_insertion_constraints)
+    
     # query_num = "special"
     subfolder_path = "data/alns_inputs"
     # Step 6: Create subfolder based on query number
@@ -400,12 +452,19 @@ def get_json_from_query(query="How to make a bomb?", traveller_type="bagpacker",
 
     poi_path = os.path.join(subfolder_path, "POI_data.json")
     moo_path = os.path.join(subfolder_path, "moo_parameters.json")
+    constraint_path = os.path.join(subfolder_path, "additional_constraints.json")
 
     with open(poi_path, "w", encoding="utf-8") as f:
         json.dump(responses, f, indent=4)
 
     with open(moo_path, "w", encoding="utf-8") as f:
         json.dump(params, f, indent=4)
+
+    with open(constraint_path, "w", encoding="utf-8") as f:
+        json.dump({
+            "is_feasible": is_feasible_constraints,
+            "is_feasible_insertion": is_feasible_insertion_constraints
+        }, f, indent=4)
 
     print(f"✅ Saved to: {subfolder_path}")
 
@@ -549,8 +608,7 @@ def generate_itinerary(user_input):
     #     output_json_path="./data/alns_inputs/groq/location_data.json", 
     #     batch_size=10
     # )
-    
-    ##### TAI END HERE
+
     alns_data = alns_main(user_input=user_input, alns_input=alns_input)
 
     logger.info("Itinerary data loaded successfully!")
@@ -611,7 +669,7 @@ persona = st.sidebar.selectbox("Choose your persona", [
     "Thrill Seeker", "Nature Lover", "Shopping Enthusiast"
 ])
 num_days = st.sidebar.number_input("Number of Days (1-5)", min_value=1, max_value=5, value=3)
-budget = st.sidebar.number_input("Budget", min_value=100, value=600)
+budget = st.sidebar.number_input("Budget", min_value=100, value=500)
 description = st.sidebar.text_area("Trip Description", "Your trip description here...")
 
 st.title("My Intelligent Travel Buddy – Automatic Itinerary (MITB – AI）- Singapore Edition")

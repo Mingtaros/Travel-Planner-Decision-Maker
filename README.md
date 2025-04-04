@@ -119,6 +119,18 @@ travel-planner-decision-maker/
    ```bash
    pip install -r requirements.txt
    ```
+5. Run and turn on the Posgres VectorDB (PGVector):
+    ```bash
+    docker run -d \
+        -e POSTGRES_DB=ai \
+        -e POSTGRES_USER=ai \
+        -e POSTGRES_PASSWORD=ai \
+        -e PGDATA=/var/lib/postgresql/data/pgdata \
+        -v pgvolume:/var/lib/postgresql/data \
+        -p 5532:5432 \
+        --name pgvector \
+        agnohq/pgvector:16
+    ```
 
 ## Data Preparation
 
