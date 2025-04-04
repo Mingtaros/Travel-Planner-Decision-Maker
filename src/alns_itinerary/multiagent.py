@@ -24,6 +24,19 @@ from agno.tools.googlesearch import GoogleSearchTools
 from agno.knowledge.csv import CSVKnowledgeBase
 from agno.knowledge.text import TextKnowledgeBase
 from agno.vectordb.pgvector import PgVector
+from agno.tools.calculator import CalculatorTools
+
+
+calculator_tool= CalculatorTools(
+                add=True,
+                subtract=True,
+                multiply=True,
+                divide=True,
+                exponentiate=True,
+                factorial=True,
+                is_prime=True,
+                square_root=True,
+                 )
 
 # ========================================================
 # Load environment variables & classess for Pydantic Base Models
@@ -250,10 +263,10 @@ def create_attraction_agent(model_id="gpt-4o", batch_no=0, debug_mode=True):
     )
     return attraction_agent
 
-def create_itinerary_agent(query: str, hawkers: list, attractions: list, model_id="gpt-4o", debug_mode=True):
+def create_itinerary_agent(hawkers: list, attractions: list, model_id="gpt-4o", debug_mode=True):
     """
     This is the agent that creates the itinerary; closest competitor would be the optimizer method (e.g. alns) given a list of POIs.
-    
+
     requires query as string
     requires list of hawkers and list of attractions
     """
@@ -270,28 +283,32 @@ def create_itinerary_agent(query: str, hawkers: list, attractions: list, model_i
         description="Expert in building multi-day travel itineraries within a given budget.",
         role="Create a detailed daily plan with time slots, alternating attractions and food stops.",
         instructions=[
+            "Given that we have the following Point of Interests,",
+            f"hawkers:{hawkers}",
+            f"attractions:{attractions}",
             "You are an expert itinerary planner for Singapore.",
             "You will receive a JSON containing the user's travel query, list of hawkers, and attractions.",
             "Use this information to plan a detailed itinerary over multiple days.",
+            "Your start point and end point should always be at Marina Bay Sands Hotel.",
+            "You should always optimally plan your route with the most efficient and sound itinerary based on the selected locations.",
             "Ensure that the total budget does not exceed the one mentioned in the query.",
             "The plan should include 2-3 attractions per day and 2 food stops (lunch and dinner).",
             "Prioritize high-satisfaction locations with good value.",
             "Distribute long-duration attractions across different days.",
             "Alternate expensive and free attractions to stay within budget.",
+            "Return the query.",
             "Return a list of days, each containing an ordered list of activity blocks:",
             "- 'activity_type': 'attraction' or 'food'",
             "- 'name': Name of the attraction or hawker center",
             "- 'duration': Duration in minutes",
-            "- 'estimated_cost': Cost in SGD",
-            "- 'notes': Any relevant info, e.g., 'Good for kids' or 'Must try satay'."
+            "- 'estimated cost: in SGD",
+            "- 'duration from point to point': For each point location, indicate the estimated time of travel by public transport.",
+            "- 'notes': Any relevant info, e.g., 'Good for kids' or 'Must try satay'.",
+            "At the end, include the total cost in SGD sums all of the the Point of Interests using the CalculatorTool. You need to ensure that you are using the CalculatorTool, do not make up total cost numbers.",
         ],
-        input_data={
-            "query": query,
-            "hawkers": hawkers,
-            "attractions": attractions
-        },
         show_tool_calls=debug_mode,
         markdown=True,
+        tools=[calculator_tool, GoogleSearchTools()]
     )
 
     return itinerary_agent
