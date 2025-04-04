@@ -182,7 +182,7 @@ def generate_itinerary(user_input):
                         #   alns_input=alns_input,
                           llm_path="./data/alns_inputs/")
     alns_time = time.time()
-    alns_duration = alns_time - multiagent_duration
+    alns_duration = alns_time - multiagent_time
 
     logger.info(f"ALNS runs for {alns_duration:.2f} s")
 

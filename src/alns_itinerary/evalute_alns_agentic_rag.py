@@ -104,7 +104,7 @@ def alns_evaluate(user_input):
     alns_data = alns_main(user_input=user_input,
                           llm_path="./data/alns_inputs/")
     alns_time = time.time()
-    alns_duration = alns_time - multiagent_duration
+    alns_duration = alns_time - multiagent_time
 
     logger.info(f"ALNS runs for {alns_duration:.2f} s")
     
@@ -112,7 +112,7 @@ def alns_evaluate(user_input):
 
 if __name__ == "__main__":
     
-    for key in ["01"]: # ["06", "07", "08", "09", "10"]:
+    for key in ["02"]: # ["06", "07", "08", "09", "10"]:
         
         logger.info(f"Processing query {key}")
         
