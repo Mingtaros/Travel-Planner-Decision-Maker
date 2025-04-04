@@ -166,8 +166,8 @@ def generate_itinerary(user_input):
     get_combine_json_data()
 
     multiagent_time = time.time()
-    multiagent_duration = multiagent_time - start_time
-    logger.info(f"Multi-Agent runs for {multiagent_duration:.2f} s")
+    multiagent_runtime = multiagent_time - start_time
+    logger.info(f"Multi-Agent runs for {multiagent_runtime:.2f} s")
     
     # alns_input = None
     # alns_input = process_and_save(
@@ -182,10 +182,11 @@ def generate_itinerary(user_input):
                         #   alns_input=alns_input,
                           llm_path="./data/alns_inputs/")
     alns_time = time.time()
-    alns_duration = alns_time - multiagent_time
+    alns_runtime = alns_time - multiagent_time
+    total_runtime = alns_time - start_time
 
-    logger.info(f"ALNS runs for {alns_duration:.2f} s")
-
+    logger.info(f"ALNS runs for {alns_runtime:.2f} s")
+    logger.info(f"MultiAgent + ALNS Solution runs for {total_runtime:.2f} s")
     logger.info("Itinerary data loaded successfully!")
     
     # Prepare locations and map

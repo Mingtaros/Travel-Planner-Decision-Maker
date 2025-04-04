@@ -24,6 +24,19 @@ from agno.tools.googlesearch import GoogleSearchTools
 from agno.knowledge.csv import CSVKnowledgeBase
 from agno.knowledge.text import TextKnowledgeBase
 from agno.vectordb.pgvector import PgVector
+from agno.tools.calculator import CalculatorTools
+
+
+calculator_tool= CalculatorTools(
+                add=True,
+                subtract=True,
+                multiply=True,
+                divide=True,
+                exponentiate=True,
+                factorial=True,
+                is_prime=True,
+                square_root=True,
+                 )
 
 # ========================================================
 # Load environment variables & classess for Pydantic Base Models
@@ -250,6 +263,61 @@ def create_attraction_agent(model_id="gpt-4o", batch_no=0, debug_mode=True):
     )
     return attraction_agent
 
+def create_itinerary_agent(hawkers: list, attractions: list, model_id="gpt-4o", debug_mode=True):
+    """
+    This is the agent that creates the itinerary; closest competitor would be the optimizer method (e.g. alns) given a list of POIs.
+
+    requires query as string
+    requires list of hawkers and list of attractions
+    """
+    itinerary_agent = Agent(
+        name="Itinerary Generator Agent",
+        agent_id="itinerary_agent",
+        model=OpenAIChat(
+            id=model_id,
+            response_format="json",
+            temperature=0.3,
+            top_p=0.2
+        ),
+        structured_outputs=True,
+        description="Expert in building multi-day travel itineraries within a given budget.",
+        role="Create a detailed daily plan with time slots, alternating attractions and food stops.",
+        instructions=[
+            "Given that we have the following Point of Interests,",
+            f"hawkers:{hawkers}",
+            f"attractions:{attractions}",
+            "You are an expert itinerary planner for Singapore.",
+            "You will receive a JSON containing the user's travel query, list of hawkers, and attractions.",
+            "Use this information to plan a detailed itinerary over multiple days.",
+            "Your start point and end point should always be at Marina Bay Sands Hotel.",
+            "You should always optimally plan your route with the most efficient and sound itinerary based on the selected locations.",
+            "Ensure that the total budget does not exceed the one mentioned in the query.",
+            "The plan should include 2-3 attractions per day and 2 food stops (lunch and dinner).",
+            "Prioritize high-satisfaction locations with good value.",
+            "Distribute long-duration attractions across different days.",
+            "Alternate expensive and free attractions to stay within budget.",
+            "Return the query.",
+            "Return a list of days, each containing an ordered list of activity blocks:",
+            "- 'activity_type': 'attraction' or 'food'",
+            "- 'name': Name of the attraction or hawker center",
+            "- 'duration': Duration in minutes",
+            "- 'estimated cost: in SGD",
+            "- 'duration from point to point': For each point location, indicate the estimated time of travel by public transport.",
+            "- 'notes': Any relevant info, e.g., 'Good for kids' or 'Must try satay'.",
+            "At the end, include:",
+            "- the total cost in SGD, calculate this using sum of all cost from point of interest using the CalculatorTool",
+            "- total transit duration, calculate this using sum of all duration of transit from point-to-point using the CalculatorTool",
+            "- total satisfaction score, calculate this using sum of all satisfaction score from point of interest using the CalculatorTool",
+            "You need to ensure that you are using the CalculatorTool, do not make up total cost numbers, total duration, or total satisfaction.",
+        ],
+        show_tool_calls=debug_mode,
+        markdown=True,
+        tools=[calculator_tool, GoogleSearchTools()]
+    )
+
+    return itinerary_agent
+
+
 def create_code_agent(model_id="gpt-4o", debug_mode=True):
     code_kb = get_vrp_code_kb()
     code_kb.load(recreate=True)
@@ -271,8 +339,18 @@ def create_code_agent(model_id="gpt-4o", debug_mode=True):
         instructions=[
             "IMPORTANT: Read the code for VRPSolution. This is an ALNS implementation of the travel itinerary problem.",
             "In VRPSolution class, look for the `is_feasible` and `is_feasible_insertion` function.",
-            "Based on the traveller's persona and description, make new constraints to add to these functions if necessary.",
+            "Based on the traveller's persona and description, make new constraints to add to these functions only if you think it's necessary.",
             "ONLY add the code pieces if it's necessary. If it's not needed, return an empty list for both `is_feasible` and `is_feasible_insertion` function.",
+            "For variable `problem`, they have a few class attributes, NUM_DAYS, MAX_ATTRACTION_PER_DAY, START_TIME, HARD_LIMIT_END_TIME,",
+            "LUNCH_START, LUNCH_END, DINNER_START, DINNER_END, TIME_BRACKETS, budget, locations, transport_types, transport_matrix",
+            "Each location in locations attribute is a dictionary, the keys are 'type', 'name', 'loc', 'lat'.",
+            "Available Time Brackets in TIME_BRACKETS attributes are [8, 12, 16, 20].",
+            "There are 2 transport types, ['transit', 'drive'].",
+            "For Transport Matrix, it is a dictionary, with the key (source location, destination location, time bracket)",
+            "and the values are another dictionary, for the transport types 'transit' and 'drive'.",
+            "For each dictionary, the keys are 'duration' and 'price'.",
+            "Example of accessing: transport_matrix[('Marina Bay Sands', 'Tangs Market', 8)]['transit']['duration']. This will get duration of using public transport from",
+            "Marina Bay Sands to Tangs Market from around 8-11 AM",
             "For `is_feasible` function, look for a comment line `# <ADD NEW FEASIBILITY CHECK HERE>`. That's where to put the code.",
             "For `is_feasible_insertion` function, look for a comment line `# <ADD NEW INSERTION FEASIBILITY CHECK HERE>`. That's where to put the code.",
             "The code MUST WORK, no error, must be integrated nicely to the code."
@@ -298,7 +376,12 @@ def get_combine_json_data(path="./data/alns_inputs/POI_data.json", at_least_hawk
 
     ### Add Hawkers if necessary
     hawker_names_llm = [entry['Hawker Name'] for entry in data["Hawker"]]
-    df_h = pd.read_excel("./data/locationData/Food_20_withscores.xlsx")
+    BASE_PATH = "./data/locationData/csv"
+    df_h = []
+    for batch_no in range(2):
+        hawker_df = pd.read_csv(f"{BASE_PATH}/hawkers/{batch_no}/hawkers.csv")
+        df_h.append(hawker_df)
+    df_h = pd.concat(df_h, ignore_index=True)
     hawker_names_kb = df_h["Name"].to_list()
     filtered_hawker_names = [name for name in hawker_names_llm if name in hawker_names_kb]
     remaining_hawkers = [name for name in hawker_names_kb if name not in filtered_hawker_names]
@@ -322,7 +405,11 @@ def get_combine_json_data(path="./data/alns_inputs/POI_data.json", at_least_hawk
 
     ### Add Attractions if necessary
     attraction_names_llm = [entry['Attraction Name'] for entry in data["Attraction"]]
-    df_a = pd.read_csv("./data/locationData/singapore_67_attractions_with_scores.csv")
+    df_a = []
+    for batch_no in range(7):
+        attraction_df = pd.read_csv(f"{BASE_PATH}/attractions/{batch_no}/attractions.csv")
+        df_a.append(attraction_df)
+    df_a = pd.concat(df_a, ignore_index=True)
     attraction_names_kb = df_a["Attraction Name"].to_list()
     filtered_attraction_names = [name for name in attraction_names_llm if name in attraction_names_kb]
     remaining_attractions = [name for name in attraction_names_kb if name not in filtered_attraction_names]

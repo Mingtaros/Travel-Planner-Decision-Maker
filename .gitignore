@@ -186,3 +186,6 @@ notebooks/*.txt
 .python-version
 .vscode
 cache/
+
+# llm generated output no need to be pushed
+data/alns_inputs/*.json
