@@ -615,11 +615,11 @@ class VRPALNS:
         travel_time = evaluation["total_travel_time"]
         satisfaction = evaluation["total_satisfaction"]
         max_satisfaction = (self.problem.NUM_DAYS * 6) * (self.rating_max)
-        reference_time = 8 * 60  # 8 hours as a reference point
+        reference_time = self.problem.TRAVEL_TIME_REFERENCE
         
-        budget_objective = self.objective_weights[0] * max((cost / self.problem.budget), 0.7)
-        travel_time_objective = self.objective_weights[1] * max((travel_time / (travel_time + reference_time)), 0.3)
-        satisfaction_objective = self.objective_weights[2] * min((satisfaction / max_satisfaction), 1)
+        budget_objective = self.objective_weights[0] * max((cost / self.problem.budget), self.problem.BUDGET_OBJECTIVE_LIMIT)
+        travel_time_objective = self.objective_weights[1] * max((travel_time / (travel_time + reference_time)), self.problem.TRAVEL_TIME_OBJECTIVE_LIMIT)
+        satisfaction_objective = self.objective_weights[2] * min((satisfaction / max_satisfaction), self.problem.SATISFACTION_OBJECTIVE_LIMIT)
         
         # logger.info("Budget_Objective: {}, Satisfaction_Objective: {}, Travel_Time_Objective: {}".format(budget_objective, satisfaction_objective, travel_time_objective))
         

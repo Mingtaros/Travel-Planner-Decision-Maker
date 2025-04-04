@@ -94,6 +94,10 @@ class TravelItineraryProblem:
         self.AVG_HAWKER_COST = config["AVG_HAWKER_COST"]
         self.RATING_MAX = config["RATING_MAX"]
         self.TIME_BRACKETS = [8, 12, 16, 20]
+        self.BUDGET_OBJECTIVE_LIMIT = config["BUDGET_OBJECTIVE_LIMIT"]
+        self.TRAVEL_TIME_OBJECTIVE_LIMIT = config["TRAVEL_TIME_OBJECTIVE_LIMIT"]
+        self.SATISFACTION_OBJECTIVE_LIMIT = config["SATISFACTION_OBJECTIVE_LIMIT"]
+        self.TRAVEL_TIME_REFERENCE = config["TRAVEL_TIME_REFERENCE"]
         
         self.budget = budget
         self.locations = locations
