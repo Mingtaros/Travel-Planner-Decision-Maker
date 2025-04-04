@@ -174,6 +174,7 @@ def load_hotel_routes_from_cache(hotel, locations, cache_dir="cache/hotel_routes
         
         # Create cache filename
         cache_filename = os.path.join(cache_dir, f"{cache_key}.pkl")
+        # cache_filename = os.path.join(cache_dir, "33d0cebf177d6de8e61e63e000df5d9e.pkl")
         
         # Check if cache file exists
         if not os.path.exists(cache_filename):

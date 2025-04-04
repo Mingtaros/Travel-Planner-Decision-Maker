@@ -89,7 +89,7 @@ class VRPSolution:
     
     def clone(self):
         """Create a deep copy of this solution"""
-        new_solution = VRPSolution(self.problem)
+        new_solution = self.__class__(self.problem)
         new_solution.routes = copy.deepcopy(self.routes)
         return new_solution
     
@@ -424,6 +424,13 @@ class VRPSolution:
         if total_cost > self.problem.budget:
             # logger.warning(f"Exceeding budget constraint (${self.problem.budget})")
             return False
+
+        try:
+            pass # if there are new errors on this constraint, it will behave exactly like the intended class
+            # <ADD NEW INSERTION FEASIBILITY CHECK HERE>
+
+        except Exception as e:
+            logger.debug(f"Error on new Insertion Constraints: {e}")
         
         return True
     
@@ -575,6 +582,13 @@ class VRPSolution:
         total_cost = self.get_total_cost()
         if total_cost > self.problem.budget:
             return False
+        
+        try:
+            pass # if there are new errors on this constraint, it will behave exactly like the intended class
+            # <ADD NEW FEASIBILITY CHECK HERE>
+
+        except Exception as e:
+            logger.debug(f"Error on new Constraints: {e}")
         
         return True
     

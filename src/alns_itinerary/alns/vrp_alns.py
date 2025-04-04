@@ -19,6 +19,8 @@ using operators that are weighted based on their historical performance.
 The algorithm balances exploration and exploitation through simulated annealing.
 """
 
+import os
+import json
 import random
 import math
 import time
@@ -362,6 +364,92 @@ class VRPALNS:
 
         return budget_left
     
+    def updated_VRPSolution(self, path="./data/alns_inputs/additional_constraints.json"):
+        """
+        Update VRPSolution using Code Injection, injecting new constraints to the `is_feasible`
+        and `is_feasible_insertion` functions.
+        """
+        if not os.path.exists(path):
+            logger.debug(f"Updated VRPSolution not found. Using default")
+            return
+
+        with open(path, 'r', encoding='utf-8') as f:
+            additional_constraints = json.load(f)
+        
+        with open("./src/alns_itinerary/alns/vrp_solution.py", 'r') as code_f:
+            base_problem_str = code_f.readlines() # read in lines for easier append
+
+        # integrate problem with new constraints
+        base_problem_str = self.integrate_VRPSolution(base_problem_str, additional_constraints)
+        with open("./src/alns_itinerary/integrated_vrp_solution.py", 'w') as f:
+            f.writelines(base_problem_str)
+        exec_namespace = {}
+        exec("".join(base_problem_str), globals(), exec_namespace)
+        VRPSolutionUpdated = exec_namespace["VRPSolutionUpdated"]
+
+        return VRPSolutionUpdated
+
+    @staticmethod
+    def count_indentation(line_of_code):
+        # given line of code, get the indentation to replicate in added constraints
+        num_indent = 0
+        for chara in line_of_code:
+            if chara != " ":
+                break
+            num_indent += 1
+        
+        return num_indent
+
+    def integrate_VRPSolution(self, base_problem_str, additional_constraints):
+        # find where to insert and count the indentation
+        is_feasible_string = "# <ADD NEW FEASIBILITY CHECK HERE>"
+        is_feasible_line = -1
+        is_feasible_insertion_string = "# <ADD NEW INSERTION FEASIBILITY CHECK HERE>"
+        is_feasible_insertion_line = -1
+        # update the class name to not replace the original VRPSolution
+        class_declaration_string = "class VRPSolution:"
+        class_declaration_line = -1
+
+        for idx, codeline in enumerate(base_problem_str):
+            if codeline.strip() == is_feasible_string:
+                is_feasible_line = idx
+            if codeline.strip() == is_feasible_insertion_string:
+                is_feasible_insertion_line = idx
+            if codeline.strip() == class_declaration_string:
+                class_declaration_line = idx
+        
+        # if they are still -1, then fails
+        if is_feasible_line == -1 or is_feasible_insertion_line == -1 or class_declaration_line == -1:
+            logger.error(
+                "CODE LINE TO ADD CONSTRAINTS NOT FOUND, "\
+                f"is_feasible: {is_feasible_line}, is_feasible_insertion: {is_feasible_insertion_line}, "\
+                f"class_declaration: {class_declaration_line}"
+            )
+            return base_problem_str # in this case, return unchanged base_problem
+
+        # add constraints
+        num_indent_feasible = VRPALNS.count_indentation(base_problem_str[is_feasible_line])
+        for constraint in additional_constraints["is_feasible"]:
+            # add additional constraints
+            constraint = [" " * num_indent_feasible + constraint_line for constraint_line in constraint.split("\n")]
+            constraint = "\n".join(constraint) # re-join to make new constraint
+            # add the constraint to the code
+            base_problem_str.insert(is_feasible_line+1, constraint)
+        
+        num_indent_feasible_insertion = VRPALNS.count_indentation(base_problem_str[is_feasible_insertion_line])
+        for constraint in additional_constraints["is_feasible_insertion"]:
+            # add additional constraints
+            constraint = [" " * num_indent_feasible_insertion + constraint_line for constraint_line in constraint.split("\n")]
+            constraint = "\n".join(constraint) # re-join to make new constraint
+            # add the constraint to the code
+            base_problem_str.insert(is_feasible_insertion_line+1, constraint)
+        
+        # update class declaration, make new class name
+        base_problem_str[class_declaration_line] = base_problem_str[class_declaration_line].replace("VRPSolution", "VRPSolutionUpdated")
+
+        return base_problem_str
+
+    
     def create_initial_solution(self):
         """
         Create a valid initial solution for the itinerary problem.
@@ -374,8 +462,14 @@ class VRPALNS:
         Returns:
             VRPSolution: A valid initial solution that satisfies all hard constraints.
         """
+        try:
+            VRPSolutionUpdated = self.updated_VRPSolution()
+            logger.info("Using Updated VRPSolution with Code Agent constraints.")
+            solution = VRPSolutionUpdated(self.problem)
+        except Exception as e:
+            logger.error(f"{e}\nVRPSolution Integration Failed. Using default one.")
+            solution = VRPSolution(self.problem)
 
-        solution = VRPSolution(self.problem)
         budget_left = self.problem.budget
         
         # Get attraction and hawker lists

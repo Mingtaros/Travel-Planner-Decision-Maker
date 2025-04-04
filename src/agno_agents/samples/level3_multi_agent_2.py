@@ -40,7 +40,7 @@ class HawkerRecommendation(BaseModel):
     description: str = Field(..., description="A short description of the dish and why it's recommended.")
     average_price: float = Field(..., description="The maximum price in SGD of the dish, retrieved from web sources.")
     ratings: float = Field(..., description="The Google rating of the Hawker Centre, range from 1 to 5.")
-    satisfaction_score: float = Field(..., description="The Satisfaction Score after unstanding the travller preference and the Google rating of the Hawker Centre, range from 1 to 5.")
+    satisfaction_score: float = Field(..., description="The Satisfaction Score after unstanding the traveller preference and the Google rating of the Hawker Centre, range from 1 to 5.")
     sources: List[str] = Field(..., description="List of sources where information was retrieved.")
 
 class HawkerResponse(BaseModel):
@@ -52,7 +52,7 @@ class AttractionRecommendation(BaseModel):
     description: str = Field(..., description="A short description of the attraction and why it's recommended.")
     average_price: float = Field(..., description="The maximum price in SGD of the attraction, retrieved from web sources.")
     ratings: float = Field(..., description="The Google rating of the attraction, range from 1 to 5.")
-    satisfaction_score: float = Field(..., description="The Satisfaction Score after unstanding the travller preference and the Google rating of the Hawker Centre, range from 1 to 5.")
+    satisfaction_score: float = Field(..., description="The Satisfaction Score after unstanding the traveller preference and the Google rating of the Hawker Centre, range from 1 to 5.")
     sources: List[str] = Field(..., description="List of sources where information was retrieved.")
 
 class AttractionResponse(BaseModel):

@@ -117,7 +117,7 @@ def alns_main(
     alns_input=None,
     max_attractions=None, 
     max_hawkers=None,
-    hotel_name='Marina Bay Sands'
+    hotel_name='Marina Bay Sands Singapore'
 ):
     """
     Run the travel itinerary optimization process.
@@ -171,7 +171,6 @@ def alns_main(
     
     budget = user_input["budget"]
     num_days = user_input["num_days"]
-    persona = user_input["persona"]
     max_iterations = config["MAX_ITERATIONS"]
     segment_size = config["SEGMENT_SIZE"]
     time_limit = config["TIME_LIMIT"]
@@ -321,7 +320,6 @@ if __name__ == "__main__":
     # Example usage with default parameters
     
     user_input = {
-        "persona": "Family Tourist",
         "num_days": 3,
         "budget": 300,
         "description": "We're a family of four visiting Singapore for 3 days. We'd love to explore kid-friendly attractions and try some affordable local food. Budget is around 300 SGD."
