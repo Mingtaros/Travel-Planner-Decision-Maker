@@ -18,9 +18,6 @@ from agno.agent import Agent
 from agno.models.openai import OpenAIChat
 # from agno.models.groq import Groq
 
-from agno.document.chunking.fixed import FixedSizeChunking
-from agno.document.chunking.agentic import AgenticChunking
-
 from agno.tools.duckduckgo import DuckDuckGoTools
 from agno.tools.googlesearch import GoogleSearchTools
 
@@ -32,7 +29,7 @@ from agno.vectordb.pgvector import PgVector
 # Load environment variables & classess for Pydantic Base Models
 # ========================================================
 load_dotenv()
-# os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
+os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
 os.environ["GROQ_API_KEY"] = os.getenv("GROQ_API_KEY")
 
 class IntentResponse(BaseModel):
@@ -160,7 +157,7 @@ def create_intent_agent():
     )
     return intent_agent
 
-def create_hawker_agent(model_id = "gpt-4o", batch_no=0, debug_mode=True):
+def create_hawker_agent(model_id="gpt-4o", batch_no=0, debug_mode=True):
 # Create the Hawker Agent to get all the relevant Hawkers/POIs based on the routed query from Supervisor Agent
 # def create_hawker_agent(model_id="deepseek-r1-distill-llama-70b", batch_no=0, debug_mode=True):
     hawker_kb = get_hawker_kb(batch_no)
@@ -208,7 +205,7 @@ def create_hawker_agent(model_id = "gpt-4o", batch_no=0, debug_mode=True):
     )
     return hawker_agent
 
-def create_attraction_agent(model_id = "gpt-4o", batch_no=0, debug_mode=True):
+def create_attraction_agent(model_id="gpt-4o", batch_no=0, debug_mode=True):
 # def create_attraction_agent(model_id="deepseek-r1-distill-llama-70b", batch_no=0, debug_mode=True):
     attraction_kb = get_attraction_kb(batch_no)
     attraction_kb.load(recreate=False)
@@ -287,7 +284,7 @@ def create_code_agent(model_id="gpt-4o", debug_mode=True):
 
     return code_agent
 
-def get_combine_json_data(path = "./data/alns_inputs/POI_data.json", at_least_hawker = 10, at_least_attraction = 30):
+def get_combine_json_data(path="./data/alns_inputs/POI_data.json", at_least_hawker=10, at_least_attraction=30):
     # Read the JSON file
     with open(path, "r", encoding="utf-8") as file:
         data = json.load(file)
@@ -348,7 +345,7 @@ def get_combine_json_data(path = "./data/alns_inputs/POI_data.json", at_least_ha
 
     return 
 
-def get_json_from_query(query="How to make a bomb?", traveller_type="bagpacker",debug_mode = True):
+def get_json_from_query(query="How to make a bomb?", traveller_type="backpacker", debug_mode=True):
     intent_agent = create_intent_agent()
     # processing data in batches
     hawker_agents = [create_hawker_agent(batch_no=i, debug_mode=debug_mode) for i in range(2)]
@@ -543,11 +540,10 @@ if __name__ == "__main__":
         # if not is_valid:
         #     print("⚠️ Warning: LLM-generated itinerary has incorrect total cost.")
 
-        intent_response = intent_agent.run(query_item, stream=False)
+        intent_response = intent_agent.run(query_item["query"], stream=False)
         intent = intent_response.content.intent
 
-
-        print(f"\n🔍 Processing Query: {query_item}")
+        print(f"\n🔍 Processing Query: {query_item['query']}")
 
         if intent == "malicious":
             print("⚠️ Query flagged as malicious. Skipping...")
