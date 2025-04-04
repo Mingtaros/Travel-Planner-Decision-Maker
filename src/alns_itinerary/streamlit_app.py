@@ -176,8 +176,6 @@ def display_map():
 
 # Function to create map
 def generate_itinerary(user_input):
-    ##### TAI ADD HERE
-
     # exports out the data/POI_data.json based on the given query from streamlit otherwise, its a default "how to make a bomb"
     get_json_from_query(query=user_input['description'], traveller_type=user_input["persona"], debug_mode = True)
 

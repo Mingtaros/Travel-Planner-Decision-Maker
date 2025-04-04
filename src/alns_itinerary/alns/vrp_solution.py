@@ -425,7 +425,12 @@ class VRPSolution:
             # logger.warning(f"Exceeding budget constraint (${self.problem.budget})")
             return False
 
-        # <ADD NEW INSERTION FEASIBILITY CHECK HERE>
+        try:
+            pass
+            # <ADD NEW INSERTION FEASIBILITY CHECK HERE>
+
+        except Exception as e:
+            logger.error(f"Error on new Insertion Constraints: {e}")
         
         return True
     
@@ -578,7 +583,12 @@ class VRPSolution:
         if total_cost > self.problem.budget:
             return False
         
-        # <ADD NEW FEASIBILITY CHECK HERE>
+        try:
+            pass
+            # <ADD NEW FEASIBILITY CHECK HERE>
+
+        except Exception as e:
+            logger.error(f"Error on new Constraints: {e}")
         
         return True
     

@@ -117,7 +117,7 @@ def alns_main(
     alns_input=None,
     max_attractions=None, 
     max_hawkers=None,
-    hotel_name='Marina Bay Sands'
+    hotel_name='Marina Bay Sands Singapore'
 ):
     """
     Run the travel itinerary optimization process.
