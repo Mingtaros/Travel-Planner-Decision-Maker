@@ -1,0 +1,54 @@
+{
+    "Query": "Looking to relax and enjoy greenery and peaceful spots in Singapore. I\u2019ll be there for 3 days and have 190 SGD to spend. I enjoy light snacks over heavy meals.",
+    "Hawker": [],
+    "Attraction": [
+        {
+            "Attraction Name": "Singapore Botanic Gardens",
+            "Satisfaction Score": 5.0,
+            "Entrance Fee": 0.0,
+            "Duration": 120
+        },
+        {
+            "Attraction Name": "Gardens by the Bay",
+            "Satisfaction Score": 5.0,
+            "Entrance Fee": 20.0,
+            "Duration": 180
+        },
+        {
+            "Attraction Name": "MacRitchie Reservoir",
+            "Satisfaction Score": 4.0,
+            "Entrance Fee": 0.0,
+            "Duration": 180
+        },
+        {
+            "Attraction Name": "East Coast Park",
+            "Satisfaction Score": 4.0,
+            "Entrance Fee": 0.0,
+            "Duration": 180
+        },
+        {
+            "Attraction Name": "Fort Canning Park",
+            "Satisfaction Score": 4.0,
+            "Entrance Fee": 0.0,
+            "Duration": 120
+        },
+        {
+            "Attraction Name": "MacRitchie Reservoir Park",
+            "Satisfaction Score": 5.0,
+            "Entrance Fee": 0.0,
+            "Duration": 180
+        },
+        {
+            "Attraction Name": "HortPark",
+            "Satisfaction Score": 4.0,
+            "Entrance Fee": 0.0,
+            "Duration": 90
+        },
+        {
+            "Attraction Name": "Punggol Waterway Park",
+            "Satisfaction Score": 4.2,
+            "Entrance Fee": 0.0,
+            "Duration": 120
+        }
+    ]
+}

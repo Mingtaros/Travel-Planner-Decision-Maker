@@ -112,7 +112,7 @@ def alns_evaluate(user_input):
 
 if __name__ == "__main__":
     
-    for key in ["02"]: # ["06", "07", "08", "09", "10"]:
+    for key in ["10"]:
         
         logger.info(f"Processing query {key}")
         

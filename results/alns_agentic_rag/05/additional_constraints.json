@@ -1,0 +1,10 @@
+{
+    "is_feasible": [
+        "# Check if total cost is within 95% of the budget\nif total_cost > self.problem.budget * 0.95:\n    return False",
+        "for loc_idx, arrival_time, _, _ in route:\n    if self.problem.locations[loc_idx][\"type\"] == \"attraction\":\n        # Check if satisfaction is at least 3\n        if self.problem.locations[loc_idx].get(\"satisfaction\", 0) < 3:\n            return False"
+    ],
+    "is_feasible_insertion": [
+        "# Check if inserting this location keeps total cost within 95% of the budget\nif self.get_total_cost() + self.problem.locations[loc_idx].get(\"entrance_fee\", 0) > self.problem.budget * 0.95:\n    return False",
+        "if self.problem.locations[loc_idx][\"type\"] == \"attraction\":\n    # Check if satisfaction is at least 3\n    if self.problem.locations[loc_idx].get(\"satisfaction\", 0) < 3:\n        return False"
+    ]
+}

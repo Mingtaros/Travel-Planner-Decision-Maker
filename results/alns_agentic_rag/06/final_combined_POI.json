@@ -1,0 +1,263 @@
+{
+  "Query": "Looking to relax and enjoy greenery and peaceful spots in Singapore. I’ll be there for 3 days and have 190 SGD to spend. I enjoy light snacks over heavy meals.",
+  "Hawker": [
+    {
+      "Hawker Name": "Lau Pa Sat",
+      "Dish Name": "NA",
+      "Satisfaction Score": 3.3281350648357577,
+      "Avg Food Price": 13.17947643396463,
+      "Duration": 60
+    },
+    {
+      "Hawker Name": "​Chinatown Complex Food Centre​",
+      "Dish Name": "NA",
+      "Satisfaction Score": 2.3225218421262275,
+      "Avg Food Price": 8.655116551467556,
+      "Duration": 60
+    },
+    {
+      "Hawker Name": "Tekka Centre",
+      "Dish Name": "NA",
+      "Satisfaction Score": 3.953328586562174,
+      "Avg Food Price": 12.311709461777482,
+      "Duration": 60
+    },
+    {
+      "Hawker Name": "​Maxwell Food Centre",
+      "Dish Name": "NA",
+      "Satisfaction Score": 3.027623624313499,
+      "Avg Food Price": 7.261919345978311,
+      "Duration": 60
+    },
+    {
+      "Hawker Name": "One Punggol Hawker Centre",
+      "Dish Name": "NA",
+      "Satisfaction Score": 3.6096119617909976,
+      "Avg Food Price": 10.37354672501662,
+      "Duration": 60
+    },
+    {
+      "Hawker Name": "East Coast Lagoon Food Village",
+      "Dish Name": "NA",
+      "Satisfaction Score": 3.5252803161590864,
+      "Avg Food Price": 5.687469752519089,
+      "Duration": 60
+    },
+    {
+      "Hawker Name": "Changi Village Hawker Centre",
+      "Dish Name": "NA",
+      "Satisfaction Score": 2.3488189650087676,
+      "Avg Food Price": 11.896103470629502,
+      "Duration": 60
+    },
+    {
+      "Hawker Name": "Tangs Market",
+      "Dish Name": "NA",
+      "Satisfaction Score": 2.903656170853263,
+      "Avg Food Price": 8.977681758865945,
+      "Duration": 60
+    },
+    {
+      "Hawker Name": "Food Opera ION Orchard",
+      "Dish Name": "NA",
+      "Satisfaction Score": 2.5513303498455615,
+      "Avg Food Price": 8.380118580081284,
+      "Duration": 60
+    },
+    {
+      "Hawker Name": "Teck Ghee Court Market & Food Centre",
+      "Dish Name": "NA",
+      "Satisfaction Score": 3.656731494028075,
+      "Avg Food Price": 7.9044015515567345,
+      "Duration": 60
+    }
+  ],
+  "Attraction": [
+    {
+      "Attraction Name": "Singapore Botanic Gardens",
+      "Satisfaction Score": 5.0,
+      "Entrance Fee": 0.0,
+      "Duration": 120
+    },
+    {
+      "Attraction Name": "Gardens by the Bay",
+      "Satisfaction Score": 5.0,
+      "Entrance Fee": 20.0,
+      "Duration": 180
+    },
+    {
+      "Attraction Name": "MacRitchie Reservoir",
+      "Satisfaction Score": 4.0,
+      "Entrance Fee": 0.0,
+      "Duration": 180
+    },
+    {
+      "Attraction Name": "East Coast Park",
+      "Satisfaction Score": 4.0,
+      "Entrance Fee": 0.0,
+      "Duration": 180
+    },
+    {
+      "Attraction Name": "Fort Canning Park",
+      "Satisfaction Score": 4.0,
+      "Entrance Fee": 0.0,
+      "Duration": 120
+    },
+    {
+      "Attraction Name": "MacRitchie Reservoir Park",
+      "Satisfaction Score": 5.0,
+      "Entrance Fee": 0.0,
+      "Duration": 180
+    },
+    {
+      "Attraction Name": "HortPark",
+      "Satisfaction Score": 4.0,
+      "Entrance Fee": 0.0,
+      "Duration": 90
+    },
+    {
+      "Attraction Name": "Punggol Waterway Park",
+      "Satisfaction Score": 4.2,
+      "Entrance Fee": 0.0,
+      "Duration": 120
+    },
+    {
+      "Attraction Name": "ArtScience Museum",
+      "Satisfaction Score": 2.5827977025063333,
+      "Entrance Fee": 19.843688339463984,
+      "Duration": 54.299849882339984
+    },
+    {
+      "Attraction Name": "National Museum of Singapore",
+      "Satisfaction Score": 3.605496109026005,
+      "Entrance Fee": 9.587837295603913,
+      "Duration": 37.70433179353931
+    },
+    {
+      "Attraction Name": "Peranakan Museum",
+      "Satisfaction Score": 2.111510223788921,
+      "Entrance Fee": 24.85983082088257,
+      "Duration": 72.98989544236869
+    },
+    {
+      "Attraction Name": "Clarke Quay",
+      "Satisfaction Score": 2.3326599103324805,
+      "Entrance Fee": 13.791896191257258,
+      "Duration": 119.88489785126107
+    },
+    {
+      "Attraction Name": "Kampong Glam",
+      "Satisfaction Score": 3.2310522147886065,
+      "Entrance Fee": 4.291868504897206,
+      "Duration": 72.43887340062807
+    },
+    {
+      "Attraction Name": "Orchard Road",
+      "Satisfaction Score": 3.3303210026695753,
+      "Entrance Fee": 18.60022425127018,
+      "Duration": 90.50067492285726
+    },
+    {
+      "Attraction Name": "Esplanade",
+      "Satisfaction Score": 2.349484880073225,
+      "Entrance Fee": 34.16472398759628,
+      "Duration": 42.901538353912194
+    },
+    {
+      "Attraction Name": "Thian Hock Keng Temple",
+      "Satisfaction Score": 2.2320707796090713,
+      "Entrance Fee": 1.0745118817010568,
+      "Duration": 73.65206482355619
+    },
+    {
+      "Attraction Name": "St Andrew's Cathedral",
+      "Satisfaction Score": 2.712611110022708,
+      "Entrance Fee": 41.88294689634934,
+      "Duration": 32.75447795273014
+    },
+    {
+      "Attraction Name": "Buddha Tooth Relic Temple",
+      "Satisfaction Score": 3.979482171885122,
+      "Entrance Fee": 20.131983459921443,
+      "Duration": 111.10714390715546
+    },
+    {
+      "Attraction Name": "Science Centre Singapore",
+      "Satisfaction Score": 2.9653817479047797,
+      "Entrance Fee": 46.463532363378,
+      "Duration": 112.08494718902752
+    },
+    {
+      "Attraction Name": "Snow City",
+      "Satisfaction Score": 2.2565430644730062,
+      "Entrance Fee": 34.34105574972523,
+      "Duration": 91.47302662082141
+    },
+    {
+      "Attraction Name": "Adventure Cove Waterpark",
+      "Satisfaction Score": 2.8527501242309397,
+      "Entrance Fee": 49.01805068045488,
+      "Duration": 115.75715797861069
+    },
+    {
+      "Attraction Name": "S.E.A. Aquarium",
+      "Satisfaction Score": 3.2626991199953297,
+      "Entrance Fee": 47.80303474890184,
+      "Duration": 66.1575947294831
+    },
+    {
+      "Attraction Name": "Skyline Luge Sentosa",
+      "Satisfaction Score": 2.030355597114333,
+      "Entrance Fee": 31.450527263360385,
+      "Duration": 55.54019423636893
+    },
+    {
+      "Attraction Name": "Trick Eye Museum",
+      "Satisfaction Score": 2.0585843433710407,
+      "Entrance Fee": 17.6546020972538,
+      "Duration": 118.80673640667855
+    },
+    {
+      "Attraction Name": "Singapore Discovery Centre",
+      "Satisfaction Score": 3.0631061329456872,
+      "Entrance Fee": 20.439681528532955,
+      "Duration": 67.17089969632275
+    },
+    {
+      "Attraction Name": "Battlebox",
+      "Satisfaction Score": 3.045672024257362,
+      "Entrance Fee": 29.36194570142346,
+      "Duration": 75.76477807399098
+    },
+    {
+      "Attraction Name": "Labrador Nature Reserve",
+      "Satisfaction Score": 2.854457074429357,
+      "Entrance Fee": 14.77660365633015,
+      "Duration": 68.77371421363256
+    },
+    {
+      "Attraction Name": "Mount Faber Park",
+      "Satisfaction Score": 2.529929934015218,
+      "Entrance Fee": 13.310930856018393,
+      "Duration": 30.969155426974083
+    },
+    {
+      "Attraction Name": "West Coast Park",
+      "Satisfaction Score": 2.2738391992471225,
+      "Entrance Fee": 30.550008355870023,
+      "Duration": 108.43718945366105
+    },
+    {
+      "Attraction Name": "Changi Beach Park",
+      "Satisfaction Score": 3.3481274740436966,
+      "Entrance Fee": 36.801909943838936,
+      "Duration": 85.81551438031744
+    },
+    {
+      "Attraction Name": "Suntec City Shopping Centre",
+      "Satisfaction Score": 2.8815585514791118,
+      "Entrance Fee": 30.30876922022086,
+      "Duration": 81.66536740910912
+    }
+  ]
+}

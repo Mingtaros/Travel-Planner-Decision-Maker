@@ -277,6 +277,11 @@ def create_code_agent(model_id="gpt-4o", debug_mode=True):
             "For `is_feasible_insertion` function, look for a comment line `# <ADD NEW INSERTION FEASIBILITY CHECK HERE>`. That's where to put the code.",
             "The code MUST WORK, no error, must be integrated nicely to the code."
             "Return the output in List of string format. Do not provide any summaries, analysis, or other additional content."
+            "The hawkers only have the following attributes: name, avg_food_price, rating (max 5).",
+            "The attractions only have the following attributes: name, entrance_fee, satisfaction (max 5), duration.",
+            "Add constraints that may limit the budget as a percentage of the total budget.",
+            "Add constraints that may limit the travel time for each location.",
+            "Add constraints that may place a minimum limit on satisfaction score (max 5) for each location.",
         ],
         knowledge=code_kb,
         search_knowledge=True,

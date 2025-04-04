@@ -1,0 +1,337 @@
+{
+  "Query": "What can I do in Singapore in 3 days if I love shopping and modern city vibes? I’d also like to eat at famous food centres. Budget is 270 SGD.",
+  "Hawker": [
+    {
+      "Hawker Name": "East Coast Lagoon Food Village",
+      "Dish Name": "Haron Satay",
+      "Satisfaction Score": 4.0,
+      "Avg Food Price": 5.0,
+      "Duration": 60
+    },
+    {
+      "Hawker Name": "Changi Village Hawker Centre",
+      "Dish Name": "International Muslim Food Stall Nasi Lemak",
+      "Satisfaction Score": 4.0,
+      "Avg Food Price": 4.0,
+      "Duration": 60
+    },
+    {
+      "Hawker Name": "Tangs Market",
+      "Dish Name": "Punggol Nasi Lemak",
+      "Satisfaction Score": 3.0,
+      "Avg Food Price": 6.0,
+      "Duration": 45
+    },
+    {
+      "Hawker Name": "Food Opera ION Orchard",
+      "Dish Name": "Sergeant Hainanese Chicken Rice",
+      "Satisfaction Score": 5.0,
+      "Avg Food Price": 6.0,
+      "Duration": 45
+    },
+    {
+      "Hawker Name": "Teck Ghee Court Market & Food Centre",
+      "Dish Name": "Soon Heng Roasted Delights",
+      "Satisfaction Score": 3.0,
+      "Avg Food Price": 5.0,
+      "Duration": 45
+    },
+    {
+      "Hawker Name": "Lau Pa Sat",
+      "Dish Name": "Satay",
+      "Satisfaction Score": 5.0,
+      "Avg Food Price": 10.0,
+      "Duration": 60
+    },
+    {
+      "Hawker Name": "Amoy Street Food Centre",
+      "Dish Name": "Han Kee Fish Soup",
+      "Satisfaction Score": 4.0,
+      "Avg Food Price": 5.0,
+      "Duration": 45
+    },
+    {
+      "Hawker Name": "Chinatown Complex Food Centre",
+      "Dish Name": "Hong Kong Soya Sauce Chicken Rice and Noodle",
+      "Satisfaction Score": 5.0,
+      "Avg Food Price": 5.0,
+      "Duration": 60
+    },
+    {
+      "Hawker Name": "Tekka Centre",
+      "Dish Name": "Allauddin's Briyani",
+      "Satisfaction Score": 4.0,
+      "Avg Food Price": 6.0,
+      "Duration": 45
+    },
+    {
+      "Hawker Name": "Maxwell Food Centre",
+      "Dish Name": "Tian Tian Hainanese Chicken Rice",
+      "Satisfaction Score": 5.0,
+      "Avg Food Price": 5.0,
+      "Duration": 60
+    },
+    {
+      "Hawker Name": "One Punggol Hawker Centre",
+      "Dish Name": "Zhao Ji Claypot Rice",
+      "Satisfaction Score": 4.0,
+      "Avg Food Price": 8.0,
+      "Duration": 60
+    },
+    {
+      "Hawker Name": "​Chinatown Complex Food Centre​",
+      "Dish Name": "NA",
+      "Satisfaction Score": 2.8141844102944553,
+      "Avg Food Price": 14.351708079223952,
+      "Duration": 60
+    }
+  ],
+  "Attraction": [
+    {
+      "Attraction Name": "Gardens by the Bay",
+      "Satisfaction Score": 5.0,
+      "Entrance Fee": 20.0,
+      "Duration": 180
+    },
+    {
+      "Attraction Name": "Marina Bay Sands SkyPark Observation Deck",
+      "Satisfaction Score": 5.0,
+      "Entrance Fee": 35.0,
+      "Duration": 60
+    },
+    {
+      "Attraction Name": "Singapore Flyer",
+      "Satisfaction Score": 5.0,
+      "Entrance Fee": 40.0,
+      "Duration": 30
+    },
+    {
+      "Attraction Name": "ArtScience Museum",
+      "Satisfaction Score": 4.0,
+      "Entrance Fee": 32.0,
+      "Duration": 120
+    },
+    {
+      "Attraction Name": "National Gallery Singapore",
+      "Satisfaction Score": 4.0,
+      "Entrance Fee": 25.0,
+      "Duration": 120
+    },
+    {
+      "Attraction Name": "Orchard Road",
+      "Satisfaction Score": 5.0,
+      "Entrance Fee": 0.0,
+      "Duration": 180
+    },
+    {
+      "Attraction Name": "Clarke Quay",
+      "Satisfaction Score": 4.0,
+      "Entrance Fee": 0.0,
+      "Duration": 120
+    },
+    {
+      "Attraction Name": "Chinatown",
+      "Satisfaction Score": 4.0,
+      "Entrance Fee": 0.0,
+      "Duration": 120
+    },
+    {
+      "Attraction Name": "Little India",
+      "Satisfaction Score": 4.0,
+      "Entrance Fee": 0.0,
+      "Duration": 120
+    },
+    {
+      "Attraction Name": "Kampong Glam",
+      "Satisfaction Score": 4.0,
+      "Entrance Fee": 0.0,
+      "Duration": 120
+    },
+    {
+      "Attraction Name": "Marina Bay Sands SkyPark",
+      "Satisfaction Score": 5.0,
+      "Entrance Fee": 35.0,
+      "Duration": 90
+    },
+    {
+      "Attraction Name": "Chinatown Food Street",
+      "Satisfaction Score": 5.0,
+      "Entrance Fee": 0.0,
+      "Duration": 60
+    },
+    {
+      "Attraction Name": "Maxwell Food Centre",
+      "Satisfaction Score": 5.0,
+      "Entrance Fee": 0.0,
+      "Duration": 60
+    },
+    {
+      "Attraction Name": "Marina Bay Sands",
+      "Satisfaction Score": 5.0,
+      "Entrance Fee": 39.0,
+      "Duration": 120
+    },
+    {
+      "Attraction Name": "VivoCity",
+      "Satisfaction Score": 4.0,
+      "Entrance Fee": 0.0,
+      "Duration": 180
+    },
+    {
+      "Attraction Name": "Haji Lane",
+      "Satisfaction Score": 4.0,
+      "Entrance Fee": 0.0,
+      "Duration": 120
+    },
+    {
+      "Attraction Name": "Lau Pa Sat",
+      "Satisfaction Score": 5.0,
+      "Entrance Fee": 0.0,
+      "Duration": 60
+    },
+    {
+      "Attraction Name": "Tiong Bahru Market",
+      "Satisfaction Score": 5.0,
+      "Entrance Fee": 0.0,
+      "Duration": 60
+    },
+    {
+      "Attraction Name": "The Shoppes at Marina Bay Sands",
+      "Satisfaction Score": 5.0,
+      "Entrance Fee": 0.0,
+      "Duration": 120
+    },
+    {
+      "Attraction Name": "ION Orchard",
+      "Satisfaction Score": 5.0,
+      "Entrance Fee": 0.0,
+      "Duration": 120
+    },
+    {
+      "Attraction Name": "Marina Bay",
+      "Satisfaction Score": 5.0,
+      "Entrance Fee": 35.0,
+      "Duration": 120
+    },
+    {
+      "Attraction Name": "Suntec City Shopping Centre",
+      "Satisfaction Score": 4.0,
+      "Entrance Fee": 0.0,
+      "Duration": 180
+    },
+    {
+      "Attraction Name": "Jewel Changi",
+      "Satisfaction Score": 5.0,
+      "Entrance Fee": 0.0,
+      "Duration": 180
+    },
+    {
+      "Attraction Name": "Punggol Waterway Point",
+      "Satisfaction Score": 4.0,
+      "Entrance Fee": 0.0,
+      "Duration": 120
+    },
+    {
+      "Attraction Name": "Fort Canning Park",
+      "Satisfaction Score": 2.909443201040657,
+      "Entrance Fee": 14.189298940704791,
+      "Duration": 106.47883935430826
+    },
+    {
+      "Attraction Name": "East Coast Park",
+      "Satisfaction Score": 3.8874110292469615,
+      "Entrance Fee": 23.20381793533968,
+      "Duration": 30.867363713860374
+    },
+    {
+      "Attraction Name": "Raffles Hotel",
+      "Satisfaction Score": 2.0090808145611767,
+      "Entrance Fee": 24.795694673821927,
+      "Duration": 86.60552254513412
+    },
+    {
+      "Attraction Name": "Thian Hock Keng Temple",
+      "Satisfaction Score": 2.746944865680896,
+      "Entrance Fee": 17.98149941642661,
+      "Duration": 96.03058273922461
+    },
+    {
+      "Attraction Name": "Sri Mariamman Temple",
+      "Satisfaction Score": 2.2075171294318228,
+      "Entrance Fee": 2.9287762451555954,
+      "Duration": 100.95719291665806
+    },
+    {
+      "Attraction Name": "S.E.A. Aquarium",
+      "Satisfaction Score": 2.0784585355037466,
+      "Entrance Fee": 38.08778715733429,
+      "Duration": 106.96668153383418
+    },
+    {
+      "Attraction Name": "Trick Eye Museum",
+      "Satisfaction Score": 2.095149368164598,
+      "Entrance Fee": 46.7374132410954,
+      "Duration": 75.29883225440051
+    },
+    {
+      "Attraction Name": "Battlebox",
+      "Satisfaction Score": 3.5446020211768348,
+      "Entrance Fee": 41.43512229156717,
+      "Duration": 79.03661702744802
+    },
+    {
+      "Attraction Name": "Coney Island Park",
+      "Satisfaction Score": 2.2154124970989404,
+      "Entrance Fee": 22.873312385196776,
+      "Duration": 82.46242673373291
+    },
+    {
+      "Attraction Name": "Fort Siloso",
+      "Satisfaction Score": 3.096838676893777,
+      "Entrance Fee": 2.257482663833421,
+      "Duration": 109.27854951333572
+    },
+    {
+      "Attraction Name": "Mount Faber Park",
+      "Satisfaction Score": 2.1329458702704294,
+      "Entrance Fee": 37.87827687013399,
+      "Duration": 93.16317612292121
+    },
+    {
+      "Attraction Name": "Kent Ridge Park",
+      "Satisfaction Score": 3.3029027385582506,
+      "Entrance Fee": 4.85646081947197,
+      "Duration": 105.1653443088314
+    },
+    {
+      "Attraction Name": "West Coast Park",
+      "Satisfaction Score": 3.7798897656455734,
+      "Entrance Fee": 23.194006217058405,
+      "Duration": 41.17384785515664
+    },
+    {
+      "Attraction Name": "Changi Beach Park",
+      "Satisfaction Score": 2.5414400847540115,
+      "Entrance Fee": 46.76973016732233,
+      "Duration": 118.7610997028478
+    },
+    {
+      "Attraction Name": "AJ Hackett Sentosa",
+      "Satisfaction Score": 2.4104766176704446,
+      "Entrance Fee": 7.753296407017229,
+      "Duration": 53.49792312030317
+    },
+    {
+      "Attraction Name": "Wave House Sentosa",
+      "Satisfaction Score": 2.235521437463028,
+      "Entrance Fee": 18.197107072762726,
+      "Duration": 63.20337571759527
+    },
+    {
+      "Attraction Name": "Ice Cream Museum",
+      "Satisfaction Score": 2.8623788314826664,
+      "Entrance Fee": 15.938577194068577,
+      "Duration": 37.92615089614778
+    }
+  ]
+}

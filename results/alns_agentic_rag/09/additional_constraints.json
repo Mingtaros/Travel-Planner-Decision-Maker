@@ -1,0 +1,8 @@
+{
+    "is_feasible": [
+        "# Check for budget constraint as a percentage of total budget\nif total_cost > self.problem.budget * 0.95:  # Allowing 95% of the budget to be used\n    return False\n\n# Check for minimum satisfaction score for each location\nfor loc, _, _, _ in route:\n    loc_type = self.problem.locations[loc][\"type\"]\n    if loc_type == \"attraction\":\n        satisfaction = self.problem.locations[loc].get(\"satisfaction\", 0)\n        if satisfaction < 3:  # Minimum satisfaction score of 3\n            return False\n\n# Check for travel time constraint for each location\nfor i in range(1, len(route)):\n    prev_loc, _, prev_departure, _ = route[i-1]\n    curr_loc, curr_arrival, _, transport_mode = route[i]\n    transport_data = self._get_transport_data(prev_loc, curr_loc, prev_departure, transport_mode)\n    if transport_data[\"duration\"] > 60:  # Maximum travel time of 60 minutes\n        return False"
+    ],
+    "is_feasible_insertion": [
+        "# Check for budget constraint as a percentage of total budget\nif total_cost + arr_transit_cost + loc_cost + dep_transit_cost > self.problem.budget * 0.95:  # Allowing 95% of the budget to be used\n    return False\n\n# Check for minimum satisfaction score for each location\nif location_type == \"attraction\":\n    satisfaction = self.problem.locations[location_idx].get(\"satisfaction\", 0)\n    if satisfaction < 3:  # Minimum satisfaction score of 3\n        return False\n\n# Check for travel time constraint for each location\nif transport_data[\"duration\"] > 60:  # Maximum travel time of 60 minutes\n    return False"
+    ]
+}

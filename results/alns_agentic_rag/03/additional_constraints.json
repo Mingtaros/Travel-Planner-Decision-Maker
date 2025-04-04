@@ -1,0 +1,8 @@
+{
+    "is_feasible": [
+        "# Check if total cost exceeds budget\nif self.get_total_cost() > self.problem.budget:\n    return False"
+    ],
+    "is_feasible_insertion": [
+        "# Check if inserting this location exceeds budget\nnew_cost, _ = self.get_cost_duration(day, location_idx, position, transport_mode)\nif self.get_total_cost() + new_cost > self.problem.budget:\n    return False"
+    ]
+}
