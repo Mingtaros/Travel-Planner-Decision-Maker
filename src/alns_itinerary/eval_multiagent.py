@@ -68,10 +68,115 @@ user_queries = {
     # }
 }
 #==================
+def verify_and_get_mismatches(json_path: str):
+    with open(json_path, 'r') as f:
+        data = json.load(f)
 
+    recomputed_cost = 0.0
+    recomputed_satisfaction = 0
+    recomputed_transit = 0
+
+    for day in data.get("itinerary", []):
+        for activity in day.get("activities", []):
+            recomputed_cost += activity.get("estimated_cost", 0)
+            recomputed_satisfaction += activity.get("satisfaction_score", 0)
+            recomputed_transit += activity.get("duration_from_previous_point", 0)
+
+    recomputed_cost = round(recomputed_cost, 2)
+
+    reported = data.get("summary", {})
+    reported_cost = round(reported.get("total_cost_sgd", -1), 2)
+    reported_satisfaction = reported.get("total_satisfaction_score", -1)
+    reported_transit = reported.get("total_transit_duration_min", -1)
+
+    cost_match = recomputed_cost == reported_cost
+    satisfaction_match = recomputed_satisfaction == reported_satisfaction
+    transit_match = recomputed_transit == reported_transit
+    all_match = cost_match and satisfaction_match and transit_match
+
+    # Compute errors
+    cost_abs_error = abs(reported_cost - recomputed_cost)
+    cost_pct_error = abs(reported_cost - recomputed_cost) / max(recomputed_cost, 1e-5)
+
+    satisfaction_abs_error = abs(reported_satisfaction - recomputed_satisfaction)
+    satisfaction_pct_error = abs(reported_satisfaction - recomputed_satisfaction) / max(recomputed_satisfaction, 1e-5)
+
+    transit_abs_error = abs(reported_transit - recomputed_transit)
+    transit_pct_error = abs(reported_transit - recomputed_transit) / max(recomputed_transit, 1e-5)
+
+    return {
+        "match": {
+            "cost": cost_match,
+            "satisfaction": satisfaction_match,
+            "transit": transit_match,
+            "all": all_match
+        },
+        "abs_error": {
+            "cost": cost_abs_error,
+            "satisfaction": satisfaction_abs_error,
+            "transit": transit_abs_error
+        },
+        "pct_error": {
+            "cost": cost_pct_error,
+            "satisfaction": satisfaction_pct_error,
+            "transit": transit_pct_error
+        }
+    }
+
+def evaluate_all_scenarios(subfolder_path="results/agentic_rag"):
+    scenarios = [f"{i:02}" for i in range(1, 11)]
+    
+    total = len(scenarios)
+    cost_correct = 0
+    satisfaction_correct = 0
+    transit_correct = 0
+    all_correct = 0
+
+    total_cost_error = 0
+    total_satisfaction_error = 0
+    total_transit_error = 0
+
+    print("🔍 Starting evaluation...\n")
+
+    for scenario in scenarios:
+        json_path = os.path.join(subfolder_path, f"{scenario}/agent_itinerary.json")
+
+        if not os.path.exists(json_path):
+            print(f"⚠️  Missing: {json_path}")
+            continue
+
+        result = verify_and_get_mismatches(json_path)
+        match = result["match"]
+        abs_error = result["abs_error"]
+
+        print(f"Scenario {scenario}:")
+        print(f"  Cost Match:         {'✅' if match['cost'] else '❌'}")
+        print(f"  Satisfaction Match: {'✅' if match['satisfaction'] else '❌'}")
+        print(f"  Transit Match:      {'✅' if match['transit'] else '❌'}")
+        print(f"  All Fields Match:   {'✅' if match['all'] else '❌'}\n")
+
+        cost_correct += int(match["cost"])
+        satisfaction_correct += int(match["satisfaction"])
+        transit_correct += int(match["transit"])
+        all_correct += int(match["all"])
+
+        total_cost_error += abs_error["cost"]
+        total_satisfaction_error += abs_error["satisfaction"]
+        total_transit_error += abs_error["transit"]
+
+    print("\n📊 Final Accuracy Report:")
+    print(f"  Cost Accuracy:         {cost_correct}/{total}  ({cost_correct / total:.0%})")
+    print(f"  Satisfaction Accuracy: {satisfaction_correct}/{total}  ({satisfaction_correct / total:.0%})")
+    print(f"  Transit Accuracy:      {transit_correct}/{total}  ({transit_correct / total:.0%})")
+    # print(f"  All Fields Match:      {all_correct}/{total}  ({all_correct / total:.0%})")
+
+    print("\n📐 Mean Absolute Error (MAE):")
+    print(f"  Cost:         {total_cost_error / total:.2f} SGD")
+    print(f"  Satisfaction: {total_satisfaction_error / total:.2f} points")
+    print(f"  Transit:      {total_transit_error / total:.2f} minutes")
 
 if __name__ == "__main__":
-    print()
+    # print()
 
     debug_mode=True
     intent_agent = create_intent_agent()
@@ -134,7 +239,7 @@ if __name__ == "__main__":
                         "Duration": attraction.get("duration", 120),
                     })
         
-        subfolder_path = "data/alns_inputs"
+        subfolder_path = "results/agentic_rag"
 
         poi_path = os.path.join(subfolder_path, f"{scenario}/POI_data.json")
         os.makedirs(subfolder_path+f"/{scenario}", 
@@ -153,10 +258,27 @@ if __name__ == "__main__":
                                                  )
         
         itinerary_response = itinerary_agent.run(query=json.dumps(query_item), stream=False)
-        itinerary = itinerary_response.content
-        with open(os.path.join(subfolder_path, f"{scenario}/agent_itinerary.txt"), 'w') as f:
-            f.write(itinerary)
+        # itinerary = itinerary_response.content
+        # output_path = os.path.join(subfolder_path, f"{scenario}/agent_itinerary.txt")
+        # with open(output_path, 'w') as f:
+        #     f.write(itinerary)
 
-        print(itinerary)
-        end_time = time.time()
-        print(f"\nTotal runtime: {end_time - start_time:.2f} seconds")
+        # print(itinerary)
+        # print(f"Saved itinerary to: {output_path}")
+        # end_time = time.time()
+        # print(f"\nTotal runtime: {end_time - start_time:.2f} seconds")
+        # Serialize Pydantic model to JSON string
+        itinerary_json_str = itinerary_response.content.model_dump_json(indent=2)
+
+        # Save to file
+        output_path = os.path.join(subfolder_path, f"{scenario}/agent_itinerary.json")
+        with open(output_path, 'w') as f:
+            f.write(itinerary_json_str)
+
+        # Optional: print or preview
+        print(itinerary_json_str)
+        print(f"Saved itinerary to: {output_path}")
+
+        print("*"*100)
+
+    evaluate_all_scenarios()

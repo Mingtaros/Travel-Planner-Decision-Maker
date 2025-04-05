@@ -1,0 +1,132 @@
+{
+  "itinerary": [
+    {
+      "day": 1,
+      "activities": [
+        {
+          "activity_type": "attraction",
+          "name": "Gardens by the Bay",
+          "duration": 180,
+          "estimated_cost": 28.0,
+          "satisfaction_score": 5,
+          "duration_from_previous_point": 0,
+          "notes": "Explore the Cloud Forest and Flower Dome."
+        },
+        {
+          "activity_type": "food",
+          "name": "Maxwell Food Centre",
+          "duration": 60,
+          "estimated_cost": 5.0,
+          "satisfaction_score": 5,
+          "duration_from_previous_point": 20,
+          "notes": "Try Tian Tian Hainanese Chicken Rice."
+        },
+        {
+          "activity_type": "attraction",
+          "name": "Marina Bay Sands SkyPark",
+          "duration": 90,
+          "estimated_cost": 26.0,
+          "satisfaction_score": 4,
+          "duration_from_previous_point": 15,
+          "notes": "Enjoy panoramic views of the city."
+        },
+        {
+          "activity_type": "food",
+          "name": "Chinatown Complex Food Centre",
+          "duration": 60,
+          "estimated_cost": 3.0,
+          "satisfaction_score": 5,
+          "duration_from_previous_point": 10,
+          "notes": "Taste the famous Hong Kong Soya Sauce Chicken Rice and Noodle."
+        }
+      ]
+    },
+    {
+      "day": 2,
+      "activities": [
+        {
+          "activity_type": "attraction",
+          "name": "Singapore Zoo",
+          "duration": 240,
+          "estimated_cost": 48.0,
+          "satisfaction_score": 5,
+          "duration_from_previous_point": 0,
+          "notes": "Visit the world's best rainforest zoo."
+        },
+        {
+          "activity_type": "food",
+          "name": "Amoy Street Food Centre",
+          "duration": 60,
+          "estimated_cost": 5.0,
+          "satisfaction_score": 4,
+          "duration_from_previous_point": 30,
+          "notes": "Try the Han Kee Fish Soup."
+        },
+        {
+          "activity_type": "attraction",
+          "name": "Sentosa Island",
+          "duration": 300,
+          "estimated_cost": 0.0,
+          "satisfaction_score": 4,
+          "duration_from_previous_point": 20,
+          "notes": "Explore the beaches and attractions on Sentosa Island."
+        },
+        {
+          "activity_type": "food",
+          "name": "Lau Pa Sat",
+          "duration": 60,
+          "estimated_cost": 10.0,
+          "satisfaction_score": 4,
+          "duration_from_previous_point": 25,
+          "notes": "Enjoy the famous Satay."
+        }
+      ]
+    },
+    {
+      "day": 3,
+      "activities": [
+        {
+          "activity_type": "attraction",
+          "name": "Universal Studios Singapore",
+          "duration": 480,
+          "estimated_cost": 79.0,
+          "satisfaction_score": 5,
+          "duration_from_previous_point": 0,
+          "notes": "Spend a fun-filled day at the theme park."
+        },
+        {
+          "activity_type": "food",
+          "name": "Tekka Centre",
+          "duration": 60,
+          "estimated_cost": 6.0,
+          "satisfaction_score": 4,
+          "duration_from_previous_point": 30,
+          "notes": "Try Allauddin's Briyani."
+        },
+        {
+          "activity_type": "attraction",
+          "name": "Marina Bay Sands SkyPark",
+          "duration": 90,
+          "estimated_cost": 26.0,
+          "satisfaction_score": 4,
+          "duration_from_previous_point": 20,
+          "notes": "Revisit for a night view of the city."
+        },
+        {
+          "activity_type": "food",
+          "name": "East Coast Lagoon Food Village",
+          "duration": 60,
+          "estimated_cost": 6.0,
+          "satisfaction_score": 5,
+          "duration_from_previous_point": 15,
+          "notes": "Enjoy Haron Satay by the beach."
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "total_cost_sgd": 277.0,
+    "total_transit_duration_min": 185,
+    "total_satisfaction_score": 69
+  }
+}

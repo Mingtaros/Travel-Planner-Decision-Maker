@@ -1,0 +1,118 @@
+{
+    "Query": {
+        "query": "What can I do in Singapore in 3 days if I love shopping and modern city vibes? I\u2019d also like to eat at famous food centres. Budget is 270 SGD.",
+        "days": 3,
+        "budget": 270
+    },
+    "Hawker": [
+        {
+            "Hawker Name": "East Coast Lagoon Food Village",
+            "Dish Name": "Haron Satay",
+            "Satisfaction Score": 5.0,
+            "Avg Food Price": 6.0,
+            "Duration": 60
+        },
+        {
+            "Hawker Name": "Changi Village Hawker Centre",
+            "Dish Name": "International Muslim Food Stall Nasi Lemak",
+            "Satisfaction Score": 4.0,
+            "Avg Food Price": 5.0,
+            "Duration": 60
+        },
+        {
+            "Hawker Name": "Tangs Market",
+            "Dish Name": "Punggol Nasi Lemak",
+            "Satisfaction Score": 4.0,
+            "Avg Food Price": 5.0,
+            "Duration": 45
+        },
+        {
+            "Hawker Name": "Food Opera ION Orchard",
+            "Dish Name": "Sergeant Hainanese Chicken Rice",
+            "Satisfaction Score": 4.0,
+            "Avg Food Price": 6.0,
+            "Duration": 45
+        },
+        {
+            "Hawker Name": "Teck Ghee Court Market & Food Centre",
+            "Dish Name": "Soon Heng Roasted Delights",
+            "Satisfaction Score": 3.0,
+            "Avg Food Price": 5.0,
+            "Duration": 45
+        },
+        {
+            "Hawker Name": "Lau Pa Sat",
+            "Dish Name": "Satay",
+            "Satisfaction Score": 4.0,
+            "Avg Food Price": 10.0,
+            "Duration": 60
+        },
+        {
+            "Hawker Name": "Amoy Street Food Centre",
+            "Dish Name": "Han Kee Fish Soup",
+            "Satisfaction Score": 5.0,
+            "Avg Food Price": 5.0,
+            "Duration": 45
+        },
+        {
+            "Hawker Name": "Chinatown Complex Food Centre",
+            "Dish Name": "Hong Kong Soya Sauce Chicken Rice and Noodle",
+            "Satisfaction Score": 5.0,
+            "Avg Food Price": 3.0,
+            "Duration": 60
+        },
+        {
+            "Hawker Name": "Tekka Centre",
+            "Dish Name": "Allauddin's Briyani",
+            "Satisfaction Score": 4.0,
+            "Avg Food Price": 6.0,
+            "Duration": 60
+        },
+        {
+            "Hawker Name": "Maxwell Food Centre",
+            "Dish Name": "Tian Tian Hainanese Chicken Rice",
+            "Satisfaction Score": 5.0,
+            "Avg Food Price": 5.0,
+            "Duration": 45
+        },
+        {
+            "Hawker Name": "One Punggol Hawker Centre",
+            "Dish Name": "Zhao Ji Claypot Rice",
+            "Satisfaction Score": 4.0,
+            "Avg Food Price": 8.0,
+            "Duration": 60
+        }
+    ],
+    "Attraction": [
+        {
+            "Attraction Name": "Gardens by the Bay",
+            "Satisfaction Score": 5.0,
+            "Entrance Fee": 28.0,
+            "Duration": 180
+        },
+        {
+            "Attraction Name": "Marina Bay Sands SkyPark",
+            "Satisfaction Score": 4.0,
+            "Entrance Fee": 26.0,
+            "Duration": 90
+        },
+        {
+            "Attraction Name": "Singapore Zoo",
+            "Satisfaction Score": 5.0,
+            "Entrance Fee": 42.0,
+            "Duration": 240
+        },
+        {
+            "Attraction Name": "Universal Studios Singapore",
+            "Satisfaction Score": 5.0,
+            "Entrance Fee": 79.0,
+            "Duration": 480
+        },
+        {
+            "Attraction Name": "Sentosa Island",
+            "Satisfaction Score": 4.0,
+            "Entrance Fee": 0.0,
+            "Duration": 300
+        }
+    ]
+}

@@ -4,7 +4,7 @@ from data.llm_batch_process import process_and_save
 #==================
 from pydantic import BaseModel, Field
 from textwrap import dedent
-from typing import List
+from typing import List, Optional
 import time
 
 import numpy as np
@@ -32,6 +32,28 @@ from agno.tools.calculator import CalculatorTools
 load_dotenv()
 os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
 os.environ["GROQ_API_KEY"] = os.getenv("GROQ_API_KEY")
+
+class Activity(BaseModel):
+    activity_type: str  # "attraction" or "food"
+    name: str
+    duration: int  # in minutes
+    estimated_cost: float
+    satisfaction_score: int
+    duration_from_previous_point: int
+    notes: Optional[str]
+
+class DayPlan(BaseModel):
+    day: int
+    activities: List[Activity]
+
+class Summary(BaseModel):
+    total_cost_sgd: float
+    total_transit_duration_min: int
+    total_satisfaction_score: int
+
+class ItineraryResponse(BaseModel):
+    itinerary: List[DayPlan]
+    summary: Summary
 
 class IntentResponse(BaseModel):
     intent: str = Field(..., description="The detected intent of the query. Options: 'food', 'attraction', 'both'. Returns 'malicious' if the query is malicious.")
@@ -275,40 +297,77 @@ def create_itinerary_agent(hawkers: list, attractions: list, model_id="gpt-4o", 
         model=OpenAIChat(
             id=model_id,
             response_format="json",
-            temperature=0.3,
+            temperature=0.2,
             top_p=0.2
         ),
         structured_outputs=True,
+        response_model=ItineraryResponse,
         description="Expert in building multi-day travel itineraries within a given budget.",
         role="Create a detailed daily plan with time slots, alternating attractions and food stops.",
-        instructions=[
-            "Given that we have the following Point of Interests,",
-            f"hawkers:{hawkers}",
-            f"attractions:{attractions}",
-            "You are an expert itinerary planner for Singapore.",
-            "You will receive a JSON containing the user's travel query, list of hawkers, and attractions.",
-            "Use this information to plan a detailed itinerary over multiple days.",
-            "Your start point and end point should always be at Marina Bay Sands Hotel.",
-            "You should always optimally plan your route with the most efficient and sound itinerary based on the selected locations.",
-            "Ensure that the total budget does not exceed the one mentioned in the query.",
-            "The plan should include 2-3 attractions per day and 2 food stops (lunch and dinner).",
-            "Prioritize high-satisfaction locations with good value.",
-            "Distribute long-duration attractions across different days.",
-            "Alternate expensive and free attractions to stay within budget.",
-            "Return the query.",
-            "Return a list of days, each containing an ordered list of activity blocks:",
-            "- 'activity_type': 'attraction' or 'food'",
-            "- 'name': Name of the attraction or hawker center",
-            "- 'duration': Duration in minutes",
-            "- 'estimated cost: in SGD",
-            "- 'duration from point to point': For each point location, indicate the estimated time of travel by public transport.",
-            "- 'notes': Any relevant info, e.g., 'Good for kids' or 'Must try satay'.",
-            "At the end, include:",
-            "- the total cost in SGD, calculate this using sum of all cost from point of interest using the CalculatorTool",
-            "- total transit duration, calculate this using sum of all duration of transit from point-to-point using the CalculatorTool",
-            "- total satisfaction score, calculate this using sum of all satisfaction score from point of interest using the CalculatorTool",
-            "You need to ensure that you are using the CalculatorTool, do not make up total cost numbers, total duration, or total satisfaction.",
+        instructions = dedent(f"""
+        You are a professional travel itinerary planner for tourists visiting Singapore.
+
+        You are provided with the following points of interest:
+        hawkers: {hawkers}
+        attractions: {attractions}
+
+        You will receive a user query containing a travel description, number of days, and budget.
+
+        Your task is to create a detailed, realistic, and budget-feasible multi-day itinerary.
+
+        Constraints:
+        - Each day must begin and end at Marina Bay Sands Hotel.
+        - Each day should include 2–3 attractions and 2 hawker center visits (for lunch and dinner).
+        - Distribute high-cost attractions across different days.
+        - Mix free and paid attractions to help stay within the total budget.
+        - DO NOT fabricate or guess any cost — everything must be calculated explicitly.
+
+        ✅ You MUST use the CalculatorTool to:
+        - Compute `total_cost_sgd` (sum of all POI estimated_cost values across all days)
+
+        Return ONLY a valid JSON object with the following structure:
+
+        {{
+        "itinerary": [
+            {{
+            "day": 1,
+            "activities": [
+                {{
+                "activity_type": "attraction",
+                "name": "Gardens by the Bay",
+                "duration": 180,
+                "estimated_cost": 28.0,
+                "duration_from_previous_point": 0,
+                "notes": "Explore the Cloud Forest and Flower Dome."
+                }},
+                {{
+                "activity_type": "food",
+                "name": "Maxwell Food Centre",
+                "duration": 60,
+                "estimated_cost": 5.0,
+                "duration_from_previous_point": 20,
+                "notes": "Try Tian Tian Hainanese Chicken Rice."
+                }}
+            ]
+            }}
         ],
+        "summary": {{
+            "total_cost_sgd": 33.0  // Must be computed using CalculatorTool
+        }}
+        }}
+
+        ⚠️ DO NOT include satisfaction or transit duration in the summary.
+        ⚠️ DO NOT return markdown, bullet points, or explanations.
+        ✅ Ensure JSON is valid and parsable.
+
+        💡 Step-by-step for cost computation:
+        Step 1: Extract all `estimated_cost` values from the itinerary.
+        Step 2: Use the CalculatorTool with a formula like:
+            "28.0 + 5.0 + 12.0 + ..." to compute total cost.
+        Step 3: Insert the result into `summary.total_cost_sgd`.
+
+        ❗ Never guess the total — always compute using the CalculatorTool.
+        """)
         show_tool_calls=debug_mode,
         markdown=True,
         tools=[calculator_tool, GoogleSearchTools()]
@@ -548,53 +607,53 @@ user_queries = {
         "query": "We’re a family of four visiting Singapore for 3 days. We’d love to explore kid-friendly attractions and try some affordable local food. Budget is around 300 SGD.",
         "days": 3,
         "budget": 300,
-    },
-    # "02": {
-    #     "query": "I'm a solo backpacker staying for 3 days. My budget is tight (~150 SGD total), and I'm mainly here to try spicy food and explore free attractions.",
-    #     "days": 3,
-    #     "budget": 150,
-    # },
-    # "03": {
-    #     "query": "I’ll be spending 3 days in Singapore and I'm really interested in cultural attractions and sampling traditional hawker food on a modest budget. Budget is 180 SGD.",
-    #     "days": 3,
-    #     "budget": 180,
-    # },
-    # "04": {
-    #     "query": "I'm visiting Singapore for 3 days as a content creator. I'm looking for Instagrammable attractions and stylish food spots. Budget is 600 SGD.",
-    #     "days": 3,
-    #     "budget": 600,
-    # },
-    # "05": {
-    #     "query": "I love adventure and spicy food! Spending 3 days in Singapore. What attractions and hawker stalls should I visit? Budget is 200 SGD.",
-    #     "days": 3,
-    #     "budget": 200,
-    # },
-    # "06": {
-    #     "query": "Looking to relax and enjoy greenery and peaceful spots in Singapore. I’ll be there for 3 days and have 190 SGD to spend. I enjoy light snacks over heavy meals.",
-    #     "days": 3,
-    #     "budget": 190,
-    # },
-    # "07": {
-    #     "query": "What can I do in Singapore in 3 days if I love shopping and modern city vibes? I’d also like to eat at famous food centres. Budget is 270 SGD.",
-    #     "days": 3,
-    #     "budget": 270,
-    # },
-    # "08": {
-    #     "query": "My spouse and I are retired and visiting Singapore for 3 days. We love cultural sites and relaxing parks. Prefer to avoid loud or overly touristy spots. Budget is 210 SGD.",
-    #     "days": 3,
-    #     "budget": 210,
-    # },
-    # "09": {
-    #     "query": "We’re a group of university students spending 3 days in Singapore on a budget of 180 SGD total. Recommend cheap eats and fun, free things to do.",
-    #     "days": 3,
-    #     "budget": 180,
-    # },
-    # "10": {
-    #     "query": "This is my first time in Singapore and I’ll be here for 3 days. I’d like a mix of sightseeing, must-try foods, and some local experiences. Budget is 250 SGD.",
-    #     "days": 3,
-    #     "budget": 250,
-    # }
-}
+#     },
+#     "02": {
+#         "query": "I'm a solo backpacker staying for 3 days. My budget is tight (~150 SGD total), and I'm mainly here to try spicy food and explore free attractions.",
+#         "days": 3,
+#         "budget": 150,
+#     },
+#     "03": {
+#         "query": "I’ll be spending 3 days in Singapore and I'm really interested in cultural attractions and sampling traditional hawker food on a modest budget. Budget is 180 SGD.",
+#         "days": 3,
+#         "budget": 180,
+#     },
+#     "04": {
+#         "query": "I'm visiting Singapore for 3 days as a content creator. I'm looking for Instagrammable attractions and stylish food spots. Budget is 600 SGD.",
+#         "days": 3,
+#         "budget": 600,
+#     },
+#     "05": {
+#         "query": "I love adventure and spicy food! Spending 3 days in Singapore. What attractions and hawker stalls should I visit? Budget is 200 SGD.",
+#         "days": 3,
+#         "budget": 200,
+#     },
+#     "06": {
+#         "query": "Looking to relax and enjoy greenery and peaceful spots in Singapore. I’ll be there for 3 days and have 190 SGD to spend. I enjoy light snacks over heavy meals.",
+#         "days": 3,
+#         "budget": 190,
+#     },
+#     "07": {
+#         "query": "What can I do in Singapore in 3 days if I love shopping and modern city vibes? I’d also like to eat at famous food centres. Budget is 270 SGD.",
+#         "days": 3,
+#         "budget": 270,
+#     },
+#     "08": {
+#         "query": "My spouse and I are retired and visiting Singapore for 3 days. We love cultural sites and relaxing parks. Prefer to avoid loud or overly touristy spots. Budget is 210 SGD.",
+#         "days": 3,
+#         "budget": 210,
+#     },
+#     "09": {
+#         "query": "We’re a group of university students spending 3 days in Singapore on a budget of 180 SGD total. Recommend cheap eats and fun, free things to do.",
+#         "days": 3,
+#         "budget": 180,
+#     },
+#     "10": {
+#         "query": "This is my first time in Singapore and I’ll be here for 3 days. I’d like a mix of sightseeing, must-try foods, and some local experiences. Budget is 250 SGD.",
+#         "days": 3,
+#         "budget": 250,
+#     }
+# }
 #==================
 from tqdm import tqdm
 

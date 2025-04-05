@@ -1,0 +1,132 @@
+{
+  "itinerary": [
+    {
+      "day": 1,
+      "activities": [
+        {
+          "activity_type": "attraction",
+          "name": "Gardens by the Bay",
+          "duration": 180,
+          "estimated_cost": 28.0,
+          "satisfaction_score": 5,
+          "duration_from_previous_point": 0,
+          "notes": "Explore the Cloud Forest and Flower Dome."
+        },
+        {
+          "activity_type": "food",
+          "name": "Maxwell Food Centre",
+          "duration": 60,
+          "estimated_cost": 5.0,
+          "satisfaction_score": 5,
+          "duration_from_previous_point": 20,
+          "notes": "Try Tian Tian Hainanese Chicken Rice."
+        },
+        {
+          "activity_type": "attraction",
+          "name": "Marina Bay Sands SkyPark",
+          "duration": 90,
+          "estimated_cost": 26.0,
+          "satisfaction_score": 4,
+          "duration_from_previous_point": 15,
+          "notes": "Enjoy panoramic views of the city."
+        },
+        {
+          "activity_type": "food",
+          "name": "Lau Pa Sat",
+          "duration": 60,
+          "estimated_cost": 10.0,
+          "satisfaction_score": 4,
+          "duration_from_previous_point": 10,
+          "notes": "Enjoy a variety of satay options for dinner."
+        }
+      ]
+    },
+    {
+      "day": 2,
+      "activities": [
+        {
+          "activity_type": "attraction",
+          "name": "Singapore Zoo",
+          "duration": 240,
+          "estimated_cost": 42.0,
+          "satisfaction_score": 5,
+          "duration_from_previous_point": 0,
+          "notes": "Visit the world's best rainforest zoo."
+        },
+        {
+          "activity_type": "food",
+          "name": "Changi Village Hawker Centre",
+          "duration": 45,
+          "estimated_cost": 4.0,
+          "satisfaction_score": 5,
+          "duration_from_previous_point": 30,
+          "notes": "Try the famous Nasi Lemak for lunch."
+        },
+        {
+          "activity_type": "attraction",
+          "name": "Sentosa Island",
+          "duration": 300,
+          "estimated_cost": 0.0,
+          "satisfaction_score": 4,
+          "duration_from_previous_point": 20,
+          "notes": "Explore the beaches and attractions on Sentosa."
+        },
+        {
+          "activity_type": "food",
+          "name": "Tekka Centre",
+          "duration": 45,
+          "estimated_cost": 6.0,
+          "satisfaction_score": 4,
+          "duration_from_previous_point": 25,
+          "notes": "Enjoy Allauddin's Briyani for dinner."
+        }
+      ]
+    },
+    {
+      "day": 3,
+      "activities": [
+        {
+          "activity_type": "attraction",
+          "name": "Universal Studios Singapore",
+          "duration": 360,
+          "estimated_cost": 79.0,
+          "satisfaction_score": 5,
+          "duration_from_previous_point": 0,
+          "notes": "Spend the day enjoying thrilling rides and shows."
+        },
+        {
+          "activity_type": "food",
+          "name": "Chinatown Complex Food Centre",
+          "duration": 60,
+          "estimated_cost": 3.0,
+          "satisfaction_score": 5,
+          "duration_from_previous_point": 30,
+          "notes": "Try the Michelin-starred Hong Kong Soya Sauce Chicken Rice and Noodle."
+        },
+        {
+          "activity_type": "attraction",
+          "name": "Marina Bay Sands SkyPark",
+          "duration": 90,
+          "estimated_cost": 26.0,
+          "satisfaction_score": 4,
+          "duration_from_previous_point": 15,
+          "notes": "Return for a sunset view."
+        },
+        {
+          "activity_type": "food",
+          "name": "Amoy Street Food Centre",
+          "duration": 45,
+          "estimated_cost": 5.0,
+          "satisfaction_score": 4,
+          "duration_from_previous_point": 10,
+          "notes": "Enjoy Han Kee Fish Soup for dinner."
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "total_cost_sgd": 248.0,
+    "total_transit_duration_min": 175,
+    "total_satisfaction_score": 64
+  }
+}

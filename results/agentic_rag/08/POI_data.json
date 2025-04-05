@@ -1,0 +1,46 @@
+{
+    "Query": {
+        "query": "My spouse and I are retired and visiting Singapore for 3 days. We love cultural sites and relaxing parks. Prefer to avoid loud or overly touristy spots. Budget is 210 SGD.",
+        "days": 3,
+        "budget": 210
+    },
+    "Hawker": [],
+    "Attraction": [
+        {
+            "Attraction Name": "Gardens by the Bay",
+            "Satisfaction Score": 5.0,
+            "Entrance Fee": 28.0,
+            "Duration": 180
+        },
+        {
+            "Attraction Name": "Marina Bay Sands SkyPark",
+            "Satisfaction Score": 4.0,
+            "Entrance Fee": 26.0,
+            "Duration": 90
+        },
+        {
+            "Attraction Name": "Singapore Flyer",
+            "Satisfaction Score": 4.0,
+            "Entrance Fee": 33.0,
+            "Duration": 60
+        },
+        {
+            "Attraction Name": "Universal Studios Singapore",
+            "Satisfaction Score": 5.0,
+            "Entrance Fee": 79.0,
+            "Duration": 360
+        },
+        {
+            "Attraction Name": "Sentosa Island",
+            "Satisfaction Score": 5.0,
+            "Entrance Fee": 0.0,
+            "Duration": 240
+        },
+        {
+            "Attraction Name": "Singapore Zoo",
+            "Satisfaction Score": 5.0,
+            "Entrance Fee": 42.0,
+            "Duration": 240
+        }
+    ]
+}

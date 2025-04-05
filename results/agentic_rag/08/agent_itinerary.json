@@ -1,0 +1,132 @@
+{
+  "itinerary": [
+    {
+      "day": 1,
+      "activities": [
+        {
+          "activity_type": "attraction",
+          "name": "Gardens by the Bay",
+          "duration": 180,
+          "estimated_cost": 28.0,
+          "satisfaction_score": 5,
+          "duration_from_previous_point": 0,
+          "notes": "Explore the Cloud Forest and Flower Dome."
+        },
+        {
+          "activity_type": "food",
+          "name": "Maxwell Food Centre",
+          "duration": 60,
+          "estimated_cost": 5.0,
+          "satisfaction_score": 4,
+          "duration_from_previous_point": 20,
+          "notes": "Try Tian Tian Hainanese Chicken Rice."
+        },
+        {
+          "activity_type": "attraction",
+          "name": "Marina Bay Sands SkyPark",
+          "duration": 90,
+          "estimated_cost": 26.0,
+          "satisfaction_score": 4,
+          "duration_from_previous_point": 15,
+          "notes": "Enjoy panoramic views of the city."
+        },
+        {
+          "activity_type": "food",
+          "name": "Lau Pa Sat",
+          "duration": 60,
+          "estimated_cost": 5.0,
+          "satisfaction_score": 4,
+          "duration_from_previous_point": 10,
+          "notes": "Sample satay and other local delights."
+        }
+      ]
+    },
+    {
+      "day": 2,
+      "activities": [
+        {
+          "activity_type": "attraction",
+          "name": "Universal Studios Singapore",
+          "duration": 360,
+          "estimated_cost": 79.0,
+          "satisfaction_score": 5,
+          "duration_from_previous_point": 0,
+          "notes": "Experience thrilling rides and shows."
+        },
+        {
+          "activity_type": "food",
+          "name": "Makansutra Gluttons Bay",
+          "duration": 60,
+          "estimated_cost": 5.0,
+          "satisfaction_score": 4,
+          "duration_from_previous_point": 30,
+          "notes": "Enjoy a variety of local street food."
+        },
+        {
+          "activity_type": "attraction",
+          "name": "Sentosa Island",
+          "duration": 240,
+          "estimated_cost": 0.0,
+          "satisfaction_score": 5,
+          "duration_from_previous_point": 20,
+          "notes": "Relax on the beach and explore attractions."
+        },
+        {
+          "activity_type": "food",
+          "name": "Chinatown Complex Food Centre",
+          "duration": 60,
+          "estimated_cost": 5.0,
+          "satisfaction_score": 4,
+          "duration_from_previous_point": 25,
+          "notes": "Try the famous claypot rice."
+        }
+      ]
+    },
+    {
+      "day": 3,
+      "activities": [
+        {
+          "activity_type": "attraction",
+          "name": "Singapore Zoo",
+          "duration": 240,
+          "estimated_cost": 42.0,
+          "satisfaction_score": 5,
+          "duration_from_previous_point": 0,
+          "notes": "Discover wildlife in a lush rainforest setting."
+        },
+        {
+          "activity_type": "food",
+          "name": "Old Airport Road Food Centre",
+          "duration": 60,
+          "estimated_cost": 5.0,
+          "satisfaction_score": 4,
+          "duration_from_previous_point": 30,
+          "notes": "Taste the famous char kway teow."
+        },
+        {
+          "activity_type": "attraction",
+          "name": "Singapore Flyer",
+          "duration": 60,
+          "estimated_cost": 33.0,
+          "satisfaction_score": 4,
+          "duration_from_previous_point": 20,
+          "notes": "Take a ride on the giant Ferris wheel for stunning views."
+        },
+        {
+          "activity_type": "food",
+          "name": "Newton Food Centre",
+          "duration": 60,
+          "estimated_cost": 5.0,
+          "satisfaction_score": 4,
+          "duration_from_previous_point": 15,
+          "notes": "End the day with seafood and local dishes."
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "total_cost_sgd": 238.0,
+    "total_transit_duration_min": 185,
+    "total_satisfaction_score": 66
+  }
+}
