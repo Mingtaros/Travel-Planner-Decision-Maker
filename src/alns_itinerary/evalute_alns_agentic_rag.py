@@ -6,7 +6,8 @@ import time
 
 from alns_main import alns_main
 from data.llm_batch_process import process_and_save
-from multiagent import get_json_from_query, get_combine_json_data
+
+from agentic.multiagent import get_json_from_query, get_combine_json_data
 
 user_queries = {
     "01": {

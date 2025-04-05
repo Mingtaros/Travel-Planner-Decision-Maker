@@ -34,7 +34,9 @@ This implementation specifically addresses time constraint challenges by using a
 ## Prerequisites
 
 - Python 3.8+
-- Google Maps API key
+- Google Maps API Key
+- OpenAI API Key
+- Groq API Key
 - Required Python packages (install via `pip install -r requirements.txt`)
 
 ## Datasets
@@ -44,9 +46,7 @@ This implementation specifically addresses time constraint challenges by using a
     </tr><tr>
         <td>Singapore Travel Destinations</td><td>Geolocation and descriptions of Travel Destinations in Singapore. Entrance fee and costs are obtained using LLMs.</td><td>https://data.gov.sg/datasets/d_0f2f47515425404e6c9d2a040dd87354/view</td><td>data/attractions.csv</td>
     </tr><tr>
-        <td>Singapore Hawker Centers</td><td>Geolocation and names of Hawker Centers in Singapore</td><td>https://data.gov.sg/datasets/d_4a086da0a5553be1d89383cd90d07ecd/view</td><td>data/hawker_centers.csv</td>
-    </tr><tr>
-        <td>Singapore Hotels</td><td>Geolocation and names of Hotels in Singapore. Per-night costs are obtained using LLMs</td><td>https://data.gov.sg/datasets/d_654e22f14e5bb817423f0e0c9ac4f632/view</td><td>data/hotels.csv</td>
+        <td>Singapore Hawker Centers</td><td>Geolocation and names of Hawker Centers in Singapore</td><td>https://data.gov.sg/datasets/d_4a086da0a5553be1d89383cd90d07ecd/view</td><td>data/hawkers.csv</td>
     </tr>
 </table>
 
@@ -57,14 +57,10 @@ travel-planner-decision-maker/
 ├── log/  (will be created automatically)
 ├── results/ (all itinerary results are generated here)
 ├── data/
-│   ├── attractions.csv
-│   ├── hawker_centers.csv
 │   ├── locationData/
 │   │   └── csv/
-│   │       ├── singapore_20_food_with_scores.csv
-│   │       ├── singapore_67_attractions_with_scores.csv
 │   │       ├── attractions.csv
-│   │       └── hawker_centers.csv
+│   │       └── hawkers.csv
 │   ├── waypointData/  (will be created automatically)
 │   │   └── waypoints.json
 │   └── routeData/  (will be created automatically)
@@ -79,20 +75,22 @@ travel-planner-decision-maker/
     |   └── generate_route_matrix.py
     └── alns_itinerary/
         ├── alns/                 # ALNS algorithm implementation
-        │   ├── vrp_alns.py       # Enhanced ALNS for VRP representation
-        │   ├── vrp_operators.py  # Destroy and repair operators
-        │   └── vrp_solution.py   # Position-based solution representation
+        │   ├── vrp_alns.py               # Enhanced ALNS for VRP representation
+        │   ├── vrp_operators.py          # Destroy and repair operators
+        │   └── vrp_solution.py           # Position-based solution representation
         ├── problem/              # Problem definition
-        │   └── itinerary_problem.py  # Problem class with constraints
+        │   └── itinerary_problem.py      # Problem class with constraints
         ├── data/                 # Data management
-        │   ├── transport_utils.py    # Transport matrix handling
-        │   ├── location_utils.py     # Location data processing
-        │   ├── cache_manager.py      # Caching for API responses
-        │   └── trip_detail.py        # Getting location details for trips
+        │   ├── transport_utils.py        # Transport matrix handling
+        │   ├── location_utils.py         # Location data processing
+        │   ├── cache_manager.py          # Caching for API responses
+        │   └── trip_detail.py            # Getting location details for trips
         ├── utils/                # Utility modules
         │   ├── export_json_itinerary.py  # JSON export functionality
         │   ├── google_maps_client.py     # Google Maps API client
         │   └── config.py                 # Configuration loading
+        ├── agentic/              # Agentic Modules
+        │   └── multiagent.py             # Agents and Tools Declaration
         ├── streamlit_app.py      # Main entry point for streamlit app
         ├── alns_main.py          # Main entry point for ALNS algorithm
         ├── config.json           # Algorithm configuration
@@ -100,21 +98,19 @@ travel-planner-decision-maker/
 ```
 
 ## Setup Instructions
-
 1. Clone this repository
-2. Place your CSV files in the `data` directory
-3. Create a `.env` file in the root directory with your Google Maps,OpenAI, and Groq API key:
+2. Create a `.env` file in the root directory with your Google Maps,OpenAI, and Groq API key:
    ```
    GOOGLE_MAPS_API_KEY=your_api_key_here
    OPENAI_API_KEY=your_api_key_here
    GROQ_API_KEY=your_api_key_here
    ```
    See `.env.example` file for the template.
-4. Install required Python packages:
+3. Install required Python packages:
    ```bash
    pip install -r requirements.txt
    ```
-5. Run and turn on the Posgres VectorDB (PGVector):
+4. Turn on Docker service and run the Posgres VectorDB (PGVector):
     ```bash
     docker run -d \
         -e POSTGRES_DB=ai \
@@ -136,7 +132,7 @@ The itinerary optimization requires two preprocessing steps:
 Run the following command to geocode all locations and store them in JSON format:
 
 ```bash
-python ./src/route_matrix/waypoint_generator.py --attractions data/locationData/singapore_67_attractions_with_scores.csv --hawkers data/locationData/singapore_20_food_with_scores.csv --output data/waypointData/waypoints.json
+python ./src/route_matrix/waypoint_generator.py --attractions data/locationData/attractions.csv --hawkers data/locationData/hawkers.csv --output data/waypointData/waypoints.json
 ```
 
 This script:

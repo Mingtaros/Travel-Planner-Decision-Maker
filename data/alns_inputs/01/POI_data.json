@@ -8,37 +8,37 @@
         {
             "Hawker Name": "East Coast Lagoon Food Village",
             "Dish Name": "Haron Satay",
-            "Satisfaction Score": 5.0,
-            "Avg Food Price": 6.0,
+            "Satisfaction Score": 4.0,
+            "Avg Food Price": 5.0,
             "Duration": 60
         },
         {
             "Hawker Name": "Changi Village Hawker Centre",
             "Dish Name": "International Muslim Food Stall Nasi Lemak",
-            "Satisfaction Score": 4.0,
-            "Avg Food Price": 5.0,
-            "Duration": 60
+            "Satisfaction Score": 5.0,
+            "Avg Food Price": 4.0,
+            "Duration": 45
         },
         {
             "Hawker Name": "Tangs Market",
             "Dish Name": "Punggol Nasi Lemak",
-            "Satisfaction Score": 4.0,
-            "Avg Food Price": 5.0,
-            "Duration": 45
+            "Satisfaction Score": 3.0,
+            "Avg Food Price": 6.0,
+            "Duration": 30
         },
         {
             "Hawker Name": "Food Opera ION Orchard",
             "Dish Name": "Sergeant Hainanese Chicken Rice",
             "Satisfaction Score": 4.0,
-            "Avg Food Price": 6.0,
-            "Duration": 45
+            "Avg Food Price": 7.0,
+            "Duration": 40
         },
         {
             "Hawker Name": "Teck Ghee Court Market & Food Centre",
             "Dish Name": "Soon Heng Roasted Delights",
             "Satisfaction Score": 3.0,
             "Avg Food Price": 5.0,
-            "Duration": 45
+            "Duration": 35
         },
         {
             "Hawker Name": "Lau Pa Sat",
@@ -66,21 +66,21 @@
             "Dish Name": "Allauddin's Briyani",
             "Satisfaction Score": 4.0,
             "Avg Food Price": 6.0,
-            "Duration": 45
+            "Duration": 60
         },
         {
             "Hawker Name": "Maxwell Food Centre",
             "Dish Name": "Tian Tian Hainanese Chicken Rice",
             "Satisfaction Score": 5.0,
             "Avg Food Price": 5.0,
-            "Duration": 60
+            "Duration": 45
         },
         {
             "Hawker Name": "One Punggol Hawker Centre",
             "Dish Name": "Zhao Ji Claypot Rice",
             "Satisfaction Score": 4.0,
             "Avg Food Price": 8.0,
-            "Duration": 45
+            "Duration": 60
         }
     ],
     "Attraction": [
@@ -106,7 +106,7 @@
             "Attraction Name": "Universal Studios Singapore",
             "Satisfaction Score": 5.0,
             "Entrance Fee": 79.0,
-            "Duration": 480
+            "Duration": 360
         },
         {
             "Attraction Name": "Sentosa Island",
@@ -119,48 +119,6 @@
             "Satisfaction Score": 4.0,
             "Entrance Fee": 33.0,
             "Duration": 60
-        },
-        {
-            "Attraction Name": "Punggol Waterway Park",
-            "Satisfaction Score": 4.0,
-            "Entrance Fee": 0.0,
-            "Duration": 120
-        },
-        {
-            "Attraction Name": "AJ Hackett Sentosa",
-            "Satisfaction Score": 5.0,
-            "Entrance Fee": 9.37,
-            "Duration": 180
-        },
-        {
-            "Attraction Name": "Wave House Sentosa",
-            "Satisfaction Score": 4.0,
-            "Entrance Fee": 35.0,
-            "Duration": 120
-        },
-        {
-            "Attraction Name": "Ice Cream Museum",
-            "Satisfaction Score": 4.0,
-            "Entrance Fee": 35.0,
-            "Duration": 90
-        },
-        {
-            "Attraction Name": "Suntec City Shopping Centre",
-            "Satisfaction Score": 4.0,
-            "Entrance Fee": 0.0,
-            "Duration": 180
-        },
-        {
-            "Attraction Name": "Jewel Changi",
-            "Satisfaction Score": 5.0,
-            "Entrance Fee": 11.0,
-            "Duration": 120
-        },
-        {
-            "Attraction Name": "Punggol Waterway Point",
-            "Satisfaction Score": 4.0,
-            "Entrance Fee": 0.0,
-            "Duration": 120
         }
     ]
 }

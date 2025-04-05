@@ -26,18 +26,6 @@ from agno.knowledge.text import TextKnowledgeBase
 from agno.vectordb.pgvector import PgVector
 from agno.tools.calculator import CalculatorTools
 
-
-calculator_tool= CalculatorTools(
-                add=True,
-                subtract=True,
-                multiply=True,
-                divide=True,
-                exponentiate=True,
-                factorial=True,
-                is_prime=True,
-                square_root=True,
-                 )
-
 # ========================================================
 # Load environment variables & classess for Pydantic Base Models
 # ========================================================
@@ -262,6 +250,17 @@ def create_attraction_agent(model_id="gpt-4o", batch_no=0, debug_mode=True):
         # add_references=True, # enable RAG by adding references from AgentKnowledge to the user prompt.
     )
     return attraction_agent
+
+calculator_tool = CalculatorTools(
+    add=True,
+    subtract=True,
+    multiply=True,
+    divide=True,
+    exponentiate=True,
+    factorial=True,
+    is_prime=True,
+    square_root=True,
+    )
 
 def create_itinerary_agent(hawkers: list, attractions: list, model_id="gpt-4o", debug_mode=True):
     """

@@ -21,7 +21,7 @@ from alns_main import alns_main
 import time
 import random
 
-from multiagent import get_json_from_query, get_combine_json_data
+from agentic.multiagent import get_json_from_query, get_combine_json_data
 
 
 st.set_page_config(page_title="Travel Itinerary Planner", layout="wide")

@@ -224,8 +224,8 @@ if __name__ == "__main__":
         try:
             result = process_and_save(
                 persona=persona,
-                attraction_path="./data/locationData/singapore_67_attractions_with_scores.csv", 
-                hawker_path="./data/locationData/Food_20_withscores.xlsx", 
+                attraction_path="./data/locationData/attractions.csv", 
+                hawker_path="./data/locationData/hawkers.xlsx", 
                 output_json_path=output_json_path, 
                 batch_size=10
             )

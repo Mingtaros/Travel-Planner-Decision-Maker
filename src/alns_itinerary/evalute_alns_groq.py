@@ -91,8 +91,8 @@ def alns_evaluate(user_input):
     alns_input = process_and_save(
         persona='',
         description=user_input['description'],
-        attraction_path="./data/locationData/singapore_67_attractions_with_scores.csv", 
-        hawker_path="./data/locationData/Food_20_withscores.xlsx", 
+        attraction_path="./data/locationData/attractions.csv", 
+        hawker_path="./data/locationData/hawkers.csv", 
         output_json_path="./data/alns_inputs/groq/location_data.json", 
         batch_size=batch_size,
         max_rows=max_rows,

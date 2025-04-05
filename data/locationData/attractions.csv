@@ -1,17 +1,68 @@
-﻿aid,aname,expenditure,timespent
-1,Gardens by the Bay,28,3
-2,Marina Bay Sands SkyPark Observation Deck,26,1
-3,Singapore Flyer,33,1
-4,ArtScience Museum,31,2
-5,National Gallery Singapore,21,2.5
-6,Asian Civilisations Museum,12,2
-7,National Museum of Singapore,15,2
-8,Peranakan Museum,11,1.5
-9,Fort Canning Park,0,1.5
-10,Merlion Park,0,1.5
-11,Clarke Quay,0,2
-12,Orchard Road,0,2
-13,Esplanade,0,2
-14,Chinatown,0,1
-15,Little India,0,1.5
-16,Singapore Botanic Gardens,0,2
+Attraction Name,Highlights
+Gardens by the Bay,"A futuristic nature park featuring the iconic Supertree Grove, Cloud Forest, and Flower Dome. Known for its stunning light shows and lush greenery."
+Marina Bay Sands SkyPark Observation Deck,"A breathtaking rooftop observation deck atop Marina Bay Sands, offering panoramic views of Singapore's skyline and Marina Bay."
+Singapore Zoo,"A world-class, open-concept zoo with naturalistic habitats, home to over 2,800 animals, including orangutans, white tigers, and pygmy hippos."
+River Wonders,"A river-themed wildlife park showcasing freshwater ecosystems, featuring giant pandas, manatees, and the Amazon River Quest boat ride."
+Bird Paradise,"A modern avian sanctuary with immersive walk-through aviaries, featuring thousands of birds from around the world, including penguins and flamingos."
+Universal Studios Singapore,"A thrilling theme park on Sentosa Island with movie-themed rides, shows, and attractions based on blockbuster films like Transformers and Jurassic Park."
+Singapore Flyer,"One of the world's tallest observation wheels, offering 360-degree views of Marina Bay, the city skyline, and even Malaysia and Indonesia on clear days."
+ArtScience Museum,"A cutting-edge museum at Marina Bay Sands, blending art, science, and technology with interactive exhibits and immersive digital installations."
+National Gallery Singapore,"Housed in the former Supreme Court and City Hall buildings, this museum showcases the world's largest collection of Southeast Asian modern art."
+Asian Civilisations Museum,"A museum dedicated to exploring Asia's diverse cultures, with artifacts from China, Southeast Asia, South Asia, and the Islamic world."
+National Museum of Singapore,"Singapore's oldest museum, showcasing the nation's history through immersive exhibits, artifacts, and multimedia displays."
+Peranakan Museum,"A cultural gem dedicated to Peranakan (Straits Chinese) heritage, featuring intricate textiles, jewelry, and traditional artifacts."
+Fort Canning Park,"A historic hilltop park with ancient artifacts, colonial-era landmarks, lush gardens, and outdoor concert venues."
+Merlion Park,"Iconic waterfront spot featuring the half-lion, half-fish Merlion statue, symbolizing Singapore's origins as a fishing village and its name ('Singapura' means Lion City)."
+Clarke Quay,"A vibrant riverside quay with colorful buildings, lively bars, restaurants, and nightclubs, popular for evening entertainment and river cruises."
+Boat Quay,"A historic riverside area lined with dining spots and bars, offering scenic views of the CBD skyline and a relaxed atmosphere."
+Chinatown,"A bustling cultural district with traditional shophouses, temples (like Sri Mariamman Temple), street markets, and authentic Chinese eateries."
+Little India,"A vibrant ethnic enclave filled with spice-scented streets, colorful shops, Hindu temples (e.g., Sri Veeramakaliamman), and Indian cuisine."
+Kampong Glam,"A trendy Malay-Arab quarter known for Sultan Mosque, Haji Lane's street art and boutiques, and Middle Eastern eateries."
+Orchard Road,"Singapore's premier shopping belt, lined with luxury malls, department stores, fashion boutiques, and upscale dining options."
+East Coast Park,"A scenic coastal park offering cycling paths, BBQ pits, seafood restaurants, and water sports, perfect for outdoor recreation."
+Haw Par Villa,"A surreal theme park filled with over 1,000 statues and dioramas depicting Chinese mythology, folklore, and moral lessons."
+Southern Ridges,"A 10km scenic trail connecting parks like Mount Faber and HortPark, featuring the Henderson Waves bridge and lush forest canopies."
+MacRitchie Reservoir,"Singapore's oldest reservoir, popular for hiking, kayaking, and the Treetop Walk'a suspension bridge through rainforest canopy."
+Bukit Timah Nature Reserve,"A primary rainforest reserve home to diverse wildlife, hiking trails, and Singapore's highest hill (163m)."
+Sungei Buloh Wetland Reserve,"A protected wetland sanctuary for migratory birds, crocodiles, and mangroves, with boardwalks and observation hides."
+Singapore Botanic Gardens,"A UNESCO-listed tropical garden with orchid displays (National Orchid Garden), swan-filled lakes, and heritage trees."
+Esplanade,"Singapore's iconic durian-shaped arts center hosting concerts, theater, and festivals, with a waterfront dining precinct."
+Raffles Hotel,"A colonial-era luxury hotel and national landmark, famous for the Singapore Sling cocktail and old-world grandeur."
+Thian Hock Keng Temple,"One of Singapore's oldest Hokkien temples, adorned with intricate carvings and dedicated to the sea goddess Mazu."
+Sri Mariamman Temple,"Singapore's oldest Hindu temple, famed for its colorful'gopuram'(tower) and vibrant festivals like Thimithi (fire-walking)."
+Sultan Mosque,"A stunning golden-domed mosque in Kampong Glam, serving as the spiritual heart of Singapore's Malay-Muslim community."
+Kwan Im Thong Hood Cho Temple,"A bustling Buddhist temple in Bugis dedicated to the Goddess of Mercy (Guanyin), known for its incense-filled halls and fortune-telling sticks."
+Armenian Church,"A serene 19th-century church, Singapore's oldest Christian place of worship, with a whitewashed facade and peaceful cemetery."
+St Andrew's Cathedral,"A grand neo-Gothic Anglican cathedral near City Hall, built by early British colonists and featuring striking stained glass."
+Buddha Tooth Relic Temple,"A lavish Tang Dynasty-style temple in Chinatown, housing a sacred relic and a rooftop garden with prayer wheels."
+Science Centre Singapore,"Interactive science museum with over 1,000 exhibits, an IMAX dome, and hands-on experiments for all ages."
+Snow City,"Indoor snow center offering sledding, snowplay, and sub-zero temperatures'a rare icy escape in tropical Singapore."
+Adventure Cove Waterpark,"Thrilling water park on Sentosa with slides, snorkeling with reef fish, and a lazy river through lush landscapes."
+S.E.A. Aquarium,"One of the world's largest aquariums, home to 100,000 marine creatures including manta rays and sharks in massive viewing panels."
+KidZania Singapore,"An interactive kid-sized city where children role-play adult jobs like pilots, chefs, and doctors in a fun, educational environment."
+iFly Singapore,"Indoor skydiving facility offering the thrill of free-fall in a safe, controlled wind tunnel - no parachute needed!"
+Skyline Luge Sentosa,Exciting gravity-fueled luge ride with scenic chairlift views and winding tracks down Sentosa's hills.
+Trick Eye Museum,"Interactive 3D art museum where visitors can pose with optical illusion artworks for fun, Instagram-worthy photos."
+Madame Tussauds Singapore,"Famous wax museum featuring lifelike figures of celebrities, historical icons, and local Singaporean personalities."
+Singapore Discovery Centre,"Interactive exhibits showcasing Singapore's history, future innovations, and military heritage through immersive displays."
+Reflections at Bukit Chandu,WWII museum dedicated to the Malay Regiment's last stand against Japanese forces during the Battle of Singapore.
+Battlebox,Former underground British WWII command center offering fascinating tours about Singapore's wartime history.
+Marina Barrage,"Innovative dam and reservoir with a green roof offering skyline views, picnicking spots, and sustainable water exhibits."
+Labrador Nature Reserve,"Coastal park with WWII relics, nature trails through secondary forest, and scenic cliffside views of the sea."
+Coney Island Park,"Rustic island park with diverse habitats including mangroves, beaches, and forests."
+Fort Siloso,Only preserved coastal fort in Singapore with WWII tunnels and gun emplacements.
+Henderson Waves,Iconic 274m pedestrian bridge connecting Mount Faber to Telok Blangah Hill.
+Mount Faber Park,Hilltop park with panoramic city views and cable car to Sentosa.
+Telok Blangah Hill Park,Forested park with elevated walkways through mature secondary forest.
+HortPark,Gardening hub with themed display gardens and landscaping ideas.
+Kent Ridge Park,Significant WWII site with undisturbed forest and canopy walk.
+Pasir Ris Park,Coastal park with extensive mangrove boardwalk and recreational facilities.
+West Coast Park,Family-friendly park with adventure playground and seaside views.
+Changi Beach Park,One of Singapore's oldest coastal parks with wartime significance.
+Punggol Waterway Park,"A scenic waterfront park featuring cycling paths, footbridges, and lush greenery along a man-made waterway."
+AJ Hackett Sentosa,"Adventure hub offering bungee jumping, giant swings, and skybridge walks with ocean views."
+Wave House Sentosa,Surfing and bodyboarding facility with artificial wave pools and a beach club atmosphere.
+Ice Cream Museum,"Interactive, colorful museum dedicated to ice cream with playful exhibits and sweet treats."
+Suntec City Shopping Centre,"Large mall known for its Fountain of Wealth, diverse retail outlets, and dining options."
+Jewel Changi,"Airport-connected lifestyle hub featuring the iconic Rain Vortex waterfall, gardens, and shopping."
+Punggol Waterway Point,"Riverside mall with waterfront dining, family-friendly activities, and direct access to Punggol Waterway."

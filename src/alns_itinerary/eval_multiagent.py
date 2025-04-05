@@ -5,7 +5,7 @@ import time
 from tqdm import tqdm
 from dotenv import load_dotenv
 
-from multiagent import create_intent_agent, create_hawker_agent, create_attraction_agent, create_itinerary_agent
+from agentic.multiagent import create_intent_agent, create_hawker_agent, create_attraction_agent, create_itinerary_agent
 # ========================================================
 # Load environment variables 
 # ========================================================
