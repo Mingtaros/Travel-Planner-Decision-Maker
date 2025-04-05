@@ -19,28 +19,22 @@
             "Duration": 90
         },
         {
-            "Attraction Name": "Singapore Flyer",
-            "Satisfaction Score": 4.0,
-            "Entrance Fee": 33.0,
-            "Duration": 60
+            "Attraction Name": "Singapore Zoo",
+            "Satisfaction Score": 5.0,
+            "Entrance Fee": 42.0,
+            "Duration": 240
         },
         {
             "Attraction Name": "Universal Studios Singapore",
             "Satisfaction Score": 5.0,
             "Entrance Fee": 79.0,
-            "Duration": 360
+            "Duration": 480
         },
         {
             "Attraction Name": "Sentosa Island",
-            "Satisfaction Score": 5.0,
+            "Satisfaction Score": 4.0,
             "Entrance Fee": 0.0,
-            "Duration": 240
-        },
-        {
-            "Attraction Name": "Singapore Zoo",
-            "Satisfaction Score": 5.0,
-            "Entrance Fee": 42.0,
-            "Duration": 240
+            "Duration": 300
         }
     ]
 }

@@ -36,7 +36,7 @@
           "duration": 60,
           "estimated_cost": 10.0,
           "satisfaction_score": 4,
-          "duration_from_previous_point": 10,
+          "duration_from_previous_point": 15,
           "notes": "Enjoy a variety of satay options for dinner."
         }
       ]
@@ -68,16 +68,16 @@
           "duration": 300,
           "estimated_cost": 0.0,
           "satisfaction_score": 4,
-          "duration_from_previous_point": 20,
-          "notes": "Explore the beaches and attractions on Sentosa."
+          "duration_from_previous_point": 30,
+          "notes": "Explore the beaches and attractions on Sentosa Island."
         },
         {
           "activity_type": "food",
           "name": "Tekka Centre",
-          "duration": 45,
+          "duration": 60,
           "estimated_cost": 6.0,
           "satisfaction_score": 4,
-          "duration_from_previous_point": 25,
+          "duration_from_previous_point": 30,
           "notes": "Enjoy Allauddin's Briyani for dinner."
         }
       ]
@@ -88,29 +88,11 @@
         {
           "activity_type": "attraction",
           "name": "Universal Studios Singapore",
-          "duration": 360,
+          "duration": 480,
           "estimated_cost": 79.0,
           "satisfaction_score": 5,
           "duration_from_previous_point": 0,
-          "notes": "Spend the day enjoying thrilling rides and shows."
-        },
-        {
-          "activity_type": "food",
-          "name": "Chinatown Complex Food Centre",
-          "duration": 60,
-          "estimated_cost": 3.0,
-          "satisfaction_score": 5,
-          "duration_from_previous_point": 30,
-          "notes": "Try the Michelin-starred Hong Kong Soya Sauce Chicken Rice and Noodle."
-        },
-        {
-          "activity_type": "attraction",
-          "name": "Marina Bay Sands SkyPark",
-          "duration": 90,
-          "estimated_cost": 26.0,
-          "satisfaction_score": 4,
-          "duration_from_previous_point": 15,
-          "notes": "Return for a sunset view."
+          "notes": "Spend the day enjoying rides and shows."
         },
         {
           "activity_type": "food",
@@ -118,15 +100,24 @@
           "duration": 45,
           "estimated_cost": 5.0,
           "satisfaction_score": 4,
-          "duration_from_previous_point": 10,
-          "notes": "Enjoy Han Kee Fish Soup for dinner."
+          "duration_from_previous_point": 30,
+          "notes": "Try Han Kee Fish Soup for lunch."
+        },
+        {
+          "activity_type": "food",
+          "name": "East Coast Lagoon Food Village",
+          "duration": 60,
+          "estimated_cost": 5.0,
+          "satisfaction_score": 4,
+          "duration_from_previous_point": 30,
+          "notes": "Enjoy Haron Satay for dinner."
         }
       ]
     }
   ],
   "summary": {
-    "total_cost_sgd": 248.0,
-    "total_transit_duration_min": 175,
-    "total_satisfaction_score": 64
+    "total_cost_sgd": 210.0,
+    "total_transit_duration_min": 0,
+    "total_satisfaction_score": 0
   }
 }

@@ -21,122 +21,85 @@ user_queries = {
         "days": 3,
         "budget": 300,
     },
-    # "02": {
-    #     "query": "I'm a solo backpacker staying for 3 days. My budget is tight (~150 SGD total), and I'm mainly here to try spicy food and explore free attractions.",
-    #     "days": 3,
-    #     "budget": 150,
-    # },
-    # "03": {
-    #     "query": "I’ll be spending 3 days in Singapore and I'm really interested in cultural attractions and sampling traditional hawker food on a modest budget. Budget is 180 SGD.",
-    #     "days": 3,
-    #     "budget": 180,
-    # },
-    # "04": {
-    #     "query": "I'm visiting Singapore for 3 days as a content creator. I'm looking for Instagrammable attractions and stylish food spots. Budget is 600 SGD.",
-    #     "days": 3,
-    #     "budget": 600,
-    # },
-    # "05": {
-    #     "query": "I love adventure and spicy food! Spending 3 days in Singapore. What attractions and hawker stalls should I visit? Budget is 200 SGD.",
-    #     "days": 3,
-    #     "budget": 200,
-    # },
-    # "06": {
-    #     "query": "Looking to relax and enjoy greenery and peaceful spots in Singapore. I’ll be there for 3 days and have 190 SGD to spend. I enjoy light snacks over heavy meals.",
-    #     "days": 3,
-    #     "budget": 190,
-    # },
-    # "07": {
-    #     "query": "What can I do in Singapore in 3 days if I love shopping and modern city vibes? I’d also like to eat at famous food centres. Budget is 270 SGD.",
-    #     "days": 3,
-    #     "budget": 270,
-    # },
-    # "08": {
-    #     "query": "My spouse and I are retired and visiting Singapore for 3 days. We love cultural sites and relaxing parks. Prefer to avoid loud or overly touristy spots. Budget is 210 SGD.",
-    #     "days": 3,
-    #     "budget": 210,
-    # },
-    # "09": {
-    #     "query": "We’re a group of university students spending 3 days in Singapore on a budget of 180 SGD total. Recommend cheap eats and fun, free things to do.",
-    #     "days": 3,
-    #     "budget": 180,
-    # },
-    # "10": {
-    #     "query": "This is my first time in Singapore and I’ll be here for 3 days. I’d like a mix of sightseeing, must-try foods, and some local experiences. Budget is 250 SGD.",
-    #     "days": 3,
-    #     "budget": 250,
-    # }
+    "02": {
+        "query": "I'm a solo backpacker staying for 3 days. My budget is tight (~150 SGD total), and I'm mainly here to try spicy food and explore free attractions.",
+        "days": 3,
+        "budget": 150,
+    },
+    "03": {
+        "query": "I’ll be spending 3 days in Singapore and I'm really interested in cultural attractions and sampling traditional hawker food on a modest budget. Budget is 180 SGD.",
+        "days": 3,
+        "budget": 180,
+    },
+    "04": {
+        "query": "I'm visiting Singapore for 3 days as a content creator. I'm looking for Instagrammable attractions and stylish food spots. Budget is 600 SGD.",
+        "days": 3,
+        "budget": 600,
+    },
+    "05": {
+        "query": "I love adventure and spicy food! Spending 3 days in Singapore. What attractions and hawker stalls should I visit? Budget is 200 SGD.",
+        "days": 3,
+        "budget": 200,
+    },
+    "06": {
+        "query": "Looking to relax and enjoy greenery and peaceful spots in Singapore. I’ll be there for 3 days and have 190 SGD to spend. I enjoy light snacks over heavy meals.",
+        "days": 3,
+        "budget": 190,
+    },
+    "07": {
+        "query": "What can I do in Singapore in 3 days if I love shopping and modern city vibes? I’d also like to eat at famous food centres. Budget is 270 SGD.",
+        "days": 3,
+        "budget": 270,
+    },
+    "08": {
+        "query": "My spouse and I are retired and visiting Singapore for 3 days. We love cultural sites and relaxing parks. Prefer to avoid loud or overly touristy spots. Budget is 210 SGD.",
+        "days": 3,
+        "budget": 210,
+    },
+    "09": {
+        "query": "We’re a group of university students spending 3 days in Singapore on a budget of 180 SGD total. Recommend cheap eats and fun, free things to do.",
+        "days": 3,
+        "budget": 180,
+    },
+    "10": {
+        "query": "This is my first time in Singapore and I’ll be here for 3 days. I’d like a mix of sightseeing, must-try foods, and some local experiences. Budget is 250 SGD.",
+        "days": 3,
+        "budget": 250,
+    }
 }
 #==================
-def verify_and_get_mismatches(json_path: str):
+
+def verify_and_get_cost_metrics(json_path: str):
     with open(json_path, 'r') as f:
         data = json.load(f)
 
     recomputed_cost = 0.0
-    recomputed_satisfaction = 0
-    recomputed_transit = 0
-
     for day in data.get("itinerary", []):
         for activity in day.get("activities", []):
             recomputed_cost += activity.get("estimated_cost", 0)
-            recomputed_satisfaction += activity.get("satisfaction_score", 0)
-            recomputed_transit += activity.get("duration_from_previous_point", 0)
 
     recomputed_cost = round(recomputed_cost, 2)
-
-    reported = data.get("summary", {})
-    reported_cost = round(reported.get("total_cost_sgd", -1), 2)
-    reported_satisfaction = reported.get("total_satisfaction_score", -1)
-    reported_transit = reported.get("total_transit_duration_min", -1)
+    reported_cost = round(data.get("summary", {}).get("total_cost_sgd", -1), 2)
 
     cost_match = recomputed_cost == reported_cost
-    satisfaction_match = recomputed_satisfaction == reported_satisfaction
-    transit_match = recomputed_transit == reported_transit
-    all_match = cost_match and satisfaction_match and transit_match
-
-    # Compute errors
     cost_abs_error = abs(reported_cost - recomputed_cost)
-    cost_pct_error = abs(reported_cost - recomputed_cost) / max(recomputed_cost, 1e-5)
-
-    satisfaction_abs_error = abs(reported_satisfaction - recomputed_satisfaction)
-    satisfaction_pct_error = abs(reported_satisfaction - recomputed_satisfaction) / max(recomputed_satisfaction, 1e-5)
-
-    transit_abs_error = abs(reported_transit - recomputed_transit)
-    transit_pct_error = abs(reported_transit - recomputed_transit) / max(recomputed_transit, 1e-5)
+    cost_pct_error = cost_abs_error / max(recomputed_cost, 1e-5)
 
     return {
-        "match": {
-            "cost": cost_match,
-            "satisfaction": satisfaction_match,
-            "transit": transit_match,
-            "all": all_match
-        },
-        "abs_error": {
-            "cost": cost_abs_error,
-            "satisfaction": satisfaction_abs_error,
-            "transit": transit_abs_error
-        },
-        "pct_error": {
-            "cost": cost_pct_error,
-            "satisfaction": satisfaction_pct_error,
-            "transit": transit_pct_error
-        }
+        "cost_match": cost_match,
+        "abs_error": cost_abs_error,
+        "pct_error": cost_pct_error
     }
 
-def evaluate_all_scenarios(subfolder_path="results/agentic_rag"):
-    scenarios = [f"{i:02}" for i in range(1, 11)]
-    
-    total = len(scenarios)
+def evaluate_cost_only(subfolder_path="results/agentic_rag"):
+    scenarios = [f"{i:02}" for i in range(1, 11)]  # 01 to 10
+
     cost_correct = 0
-    satisfaction_correct = 0
-    transit_correct = 0
-    all_correct = 0
-
     total_cost_error = 0
-    total_satisfaction_error = 0
-    total_transit_error = 0
+    total_cost_pct_error = 0
+    count = 0
 
-    print("🔍 Starting evaluation...\n")
+    print("🔍 Evaluating Cost Accuracy Only...\n")
 
     for scenario in scenarios:
         json_path = os.path.join(subfolder_path, f"{scenario}/agent_itinerary.json")
@@ -145,35 +108,21 @@ def evaluate_all_scenarios(subfolder_path="results/agentic_rag"):
             print(f"⚠️  Missing: {json_path}")
             continue
 
-        result = verify_and_get_mismatches(json_path)
-        match = result["match"]
-        abs_error = result["abs_error"]
+        result = verify_and_get_cost_metrics(json_path)
+        cost_correct += int(result["cost_match"])
+        total_cost_error += result["abs_error"]
+        total_cost_pct_error += result["pct_error"]
+        count += 1
 
-        print(f"Scenario {scenario}:")
-        print(f"  Cost Match:         {'✅' if match['cost'] else '❌'}")
-        print(f"  Satisfaction Match: {'✅' if match['satisfaction'] else '❌'}")
-        print(f"  Transit Match:      {'✅' if match['transit'] else '❌'}")
-        print(f"  All Fields Match:   {'✅' if match['all'] else '❌'}\n")
+        print(f"Scenario {scenario}: Cost Match: {'✅' if result['cost_match'] else '❌'} | Error: {result['abs_error']:.2f} SGD")
 
-        cost_correct += int(match["cost"])
-        satisfaction_correct += int(match["satisfaction"])
-        transit_correct += int(match["transit"])
-        all_correct += int(match["all"])
-
-        total_cost_error += abs_error["cost"]
-        total_satisfaction_error += abs_error["satisfaction"]
-        total_transit_error += abs_error["transit"]
-
-    print("\n📊 Final Accuracy Report:")
-    print(f"  Cost Accuracy:         {cost_correct}/{total}  ({cost_correct / total:.0%})")
-    print(f"  Satisfaction Accuracy: {satisfaction_correct}/{total}  ({satisfaction_correct / total:.0%})")
-    print(f"  Transit Accuracy:      {transit_correct}/{total}  ({transit_correct / total:.0%})")
-    # print(f"  All Fields Match:      {all_correct}/{total}  ({all_correct / total:.0%})")
-
-    print("\n📐 Mean Absolute Error (MAE):")
-    print(f"  Cost:         {total_cost_error / total:.2f} SGD")
-    print(f"  Satisfaction: {total_satisfaction_error / total:.2f} points")
-    print(f"  Transit:      {total_transit_error / total:.2f} minutes")
+    if count > 0:
+        print("\n📊 Final Cost Accuracy Report:")
+        print(f"  Cost Accuracy:         {cost_correct}/{count}  ({cost_correct / count:.0%})")
+        print(f"  Mean Absolute Error:   {total_cost_error / count:.2f} SGD")
+        print(f"  Mean Percentage Error: {total_cost_pct_error / count:.2%}")
+    else:
+        print("⚠️ No valid scenarios found.")
 
 if __name__ == "__main__":
     # print()
@@ -221,7 +170,6 @@ if __name__ == "__main__":
                     })
 
         if intent in ["attraction", "both"]:
-            start_time = time.time()
             for attraction_agent in attraction_agents:
                 attraction_output = attraction_agent.run(query=query_item["query"], stream=False).content.model_dump()
                 # process in batches
@@ -265,8 +213,12 @@ if __name__ == "__main__":
 
         # print(itinerary)
         # print(f"Saved itinerary to: {output_path}")
-        # end_time = time.time()
-        # print(f"\nTotal runtime: {end_time - start_time:.2f} seconds")
+        end_time = time.time()
+        print(f"\nTotal runtime: {end_time - start_time:.2f} seconds")
+        latency = round(end_time-start_time,2)
+        latency_path = os.path.join(subfolder_path, f"{scenario}/latency.txt")
+        with open(latency_path, "w") as f:
+            f.write(str(latency))
         # Serialize Pydantic model to JSON string
         itinerary_json_str = itinerary_response.content.model_dump_json(indent=2)
 
@@ -281,4 +233,4 @@ if __name__ == "__main__":
 
         print("*"*100)
 
-    evaluate_all_scenarios()
+    evaluate_cost_only()

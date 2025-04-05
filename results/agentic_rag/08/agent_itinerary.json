@@ -17,7 +17,7 @@
           "name": "Maxwell Food Centre",
           "duration": 60,
           "estimated_cost": 5.0,
-          "satisfaction_score": 4,
+          "satisfaction_score": 0,
           "duration_from_previous_point": 20,
           "notes": "Try Tian Tian Hainanese Chicken Rice."
         },
@@ -34,8 +34,8 @@
           "activity_type": "food",
           "name": "Lau Pa Sat",
           "duration": 60,
-          "estimated_cost": 5.0,
-          "satisfaction_score": 4,
+          "estimated_cost": 10.0,
+          "satisfaction_score": 0,
           "duration_from_previous_point": 10,
           "notes": "Sample satay and other local delights."
         }
@@ -46,39 +46,39 @@
       "activities": [
         {
           "activity_type": "attraction",
-          "name": "Universal Studios Singapore",
-          "duration": 360,
-          "estimated_cost": 79.0,
+          "name": "Singapore Zoo",
+          "duration": 240,
+          "estimated_cost": 42.0,
           "satisfaction_score": 5,
           "duration_from_previous_point": 0,
-          "notes": "Experience thrilling rides and shows."
+          "notes": "Visit the world's best rainforest zoo."
         },
         {
           "activity_type": "food",
-          "name": "Makansutra Gluttons Bay",
+          "name": "Chomp Chomp Food Centre",
           "duration": 60,
-          "estimated_cost": 5.0,
-          "satisfaction_score": 4,
+          "estimated_cost": 8.0,
+          "satisfaction_score": 0,
           "duration_from_previous_point": 30,
-          "notes": "Enjoy a variety of local street food."
+          "notes": "Enjoy local seafood and BBQ dishes."
         },
         {
           "activity_type": "attraction",
           "name": "Sentosa Island",
-          "duration": 240,
+          "duration": 300,
           "estimated_cost": 0.0,
-          "satisfaction_score": 5,
+          "satisfaction_score": 4,
           "duration_from_previous_point": 20,
           "notes": "Relax on the beach and explore attractions."
         },
         {
           "activity_type": "food",
-          "name": "Chinatown Complex Food Centre",
+          "name": "Newton Food Centre",
           "duration": 60,
-          "estimated_cost": 5.0,
-          "satisfaction_score": 4,
+          "estimated_cost": 12.0,
+          "satisfaction_score": 0,
           "duration_from_previous_point": 25,
-          "notes": "Try the famous claypot rice."
+          "notes": "Try the famous BBQ stingray."
         }
       ]
     },
@@ -87,46 +87,46 @@
       "activities": [
         {
           "activity_type": "attraction",
-          "name": "Singapore Zoo",
-          "duration": 240,
-          "estimated_cost": 42.0,
+          "name": "Universal Studios Singapore",
+          "duration": 480,
+          "estimated_cost": 79.0,
           "satisfaction_score": 5,
           "duration_from_previous_point": 0,
-          "notes": "Discover wildlife in a lush rainforest setting."
+          "notes": "Experience thrilling rides and shows."
+        },
+        {
+          "activity_type": "food",
+          "name": "Tekka Centre",
+          "duration": 60,
+          "estimated_cost": 7.0,
+          "satisfaction_score": 0,
+          "duration_from_previous_point": 30,
+          "notes": "Taste Indian and Malay cuisine."
+        },
+        {
+          "activity_type": "attraction",
+          "name": "Marina Bay Sands SkyPark",
+          "duration": 90,
+          "estimated_cost": 26.0,
+          "satisfaction_score": 4,
+          "duration_from_previous_point": 15,
+          "notes": "Revisit for a sunset view."
         },
         {
           "activity_type": "food",
           "name": "Old Airport Road Food Centre",
           "duration": 60,
-          "estimated_cost": 5.0,
-          "satisfaction_score": 4,
-          "duration_from_previous_point": 30,
-          "notes": "Taste the famous char kway teow."
-        },
-        {
-          "activity_type": "attraction",
-          "name": "Singapore Flyer",
-          "duration": 60,
-          "estimated_cost": 33.0,
-          "satisfaction_score": 4,
+          "estimated_cost": 10.0,
+          "satisfaction_score": 0,
           "duration_from_previous_point": 20,
-          "notes": "Take a ride on the giant Ferris wheel for stunning views."
-        },
-        {
-          "activity_type": "food",
-          "name": "Newton Food Centre",
-          "duration": 60,
-          "estimated_cost": 5.0,
-          "satisfaction_score": 4,
-          "duration_from_previous_point": 15,
-          "notes": "End the day with seafood and local dishes."
+          "notes": "End the day with local desserts."
         }
       ]
     }
   ],
   "summary": {
-    "total_cost_sgd": 238.0,
-    "total_transit_duration_min": 185,
-    "total_satisfaction_score": 66
+    "total_cost_sgd": 253.0,
+    "total_transit_duration_min": 150,
+    "total_satisfaction_score": 27
   }
 }

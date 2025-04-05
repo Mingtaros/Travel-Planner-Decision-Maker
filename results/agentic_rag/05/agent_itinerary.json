@@ -15,7 +15,7 @@
         {
           "activity_type": "food",
           "name": "Maxwell Food Centre",
-          "duration": 45,
+          "duration": 60,
           "estimated_cost": 5.0,
           "satisfaction_score": 5,
           "duration_from_previous_point": 20,
@@ -32,58 +32,17 @@
         },
         {
           "activity_type": "food",
-          "name": "Lau Pa Sat",
+          "name": "Chinatown Complex Food Centre",
           "duration": 60,
-          "estimated_cost": 10.0,
-          "satisfaction_score": 4,
+          "estimated_cost": 3.0,
+          "satisfaction_score": 5,
           "duration_from_previous_point": 10,
-          "notes": "Enjoy a variety of satay options for dinner."
+          "notes": "Taste the famous Hong Kong Soya Sauce Chicken Rice and Noodle."
         }
       ]
     },
     {
       "day": 2,
-      "activities": [
-        {
-          "activity_type": "attraction",
-          "name": "Universal Studios Singapore",
-          "duration": 360,
-          "estimated_cost": 79.0,
-          "satisfaction_score": 5,
-          "duration_from_previous_point": 0,
-          "notes": "Experience thrilling rides and shows."
-        },
-        {
-          "activity_type": "food",
-          "name": "Chinatown Complex Food Centre",
-          "duration": 60,
-          "estimated_cost": 3.0,
-          "satisfaction_score": 5,
-          "duration_from_previous_point": 30,
-          "notes": "Try the famous Hong Kong Soya Sauce Chicken Rice and Noodle."
-        },
-        {
-          "activity_type": "attraction",
-          "name": "Sentosa Island",
-          "duration": 240,
-          "estimated_cost": 0.0,
-          "satisfaction_score": 5,
-          "duration_from_previous_point": 20,
-          "notes": "Explore the beaches and attractions on the island."
-        },
-        {
-          "activity_type": "food",
-          "name": "Amoy Street Food Centre",
-          "duration": 45,
-          "estimated_cost": 5.0,
-          "satisfaction_score": 4,
-          "duration_from_previous_point": 15,
-          "notes": "Try Han Kee Fish Soup for dinner."
-        }
-      ]
-    },
-    {
-      "day": 3,
       "activities": [
         {
           "activity_type": "attraction",
@@ -96,37 +55,78 @@
         },
         {
           "activity_type": "food",
-          "name": "Tekka Centre",
-          "duration": 45,
-          "estimated_cost": 6.0,
-          "satisfaction_score": 4,
+          "name": "Changi Village Hawker Centre",
+          "duration": 60,
+          "estimated_cost": 4.0,
+          "satisfaction_score": 5,
           "duration_from_previous_point": 30,
-          "notes": "Enjoy Allauddin's Briyani for lunch."
+          "notes": "Enjoy International Muslim Food Stall Nasi Lemak."
         },
         {
           "activity_type": "attraction",
-          "name": "Singapore Flyer",
-          "duration": 60,
-          "estimated_cost": 33.0,
+          "name": "Sentosa Island",
+          "duration": 300,
+          "estimated_cost": 0.0,
           "satisfaction_score": 4,
           "duration_from_previous_point": 20,
-          "notes": "Take a ride on the giant Ferris wheel for stunning views."
+          "notes": "Explore the beaches and attractions on Sentosa Island."
         },
         {
           "activity_type": "food",
           "name": "East Coast Lagoon Food Village",
           "duration": 60,
-          "estimated_cost": 6.0,
-          "satisfaction_score": 5,
+          "estimated_cost": 5.0,
+          "satisfaction_score": 4,
           "duration_from_previous_point": 25,
-          "notes": "Try Haron Satay for dinner."
+          "notes": "Try Haron Satay."
+        }
+      ]
+    },
+    {
+      "day": 3,
+      "activities": [
+        {
+          "activity_type": "attraction",
+          "name": "Universal Studios Singapore",
+          "duration": 360,
+          "estimated_cost": 79.0,
+          "satisfaction_score": 5,
+          "duration_from_previous_point": 0,
+          "notes": "Experience thrilling rides and shows."
+        },
+        {
+          "activity_type": "food",
+          "name": "Amoy Street Food Centre",
+          "duration": 60,
+          "estimated_cost": 5.0,
+          "satisfaction_score": 4,
+          "duration_from_previous_point": 30,
+          "notes": "Try Han Kee Fish Soup."
+        },
+        {
+          "activity_type": "attraction",
+          "name": "Marina Bay Sands SkyPark",
+          "duration": 90,
+          "estimated_cost": 26.0,
+          "satisfaction_score": 4,
+          "duration_from_previous_point": 15,
+          "notes": "Revisit for a sunset view."
+        },
+        {
+          "activity_type": "food",
+          "name": "Lau Pa Sat",
+          "duration": 60,
+          "estimated_cost": 10.0,
+          "satisfaction_score": 4,
+          "duration_from_previous_point": 10,
+          "notes": "Enjoy Satay at the iconic hawker centre."
         }
       ]
     }
   ],
   "summary": {
-    "total_cost_sgd": 278.0,
-    "total_transit_duration_min": 185,
-    "total_satisfaction_score": 70
+    "total_cost_sgd": 233.0,
+    "total_transit_duration_min": 0,
+    "total_satisfaction_score": 0
   }
 }

@@ -36,7 +36,7 @@
         {
             "Hawker Name": "Teck Ghee Court Market & Food Centre",
             "Dish Name": "Soon Heng Roasted Delights",
-            "Satisfaction Score": 3.0,
+            "Satisfaction Score": 4.0,
             "Avg Food Price": 5.0,
             "Duration": 35
         },
@@ -66,7 +66,7 @@
             "Dish Name": "Allauddin's Briyani",
             "Satisfaction Score": 4.0,
             "Avg Food Price": 6.0,
-            "Duration": 45
+            "Duration": 60
         },
         {
             "Hawker Name": "Maxwell Food Centre",
@@ -106,7 +106,7 @@
             "Attraction Name": "Universal Studios Singapore",
             "Satisfaction Score": 5.0,
             "Entrance Fee": 79.0,
-            "Duration": 360
+            "Duration": 480
         },
         {
             "Attraction Name": "Sentosa Island",

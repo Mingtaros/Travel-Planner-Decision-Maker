@@ -4,85 +4,7 @@
         "days": 3,
         "budget": 190
     },
-    "Hawker": [
-        {
-            "Hawker Name": "East Coast Lagoon Food Village",
-            "Dish Name": "Barbecue Seafood",
-            "Satisfaction Score": 5.0,
-            "Avg Food Price": 10.0,
-            "Duration": 60
-        },
-        {
-            "Hawker Name": "Changi Village Hawker Centre",
-            "Dish Name": "Nasi Lemak",
-            "Satisfaction Score": 4.0,
-            "Avg Food Price": 5.0,
-            "Duration": 45
-        },
-        {
-            "Hawker Name": "Tangs Market",
-            "Dish Name": "Punggol Nasi Lemak",
-            "Satisfaction Score": 3.0,
-            "Avg Food Price": 6.0,
-            "Duration": 30
-        },
-        {
-            "Hawker Name": "Food Opera ION Orchard",
-            "Dish Name": "Hainanese Chicken Rice",
-            "Satisfaction Score": 4.0,
-            "Avg Food Price": 8.0,
-            "Duration": 45
-        },
-        {
-            "Hawker Name": "Teck Ghee Court Market & Food Centre",
-            "Dish Name": "Char Siew and Roasted Duck",
-            "Satisfaction Score": 3.0,
-            "Avg Food Price": 5.0,
-            "Duration": 30
-        },
-        {
-            "Hawker Name": "Lau Pa Sat",
-            "Dish Name": "Satay",
-            "Satisfaction Score": 4.0,
-            "Avg Food Price": 10.0,
-            "Duration": 60
-        },
-        {
-            "Hawker Name": "Amoy Street Food Centre",
-            "Dish Name": "Han Kee Fish Soup",
-            "Satisfaction Score": 4.0,
-            "Avg Food Price": 5.0,
-            "Duration": 45
-        },
-        {
-            "Hawker Name": "Chinatown Complex Food Centre",
-            "Dish Name": "Hong Kong Soya Sauce Chicken Rice and Noodle",
-            "Satisfaction Score": 5.0,
-            "Avg Food Price": 3.0,
-            "Duration": 60
-        },
-        {
-            "Hawker Name": "Tekka Centre",
-            "Dish Name": "Allauddin's Briyani",
-            "Satisfaction Score": 4.0,
-            "Avg Food Price": 6.0,
-            "Duration": 45
-        },
-        {
-            "Hawker Name": "Maxwell Food Centre",
-            "Dish Name": "Tian Tian Hainanese Chicken Rice",
-            "Satisfaction Score": 5.0,
-            "Avg Food Price": 5.0,
-            "Duration": 45
-        },
-        {
-            "Hawker Name": "One Punggol Hawker Centre",
-            "Dish Name": "Zhao Ji Claypot Rice",
-            "Satisfaction Score": 3.0,
-            "Avg Food Price": 8.0,
-            "Duration": 60
-        }
-    ],
+    "Hawker": [],
     "Attraction": [
         {
             "Attraction Name": "Gardens by the Bay",
@@ -97,28 +19,82 @@
             "Duration": 90
         },
         {
-            "Attraction Name": "Singapore Flyer",
-            "Satisfaction Score": 4.0,
-            "Entrance Fee": 33.0,
-            "Duration": 60
+            "Attraction Name": "Singapore Zoo",
+            "Satisfaction Score": 5.0,
+            "Entrance Fee": 42.0,
+            "Duration": 240
         },
         {
             "Attraction Name": "Universal Studios Singapore",
             "Satisfaction Score": 5.0,
             "Entrance Fee": 79.0,
-            "Duration": 300
+            "Duration": 480
         },
         {
             "Attraction Name": "Sentosa Island",
-            "Satisfaction Score": 5.0,
+            "Satisfaction Score": 4.0,
             "Entrance Fee": 0.0,
-            "Duration": 240
+            "Duration": 300
         },
         {
-            "Attraction Name": "Singapore Zoo",
+            "Attraction Name": "National Museum of Singapore",
+            "Satisfaction Score": 4.0,
+            "Entrance Fee": 10.0,
+            "Duration": 120
+        },
+        {
+            "Attraction Name": "Peranakan Museum",
+            "Satisfaction Score": 4.0,
+            "Entrance Fee": 6.0,
+            "Duration": 90
+        },
+        {
+            "Attraction Name": "Fort Canning Park",
+            "Satisfaction Score": 4.0,
+            "Entrance Fee": 0.0,
+            "Duration": 120
+        },
+        {
+            "Attraction Name": "Merlion Park",
             "Satisfaction Score": 5.0,
-            "Entrance Fee": 42.0,
-            "Duration": 240
+            "Entrance Fee": 0.0,
+            "Duration": 60
+        },
+        {
+            "Attraction Name": "Clarke Quay",
+            "Satisfaction Score": 5.0,
+            "Entrance Fee": 0.0,
+            "Duration": 180
+        },
+        {
+            "Attraction Name": "Boat Quay",
+            "Satisfaction Score": 4.0,
+            "Entrance Fee": 0.0,
+            "Duration": 120
+        },
+        {
+            "Attraction Name": "Chinatown",
+            "Satisfaction Score": 5.0,
+            "Entrance Fee": 12.0,
+            "Duration": 180
+        },
+        {
+            "Attraction Name": "Little India",
+            "Satisfaction Score": 4.0,
+            "Entrance Fee": 0.0,
+            "Duration": 120
+        },
+        {
+            "Attraction Name": "Kampong Glam",
+            "Satisfaction Score": 4.0,
+            "Entrance Fee": 0.0,
+            "Duration": 120
+        },
+        {
+            "Attraction Name": "Orchard Road",
+            "Satisfaction Score": 5.0,
+            "Entrance Fee": 0.0,
+            "Duration": 180
         }
     ]
 }
