@@ -1,17 +1,23 @@
 # Singapore Travel Itinerary Project
 
-Creating a Travel Planner using a position-based Vehicle Routing Problem (VRP) formulation and Adaptive Large Neighborhood Search (ALNS) for AI Planning and Decision Making.
+A personalized AI-powered travel planner for Singapore using Multi-Agent Retrieval-Augmented Generation (RAG) and Adaptive Large Neighborhood Search (ALNS) with a position-based Vehicle Routing Problem (VRP) formulation.
 
 ## Overview
 
-The Travel Itinerary Optimizer is an advanced Python-based solution for generating optimal multi-day travel itineraries in Singapore. Using a position-based Vehicle Routing Problem (VRP) formulation and Adaptive Large Neighborhood Search (ALNS), this system creates personalized travel plans that maximize satisfaction while balancing cost and travel time.
+The Singapore Travel Itinerary Optimizer is a hybrid AI system that intelligently generates optimized, multi-day travel plans. It combines:
+	•	Multi-Agent RAG for intelligent POI retrieval and user query understanding
+	•	ALNS with position-based VRP formulation for optimizing itineraries based on budget, time, and satisfaction constraints
 
-This implementation specifically addresses time constraint challenges by using a position-based representation that naturally enforces sequence and time window constraints, particularly for meal scheduling.
+This end-to-end pipeline transforms a user’s travel query into a cost-effective and satisfying itinerary using LLM agents, search, and combinatorial optimization.
 
 ## Key Features
 
 ### Optimization Capabilities
-- Multi-objective optimization (cost, travel time, satisfaction)
+- 🤖 Multi-Agent RAG System:
+    - Supervisor Agent: Understands whether the user wants food or attractions
+    - Attraction & Hawker Agents: Retrieve relevant POIs from PgVector DB
+    - Itinerary Planner Agent: Generates travel plans with cost, time, and satisfaction estimates
+- Multi-objective optimization (cost, travel time, satisfaction) & Multi-Day Travel Itineraries
 - Position-based VRP solution representation
 - Time window enforcement for meal constraints
 - Adaptive Large Neighborhood Search with specialized operators
@@ -38,6 +44,11 @@ This implementation specifically addresses time constraint challenges by using a
 - OpenAI API Key
 - Groq API Key
 - Required Python packages (install via `pip install -r requirements.txt`)
+
+## Tech Stack for Mutli Agent RAG
+- Agno Framework for LLM-based agent orchestration
+- PgVectorDB
+- Docker for building container image
 
 ## Datasets
 <table>
