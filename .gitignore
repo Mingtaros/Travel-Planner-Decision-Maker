@@ -189,3 +189,7 @@ cache/
 
 # llm generated output no need to be pushed
 data/alns_inputs/*.json
+
+# papers
+paper/*.aux
+paper/*.gz
