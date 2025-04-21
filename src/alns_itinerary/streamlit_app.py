@@ -277,7 +277,7 @@ def prepare_map(alns_data):
 def generate_itinerary(user_input):
     start_time = time.time()
     # exports out the data/POI_data.json based on the given query from streamlit otherwise, its a default "how to make a bomb"
-    # get_json_from_query(query=user_input['description'], debug_mode=True)
+    get_json_from_query(query=user_input['description'], debug_mode=True)
 
     # aggregation between kb and recommendations, deduplicates, and randomnisation
     get_combine_json_data()
