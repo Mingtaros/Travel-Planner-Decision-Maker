@@ -60,7 +60,7 @@
 
 %%% Use this command to specify the title of your paper.
 
-\title{A Data-Driven Approach for \\ Automated Multi-Site Competitive Facility Location}
+\title{LLM-Augmented Optimization for Singapore Travel Itinerary Planning}
 
 %%% Use this combinations of commands to specify all authors of your 
 %%% paper. Use \fnms{} and \snm{} to indicate everyone's first names 
@@ -72,18 +72,26 @@
 %%% authors and their email address(es). If so desired, you can specify
 %%% author contributions using the \footnote{} command.
 
-\author[A]{\fnms{First}~\snm{Author}\orcid{....-....-....-....}\thanks{Corresponding Author. Email: somename@university.edu.}\footnote{Equal contribution.}}
-\author[B]{\fnms{Second}~\snm{Author}\orcid{....-....-....-....}\footnotemark}
-\author[B,C]{\fnms{Third}~\snm{Author}\orcid{....-....-....-....}} 
+\author[A]{\fnms{Daniel}~\snm{James}\orcid{....-....-....-....}\thanks{Corresponding Author. Email: danieljames.2023@mitb.smu.edu.sg.}}
 
-\address[A]{Short Affiliation of First Author}
-\address[B]{Short Affiliation of Second Author and Third Author}
-\address[C]{Short Alternate Affiliation of Third Author}
+\author[A]
+{\fnms{Leonardo}\orcid{....-....-....-....}\thanks{Corresponding Author. Email: leonardo.2023@mitb.smu.edu.sg.}}
+
+\author[A]
+{\fnms{Jing Shen}~\snm{Tai}\orcid{....-....-....-....}\thanks{Corresponding Author. Email: js.tai.2023@mitb.smu.edu.sg.}}
+
+\author[A]
+{\fnms{Valerian}~\snm{Yap}\orcid{....-....-....-....}\thanks{Corresponding Author. Email: valerianyap.2023@mitb.smu.edu.sg.}}
+
+\author[A]
+{\fnms{Hoong Chuin}~\snm{Lau}\orcid{....-....-....-....}\thanks{Corresponding Author. Email: hclau@smu.edu.sg.}}
+
+\address[A]{School of Computing and Information Systems, Singapore Management University}
 
 %%% Use this environment to include an abstract of your paper.
 
 \begin{abstract}
-This paper presents a data-driven approach for solving the Competition Facility Location (CFL) problem, in which a retailer wants to open new stores in a market where it has existing friendly and competitor stores. The goal is to select locations for new stores such that the overall potential consumers captured by the retailer is maximised. We apply Adaptive Large Neighbourhood Search (ALNS) with data enrichment techniques that includes community detection on road networks.Our contribution is the ability to handle the selection of a large number of candidate sites which is often limited by traditional facility location methods due to computational constraints and reliance on manual pre-selection. Conversely, our approach integrates the identification of urban population centres as candidate sites to efficiently process and consider an extensive number of candidate sites. We benchmarked against ArcGIS, a widely used commercial software for CFL problems. Our approach achieve an average of 2\% improvement in captured consumer count when compared against ArcGIS, demonstrating ALNS effectiveness and potential in solving CFL problems.
+This paper presents a combined approach of Large Language Model (LLM) and Operation Research (OR) to develop an optimized travel planner for tourists visiting Singapore. Recognizing that traveler preferences vary significantly across demographics, we aim to generate customized itineraries that balance cost, travel time and personal satisfaction. We apply LLM agents to convert traveler's preferences in text format into a structured format that can be used for optimization. In optimization's case, we apply Adaptive Large Neighborhood Search (ALNS) with data enrichment techniques such as route matrix from Google Maps API to find out duration and price from point A to point B. Our contribution is the ability to make more-realistic itineraries, putting distance and cost into perspective, while focusing on traveler's best interest to minimize expenses and maximize satisfaction. We benchmarked against ... . Our approach ..., demonstrating the power of leveraging strengths of both LLM and ALNS in solving this problem.
 
 \end{abstract}
 
@@ -92,307 +100,209 @@ This paper presents a data-driven approach for solving the Competition Facility 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Introduction}
-Facility location has a broad range of applications in the field of operations research problems. The more common location problem typically assumes only a single decision-maker without other competitors. Such a market is known as monopolistic where a single firm captures the entire market. This is applicable to public sector scenarios where the government opts to place public facilities such as hospitals or schools. In the private sector where location problems involve supermarkets or restaurants, market competition needs to be considered using Competitive Facility Location (CFL) models.
-Competitive facility location models address key concerns of decision-makers in a competitive market landscape. These models attempt to address questions of how businesses can discern optimal locations amidst intense competition and how the introduction of a new store might reshape the competitive dynamics.
-CFL can be addressed through exact methods such as mathematical programming formulations. Commonly used techniques include linear programming and mixed-integer programming. Metaheuristic algorithms such as Adaptive Large Neighbourhood Search (ALNS), Particle Swarm Optimisation (PSO) and Genetic Algorithms (GA) can be used to iteratively explore and improve solutions. In certain scenarios, Game Theory and Nash equilibrium are also used to achieve a steady state where no single participants can independently enhance their outcome.
+The objective of this project is to develop a personalized travel itinerary planner for tourists visiting Singapore, capable of allowing natural language inputs and input fields into the demo product and generating a feasible yet personalized itinerary by minimizing travel cost, minimizing total transit time between locations, and maximizing satisfaction that aligns with Persona-specific preferences.
 
-Our data-driven approach offers a novel alternative to traditional methods that typically rely on manual preselection and mathematical optimization. Our contributions are as follows:
+Our commercial inspiration was primarily drawn from Pelago by Singapore Airlines, an AI-powered trip planner platform that covers over 2,000 destinations. While Pelago appears to be employing an LLM-based recommendation engine, our work diverges by introducing a multi-agent LLM system that is combined with Operation Research (OR) optimization techniques.
+
+Our goal in this paper includes answering the following questions: 
 \begin{enumerate}
-\item Elimination of manual human preselection and bias in the site identification process. Our method increases the efficiency of locating numerous facilities in multiple cities or expansive rural areas.
-\item Scalability and generalizablity of approach for diverse use cases. By applying ALNS, our method allows for flexibility in defining the neighbour search space by using different destroy and repair strategies appropriate for different facilities.
+    \item Recognising the hallucination in LLM, to what extent can LLM alone generate realistic and feasible travel itineraries? Is Agentic AI needed to be used in our project?
+    \item Assuming we have an LLM agent (e.g. a domain-expert in Singapore Attractions, equipped with memory, knowledge base and tools), can it handle reasoning consistency and personalisation without hallucinating? What is the trade-off for having multiple domain experts in our system?
+    \item What are the quantitative and qualitative trade-offs between optimization-only, LLM-only, multi-agent, and hybrid optimization itinerary planning pipelines?
 \end{enumerate}
 
-We benchmark our approach against ArcGIS and obtain an average improvement of 2\% in captured consumer count over ArcGIS. The effectiveness of the data-driven approach based on real-world observations of road network and mobility data suggests possible reapplication for different facility types, such as supermarkets, bike sharing stations.
+This study is geographically and thematically scoped to the context of Singapore considering our familiarity of our local culture. Specifically, we focus on two categories of points of interest (POIs): (i) attractions, and hawker centres. In total, our curated dataset includes over 85 unique POIs.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Related Work}
-Static
-Foresight
-Dynamic -> changing demand but its about competitors moving away
+Recent works have shown promise in understanding natural language preferences in the same domain research that we are working on:
 
-Existing CPLs
-- what are the search algorithms
-- why are they not good?
+\subsection{TRIP-PAL}
+\textbf{!!! CITE REFERENCE}. Planning with Guarantees by Combining LLMs and Automated Planners (JP Morgan AI Research, 2024), which explores the combination of LLMs and formal planners (like A-star heuristic) to provide reliable trip plans.
 
-\subsection{Competitive Facility Location}
-In a survey paper by \cite{mishra2022location}, CFL problems can be categorized based on type of competition behaviour, problem domain and search space.
-
-Competitive facility location addresses the placement of facilities in a competitive environment that has numerous applications across different industries. These can include retail stores, warehouses, delivery hubs and even telecom towers. The primary objective is to optimise certain objective function that can incorporate elements such as transportation costs, customer reach, demand and supply. Accurate demand forecasting enables a more realistic representation of the real world and is critical to optimising the facilities placement.
-
-\subsubsection{CFL Competition Behaviour}
-CFL problems can broadly be classified into 3 main approaches based on competitor behaviour - static, foresight and dynamic model. 
-\begin{itemize}
-    \item Static models (\cite{plastria2001static}) assume that competitors do not readily react to the entrance of new competition. Static models hold a short term view whereby the response time taken for competitors to react is long enough for the new facility to reap the benefits. 
-    \item Foresight models (\cite{plastria2008discrete}) look at locating facilities with the foresight of where a competitor will subsequently make an entry. This approach tries to ensure that the remaining market share is maximised even after the competitor reacts. 
-    \item Dynamic models allow the relocation of competitor facilities based on changing market demands. Such scenarios are commonly seen in disaster relief where the location and allocation (\cite{karatas2021dynamic}) of search and rescue (SAR) assets are continually optimised to enhance the performance of SAR missions.
-\end{itemize}
-
-This paper focuses on static model, considering that the opening and closing of retail stores incur significant resources. Existing stores are unlikely to react to new competition in the short term. 
-
-\subsubsection{CFL Problem Domain}
-Problem domains are spread across various industries, including telecommunications, supply chain management, electric vehicle charging infrastructure, and public facility provisioning. Some of the problem domains include the following:
-
-\begin{enumerate}
-    \item Telecommunications: One study (\cite{amiri2021optimization}) proposes using Genetic Algorithm to find a suitable solution which optimises the placement of mobile antennas to maximise the network coverage while balancing the servicing costs.   
-    \item Supply chain: Stackelberg game theory (\cite{chouhan2022designing}) is used to model the relationship between manufacturer and distribution center, distribution center and customer region, and customer region and retrieval center. 
-    \item Charging Stations for electic vehicles: A multi-objective Particle Swarm Optimisation (\cite{chen2018location} is used to consider population density, land cost and the site selection for recharging station and battery exchange station for e-scooter. 
-    \item Public Facilities: Particle swarm optimisation (PSO) and artificial bee colony (ABC) to locate fire stations and resources (\cite{hajipour2022dynamic}) in different periods and emergency situations to account for dynamic needs.  
-\end{enumerate}
-
-\subsubsection{Decision Space: Continuous vs Discrete Decision Space }
-The decision space in which facilities are located can be classified as either continuous location models, network location models and discrete location models. Discrete location models restrict facilities to specific points in the decision space and are particularly suited for scenarios where the initial possible locations are pre-selected. However, the pre-selection of these discrete points can be time consuming if the decision space is large. 
-
-In network location models, the facilities can be located on network nodes such as those of a traffic road network. One example (\cite{adler2014location}) is the assignment problem for traffic police routine patrol vehicle on road network to optimise the response time to emergencies. 
-
-Continuous location models can be used in scenarios where facilities provide similar services, e.g., supermarkets and warehouses. Facility sites can potentially be sited anywhere within the decision space, without the constraints of predefined points. However, solving in continuous space is very computational intensive (\cite{revelle2005location}). Several heuristics have been developed to breakdown continuous space into discrete spaces (\cite{griffith2022spatial}). This includes the identification of hotspots and geographic tessellations.
-
-In this paper, we aim to automate the site selection process by converting the continuous decision space into discrete decision space using community detection of road network (\cite{tan2022data}). Each community detected then becomes a possible option for a retail store location.   
-
-\subsection{Metaheuristics and Applications to CFL}
-
-Adaptive Large Neighbourhood Search (ALNS) was first proposed in 2006 (\cite{ropke2006adaptive}). The ALNS framework is based on the extension of Large Neighbourhood Search (\cite{shaw1998using}) which deploys 2 kinds of operators - destroy and repair. An existing solution is first destroyed by destroy operators and subsequently repaired by repair operators. The performance of each operator is monitored and the selection of operators is based on their prior performance.  Earlier works of ALNS focused on transportation optimisation problems such as pick-up and delivery vehicle routing problem. Later works of ALNS include domains such as health care (\cite{issabakhsh2021scheduling}) and job shop scheduling problem (\cite{cordeau2010scheduling}). 
-
-ALNS has been increasing in popularity as an optimisation framework as it provides the following advantages (\cite{mara2022survey}):
-\begin{itemize}
-    \item ALNS can be applied in different domains.
-    \item Ease of incorporating existing domain knowledge by experts into destroy and repair operators. 
-    \item Destroy and repair operators can be freely incorporated into the algorithm as ineffective operators will be less frequently executed.
-    \item ALNS generates multiple neighbourhoods to increase the probability of finding the global optimal and avoiding being trapped in local optimal.    
-\end{itemize}
-
-In a 2022 survey paper which reviewed ALNS applications (\cite{mara2022survey}) in 252 papers, 186 papers focused on routing, 141 papers focused on scheduling problems and 22 papers were related to location analysis. Of the 22 papers on location analysis, they focused on maximal coverage problems (\cite{pereira2015hybrid}) and allocation of electronic vehicle charging stations (\cite{guo2018battery}). There are no papers which applies ALNS on CFL.
+\subsection{Optimizing Travel Itineraries with AI Algorithms in a Microservices Architecture: Balancing Cost, Time, Preferences, and Sustainability}
+\textbf{!!! CITE REFERENCE}. Demonstrates how various optimization objectives can be orchestrated via modular components with the use of Machine Learning (ML) Model for personalization.
 
 \section{Problem Definition}
-How to find places where we maximise patronage with considerations of Competitor and Friendly Sites?
-How does "machine" able to consider more candidate site compared to human?
+In this paper, we propose My Travel Itinerary Buddy – Automatic Itinerary (MITB – AI), where the goal is to generate multi-day travel itinerary for a tourist visiting Singapore, consisting of a sequence of POIs – including both attractions and hawker centres. This is also subjected to user-defined constraints (e.g. budget, number of days and person types) while optimizing for the following objectives: (1) minimize costs, (2) minimize travel time, and (3) maximize traveler’s satisfaction from online ratings. This problem can be classified as a multi-objective combinatorial optimization task, where the system must select and order POIs over multiple days while satisfying both hard and soft constraints (Fan, et al., 2024).
 
-\subsection{Huff Model}
+\subsection{Assumptions}
+The assumptions that we have incorporated in our itinerary planners includes: 
+\subsubsection{Daily time Windows}
+We assumed that all POIs are open from 9:00 AM to 10:00 PM and that travelers return to the hotel by the end of the day. Each day of the itinerary follows a fixed schedule:
+\begin{table}[h]
+    \centering
+    \begin{tabular}{|c|c|c|c|}
+         \hline
+         \textbf{Start of day} & \textbf{End of day} & \textbf{Lunch Window} & \textbf{Dinner Window} \\
+         \hline
+         09:00 & 22:00 & 11:00 - 15:00 & 17:00 – 21:00 \\
+         \hline
+    \end{tabular}
+\end{table}
 
-    The Huff model \citet{huff1963probabilistic} is a widely used model in retail location analysis since its introduction in 1963. It is a probabilistic model to estimate the consumer's patronage probability of a particular store, by comparing the attractiveness of the store to its nearby competitors. The attractiveness of the store is usually defined as the floor size or actual sales.  
+\subsubsection{Additional Modelling Assumptions}
+\begin{enumerate}
+    \item All inter-POI travel times are retrieved using Google Maps API, segmented into four time-of-day brackets (morning, afternoon, evening, night) to reduce excessive API calls.
+    \item The itinerary assumes a fixed accommodation location, Marina Bay Sands, as the default hotel for all nights, does not optimize for hotel selection to simplify routing and focus on attraction and food planning. Budget input by traveler does not include the pre-defined hotel as well.
+    \item Different Transport fare models for public transport or ride-hailing may apply based on rider types (e.g., adult, senior, tourist), but we have normalized under a general fare assumption in this study.
+    \item In ensuring trip continuity, the planner supports multi-segment trips (e.g. attraction -> food -> another attraction), and travel pricing is computed cumulatively across trip legs.
+\end{enumerate}
 
-The patronage probability, i.e., the probability that a customer located in community $i$ will choose the store $j$ can be expressed as:
-
-\begin{equation}
-P_{i,j} = \frac{A_j^{\alpha}D_{i,j}^{-\beta}}{\sum_{k=1}^{K} A_k^{\alpha}D_{i,k}^{-\beta}}
-\end{equation}
-
-where:
-
+\subsection{Datasets}
+The following datasets have been used for our itinerary planner to meet multiple objectives:
 \begin{itemize}
-    \item $P_{i,j}$ is the patronage probability that a customer located in community $i$ will choose the store $j$.
-    \item $A_j$ is the measure of attractiveness of store $j$
-    \item $D_{i,j}$ is the distance from community $i$ to store $j$.
-    \item $\alpha$ is the attractiveness parameter
-    \item $\beta$ is the distance decay parameter that reflects the rate at which the probability of choosing a store decreases as the distance between the customer and the store increases.
-    \item $K$ is the total number of stores, including store $j$
+    \item Attractions in Singapore: Geolocation, category, estimated visit duration, entrance fees and descriptions of attractions. Entrance fees enriched via LLM agents. Source: \url{https://data.gov.sg/datasets/d_0f2f47515425404e6c9d2a040dd87354/view}.
+    \item Singapore Hawker Centres: Geolocation, names of hawker centres and estimated costs. Source: \url{https://data.gov.sg/datasets/d_4a086da0a5553be1d89383cd90d07ecd/view}.
 \end{itemize}
 
-\subsection{Formulation}
-In this paper, we consider a franchise with existing stores (i.e., friendly stores) which aims to maximize its profit by opening new stores in the presence of competitor stores. Both friendly and new stores are denoted by set $J$ while competitor stores are denoted by set $K$. we define
+\subsection{Route Matrix Generation using Google Maps API}
+To support accurate travel time estimation between POIs, we constructed a route matrix using Google Maps API. This matrix serves as a critical yet feasible input for downstream optimization:
+\begin{enumerate}
+    \item Data Collection - We first consolidated attractions and hawker centres from publicly available sources into CSV files. To support location retrieval and recommendation by the LLM/Agents, we hosted the tabular data in a Postgres Database within a docker container. These datasets provided key details such as location names, estimated visit durations and costs.
+    \item Using Google Places API, we extracted latitude and longitude coord. for each POI. These waypoints were to define nodes of our routing graph and serve as input to our route matrix computation.
+    \item We then employed the Google Compute Route Matrix API to generate a travel-time and distance matrix between all waypoints for different transport modes (drive, transit). This step provided the necessary data to formulate the optimization problem for itinerary scheduling.
+\end{enumerate}
 
-\begin{equation}
-v_i = \sum_{k=1}^{K} A_k / D_{ik}^{-\beta}, \quad \forall i \in I
-\label{eq:utility_competitor}
-\end{equation}
+To manage costs and API quota constraints, we binned the travel time estimates into four main brackets:
+\begin{table}[h]
+    \centering
+    \begin{tabular}{|c|c|c|c|}
+         \hline
+         \textbf{Morning} & \textbf{Afternoon} & \textbf{Evening} & \textbf{Night} \\
+         \hline
+         08:00 – 12:00 & 12:00 – 16:00 & 16:00 – 20:00 & 20:00 – 08:00 \\
+         \hline
+    \end{tabular}
+\end{table}
 
-As shown in Equation \ref{eq:utility_competitor}, $v_i$ is the utility provided by competitor stores at community $i$ where $D_{ik}$ is the distance between community $i$ and competitor store $k$. The possible attractiveness levels, denoted by $A$, are presumed to be the same as all stores share similar floor plan and serve similar profile of consumers. 
-
-\begin{equation}
-P_{i,j} = \frac{A_j^{\alpha}D_{i,j}^{-\beta}}{\sum_{j=1}^{J} (A_j^{\alpha}D_{i,j}^{-\beta}) + v_i}
-\label{eq:huff_model_with_competitor}
-\end{equation}
-
-In the presence of competitors, the patronage probability, $P_{ij}$,  of customers at community $i$ patronizing store $j$ is then given by Equation \ref{eq:huff_model_with_competitor}
-
-The objective function \ref{eq:objective_function} aims to maximize the total demand satisfied by the new friendly sites as well as existing friendly sites.
-
-\begin{equation}
-\max \sum_{i=1}^{I} \sum_{j=1}^{J} \frac{A_j^{\alpha} D_{i,j}^{-\beta} \cdot x_j}{\sum_{j=1}^{J} (A_j^{\alpha} D_{i,j}^{-\beta}) + v_i} \cdot \text{Pop}_i
-\label{eq:objective_function}
-\end{equation}
-
-Where:
-
-\begin{itemize}
-\item $I$ is the set of communities
-\item $J$ is the set of friendly sites including new $J_{\text{new}}$ and existing $J_{\text{existing}}$ sites.
-\item $K$ is the set of competitor sites
-\item $P_{i,j}$ is the probability that a customer from community $i$ will visit the facility at friendly site $j$
-\item $v_i$ is the utility provided by competitor stores at community $i$
-\item $\text{Pop}_i$ is the population of community $i$
-\item $x_j$ is the binary decision variable indicating whether a friendly facility is located at candidate site $j$ (1 if located, 0 otherwise). For existing friendly sites, it will always be 1.
-\item $D_{ij}$ is the distance between community $i$ and friendly site $j$
-\item $A_j$ is the attractiveness of friendly site $j$
-\item $\alpha$ and $\beta$ are parameters in the Huff model
-\end{itemize}
-
-By multiplying the patronage probability with the population, $Pop_i$, in the community, we will be able to obtain the absolute amount demand, $\gamma$, in community $i$ satisfied by store $j$. 
-
-\begin{equation}
-\gamma_{i,j} = P_{i,j} \cdot Pop_i \label{eq:storelevelhuff}
-\end{equation}
-
-To obtain the total demand satisfied by store $j$, we sum up all the demand, $\gamma$, across all communities assigned to store $j$. 
-
-\begin{equation}
-\gamma_j = \sum_{i=1}^I P_{i,j} \cdot Pop_i \quad \forall j \in {1, 2, \ldots, J}
-\end{equation}
-
-To obtain the total demand satisfied by the franchise  $1$, ..., $J$, we further sum up all the demand served across all stores in the franchise. 
-
-\begin{equation}
-\gamma_{franchise} = \sum_{i=1}^I\sum_{j=1}^J P_{i,j} \cdot Pop_i
-\end{equation}
-
-\subsubsection{Constraint}
-The formulation for the constraints are as follows:
-
-\begin{equation}
-x_j \in {0, 1} \quad \forall j
-\end{equation}
-
-This constraint ensures that the decision variable $x_j$ can only take binary values of either 0 or 1 for all candidate sites $j$. It restricts the decision variables to be either 0 (no facility located at site $j$) or 1 (a facility is located at site $j$). Each community $j$ can have at most 1 facility.
-
-\begin{equation}
-\min_{j \in J \cup K} D_{i,j} \geq D_{\min}
-\end{equation}
-
-The distance between any community $i$ and the nearest facility (either friendly or competitor) should not be below a minimum threshold $D_{\min}$. It is set as 100m to avoid instances of division by zero in the Huff model, which would result in infinite patronage probabilities.
-
-\begin{equation}
-\sum_{j \in J} x_j = J_{\text{new}} + J_{\text{existing}}
-\end{equation}
-
-Sum of decision variables $x_j$ across all potential store locations j from 1 to J must be equal to the number of stores to be opened plus existing stores 
-
-\begin{equation}
-\sum_{j=1}^{J} P_{i,j} \cdot \text{Pop}_i = \text{Pop}_i \quad \forall i \in {1, \ldots, I}
-\end{equation}
-
-Total demand satisfied by all stores j must be equivalent to total population within each community i 
+For example, a query from Marina Bay Sands to Maxwell Food Centre at 17:58 would be approximated using the route data retrieved at 16:00. While this introduces some granularity loss due to timing of retrieval of data, it represents a practical trade-off between cost, accuracy and scalability. This approach would help us ensure reasonable accurate transit estimates while keeping the routing component efficient enough for integration with our optimization engine.
 
 \section{Contribution}
-Not to rely on outdated city census data
+\textbf{!!! HELP THIS SECTION}.  Not to rely on outdated city census data
 Domain expert view (pre-selection) not possible for large scale comparison and large n
 since it is continuous, it is not possible to find by manual methods (scalable) and need a smart way of approximation
 many applications
 
 \section{Case Study}
-
-% \begin{figure*}[htbp]
-% \centering
-% \includegraphics[width=1\textwidth]{images/AdminBoundary_vs_Community.png}
-% \caption{Extent of Study Area - Bangkok Metropolis}
-% \label{AdminBoundary_vs_Community}
-% \end{figure*}
-
-The area of study shown in Figure \ref{AdminBoundary_vs_Community} is the Metropolis Bangkok with 2 anonymised retailer chains A and B which have a significant presence in the city. Bangkok is chosen as it is a major Asian city which has enjoyed continual growth in recent years. The urban area experienced a recent notable population increase in recent years driving  
-
-Urbanisation in Thailand is concentrated within Bangkok which serves as the nation's economic, political and cultural hub. In the process, it has attracted much of the population and economic activity within the city, resulting in a core region with office skycrappers, shipping districts, luxury condominiums and cultural landmarks. Internal migration from rural areas into Bangkok continues today, latest estimate from United Nations shows that the city is growing between 1.5-2\% in the recent 5 years. Thailand's National Statistical Office estimated a steady population increase in Bangkok, growing from 8 million in 2010 to 11 million in 2020.
-
-Transportation infrastructure helps to connect the populace with different parts of the city but navigation within Bangkok's intricate urban network is challenging and complex.  There has been efforts to alleviate traffic jams with innovative transportation solutions such as water taxis along the major river arteries coupled with mass rapid transit network such as the BTS Skytrain. But movement within the city continues to be time-consuming. 
-
-Land use allocation is essential to manage limited land resources to balance between competing land needs versus that of the burgeoning population growth. For cities with transportation difficulties like Bangkok, strategically locating amenities to increase accessibility is especially important. It reduces the need for extensive travelling and increase productivity at work and home. This contributes to a more efficient and sustainable urban environment in the future.
+TBA
 
 \section{Proposed Approach}
-\subsection{ALNS}
-Large scale CFL problems can be computationally expensive and time-consuming. Solution time grows exponentially as the problem size increases, e.g., addition of facilities, demand points etc. Hence exact methods may be impractical to solve real-world problems which require extensive data.
+\subsection{LLM and Multi-Agent Framework}
+Although LLMs are highly capable at interpreting and generating human-like text, they are passive systems—limited to single-turn type of interaction without persistent memory. This presents clear limitations when applied to travel itinerary planning, a task that requires structured decision-making, retrieval of external data (e.g., Google ratings, Cost of Attraction Entrance Fees), and context tracking across multiple steps. A passive LLM may generate a generic itinerary but lacks the capability to provide personalization such as “I prefer scenic routes” or “maximize shopping time within budget.”
 
-This paper uses ALNS to solve large scale CFL problems. ALNS iteratively destroys and repair parts of the solution to maximise the total demand served by the franchise, $\gamma_{franchise}$ . Destroy operators will remove stores from the list of chosen candidate sites while the repair operators will open stores from the un-chosen list of candidate site. These operators compete with each other in each iteration and the operators with better performance are more likely to be used in future iterations.  
+To bridge this gap, we extend LLMs into autonomous agents by integrating three key capabilities: tool-calling (e.g., invoking Google Maps APIs), memory (to retain user goals and prior decisions), and Retrieval Augmented Generation (RAG) for incorporating external data into the reasoning process. This turns the LLM from a reactive text generator into a goal-driven planner capable of making informed decisions. Our system adopts this Agentic RAG architecture to retrieve attraction details, estimating hawker visit durations, and enrich itinerary planning with contextual knowledge beyond the LLM’s static knowledge from pre-training.
 
-\subsection{Initialisation}
-Initialisation: The initial selection of new stores is based on the communities with the highest population.
+While a single agent can technically handle the entire itinerary pipeline, research has also shown that such monolithic setups often struggle with domain specialization. To address the limitation, we extend our architecture into a multi-agent framework where each agent focuses on a well-scoped domain task.
 
-\subsection{Destroy Methods}
-Destroy operators remove parts of the current solution by identifying the stores to be eliminated based on the criteria stipulated within each operator. The destroy operation creates  variation in in solution neighbourhoods and allows the subsequent repair operators to explore different parts of the search space. The destroy operators are as follows.
+\textbf{!!! ADD ARCHITECTURE FIGURE HERE}
 
-\subsubsection{Destroy 1 - Random Destroy}
-Random destroy of N percentage of stores in a bid to minimise the risk of local optimal.
+\subsubsection{Supervisor Agent}
+This agent serves as a centralized “guardrails”. It evaluates incoming user queries for intent, toxicity, and feasibility before routing them to downstream domain-specific agents. This agent filters out harmful or nonsensical inputs (e.g., security threats development in Singapore) while passing valid requests (e.g., budget-aware itinerary planning) to the appropriate specialized agents.
 
-\subsubsection{Destroy 2 - Remove Least Market Share}
-Remove store with the lowest market share. While computing the objective function for each iteration within ALNS, the market share of each store in the study will be computed, providing insights on which stores are likely to have low market share. Instead of taking a deterministic approach of removing the bottom n stores which may result in a cycle, we implement a probabilistic approach. Stores with lower market share will have higher probability of being removed. . 
+\subsubsection{Attraction Agent}
+This agent is responsible for processing the user’s interests related to sightseeing, cultural landmarks, and activity-based preferences. It first performs semantic retrieval on the user query to identify relevant attraction-related intents, such as interest in “free attractions,” “shopping,” or “nature”. It then queries a local database hosted on PostgreSQL (via Docker) to retrieve structured metadata about available attractions.
 
-\subsubsection{Destroy 3 - Remove Closest Store}
-The pair-wise distance between stores will be computed and each store-pair will be ranked based on the distance. Those with the shortest pair-wise distance will have a higher probability of being removed.  One store from each of the selected pair will then be removed randomly. 
+\subsubsection{Hawker Agent}
+Very similar to Attraction Agent, this agent is responsible for processing the user's interests related to food preferences. It first performs semantic retrieval on the user query to identify relevant food-related intents, such as interest in “spicy food” or “halal-only”. It then queries a local database hosted on PostgreSQL (via Docker) to retrieve structured metadata about available hawker centres.
 
-% \subsubsection{Destroy 4 - Remove Store with Lowest Road Network Centrality}
-% Remove store with the lowest road network centrality. We compute the network centrality of road network for Bangkok Metropolitan and obtain the average centrality for each community. We postulate that areas with high network centrality have higher attractiveness to consumers.
+\subsubsection{Code Agent}
+This agent bridges the gap between natural language preferences and formal optimization logic. This agent transforms high-level user intent into structured parameters and constraint functions that can be directly ingested by the metaheuristic optimizer.
 
-\subsection{Repair Methods}
-Repair operators restores the destroyed solution to create a new candidate solution. By reconstructing feasible solutions, the solution can be incrementally improved. The repair operators are as follows.
+\subsubsection{Variable Agent}
+Aside from the additional constraints added by code agents, there are also vectors for the weights of prioritization that the Optimizer will use to find the best itinerary for the current persona. The role of a Variable Agent is to translate traveler’s persona into a weight prioritization for cost, travel duration, and satisfaction. For example, the agent will generate $w=[0.6,0.2,0.2]$ to reflect a user preference for minimizing budget over time and satisfaction.
 
-\subsubsection{Repair 1 - Random Repair}
-Random Repair. Store locations will be selected randomly.
+\subsubsection{Feedback Agent}
+TBA
 
-\subsubsection{Repair 2 - Locate in Highly Populated Areas}
-Select areas which contains high population within an increasing probability weighted by population. Fig \ref{Population} shows communities which are darker with higher population.
+\subsection{Adaptive Large Neighborhood Search (ALNS)}
+\textbf{!!! MIGHT NEED TO TRIM A LOT FROM THIS, AS THIS IS NOT THE FOCUS OF THIS PAPER}. ALNS is designed to solve optimization problems by iteratively destroying and repairing solutions. While traditional methods offer precise formulations, they struggle with scaling and flexibility in real-world data scenarios. In our project, ALNS was found to deal with our optimization problem better.
 
-% \subsubsection{Repair 3 - Locate Near Competitors with high market share }
-% Select areas with competitors which currently have high market share with an increasing probability weighted by market share. Existing market share are computed by apply Huff Model on existing store locations.
+\subsubsection{Construction Heuristic}
+Our Initial Heuristic provides a feasible solution and good starting point for further iterations.
+\begin{itemize}
+	\item Starting each day at the hotel and returning to the same hotel
+	Order attractions and hawker centres (descending) based on a value ratio: $\frac{Satisfaction}{(Cost + Duration)}$
+	\item Adding attractions before lunch time $\rightarrow$ Scheduling lunch at a highly rated hawker centre
+	\item Adding more attractions in the afternoon $\rightarrow$ Scheduling dinner at another hawker centre
+	\item Maintains budget constraints, time windows, and ensures each POI is visited at most once across the entire itinerary.
+\end{itemize}
 
-\subsubsection{Repair 3 - Locate in areas with high road network connectivity}
-Select areas with high network centrality. It is postulated that areas which are easily accessible will be attractive to customers. Closeness centrality of a road network provides insights into the accessibility from different areas. Nodes representing intersections with high closeness centrality are locations strategically positioned to efficiently reach other parts of the network, allowing for smoother traffic flow and easy navigation. When considering site selection, prioritizing those with high centrality will ensure better accessibility, creating a more connected and well-functioning urban environment. Fig \ref{Network Centrality} shows communities which are darker with highest closeness centrality. Central Bangkok has the highest closeness centrality.
+\subsubsection{Destroy Operators}
+Destroy operators remove portions of a solution to allow exploration of new regions in the search space.
+\begin{enumerate}
+    \item Destroy Targeted Subsequence: Removes a sequence of attractions while ensuring meals remain scheduled.
+    \begin{itemize}
+        \item Given a sequence $S = \{v_1,v_2,...,v_n\}$, a randomly chosen subsequence $S' \subset S$ is removed:
+        $S'=\{v_k,...,v_m\}$, where k, m are randomly chosen indices
+    \end{itemize}
+    \item Destroy Worst Attractions: Removes attractions with the lowest satisfaction-to-cost ratio.
+    \begin{itemize}
+        \item Ranking function: $R(i) = \frac{satisfaction_i}{cost_i}$
+        \item Attractions in the lowest percentile are removed.
+    \end{itemize}
+    \item Destroy Distant Locations: Eliminates locations requiring excessive travel.
+    \begin{itemize}
+        \item Distance weight: $w_{dist} = \alpha *d(i, j) + \beta *cost_{travel}$
+        \item Locations with the highest $w_{dist}$ are removed.
+    \end{itemize}
+    \item Destroy Expensive Attractions: Eliminates attractions when budget constraints are exceeded.
+    \begin{itemize}
+        \item If total cost exceeds the budget, as expressed in this equation: $\sum_{i \in V} cost_i > B$, then most expensive locations are iteratively removed until constraints are met.
+    \end{itemize}
+    \item Destroy Selected Day: Entire day schedule is replaced while keeping mealtimes with probability $p$.
+\end{enumerate}
+
+\subsubsection{Repair Operators}
+Repair operators insert new locations into an incomplete solution.
+\begin{enumerate}
+    \item Repair Regret Insertion: Selects the best insertion location based on regret value. Locations with the highest regret are inserted first, where $Regret(i) = \sum_{j=1}^{k}(best \, cost(j) - cost(i, j))$.
+    \item Repair Transit Efficient Insertion: Prioritizes minimizing travel time.
+    \begin{itemize}
+        \item Transit weight is defined as:
+        $
+            w_{transit} = \gamma * t_{travel} + \delta * cost_{transport}
+        $
+        where $\gamma$ and $\delta$ are tuning parameters.
+    \end{itemize}
+    \item Repair Satisfaction Driven Insertion: Maximizes overall satisfaction using: $w_{satisfaction} = \lambda * satisfaction - \mu * (cost + duration)$ where $\lambda$ and $\mu$ balances satisfaction vs cost.
+\end{enumerate}
+
+\subsubsection{Acceptance Criteria}
+The acceptance criterion determines whether a new solution should replace the current one.
+
+Using Simulated Annealing-based acceptance:
+\begin{itemize}
+    \item \textbf{Improved solutions always accepted}: $f(S_{new}) < f(S_{current}) \Rightarrow S_{current} \leftarrow S_{new}$
+    \item \textbf{Worse solutions accepted probabilistically}: $P_{accept} = e^{((-\Delta f ) / T)}$ where $\delta f = f(S_{new}) - f(S_{current})$ and $T$ is the current temperature.
+    \item \textbf{Temperature Update}: $T = \alpha T, \quad 0 < \alpha < 1$. gradually reducing acceptance probability over time.
+\end{itemize}
+
+This allows ALNS to escape local optima and explore diverse solutions.
+
+\subsubsection{Objective Function}
+The optimization problem in our itinerary planning framework aims to balance cost, travel time, and user satisfaction. To achieve this, we define a weighted objective function, where each component is normalized and constrained to ensure practical and meaningful solutions. The formulation is as follows:
+
+$
+Z = w_1 . \min (\frac{Cost}{Budget}, Limit_{cost}) + w_2 . \min (\frac{Travel Time}{Travel Time + TravelTime_{reference}}, Limit_{time}) + w_3 . \max (\frac{Satisfaction}{Satisfaction_{max}}, Limit_{satisfaction}) + P.1_{infeasible}
+$
+
+Where:
+\begin{itemize}
+    \item $w_1, w_2, w_3$ are the \textbf{weight factors} assigned to each objective based on the user’s persona.
+    \item \textbf{Limits} $Limit_{cost}, Limit_{time}, Limit_{satisfaction}$ are introduced to prevent the algorithm from over-prioritizing any objective beyond practical levels.
+    \item \textbf{Reference values} ensures travel time is assessed relative to a baseline, preventing the optimizer from producing unrealistic itineraries (e.g. min. travel time by staying at home except for meals).
+    \item \textbf{Penalty Term} $P.1_{infeasible}$ strongly discourages infeasible solutions by adding a large penalty when any hard constraint is violated.
+\end{itemize}
+
+This objective function effectively balances competing factors, ensuring itineraries are cost-efficient, time-conscious, and aligned with user preferences while maintaining feasibility and practicality.
 
 \section{Experimental Result}
-A dataset of 8 competitor stores and 8 friendly stores have been instantiated. 486 candidate sites are available for the selection of new stores. They are created using a community detection algorithm outlined by \citep{tan2022data, tan2023big}. This algorithm utilizes the Louvain community detection algorithm on a road network to create communities of various sizes, mimicking the actual urban structure of the community.
-
-The selection of new store locations is done in intervals of 10, ranging from 10 to 120. The same settings are applied to both ArcGIS and ALNS. These settings include a maximum consumer travel distance of 3km and a $\beta$ value of 0.3. The store attractiveness values are set to 100, indicating equal attractiveness across all stores due to similar floor size and store layout. For ALNS, an iteration of 20 is performed, and the best state objective and store location are selected. ArcGIS has a maximum limit of 99 stores in a CFL analysis. In the case of ALNS, instead of randomly placing stores among the 486 candidate sites, the initial state is initialized by placing new stores in communities with the highest population count. ArcGIS produced 9 instances from 10 to 90 new stores, while ALNS produced 12 instances from 10 to 120 new stores.
-
-To estimate the consumer count for each store, the Huff Model is utilized. This involves multiplying the patronage probability $\P_{ij}$ with the population count $Pop_i$ of each community. The consumer count is then summed up for all new stores and existing friendly stores to obtain the total consumer count captured. 
-
-% \begin{figure}[htbp]
-% 	% Use the relevant command to insert your figure file.
-% 	% For example, with the graphicx package use
-%     \centering
-% 	\includegraphics[width=0.40\textwidth]{images/erp3_alns_vs_arcgis_output.png}
-% 	% figure caption is below the figure
-% 	\caption{Comparison of consumer count between ALNS and ArcGIS.}
-% 	\label{erp3_alns_vs_arcgis_output}       % Give a unique label
-% \end{figure}
-
-The results are depicted in Figure \ref{erp3_alns_vs_arcgis_output}, which showcases the comparison of consumer count between ALNS and ArcGIS. The figure demonstrates similar performance between the two methods, with ALNS continuing to recommend new store openings beyond the upper limit of 99 imposed by ArcGIS.
-
-% \begin{figure}[htbp]
-% 	% Use the relevant command to insert your figure file.
-% 	% For example, with the graphicx package use
-%     \centering
-% 	\includegraphics[width=0.40\textwidth]{images/erp3_difference_consumer_count_output.png}
-% 	% figure caption is below the figure
-% 	\caption{Percentage difference in
-%  consumer count between ALNS and ArcGIS.}
-% 	\label{erp3_difference_consumer_count_output}       % Give a unique label
-% \end{figure}
-
-ifference in consumer count between ALNS and ArcGIS. On average, ALNS performs slightly better than ArcGIS with a 2\% improvement. The instances generally show performance improvements within the range of 0-2%, except for a 11% improvement in the case of 20 new store openings. These results indicate that ALNS is a viable option compared to commercially available solutions like ArcGIS.
-
-
-% \begin{figure}[htbp]
-% \centering
-% \includegraphics[width=0.4\textwidth]{images/ERP3_ALNS_convergence.png}
-% \caption{Evolution of Objective Value.}
-% \label{ALNS_iterations}
-% \end{figure}
-
-Figure \ref{ALNS_iterations} illustrates the evolution of the objective value in ALNS for a sample instance of 100 new store openings. The chart displays two lines: the Best Line and the Current Line. The Best Line represents the best objective value found thus far during the search process, and it shows the improvement in the objective value over time. The Current Line represents the objective value of the solution currently being evaluated or explored. By analyzing the gap between the best and current lines, we can assess the convergence and behavior of the algorithm.
-
-% \begin{figure}[htbp]
-% \centering
-% \includegraphics[width=0.4\textwidth]{images/ERP3_plot_operator_count.png}
-% \caption{Repair and Destroy Operator Performance.}
-% \label{operator_performance}
-% \end{figure}
-
-Figure \ref{operator_performance} provides insights into the performance of the repair and destroy operators in the instance of 100 new store openings. The most frequently chosen destroy operator is the least market share, which has a higher probability of removing stores with smaller consumer counts. On the other hand, the most frequently chosen repair operator is the top community population repair, which has a higher probability of opening stores in communities with higher populations.
-
-These findings contribute to a better understanding of the performance, convergence, and operator behavior in the ALNS approach for new store location selection.
+TBA
 
 \section{Conclusion}
-We have expanded the applications of ALNS on location analysis which are predominantly concentrated on maximal coverage. Our work pioneers the incorporation of competition in location allocation into the ALNS framework. ALNS has provided a framework which can easily incorporate additional layers of information that will contribute to high quality solutions for store allocations. For example, the availability of road network data allows for data enrichment for CFL.
-
-The automation of site selection involves the integration of various factors, including the competition landscape, road network data and population data. This automation produces a more systematic and data-driven approach to selecting optimal store locations without any need for manual pre-selection of sites, reducing the potential for human bias and subjective judgment. We have also reduced the computational complexity through conversion of continuous to discrete decision spaces through community detection.
-
-However, we acknowledge that the solution quality depends heavily on the quality of the data inputs. It is essential to continue refining the data collection processes to ensure that road network data and other relevant data sources are up-to-date and accurate. Other potential data sources can be changes land use data derived from satellite imagery which allows for near-real time analysis.
+TBA
 
 % For instructions on how to submit your work to ECAI and on matters such 
 % as page limits or referring to supplementary material, please consult 
