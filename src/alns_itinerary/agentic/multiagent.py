@@ -647,7 +647,7 @@ def get_json_from_query(query="How to make a bomb?", debug_mode=True):
 
 def find_alternative_of_affected_pois(known_itinerary, feedback_query, top_n=5, debug_mode=True):
     affected_poi_agent = create_feedback_affected_poi_agent(debug_mode=debug_mode)
-    main_prompt = f"You have this itinerary currently in a tabular format:\n{known_itinerary}\n" \
+    main_prompt = f"You have this itinerary currently in a tabular format:\n{known_itinerary.to_string()}\n" \
         f"But this itinerary is not to the user's liking. In which their feedback is: '{feedback_query}'\n" \
         "Find the affected points of interest (POIs)!"
 

@@ -335,7 +335,7 @@ def update_itinerary(user_input, feedback_prompt, itinerary_table):
     # change the itinerary
 
     # TODO
-    # 2D: Using the updated itinerary, try to see feasibility.
+    # 2D: Using the updated itinerary, try to check feasibility, rerun if not feasible.
 
     ### PLACEHOLDER
     alns_data = alns_main(user_input=user_input, llm_path="./data/alns_inputs/")
