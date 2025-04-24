@@ -664,6 +664,9 @@ def find_alternative_of_affected_pois(known_itinerary, feedback_query, top_n=5, 
     for affected_poi in affected_pois:
         poi = affected_poi["poi_affected"]
         poi_loc_type = affected_poi["poi_type"]
+        if poi_loc_type == "hotel":
+            # WE CANNOT CHANGE THE HOTEL, so just skip. There's no alternative to this.
+            continue
         poi_time = affected_poi["time_affected"]
         poi_time_bracket = get_poi_time_bracket(poi_time)
         possible_alternative_pois = [
@@ -810,10 +813,3 @@ if __name__ == "__main__":
 
         print()
         break
-
-
-
-
-
-
-
