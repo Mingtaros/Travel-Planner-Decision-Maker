@@ -16,7 +16,7 @@ import random
 
 from agno.agent import Agent
 from agno.models.openai import OpenAIChat
-# from agno.models.groq import Groq
+from agno.models.groq import Groq
 
 from agno.tools.duckduckgo import DuckDuckGoTools
 from agno.tools.googlesearch import GoogleSearchTools
@@ -25,6 +25,8 @@ from agno.knowledge.csv import CSVKnowledgeBase
 from agno.knowledge.text import TextKnowledgeBase
 from agno.vectordb.pgvector import PgVector
 from agno.tools.calculator import CalculatorTools
+
+from agentic.multiagent_utils import get_transport_matrix, get_poi_time_bracket, get_location_types
 
 # ========================================================
 # Load environment variables & classess for Pydantic Base Models
@@ -83,6 +85,16 @@ class AttractionResponse(BaseModel):
 class CodeResponse(BaseModel):
     is_feasible: List[str] = Field(..., description="List of additional constraints to add to the `is_feasible function` of VRPSolution.")
     is_feasible_insertion: List[str] = Field(..., description="List of additional constraints to add to the `is_feasible_insertion` function of VRPSolution.")
+
+
+class AffectedPOIDetail(BaseModel):
+    poi_affected: str = Field(..., description="Name of the place affected. Please use the exact naming that exist in the itinerary.")
+    poi_type: str = Field(..., description="Type of the place affected. It can ony be 'hawker' or 'attraction'. Use the exact naming that exist in the itinerary.")
+    time_affected: str = Field(..., description="Time that this place is affected. Please use the exact time that exist in the itinerary.")
+
+class AffectedPOIResponse(BaseModel):
+    AFFECTED_POI_DETAILS: List[AffectedPOIDetail] = Field(..., description="List of Affected Points of Interest.")
+
 
 #==================
 # mutli agent part
@@ -427,6 +439,38 @@ def create_code_agent(model_id="gpt-4o", debug_mode=True):
 
     return code_agent
 
+
+def create_feedback_affected_poi_agent(model_id="gpt-4o", debug_mode=True):
+    affected_poi_agent = Agent(
+        name="Finding Affected POIs based on feedback",
+        agent_id="affected_poi_agent",
+        # model=OpenAIChat(id=model_id, 
+        #                  response_format="json",
+        #                  temperature=0.0,
+        #                  top_p=0.2,
+        #                  ), 
+        model=Groq(id="llama-3.3-70b-versatile",
+                   response_format={ "type": "json_object" }, 
+                   temperature=0.2),
+        response_model=AffectedPOIResponse,
+        structured_outputs=True,
+        description="You are an expert on building travel itineraries for Singapore. You just received feedback from the user. You need to find the points of interest that the users would like to change from the user's feedback.",
+        instructions=[
+            "You will receive an itinerary in a tabular format.",
+            "You will also receive a feedback on the known itinerary.",
+            "Your goal is to list the where and when of the itinerary does the user want to change.",
+            "For the POI name. Use the exact naming that the itinerary uses.",
+            "For the time, if there are arrival and departure time, use the arrival time.",
+            "If the user's feedback doesn't specify any places, speculate based from your understanding of these places.",
+            "If you think that no places are affected, return an empty list.",
+        ],
+        debug_mode=debug_mode,
+        markdown=True
+    )
+
+    return affected_poi_agent
+
+
 def get_combine_json_data(path="./data/alns_inputs/POI_data.json", at_least_hawker=10, at_least_attraction=30):
     # Read the JSON file
     with open(path, "r", encoding="utf-8") as file:
@@ -599,6 +643,45 @@ def get_json_from_query(query="How to make a bomb?", debug_mode=True):
     print(f"✅ Saved to: {subfolder_path}")
 
     return
+
+
+def find_alternative_of_affected_pois(known_itinerary, feedback_query, top_n=5, debug_mode=True):
+    affected_poi_agent = create_feedback_affected_poi_agent(debug_mode=debug_mode)
+    main_prompt = f"You have this itinerary currently in a tabular format:\n{known_itinerary}\n" \
+        f"But this itinerary is not to the user's liking. In which their feedback is: '{feedback_query}'\n" \
+        "Find the affected points of interest (POIs)!"
+
+    agent_response = affected_poi_agent.run(main_prompt, stream=False).content.model_dump()
+    affected_pois = agent_response["AFFECTED_POI_DETAILS"]
+
+    # get tranport matrix & location types
+    transport_matrix = get_transport_matrix()
+    location_types = get_location_types()
+    poi_suggestions = {}
+
+    transport_keys = transport_matrix.keys()
+    # from the affected pois, find top N closest places from the transport matrix
+    for affected_poi in affected_pois:
+        poi = affected_poi["poi_affected"]
+        poi_loc_type = affected_poi["poi_type"]
+        poi_time = affected_poi["time_affected"]
+        poi_time_bracket = get_poi_time_bracket(poi_time)
+        possible_alternative_pois = [
+            (
+                transport_key[1], # destination name
+                location_types[transport_key[1]],
+                transport_matrix[transport_key]
+            )
+            for transport_key in transport_keys
+            if (transport_key[0] == poi) and \
+               (transport_key[2] == poi_time_bracket) and \
+               (location_types[transport_key[1]] == poi_loc_type)
+        ] # find possible routes from this place at this time for the exactly the same place type
+        # sort and pick only top 5, by shortest duration, let's say using driving
+        possible_alternative_pois.sort(key=lambda x: x[2]["drive"]["duration"])
+        poi_suggestions[poi] = possible_alternative_pois[:5]
+    
+    return poi_suggestions
 
 
 #==================

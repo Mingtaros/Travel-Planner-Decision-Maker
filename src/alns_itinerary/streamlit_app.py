@@ -21,7 +21,7 @@ from alns_main import alns_main
 import time
 import random
 
-from agentic.multiagent import get_json_from_query, get_combine_json_data
+from agentic.multiagent import get_json_from_query, get_combine_json_data, find_alternative_of_affected_pois
 
 
 st.set_page_config(page_title="Travel Itinerary Planner", layout="wide")
@@ -277,7 +277,7 @@ def prepare_map(alns_data):
 def generate_itinerary(user_input):
     start_time = time.time()
     # exports out the data/POI_data.json based on the given query from streamlit otherwise, its a default "how to make a bomb"
-    get_json_from_query(query=user_input['description'], debug_mode=True)
+    # get_json_from_query(query=user_input['description'], debug_mode=True)
 
     # aggregation between kb and recommendations, deduplicates, and randomnisation
     get_combine_json_data()
@@ -316,21 +316,26 @@ def make_content_to_string(content):
     raise ValueError(f"Content Type '{content_type}' not handled.")
 
 
-def update_itinerary(user_input, feedback_prompt, messages):
-    # make history prompt from messages
-    history = []
-    for message in messages:
-        history.append({
-            "role": message["role"],
-            "content": "\n".join([make_content_to_string(message_content) for message_content in message["content"]])
-        })
-    
-    logger.info("Chat History:")
-    logger.info(json.dumps(history, indent=4))
+def update_itinerary(user_input, feedback_prompt, itinerary_table):
+    logger.info("Itinerary Table:")
+    logger.info(itinerary_table)
     logger.info(f"Feedback Prompt: {feedback_prompt}")
 
-    # TODO: @JS, with available chat history and feedback prompt, call a function similar to get_json_from_query()
-    # this time instead of using only user input description, also uses chat history and feedback to re-score
+    # TODO
+    # 2B: using LLM only, try to update the itinerary in the same table
+
+    # 2C: find affected POIs, find alternatives of the POIs
+    #     update the itinerary afterwards
+    affected_alternative_pois = find_alternative_of_affected_pois(itinerary_table, feedback_prompt, top_n=5)
+
+    logger.info("Affected POIs and their Alternatives:")
+    logger.info(json.dumps(affected_alternative_pois, indent=4, default=str))
+
+    # TODO: for 2C, see if can prompt-engineer in such a way to use these alternatives to
+    # change the itinerary
+
+    # TODO
+    # 2D: Using the updated itinerary, try to see feasibility.
 
     ### PLACEHOLDER
     alns_data = alns_main(user_input=user_input, llm_path="./data/alns_inputs/")
@@ -376,7 +381,7 @@ if page == "Itinerary":
             "num_days": num_days,
             "budget": budget,
             "description": description
-        }  
+        }
         generate_itinerary(user_input)
     
     if st.session_state["itinerary_ready"]:
@@ -407,8 +412,17 @@ if st.session_state["itinerary_ready"]:
             "budget": budget,
             "description": description
         }
-    
-        update_itinerary(user_input, feedback_prompt, st.session_state.messages[-5:]) # only taking the last 5
+
+        # get last tabular itinerary in messages
+        itinerary_table = None
+        for message in st.session_state.messages[::-1]:
+            for content in message["content"][::-1]:
+                if content[0] == "dataframe":
+                    itinerary_table = content[1]
+                    logging.info("masuk sini")
+                    break
+
+        update_itinerary(user_input, feedback_prompt, itinerary_table) # only taking the last itinerary
         if st.session_state["itinerary_ready"]:
             display_itinerary()
             # no need to re-show radio "Go to", will have duplicate otherwise
