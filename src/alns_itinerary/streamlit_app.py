@@ -21,7 +21,7 @@ from alns_main import alns_main
 import time
 import random
 
-from agentic.multiagent import get_json_from_query, get_combine_json_data, find_alternative_of_affected_pois
+from agentic.multiagent import get_json_from_query, get_combine_json_data, find_alternative_of_affected_pois, update_itinerary_llm
 
 
 st.set_page_config(page_title="Travel Itinerary Planner", layout="wide")
@@ -323,7 +323,8 @@ def update_itinerary(user_input, feedback_prompt, itinerary_table):
 
     # TODO
     # 2B: using LLM only, try to update the itinerary in the same table
-
+    updated_itinerary = update_itinerary_llm(itinerary_table, feedback_prompt)
+    logger.info(f"Updated Itinerary: {updated_itinerary}")
     # 2C: find affected POIs, find alternatives of the POIs
     #     update the itinerary afterwards
     affected_alternative_pois = find_alternative_of_affected_pois(itinerary_table, feedback_prompt, top_n=5)
@@ -338,13 +339,15 @@ def update_itinerary(user_input, feedback_prompt, itinerary_table):
     # 2D: Using the updated itinerary, try to check feasibility, rerun if not feasible.
 
     ### PLACEHOLDER
-    alns_data = alns_main(user_input=user_input, llm_path="./data/alns_inputs/")
+    # alns_data = alns_main(user_input=user_input, llm_path="./data/alns_inputs/")
     logger.info("Itinerary data loaded successfully!")
-    m = prepare_map(alns_data)
+    # m = prepare_map(alns_data)
+    m = prepare_map(updated_itinerary)
     
     print(feedback_prompt)
     st.session_state["itinerary_ready"] = True
-    st.session_state["route_map"], st.session_state["alns_data"] = m, alns_data
+    # st.session_state["route_map"], st.session_state["alns_data"] = m, alns_data
+    st.session_state["route_map"], st.session_state["alns_data"] = m, updated_itinerary
 
 G = load_graph()
 
