@@ -143,11 +143,14 @@ class UpdatedRestSummary(BaseModel):
 
 class UpdatedItineraryResponse(BaseModel):
     trip_summary: UpdatedTripSummary
-    days: List[DayPlan]
+    days: List[UpdatedDayPlan]
     attractions_visited: List[str]
     budget_breakdown: UpdatedBudgetBreakdown
     transport_summary: UpdatedTransportSummary
     rest_summary: UpdatedRestSummary
+    
+class UpdatedDayResponse(BaseModel):
+    updated_locations: List[UpdatedLocation]
 
 #==================
 # mutli agent part
@@ -492,115 +495,77 @@ def create_code_agent(model_id="gpt-4o", debug_mode=True):
 
     return code_agent
 
-def create_update_itinerary_agent(model_id="gpt-4o", debug_mode=True):
-    update_itinerary_agent = Agent(
-        name="Directly updating itinerary based on feedback",
-        agent_id="update_itinerary_agent",
-        # model=OpenAIChat(id=model_id, 
-        #                  response_format="json",
-        #                  temperature=0.0,
-        #                  top_p=0.2,
-        #                  ), 
+def create_update_day_agent(model_id="gpt-4o", debug_mode=True):
+    update_day_agent = Agent(
+        name="Day-wise Itinerary Update Agent",
+        agent_id="update_day_agent",
+        # model=OpenAIChat(
+        #     id=model_id,
+        #     response_format="json",
+        #     temperature=0.2,
+        #     top_p=0.2
+        # ),
         model=Groq(id="llama-3.3-70b-versatile",
                    response_format={ "type": "json_object" }, 
                    temperature=0.2),
-        response_model=UpdatedItineraryResponse,
-        structured_outputs=True,
-        description="You are a Travel Itinerary Adjustment Agent.",
+        # structured_outputs=True,
+        response_model=UpdatedDayResponse,  # <-- this is the simplified response
+        description="Update a single day's list of locations based on user feedback.",
         instructions=dedent(f"""
-        You are a professional travel itinerary editor and planner for tourists visiting Singapore.
+        You are a travel itinerary day editor for tourists visiting Singapore.
 
-        You are provided with:
-        - An existing travel itinerary in a structured JSON format.
-        - User feedback describing how they want the itinerary to be modified.
+        You are given:
+        - A list of locations for one day (arrival time, departure time, location names, etc.).
+        - Feedback from the user about what they want changed.
 
-        Your task is to intelligently adjust the itinerary based on the feedback, ensuring that all updates are realistic, feasible, and consistent with the original structure.
+        Your task:
+        - Modify the locations based on the feedback.
+        - Adjust arrival/departure times, transit types, durations, rest times as necessary.
+        - Maintain logical, feasible, realistic schedules (no teleporting or magical times).
 
         Constraints:
-        - Preserve the structured JSON format exactly as provided.
-        - Update fields like arrival_time, departure_time, transit details, satisfaction scores, costs, and rest durations according to changes.
-        - If activities are removed, replace them with similar activities if needed to maintain a full-day schedule.
-        - Each day must begin and end at the hotel (starting_hotel field).
-        - Only include realistic transit times and costs; do not fabricate or invent unrealistic numbers.
-        - Update summary sections like trip_summary, budget_breakdown, transport_summary, and rest_summary based on actual changes.
-        - Attractions and hawkers must remain categorized correctly.
-        - DO NOT invent new places unless necessary — prefer using existing types: hawker centers, tourist attractions, hotels.
-        - DO NOT hallucinate costs, travel times, or satisfaction scores.
+        - Each day MUST start and end at the hotel.
+        - Prefer replacing attractions with nearby alternatives if an attraction is removed.
+        - Try to keep about the same number of activities (unless feedback says otherwise).
+        - Only modify what is necessary to satisfy the feedback.
+        - Do not fabricate location names — use existing attractions or hawkers.
 
-        ✅ You MUST ensure the final JSON includes:
-        - Updated days[] structure with correct locations[] inside each day
-        - Updated trip_summary (duration, total_budget, actual_expenditure, total_travel_time, total_satisfaction, objective_value, is_feasible, starting_hotel)
-        - Updated attractions_visited list
-        - Updated budget_breakdown (attractions, meals, transportation)
-        - Updated transport_summary (total_duration, total_cost)
-        - Updated rest_summary (total_rest_duration)
-
-        Return ONLY a valid JSON object with the following structure:
+        ✅ You MUST output ONLY the following JSON structure:
 
         {{
-            "trip_summary": {{
-                ...
-            }},
-            "days": [
-                {{
-                    "day": 1,
-                    "date": "YYYY-MM-DD",
-                    "locations": [
-                        {{
-                            "name": "Location Name",
-                            "type": "attraction | hawker | hotel",
-                            "arrival_time": "HH:MM",
-                            "departure_time": "HH:MM",
-                            "lat": float,
-                            "lng": float,
-                            "transit_from_prev": "transit | drive | null",
-                            "transit_duration": int,
-                            "transit_cost": float,
-                            "duration": int,
-                            "satisfaction": float,
-                            "cost": float,
-                            "rest_duration": int,
-                            "actual_arrival_time": "HH:MM | null",
-                            "description": "Optional description",
-                            "position": "end | null",
-                            "meal_type": "lunch | dinner | null"
-                        }}
-                    ]
-                }}
-            ],
-            "attractions_visited": ["..."],
-            "budget_breakdown": {{
-                "attractions": float,
-                "meals": float,
-                "transportation": float
-            }},
-            "transport_summary": {{
-                "total_duration": int,
-                "total_cost": float
-            }},
-            "rest_summary": {{
-                "total_rest_duration": int
+          "updated_locations": [
+            {{
+              "name": "...",
+              "type": "attraction | hawker | hotel",
+              "arrival_time": "HH:MM",
+              "departure_time": "HH:MM",
+              "lat": float,
+              "lng": float,
+              "transit_from_prev": "transit | drive | null",
+              "transit_duration": int,
+              "transit_cost": float,
+              "duration": int,
+              "satisfaction": float,
+              "cost": float,
+              "rest_duration": int,
+              "actual_arrival_time": "HH:MM | null",
+              "description": "optional",
+              "position": "optional",
+              "meal_type": "optional"
             }}
+          ]
         }}
 
-        ⚠️ DO NOT include explanations, markdown, or bullet points in your response.
-        ⚠️ DO NOT skip any required fields.
-        ⚠️ DO NOT guess or hallucinate numbers — adjust logically based on input.
-
-        ✅ Ensure the output is valid JSON, fully parsable, and ready for use.
-
-        💡 Step-by-step for itinerary adjustment:
-        Step 1: Parse the original itinerary JSON and the user feedback.
-        Step 2: Identify which locations are affected.
-        Step 3: Make necessary modifications while ensuring timing, budget, satisfaction, and feasibility are updated accurately.
-        Step 4: Recalculate total costs, satisfaction, travel time, and objective value.
-        Step 5: Construct the final output following the exact structure shown above.
+        ⚠️ DO NOT return full trip summaries or budgets. Only this day's updated locations.
+        ⚠️ DO NOT invent names, costs, or satisfaction scores without logical basis.
+        ✅ Output must be valid parsable JSON.
         """),
         debug_mode=debug_mode,
-        markdown=True
+        # markdown=True,
+        use_json_mode=True,
     )
 
-    return update_itinerary_agent
+    return update_day_agent
 
 def create_feedback_affected_poi_agent(model_id="gpt-4o", debug_mode=True):
     affected_poi_agent = Agent(
@@ -807,15 +772,102 @@ def get_json_from_query(query="How to make a bomb?", debug_mode=True):
     return
 
 def update_itinerary_llm(known_itinerary, feedback_query, debug_mode=True):
-    update_itinerary_agent = create_update_itinerary_agent(debug_mode=debug_mode)
-    
-    main_prompt = f"You have this itinerary currently in a tabular format:\n{known_itinerary.to_string()}\n" \
-        f"But this itinerary is not to the user's liking. In which their feedback is: '{feedback_query}'\n" \
-        f"Update the itinerary accordingly!"
+    update_day_agent = create_update_day_agent(debug_mode=debug_mode)
 
-    agent_response = update_itinerary_agent.run(main_prompt, stream=False).content.model_dump()
-    
-    return agent_response
+    updated_days = []
+
+    for day_info in known_itinerary["days"]:
+        day = day_info["day"]
+        date = day_info["date"]
+        locations = day_info["locations"]
+
+        day_prompt = f"""
+        This is the itinerary for Day {day} ({date}):
+        {json.dumps(locations, indent=2)}
+        
+        User feedback: '{feedback_query}'
+        
+        Update only this day's list of locations based on the feedback.
+        """
+
+        agent_response = update_day_agent.run(day_prompt, stream=False).content.model_dump()
+        updated_day = UpdatedDayPlan(day=day, date=date, locations=agent_response["updated_locations"])
+        updated_days.append(updated_day)
+
+    return updated_days
+
+def rebuild_full_itinerary(updated_days: List[UpdatedDayPlan], known_itinerary: dict) -> UpdatedItineraryResponse:
+    """
+    Rebuilds a full UpdatedItineraryResponse from updated days and the original known itinerary.
+    """
+
+    # 1. Initialize accumulators
+    total_expenditure = 0.0
+    total_travel_time = 0
+    total_satisfaction = 0.0
+    total_rest_duration = 0
+    attractions_visited = []
+    attractions_cost = 0.0
+    meals_cost = 0.0
+    transportation_cost = 0.0
+
+    # 2. Loop through updated days
+    for day in updated_days:
+        previous_location = None
+
+        for loc in day.locations:
+            total_expenditure += loc.cost or 0
+            total_travel_time += loc.transit_duration or 0
+            total_satisfaction += loc.satisfaction or 0
+            total_rest_duration += loc.rest_duration or 0
+
+            if loc.type == "attraction":
+                attractions_visited.append(loc.name)
+                attractions_cost += loc.cost or 0
+            elif loc.type == "hawker":
+                meals_cost += loc.cost or 0
+
+            if loc.transit_cost:
+                transportation_cost += loc.transit_cost or 0
+
+            previous_location = loc
+
+    # 3. Calculate objective value (example: simple ratio based)
+    try:
+        budget = known_itinerary["trip_summary"]["total_budget"]
+        objective_value = (total_expenditure / budget) - (total_satisfaction / (5 * len(attractions_visited)))
+    except Exception:
+        objective_value = 0
+
+    # 4. Create UpdatedItineraryResponse
+    itinerary_response = UpdatedItineraryResponse(
+        trip_summary=UpdatedTripSummary(
+            duration=len(updated_days),
+            total_budget=budget,
+            actual_expenditure=round(total_expenditure, 2),
+            total_travel_time=total_travel_time,
+            total_satisfaction=round(total_satisfaction, 2),
+            objective_value=round(objective_value, 6),
+            is_feasible=True,  # Assume feasible if rebuilt correctly; later can validate
+            starting_hotel=known_itinerary["trip_summary"]["starting_hotel"],
+        ),
+        days=updated_days,
+        attractions_visited=list(sorted(set(attractions_visited))),
+        budget_breakdown=UpdatedBudgetBreakdown(
+            attractions=round(attractions_cost, 2),
+            meals=round(meals_cost, 2),
+            transportation=round(transportation_cost, 2),
+        ),
+        transport_summary=UpdatedTransportSummary(
+            total_duration=total_travel_time,
+            total_cost=round(transportation_cost, 2),
+        ),
+        rest_summary=UpdatedRestSummary(
+            total_rest_duration=total_rest_duration
+        )
+    )
+
+    return itinerary_response
 
 def find_alternative_of_affected_pois(known_itinerary, feedback_query, top_n=5, debug_mode=True):
     affected_poi_agent = create_feedback_affected_poi_agent(debug_mode=debug_mode)
