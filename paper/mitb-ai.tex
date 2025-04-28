@@ -91,7 +91,7 @@
 %%% Use this environment to include an abstract of your paper.
 
 \begin{abstract}
-This paper presents a combined approach of Large Language Model (LLM) and Operation Research (OR) to develop an optimized travel planner for tourists visiting Singapore. Recognizing that traveler preferences vary significantly across demographics, we aim to generate customized itineraries that balance cost, travel time and personal satisfaction. We apply LLM agents to convert traveler's preferences in text format into a structured format that can be used for optimization. In optimization's case, we apply Adaptive Large Neighborhood Search (ALNS) with data enrichment techniques such as route matrix from Google Maps API to find out duration and price from point A to point B. Our contribution is the ability to make more-realistic itineraries, putting distance and cost into perspective, while focusing on traveler's best interest to minimize expenses and maximize satisfaction. We benchmarked against ... . Our approach ..., demonstrating the power of leveraging strengths of both LLM and ALNS in solving this problem.
+This paper presents a combined approach of Large Language Model (LLM) and Operation Research (OR) to develop an optimized travel planner for tourists visiting Singapore. Recognizing that traveler preferences vary significantly across demographics, we aim to generate customized itineraries that balance cost, travel time and personal satisfaction. We apply LLM agents to convert traveler's preferences in text format into a structured format that can be used for optimization. For optimization, we apply Adaptive Large Neighborhood Search (ALNS) with data enrichment techniques such as route matrix from Google Maps API to find out duration and price from point A to point B. Our contribution is the ability to make more-realistic itineraries, putting distance and cost into perspective, while focusing on traveler's best interest to minimize expenses and maximize satisfaction. We benchmarked against ... . Our approach ..., demonstrating the power of leveraging strengths of both LLM and ALNS in solving this problem.
 
 \end{abstract}
 
@@ -118,6 +118,11 @@ This study is geographically and thematically scoped to the context of Singapore
 \section{Related Work}
 Recent works have shown promise in understanding natural language preferences in the same domain research that we are working on:
 
+- other trip planners (pelago)
+
+- other application such as inventory management, blablabla
+
+
 \subsection{TRIP-PAL}
 \textbf{!!! CITE REFERENCE}. Planning with Guarantees by Combining LLMs and Automated Planners (JP Morgan AI Research, 2024), which explores the combination of LLMs and formal planners (like A-star heuristic) to provide reliable trip plans.
 
@@ -129,55 +134,13 @@ In this paper, we propose My Travel Itinerary Buddy – Automatic Itinerary (MIT
 
 \subsection{Assumptions}
 The assumptions that we have incorporated in our itinerary planners includes: 
-\subsubsection{Daily time Windows}
-We assumed that all POIs are open from 9:00 AM to 10:00 PM and that travelers return to the hotel by the end of the day. Each day of the itinerary follows a fixed schedule:
-\begin{table}[h]
-    \centering
-    \begin{tabular}{|c|c|c|c|}
-         \hline
-         \textbf{Start of day} & \textbf{End of day} & \textbf{Lunch Window} & \textbf{Dinner Window} \\
-         \hline
-         09:00 & 22:00 & 11:00 - 15:00 & 17:00 – 21:00 \\
-         \hline
-    \end{tabular}
-\end{table}
-
-\subsubsection{Additional Modelling Assumptions}
-\begin{enumerate}
-    \item All inter-POI travel times are retrieved using Google Maps API, segmented into four time-of-day brackets (morning, afternoon, evening, night) to reduce excessive API calls.
-    \item The itinerary assumes a fixed accommodation location, Marina Bay Sands, as the default hotel for all nights, does not optimize for hotel selection to simplify routing and focus on attraction and food planning. Budget input by traveler does not include the pre-defined hotel as well.
-    \item Different Transport fare models for public transport or ride-hailing may apply based on rider types (e.g., adult, senior, tourist), but we have normalized under a general fare assumption in this study.
-    \item In ensuring trip continuity, the planner supports multi-segment trips (e.g. attraction -> food -> another attraction), and travel pricing is computed cumulatively across trip legs.
-\end{enumerate}
-
-\subsection{Datasets}
-The following datasets have been used for our itinerary planner to meet multiple objectives:
 \begin{itemize}
-    \item Attractions in Singapore: Geolocation, category, estimated visit duration, entrance fees and descriptions of attractions. Entrance fees enriched via LLM agents. Source: \url{https://data.gov.sg/datasets/d_0f2f47515425404e6c9d2a040dd87354/view}.
-    \item Singapore Hawker Centres: Geolocation, names of hawker centres and estimated costs. Source: \url{https://data.gov.sg/datasets/d_4a086da0a5553be1d89383cd90d07ecd/view}.
+    \item all POIs are open from 9:00 AM to 10:00 PM.
+    \item travelers return to the same hotel by the end of the day.
 \end{itemize}
 
 \subsection{Route Matrix Generation using Google Maps API}
-To support accurate travel time estimation between POIs, we constructed a route matrix using Google Maps API. This matrix serves as a critical yet feasible input for downstream optimization:
-\begin{enumerate}
-    \item Data Collection - We first consolidated attractions and hawker centres from publicly available sources into CSV files. To support location retrieval and recommendation by the LLM/Agents, we hosted the tabular data in a Postgres Database within a docker container. These datasets provided key details such as location names, estimated visit durations and costs.
-    \item Using Google Places API, we extracted latitude and longitude coord. for each POI. These waypoints were to define nodes of our routing graph and serve as input to our route matrix computation.
-    \item We then employed the Google Compute Route Matrix API to generate a travel-time and distance matrix between all waypoints for different transport modes (drive, transit). This step provided the necessary data to formulate the optimization problem for itinerary scheduling.
-\end{enumerate}
-
-To manage costs and API quota constraints, we binned the travel time estimates into four main brackets:
-\begin{table}[h]
-    \centering
-    \begin{tabular}{|c|c|c|c|}
-         \hline
-         \textbf{Morning} & \textbf{Afternoon} & \textbf{Evening} & \textbf{Night} \\
-         \hline
-         08:00 – 12:00 & 12:00 – 16:00 & 16:00 – 20:00 & 20:00 – 08:00 \\
-         \hline
-    \end{tabular}
-\end{table}
-
-For example, a query from Marina Bay Sands to Maxwell Food Centre at 17:58 would be approximated using the route data retrieved at 16:00. While this introduces some granularity loss due to timing of retrieval of data, it represents a practical trade-off between cost, accuracy and scalability. This approach would help us ensure reasonable accurate transit estimates while keeping the routing component efficient enough for integration with our optimization engine.
+To support accurate travel time estimation between POIs, we constructed a route matrix using Google Maps API.
 
 \section{Contribution}
 \textbf{!!! HELP THIS SECTION}.  Not to rely on outdated city census data
@@ -190,116 +153,25 @@ TBA
 
 \section{Proposed Approach}
 \subsection{LLM and Multi-Agent Framework}
-Although LLMs are highly capable at interpreting and generating human-like text, they are passive systems—limited to single-turn type of interaction without persistent memory. This presents clear limitations when applied to travel itinerary planning, a task that requires structured decision-making, retrieval of external data (e.g., Google ratings, Cost of Attraction Entrance Fees), and context tracking across multiple steps. A passive LLM may generate a generic itinerary but lacks the capability to provide personalization such as “I prefer scenic routes” or “maximize shopping time within budget.”
+\textbf{!!! SHORTEN} Although LLMs are highly capable at interpreting and generating human-like text, they are passive systems—limited to single-turn type of interaction without persistent memory. This presents clear limitations when applied to travel itinerary planning, a task that requires structured decision-making, retrieval of external data (e.g., Google ratings, Cost of Attraction Entrance Fees), and context tracking across multiple steps. A passive LLM may generate a generic itinerary but lacks the capability to provide personalization such as “I prefer scenic routes” or “maximize shopping time within budget.”
 
 To bridge this gap, we extend LLMs into autonomous agents by integrating three key capabilities: tool-calling (e.g., invoking Google Maps APIs), memory (to retain user goals and prior decisions), and Retrieval Augmented Generation (RAG) for incorporating external data into the reasoning process. This turns the LLM from a reactive text generator into a goal-driven planner capable of making informed decisions. Our system adopts this Agentic RAG architecture to retrieve attraction details, estimating hawker visit durations, and enrich itinerary planning with contextual knowledge beyond the LLM’s static knowledge from pre-training.
 
 While a single agent can technically handle the entire itinerary pipeline, research has also shown that such monolithic setups often struggle with domain specialization. To address the limitation, we extend our architecture into a multi-agent framework where each agent focuses on a well-scoped domain task.
 
-\textbf{!!! ADD ARCHITECTURE FIGURE HERE}
-
-\subsubsection{Supervisor Agent}
-This agent serves as a centralized “guardrails”. It evaluates incoming user queries for intent, toxicity, and feasibility before routing them to downstream domain-specific agents. This agent filters out harmful or nonsensical inputs (e.g., security threats development in Singapore) while passing valid requests (e.g., budget-aware itinerary planning) to the appropriate specialized agents.
-
-\subsubsection{Attraction Agent}
-This agent is responsible for processing the user’s interests related to sightseeing, cultural landmarks, and activity-based preferences. It first performs semantic retrieval on the user query to identify relevant attraction-related intents, such as interest in “free attractions,” “shopping,” or “nature”. It then queries a local database hosted on PostgreSQL (via Docker) to retrieve structured metadata about available attractions.
-
-\subsubsection{Hawker Agent}
-Very similar to Attraction Agent, this agent is responsible for processing the user's interests related to food preferences. It first performs semantic retrieval on the user query to identify relevant food-related intents, such as interest in “spicy food” or “halal-only”. It then queries a local database hosted on PostgreSQL (via Docker) to retrieve structured metadata about available hawker centres.
-
-\subsubsection{Code Agent}
-This agent bridges the gap between natural language preferences and formal optimization logic. This agent transforms high-level user intent into structured parameters and constraint functions that can be directly ingested by the metaheuristic optimizer.
-
-\subsubsection{Variable Agent}
-Aside from the additional constraints added by code agents, there are also vectors for the weights of prioritization that the Optimizer will use to find the best itinerary for the current persona. The role of a Variable Agent is to translate traveler’s persona into a weight prioritization for cost, travel duration, and satisfaction. For example, the agent will generate $w=[0.6,0.2,0.2]$ to reflect a user preference for minimizing budget over time and satisfaction.
-
-\subsubsection{Feedback Agent}
-TBA
+\textbf{!!! ADD ARCHITECTURE DIAGRAM HERE, can do horizontally, span 2 columns.}
 
 \subsection{Adaptive Large Neighborhood Search (ALNS)}
-\textbf{!!! MIGHT NEED TO TRIM A LOT FROM THIS, AS THIS IS NOT THE FOCUS OF THIS PAPER}. ALNS is designed to solve optimization problems by iteratively destroying and repairing solutions. While traditional methods offer precise formulations, they struggle with scaling and flexibility in real-world data scenarios. In our project, ALNS was found to deal with our optimization problem better.
-
-\subsubsection{Construction Heuristic}
-Our Initial Heuristic provides a feasible solution and good starting point for further iterations.
-\begin{itemize}
-	\item Starting each day at the hotel and returning to the same hotel
-	Order attractions and hawker centres (descending) based on a value ratio: $\frac{Satisfaction}{(Cost + Duration)}$
-	\item Adding attractions before lunch time $\rightarrow$ Scheduling lunch at a highly rated hawker centre
-	\item Adding more attractions in the afternoon $\rightarrow$ Scheduling dinner at another hawker centre
-	\item Maintains budget constraints, time windows, and ensures each POI is visited at most once across the entire itinerary.
-\end{itemize}
-
-\subsubsection{Destroy Operators}
-Destroy operators remove portions of a solution to allow exploration of new regions in the search space.
-\begin{enumerate}
-    \item Destroy Targeted Subsequence: Removes a sequence of attractions while ensuring meals remain scheduled.
-    \begin{itemize}
-        \item Given a sequence $S = \{v_1,v_2,...,v_n\}$, a randomly chosen subsequence $S' \subset S$ is removed:
-        $S'=\{v_k,...,v_m\}$, where k, m are randomly chosen indices
-    \end{itemize}
-    \item Destroy Worst Attractions: Removes attractions with the lowest satisfaction-to-cost ratio.
-    \begin{itemize}
-        \item Ranking function: $R(i) = \frac{satisfaction_i}{cost_i}$
-        \item Attractions in the lowest percentile are removed.
-    \end{itemize}
-    \item Destroy Distant Locations: Eliminates locations requiring excessive travel.
-    \begin{itemize}
-        \item Distance weight: $w_{dist} = \alpha *d(i, j) + \beta *cost_{travel}$
-        \item Locations with the highest $w_{dist}$ are removed.
-    \end{itemize}
-    \item Destroy Expensive Attractions: Eliminates attractions when budget constraints are exceeded.
-    \begin{itemize}
-        \item If total cost exceeds the budget, as expressed in this equation: $\sum_{i \in V} cost_i > B$, then most expensive locations are iteratively removed until constraints are met.
-    \end{itemize}
-    \item Destroy Selected Day: Entire day schedule is replaced while keeping mealtimes with probability $p$.
-\end{enumerate}
-
-\subsubsection{Repair Operators}
-Repair operators insert new locations into an incomplete solution.
-\begin{enumerate}
-    \item Repair Regret Insertion: Selects the best insertion location based on regret value. Locations with the highest regret are inserted first, where $Regret(i) = \sum_{j=1}^{k}(best \, cost(j) - cost(i, j))$.
-    \item Repair Transit Efficient Insertion: Prioritizes minimizing travel time.
-    \begin{itemize}
-        \item Transit weight is defined as:
-        $
-            w_{transit} = \gamma * t_{travel} + \delta * cost_{transport}
-        $
-        where $\gamma$ and $\delta$ are tuning parameters.
-    \end{itemize}
-    \item Repair Satisfaction Driven Insertion: Maximizes overall satisfaction using: $w_{satisfaction} = \lambda * satisfaction - \mu * (cost + duration)$ where $\lambda$ and $\mu$ balances satisfaction vs cost.
-\end{enumerate}
-
-\subsubsection{Acceptance Criteria}
-The acceptance criterion determines whether a new solution should replace the current one.
-
-Using Simulated Annealing-based acceptance:
-\begin{itemize}
-    \item \textbf{Improved solutions always accepted}: $f(S_{new}) < f(S_{current}) \Rightarrow S_{current} \leftarrow S_{new}$
-    \item \textbf{Worse solutions accepted probabilistically}: $P_{accept} = e^{((-\Delta f ) / T)}$ where $\delta f = f(S_{new}) - f(S_{current})$ and $T$ is the current temperature.
-    \item \textbf{Temperature Update}: $T = \alpha T, \quad 0 < \alpha < 1$. gradually reducing acceptance probability over time.
-\end{itemize}
-
-This allows ALNS to escape local optima and explore diverse solutions.
-
-\subsubsection{Objective Function}
-The optimization problem in our itinerary planning framework aims to balance cost, travel time, and user satisfaction. To achieve this, we define a weighted objective function, where each component is normalized and constrained to ensure practical and meaningful solutions. The formulation is as follows:
-
-$
-Z = w_1 . \min (\frac{Cost}{Budget}, Limit_{cost}) + w_2 . \min (\frac{Travel Time}{Travel Time + TravelTime_{reference}}, Limit_{time}) + w_3 . \max (\frac{Satisfaction}{Satisfaction_{max}}, Limit_{satisfaction}) + P.1_{infeasible}
-$
-
-Where:
-\begin{itemize}
-    \item $w_1, w_2, w_3$ are the \textbf{weight factors} assigned to each objective based on the user’s persona.
-    \item \textbf{Limits} $Limit_{cost}, Limit_{time}, Limit_{satisfaction}$ are introduced to prevent the algorithm from over-prioritizing any objective beyond practical levels.
-    \item \textbf{Reference values} ensures travel time is assessed relative to a baseline, preventing the optimizer from producing unrealistic itineraries (e.g. min. travel time by staying at home except for meals).
-    \item \textbf{Penalty Term} $P.1_{infeasible}$ strongly discourages infeasible solutions by adding a large penalty when any hard constraint is violated.
-\end{itemize}
-
-This objective function effectively balances competing factors, ensuring itineraries are cost-efficient, time-conscious, and aligned with user preferences while maintaining feasibility and practicality.
+\textbf{!!! REPHRASE} ALNS is designed to solve optimization problems by iteratively destroying and repairing solutions. While traditional methods offer precise formulations, they struggle with scaling and flexibility in real-world data scenarios. In our project, ALNS was found to deal with our optimization problem better.
 
 \section{Experimental Result}
 TBA
+
+\textbf{!!! try to use \url{https://arxiv.org/pdf/2402.01622} for the benchmark}
+narratives:
+1. agentic + alns is better than alns only and llm only
+2. for feedback, compare 2B 2C 2D.
+    - ideally: 2d is best, but slowest
 
 \section{Conclusion}
 TBA
