@@ -5,6 +5,7 @@ from data.llm_batch_process import process_and_save
 from pydantic import BaseModel, Field
 from textwrap import dedent
 from typing import List, Optional, Literal
+from textwrap import dedent
 import time
 
 import numpy as np
@@ -90,6 +91,7 @@ class CodeResponse(BaseModel):
 class AffectedPOIDetail(BaseModel):
     poi_affected: str = Field(..., description="Name of the place affected. Please use the exact naming that exist in the itinerary.")
     poi_type: str = Field(..., description="Type of the place affected. It can ony be 'hawker' or 'attraction'. Use the exact naming that exist in the itinerary.")
+    day_affected: str = Field(..., description="Day that this place is affected. Please use the exact day that exist in the itinerary.")
     time_affected: str = Field(..., description="Time that this place is affected. Please use the exact time that exist in the itinerary.")
 
 class AffectedPOIResponse(BaseModel):
@@ -590,6 +592,7 @@ def create_feedback_affected_poi_agent(model_id="gpt-4o", debug_mode=True):
             "For the time, if there are arrival and departure time, use the arrival time.",
             "If the user's feedback doesn't specify any places, speculate based from your understanding of these places.",
             "If you think that no places are affected, return an empty list.",
+            "IMPORTANT: Return JUST THE JSON RESPONSE, DO NOT INCLUDE ANY OTHER THINGS.",
         ],
         debug_mode=debug_mode,
         markdown=True
@@ -869,10 +872,11 @@ def rebuild_full_itinerary(updated_days: List[UpdatedDayPlan], known_itinerary: 
 
     return itinerary_response
 
-def find_alternative_of_affected_pois(known_itinerary, feedback_query, top_n=5, debug_mode=True):
+
+def find_alternative_of_affected_pois(itinerary_table, feedback_prompt, top_n=5, debug_mode=True):
     affected_poi_agent = create_feedback_affected_poi_agent(debug_mode=debug_mode)
-    main_prompt = f"You have this itinerary currently in a tabular format:\n{known_itinerary.to_string()}\n" \
-        f"But this itinerary is not to the user's liking. In which their feedback is: '{feedback_query}'\n" \
+    main_prompt = f"You have this itinerary currently in a tabular format:\n{itinerary_table.to_string()}\n" \
+        f"But this itinerary is not to the user's liking. In which their feedback is: '{feedback_prompt}'\n" \
         "Find the affected points of interest (POIs)!"
 
     agent_response = affected_poi_agent.run(main_prompt, stream=False).content.model_dump()
@@ -881,7 +885,8 @@ def find_alternative_of_affected_pois(known_itinerary, feedback_query, top_n=5, 
     # get tranport matrix & location types
     transport_matrix = get_transport_matrix()
     location_types = get_location_types()
-    poi_suggestions = {}
+    blacklist_places = set(itinerary_table["Location"].values)
+    poi_suggestions = []
 
     transport_keys = transport_matrix.keys()
     # from the affected pois, find top N closest places from the transport matrix
@@ -891,6 +896,7 @@ def find_alternative_of_affected_pois(known_itinerary, feedback_query, top_n=5, 
         if poi_loc_type == "hotel":
             # WE CANNOT CHANGE THE HOTEL, so just skip. There's no alternative to this.
             continue
+        poi_day = affected_poi["day_affected"]
         poi_time = affected_poi["time_affected"]
         poi_time_bracket = get_poi_time_bracket(poi_time)
         possible_alternative_pois = [
@@ -901,14 +907,71 @@ def find_alternative_of_affected_pois(known_itinerary, feedback_query, top_n=5, 
             )
             for transport_key in transport_keys
             if (transport_key[0] == poi) and \
+               (transport_key[1] not in blacklist_places) and \
                (transport_key[2] == poi_time_bracket) and \
                (location_types[transport_key[1]] == poi_loc_type)
         ] # find possible routes from this place at this time for the exactly the same place type
+        # - find the 1st key that is affected poi
+        # - alternative poi must be not taken before
+        # - time bracket must be in the correct time bracket
+        # - location type of alternative poi must be the same as affected poi
         # sort and pick only top 5, by shortest duration, let's say using driving
         possible_alternative_pois.sort(key=lambda x: x[2]["drive"]["duration"])
-        poi_suggestions[poi] = possible_alternative_pois[:5]
+        poi_suggestions.append({
+            "affected_poi": poi,
+            "affected_day": poi_day,
+            "affected_time": poi_time,
+            "alternatives": possible_alternative_pois[:5]
+        })
     
     return poi_suggestions
+
+
+def update_itinerary_closest_alternatives(known_itinerary, feedback_prompt, poi_suggestions, debug_mode=True):
+    update_day_agent = create_update_day_agent(debug_mode=debug_mode)
+    updated_days = []
+
+    for day_info in known_itinerary["days"]:
+        # get poi suggestions that is for this specific days
+        day = day_info["day"]
+        date = day_info["date"]
+        locations = day_info["locations"]
+        this_days_affected_alternative = [
+            f"`{suggestion['affected_poi']}` at {suggestion['affected_time']}, alternatives: {json.dumps(suggestion['alternatives'], indent=2)}"
+            for suggestion in poi_suggestions
+            if suggestion["affected_day"] == str(day)
+        ]
+
+        poi_alternatives = '\n\nAlternatives for: '.join(this_days_affected_alternative)
+
+        day_prompt = f"""
+        This is the itinerary for Day {day} ({date}):
+        {json.dumps(locations, indent=2)}
+        
+        User feedback: '{feedback_prompt}'
+        """
+
+        if len(this_days_affected_alternative) > 0:
+            # if there's nothing to change from this day's itinerary,
+            # just use the exact same itinerary
+            day_prompt += dedent(f"""
+            Update only this day's list of locations based on the feedback using these possible alternatives:
+
+            {poi_alternatives}
+
+            Use the exact naming of the places that's provided in these lists.
+            Choose between driving or transit. The data is already provided. Driving is faster, but transit is cheaper.
+            """)
+        else:
+            day_prompt += dedent(f"""
+            Because there are no affected Points of Interests for Day {day}, Return the exact same itinerary in the given format.
+            """)
+
+        agent_response = update_day_agent.run(day_prompt, stream=False).content.model_dump()
+        updated_day = UpdatedDayPlan(day=day, date=date, locations=agent_response["updated_locations"])
+        updated_days.append(updated_day)
+
+    return updated_days
 
 
 #==================

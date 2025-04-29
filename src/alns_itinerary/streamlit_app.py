@@ -21,7 +21,14 @@ from alns_main import alns_main
 import time
 import random
 
-from agentic.multiagent import get_json_from_query, get_combine_json_data, find_alternative_of_affected_pois, update_itinerary_llm, rebuild_full_itinerary
+from agentic.multiagent import (
+    get_json_from_query,
+    get_combine_json_data,
+    find_alternative_of_affected_pois,
+    update_itinerary_llm,
+    update_itinerary_closest_alternatives,
+    rebuild_full_itinerary,
+)
 
 
 st.set_page_config(page_title="Travel Itinerary Planner", layout="wide")
@@ -316,28 +323,33 @@ def make_content_to_string(content):
     raise ValueError(f"Content Type '{content_type}' not handled.")
 
 
-def update_itinerary(user_input, feedback_prompt, itinerary_table):
+def update_itinerary(user_input, feedback_prompt, itinerary_table, approach=0):
     logger.info("Itinerary Table:")
     logger.info(itinerary_table)
     logger.info(f"Feedback Prompt: {feedback_prompt}")
 
-    # TODO
-    # 2B: using LLM only, try to update the itinerary in the same table
-    updated_days = update_itinerary_llm(st.session_state["alns_data"], feedback_prompt)
-    updated_itinerary = rebuild_full_itinerary(updated_days, st.session_state["alns_data"]).model_dump()
-    # logger.info(f"Updated Itinerary: {updated_itinerary}")
-    # 2C: find affected POIs, find alternatives of the POIs
-    #     update the itinerary afterwards
-    # affected_alternative_pois = find_alternative_of_affected_pois(itinerary_table, feedback_prompt, top_n=5)
+    if approach == 0:
+        # 2B: using LLM only, try to update the itinerary in the same table
+        updated_days = update_itinerary_llm(st.session_state["alns_data"], feedback_prompt)
+        updated_itinerary = rebuild_full_itinerary(updated_days, st.session_state["alns_data"]).model_dump()
+        logger.info(f"Updated Itinerary: {updated_itinerary}")
 
-    # logger.info("Affected POIs and their Alternatives:")
-    # logger.info(json.dumps(affected_alternative_pois, indent=4, default=str))
+    else: # 2C and 2D
+        # 2C: find affected POIs, find alternatives of the POIs
+        #     update the itinerary afterwards
+        poi_suggestions = find_alternative_of_affected_pois(itinerary_table, feedback_prompt, top_n=5)
 
-    # TODO: for 2C, see if can prompt-engineer in such a way to use these alternatives to
-    # change the itinerary
+        logger.info("Affected POIs and their Alternatives:")
+        logger.info(json.dumps(poi_suggestions, indent=4, default=str))
 
-    # TODO
-    # 2D: Using the updated itinerary, try to check feasibility, rerun if not feasible.
+        updated_days = update_itinerary_closest_alternatives(st.session_state["alns_data"], feedback_prompt, poi_suggestions)
+        updated_itinerary = rebuild_full_itinerary(updated_days, st.session_state["alns_data"]).model_dump()
+
+        if approach == 2: # use 2D on top of 2C result
+            # TODO
+            # 2D: Using the updated itinerary, try to check feasibility, rerun if not feasible.
+            pass
+
 
     ### PLACEHOLDER
     # alns_data = alns_main(user_input=user_input, llm_path="./data/alns_inputs/")
@@ -426,7 +438,7 @@ if st.session_state["itinerary_ready"]:
                     logging.info("masuk sini")
                     break
 
-        update_itinerary(user_input, feedback_prompt, itinerary_table) # only taking the last itinerary
+        update_itinerary(user_input, feedback_prompt, itinerary_table, approach=1) # only taking the last itinerary
         if st.session_state["itinerary_ready"]:
             display_itinerary()
             # no need to re-show radio "Go to", will have duplicate otherwise
