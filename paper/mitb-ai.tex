@@ -116,18 +116,11 @@ This study is geographically and thematically scoped to the context of Singapore
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Related Work}
-Recent works have shown promise in understanding natural language preferences in the same domain research that we are working on:
+Recent research highlights the growing synergy between LLMs and traditional optimization methods in itinerary planning.
 
-- other trip planners (pelago)
+For example, \textit{TRIP-PAL: Trip Planning with Guarantees by Combining LLMs and Automated Planners} (JP Morgan AI Research, 2024) explores how LLMs can be integrated with formal planning algorithms such as A* to produce reliable trip plans. This study shows that LLMs are capable of translating natural language inputs into structured formats compatible with optimization algorithms commonly used in operations research.
 
-- other application such as inventory management, blablabla
-
-
-\subsection{TRIP-PAL}
-\textbf{!!! CITE REFERENCE}. Planning with Guarantees by Combining LLMs and Automated Planners (JP Morgan AI Research, 2024), which explores the combination of LLMs and formal planners (like A-star heuristic) to provide reliable trip plans.
-
-\subsection{Optimizing Travel Itineraries with AI Algorithms in a Microservices Architecture: Balancing Cost, Time, Preferences, and Sustainability}
-\textbf{!!! CITE REFERENCE}. Demonstrates how various optimization objectives can be orchestrated via modular components with the use of Machine Learning (ML) Model for personalization.
+Similarly, \textit{Optimizing Travel Itineraries with AI Algorithms in a Microservices Architecture: Balancing Cost, Time, Preferences, and Sustainability} (Barua \& Kaiser, 2024) demonstrates how LLMs can support personalization within a modular microservices framework, enabling the coordination of multiple optimization objectives such as budget, travel time, user preferences, and sustainability.
 
 \section{Problem Definition}
 In this paper, we propose My Travel Itinerary Buddy – Automatic Itinerary (MITB – AI), where the goal is to generate multi-day travel itinerary for a tourist visiting Singapore, consisting of a sequence of POIs – including both attractions and hawker centres. This is also subjected to user-defined constraints (e.g. budget, number of days and person types) while optimizing for the following objectives: (1) minimize costs, (2) minimize travel time, and (3) maximize traveler’s satisfaction from online ratings. This problem can be classified as a multi-objective combinatorial optimization task, where the system must select and order POIs over multiple days while satisfying both hard and soft constraints (Fan, et al., 2024).
@@ -159,7 +152,12 @@ To bridge this gap, we extend LLMs into autonomous agents by integrating three k
 
 While a single agent can technically handle the entire itinerary pipeline, research has also shown that such monolithic setups often struggle with domain specialization. To address the limitation, we extend our architecture into a multi-agent framework where each agent focuses on a well-scoped domain task.
 
-\textbf{!!! ADD ARCHITECTURE DIAGRAM HERE, can do horizontally, span 2 columns.}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=1\linewidth]{6098288248590812104.jpg}
+    \caption{Multi-Agent Architecture}
+    \label{fig:Workflow Diagram}
+\end{figure}
 
 \subsection{Adaptive Large Neighborhood Search (ALNS)}
 \textbf{!!! REPHRASE} ALNS is designed to solve optimization problems by iteratively destroying and repairing solutions. While traditional methods offer precise formulations, they struggle with scaling and flexibility in real-world data scenarios. In our project, ALNS was found to deal with our optimization problem better.
