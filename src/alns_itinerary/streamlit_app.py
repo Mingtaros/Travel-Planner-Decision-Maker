@@ -438,7 +438,7 @@ if st.session_state["itinerary_ready"]:
                     logging.info("masuk sini")
                     break
 
-        update_itinerary(user_input, feedback_prompt, itinerary_table, approach=1) # only taking the last itinerary
+        update_itinerary(user_input, feedback_prompt, itinerary_table, approach=0) # only taking the last itinerary
         if st.session_state["itinerary_ready"]:
             display_itinerary()
             # no need to re-show radio "Go to", will have duplicate otherwise
