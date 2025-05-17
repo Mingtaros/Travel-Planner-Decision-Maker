@@ -28,7 +28,10 @@ from agentic.multiagent import (
     update_itinerary_llm,
     update_itinerary_closest_alternatives,
     rebuild_full_itinerary,
+    update_invalid_itinerary,
 )
+
+from agentic.multiagent_utils import is_updated_itinerary_feasible
 
 
 st.set_page_config(page_title="Travel Itinerary Planner", layout="wide")
@@ -324,10 +327,6 @@ def make_content_to_string(content):
 
 
 def update_itinerary(user_input, feedback_prompt, itinerary_table, approach=0):
-    logger.info("Itinerary Table:")
-    logger.info(itinerary_table)
-    logger.info(f"Feedback Prompt: {feedback_prompt}")
-
     if approach == 0:
         # 2B: using LLM only, try to update the itinerary in the same table
         updated_days = update_itinerary_llm(st.session_state["alns_data"], feedback_prompt)
@@ -346,15 +345,29 @@ def update_itinerary(user_input, feedback_prompt, itinerary_table, approach=0):
         updated_itinerary = rebuild_full_itinerary(updated_days, st.session_state["alns_data"]).model_dump()
 
         if approach == 2: # use 2D on top of 2C result
-            # TODO
             # 2D: Using the updated itinerary, try to check feasibility, rerun if not feasible.
-            pass
+            is_valid = is_updated_itinerary_feasible(updated_itinerary, budget=budget, num_of_days=num_days)
+            logging.info(f"CHECKING UPDATED ITINERARY FEASIBILITY: {is_valid}")
+            if is_valid != "valid":
+                # retry until valid
+                MAX_RETRIES = 10
+                num_retry = 0
+                while num_retry < MAX_RETRIES and is_valid != "valid":
+                    num_retry += 1
+                    
+                    updated_days = update_itinerary_closest_alternatives(updated_itinerary, feedback_prompt, poi_suggestions)
+                    # re-update itinerary.
+                    updated_itinerary = rebuild_full_itinerary(updated_days, updated_itinerary).model_dump()
 
+                    # update is_valid with re-updated itinerary
+                    is_valid = is_updated_itinerary_feasible(updated_itinerary, budget=budget, num_of_days=num_days)
 
-    ### PLACEHOLDER
-    # alns_data = alns_main(user_input=user_input, llm_path="./data/alns_inputs/")
+                    logger.info(f"{is_valid}\nRetry Number {num_retry}")
+
+                # if still invalid, throw error
+                st.error("Unable to recreate itinerary from feedback. Please try again.")
+
     logger.info("Itinerary data loaded successfully!")
-    # m = prepare_map(alns_data)
     m = prepare_map(updated_itinerary)
     
     print(feedback_prompt)
@@ -438,7 +451,7 @@ if st.session_state["itinerary_ready"]:
                     logging.info("masuk sini")
                     break
 
-        update_itinerary(user_input, feedback_prompt, itinerary_table, approach=0) # only taking the last itinerary
+        update_itinerary(user_input, feedback_prompt, itinerary_table, approach=2) # only taking the last itinerary
         if st.session_state["itinerary_ready"]:
             display_itinerary()
             # no need to re-show radio "Go to", will have duplicate otherwise

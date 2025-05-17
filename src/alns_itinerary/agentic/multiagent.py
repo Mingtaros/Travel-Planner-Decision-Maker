@@ -973,6 +973,29 @@ def update_itinerary_closest_alternatives(known_itinerary, feedback_prompt, poi_
 
     return updated_days
 
+def update_invalid_itinerary(updated_itinerary, feedback, debug_mode=True):
+    update_day_agent = create_update_day_agent(debug_mode=debug_mode)
+    updated_days = []
+    for day_info in updated_itinerary["days"]:
+        feasibility_prompt = dedent(f"""
+        This itinerary on day {day_info['day']} is not a feasible solution:
+        
+        {day_info['locations']}
+
+        The feedback is {feedback}.
+
+        Can you modify it so that it matches the feedback, please?
+        Don't forget to follow the necessary format.
+
+        IMPORTANT: If you think the feedback doesn't affect the itinerary of this day, skip and return the exact same itinerary.
+        """)
+
+        agent_response = update_day_agent.run(feasibility_prompt, stream=False).content.model_dump()
+        updated_day = UpdatedDayPlan(day=day_info['day'], date=day_info['date'], locations=agent_response["updated_locations"])
+        updated_days.append(updated_day)
+    
+    return updated_days
+
 
 #==================
 user_queries = {
