@@ -350,9 +350,10 @@ def update_itinerary(user_input, feedback_prompt, itinerary_table, approach=0):
             logging.info(f"CHECKING UPDATED ITINERARY FEASIBILITY: {is_valid}")
             if is_valid != "valid":
                 # retry until valid
-                MAX_RETRIES = 10
+                MAX_RETRIES = 5
                 num_retry = 0
                 while num_retry < MAX_RETRIES and is_valid != "valid":
+                    print("IS_VALID: ", is_valid)
                     num_retry += 1
                     
                     updated_days = update_itinerary_closest_alternatives(updated_itinerary, feedback_prompt, poi_suggestions)
@@ -365,7 +366,8 @@ def update_itinerary(user_input, feedback_prompt, itinerary_table, approach=0):
                     logger.info(f"{is_valid}\nRetry Number {num_retry}")
 
                 # if still invalid, throw error
-                st.error("Unable to recreate itinerary from feedback. Please try again.")
+                if is_valid != "valid":
+                    st.error("Unable to recreate itinerary from feedback. Please try again.")
 
     logger.info("Itinerary data loaded successfully!")
     m = prepare_map(updated_itinerary)

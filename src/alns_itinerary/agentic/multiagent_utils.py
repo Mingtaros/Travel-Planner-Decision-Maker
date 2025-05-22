@@ -141,13 +141,21 @@ def is_updated_itinerary_feasible(itinerary_response, budget, num_of_days, defau
     if budget < itinerary_response["trip_summary"]["actual_expenditure"]:
         return f"Itinerary went over budget. Budget: {budget}, Expenditure: {itinerary_response['trip_summary']['actual_expenditure']}."
     
-    visited_locations = set()
+    visited_attractions = set()
     for day in itinerary_response["days"]:
         # check that attractions are visited at most once across all days
+        visited_hawkers = set()
         for location in day["locations"]:
-            if location["name"] in visited_locations:
-                return f"{location['name']} Visited more than once."
-            visited_locations.add(location["name"])
+            if location["type"] == "hawker":
+                if location["name"] in visited_hawkers:
+                    # for hawkers, can only visit once per day
+                    return f"Day {day['day']}: {location['name']} Visited more than once."
+                visited_hawkers.add(location["name"])
+
+            if location["type"] == "attraction" and location["name"] in visited_attractions:
+                # for attractions, can only visit once across all days
+                return f"Day {day['day']}: {location['name']} Visited more than once."
+            visited_attractions.add(location["name"])
 
         # check if first and last locations of every day, appear more than once
         if day["locations"][0]["name"] != default_hotel_name:
