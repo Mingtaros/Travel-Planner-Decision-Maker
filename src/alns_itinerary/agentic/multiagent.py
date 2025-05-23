@@ -530,6 +530,8 @@ def create_update_day_agent(model_id="gpt-4o", debug_mode=True):
         - Prefer replacing attractions with nearby alternatives if an attraction is removed.
         - Try to keep about the same number of activities (unless feedback says otherwise).
         - Only modify what is necessary to satisfy the feedback.
+        - One attraction can only be picked once across all days.
+        - One hawker center can only be picked once every day.
         - Do not fabricate location names — use existing attractions or hawkers.
 
         ✅ You MUST output ONLY the following JSON structure:
@@ -885,6 +887,7 @@ def find_alternative_of_affected_pois(itinerary_table, feedback_prompt, top_n=5,
     # get tranport matrix & location types
     transport_matrix = get_transport_matrix()
     location_types = get_location_types()
+    # cannot pick the places who has been taken before
     blacklist_places = set(itinerary_table["Location"].values)
     poi_suggestions = []
 
@@ -921,7 +924,7 @@ def find_alternative_of_affected_pois(itinerary_table, feedback_prompt, top_n=5,
             "affected_poi": poi,
             "affected_day": poi_day,
             "affected_time": poi_time,
-            "alternatives": possible_alternative_pois[:5]
+            "alternatives": possible_alternative_pois[:top_n]
         })
     
     return poi_suggestions
@@ -982,7 +985,7 @@ def update_invalid_itinerary(updated_itinerary, feedback, debug_mode=True):
         
         {day_info['locations']}
 
-        The feedback is {feedback}.
+        The feedback is: '{feedback}'.
 
         Can you modify it so that it matches the feedback, please?
         Don't forget to follow the necessary format.
