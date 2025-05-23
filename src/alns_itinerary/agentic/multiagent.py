@@ -1,5 +1,6 @@
 
 from data.llm_batch_process import process_and_save
+from utils.config import load_config
 
 #==================
 from pydantic import BaseModel, Field
@@ -35,6 +36,9 @@ from agentic.multiagent_utils import get_transport_matrix, get_poi_time_bracket,
 load_dotenv()
 os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
 os.environ["GROQ_API_KEY"] = os.getenv("GROQ_API_KEY")
+
+config_path="./src/alns_itinerary/config.json"
+config = load_config(config_path)
 
 class Activity(BaseModel):
     activity_type: str  # "attraction" or "food"
@@ -497,7 +501,20 @@ def create_code_agent(model_id="gpt-4o", debug_mode=True):
 
     return code_agent
 
+def format_time(minutes):
+    """Convert minutes to HH:MM format."""
+    hour = int(minutes // 60)
+    minute = int(minutes % 60)
+    return f"{hour:02d}:{minute:02d}"
+
 def create_update_day_agent(model_id="gpt-4o", debug_mode=True):
+    DAY_START = format_time(config["START_TIME"])
+    DAY_END = format_time(config["HARD_LIMIT_END_TIME"])
+    LUNCH_START = format_time(config["LUNCH_START"])
+    LUNCH_END = format_time(config["LUNCH_END"])
+    DINNER_START = format_time(config["DINNER_START"])
+    DINNER_END = format_time(config["DINNER_END"])
+    
     update_day_agent = Agent(
         name="Day-wise Itinerary Update Agent",
         agent_id="update_day_agent",
@@ -527,12 +544,14 @@ def create_update_day_agent(model_id="gpt-4o", debug_mode=True):
 
         Constraints:
         - Each day MUST start and end at the hotel.
+        - Each day starts at {DAY_START} and ends at {DAY_END}.
         - Prefer replacing attractions with nearby alternatives if an attraction is removed.
         - Try to keep about the same number of activities (unless feedback says otherwise).
         - Only modify what is necessary to satisfy the feedback.
         - One attraction can only be picked once across all days.
-        - One hawker center can only be picked once every day.
-        - Do not fabricate location names — use existing attractions or hawkers.
+        - Hawker center must be different for each meal in a day.
+        - Lunch time ranges between {LUNCH_START} and {LUNCH_END}. Dinner time ranges between {DINNER_START} and {DINNER_END}. If the user arrives at the hawker centre earlier than the specified meal time, the additional time must be included in the rest_duration and the arrival time must be set to the meal time. actual_arrival_time is the time the user arrives at the location which may be earlier than the meal time.
+        - Do not fabricate location names
 
         ✅ You MUST output ONLY the following JSON structure:
 

@@ -122,7 +122,7 @@ def get_transport_matrix():
         return {}
     
 
-def is_updated_itinerary_feasible(itinerary_response, budget, num_of_days, default_hotel_name="Marina Bay Sands") -> str:
+def is_updated_itinerary_feasible(itinerary_response, budget, num_of_days, default_hotel_name="Marina Bay Sands Singapore") -> str:
     # if valid, return "valid"
     # otherwise, return the feedback, so the LLM know what's wrong with it
     # initialize constants
@@ -186,10 +186,10 @@ def is_updated_itinerary_feasible(itinerary_response, budget, num_of_days, defau
         
         # number of lunches and dinners must be only 1 every day
         if lunch_visits != 1:
-            return f"Day {day['day']} have {lunch_visits} lunch visits while only 1 is necessary."
+            return f"Day {day['day']} has {lunch_visits} lunch visits while only 1 is necessary."
         
         if dinner_visits != 1:
-            return f"Day {day['day']} have {dinner_visits} dinner visits while only 1 is necessary."
+            return f"Day {day['day']} has {dinner_visits} dinner visits while only 1 is necessary."
 
         # check number of attractions visited
         num_attractions_visited = sum([

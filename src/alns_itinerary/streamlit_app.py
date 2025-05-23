@@ -212,7 +212,7 @@ logger = logging.getLogger(__name__)
 
 ox.settings.use_cache = True
 GRAPH_FILE = "./data/sgGraph/singapore_graph.graphml"
-@st.cache_data  # Ensures caching in Streamlit
+@st.cache_data(persist="disk")  # Ensures caching in Streamlit
 def load_graph():
     """Load the Singapore road network graph, using a cached version if available."""
     if os.path.exists(GRAPH_FILE):
@@ -338,19 +338,22 @@ def update_itinerary(user_input, feedback_prompt, itinerary_table, approach=0):
         #     update the itinerary afterwards
         poi_suggestions = find_alternative_of_affected_pois(itinerary_table, feedback_prompt, top_n=5)
 
-        logger.info("Affected POIs and their Alternatives:")
-        logger.info(json.dumps(poi_suggestions, indent=4, default=str))
+        # logger.info("Affected POIs and their Alternatives:")
+        # logger.info(json.dumps(poi_suggestions, indent=4, default=str))
 
         updated_days = update_itinerary_closest_alternatives(st.session_state["alns_data"], feedback_prompt, poi_suggestions)
         updated_itinerary = rebuild_full_itinerary(updated_days, st.session_state["alns_data"]).model_dump()
 
         if approach == 2: # use 2D on top of 2C result
             # 2D: Using the updated itinerary, try to check feasibility, rerun if not feasible.
+            logger.info("Updated Itinerary:")
+            logger.info(json.dumps(updated_itinerary, indent=4, default=str))
+            
             is_valid = is_updated_itinerary_feasible(updated_itinerary, budget=budget, num_of_days=num_days)
-            logging.info(f"CHECKING UPDATED ITINERARY FEASIBILITY: {is_valid}")
+            logger.info(f"CHECKING UPDATED ITINERARY FEASIBILITY: {is_valid}")
             if is_valid != "valid":
                 # retry until valid
-                MAX_RETRIES = 5
+                MAX_RETRIES = 2
                 num_retry = 0
                 while num_retry < MAX_RETRIES and is_valid != "valid":
                     num_retry += 1
