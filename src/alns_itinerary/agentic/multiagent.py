@@ -4,7 +4,8 @@ from data.llm_batch_process import process_and_save
 #==================
 from pydantic import BaseModel, Field
 from textwrap import dedent
-from typing import List, Optional
+from typing import List, Optional, Literal
+from textwrap import dedent
 import time
 
 import numpy as np
@@ -16,7 +17,7 @@ import random
 
 from agno.agent import Agent
 from agno.models.openai import OpenAIChat
-# from agno.models.groq import Groq
+from agno.models.groq import Groq
 
 from agno.tools.duckduckgo import DuckDuckGoTools
 from agno.tools.googlesearch import GoogleSearchTools
@@ -25,6 +26,8 @@ from agno.knowledge.csv import CSVKnowledgeBase
 from agno.knowledge.text import TextKnowledgeBase
 from agno.vectordb.pgvector import PgVector
 from agno.tools.calculator import CalculatorTools
+
+from agentic.multiagent_utils import get_transport_matrix, get_poi_time_bracket, get_location_types
 
 # ========================================================
 # Load environment variables & classess for Pydantic Base Models
@@ -83,6 +86,73 @@ class AttractionResponse(BaseModel):
 class CodeResponse(BaseModel):
     is_feasible: List[str] = Field(..., description="List of additional constraints to add to the `is_feasible function` of VRPSolution.")
     is_feasible_insertion: List[str] = Field(..., description="List of additional constraints to add to the `is_feasible_insertion` function of VRPSolution.")
+
+
+class AffectedPOIDetail(BaseModel):
+    poi_affected: str = Field(..., description="Name of the place affected. Please use the exact naming that exist in the itinerary.")
+    poi_type: str = Field(..., description="Type of the place affected. It can ony be 'hawker' or 'attraction'. Use the exact naming that exist in the itinerary.")
+    day_affected: str = Field(..., description="Day that this place is affected. Please use the exact day that exist in the itinerary.")
+    time_affected: str = Field(..., description="Time that this place is affected. Please use the exact time that exist in the itinerary.")
+
+class AffectedPOIResponse(BaseModel):
+    AFFECTED_POI_DETAILS: List[AffectedPOIDetail] = Field(..., description="List of Affected Points of Interest.")
+
+class UpdatedTripSummary(BaseModel):
+    duration: int
+    total_budget: float
+    actual_expenditure: float
+    total_travel_time: int
+    total_satisfaction: float
+    objective_value: float
+    is_feasible: bool
+    starting_hotel: str
+
+class UpdatedLocation(BaseModel):
+    name: str
+    type: Literal['hotel', 'attraction', 'hawker']
+    arrival_time: str
+    departure_time: str
+    lat: float
+    lng: float
+    transit_from_prev: Optional[Literal['transit', 'drive']] = None
+    transit_duration: int
+    transit_cost: float
+    duration: Optional[int] = None
+    satisfaction: Optional[float] = 0
+    cost: Optional[float] = 0
+    rest_duration: Optional[int] = 0
+    actual_arrival_time: Optional[str] = None
+    description: Optional[str] = None
+    position: Optional[Literal['end']] = None
+    meal_type: Optional[Literal['lunch', 'dinner']] = None
+
+class UpdatedDayPlan(BaseModel):
+    day: int
+    date: str
+    locations: List[UpdatedLocation]
+
+class UpdatedBudgetBreakdown(BaseModel):
+    attractions: float
+    meals: float
+    transportation: float
+
+class UpdatedTransportSummary(BaseModel):
+    total_duration: int
+    total_cost: float
+
+class UpdatedRestSummary(BaseModel):
+    total_rest_duration: int
+
+class UpdatedItineraryResponse(BaseModel):
+    trip_summary: UpdatedTripSummary
+    days: List[UpdatedDayPlan]
+    attractions_visited: List[str]
+    budget_breakdown: UpdatedBudgetBreakdown
+    transport_summary: UpdatedTransportSummary
+    rest_summary: UpdatedRestSummary
+    
+class UpdatedDayResponse(BaseModel):
+    updated_locations: List[UpdatedLocation]
 
 #==================
 # mutli agent part
@@ -427,6 +497,110 @@ def create_code_agent(model_id="gpt-4o", debug_mode=True):
 
     return code_agent
 
+def create_update_day_agent(model_id="gpt-4o", debug_mode=True):
+    update_day_agent = Agent(
+        name="Day-wise Itinerary Update Agent",
+        agent_id="update_day_agent",
+        # model=OpenAIChat(
+        #     id=model_id,
+        #     response_format="json",
+        #     temperature=0.2,
+        #     top_p=0.2
+        # ),
+        model=Groq(id="llama-3.3-70b-versatile",
+                   response_format={ "type": "json_object" }, 
+                   temperature=0.2),
+        # structured_outputs=True,
+        response_model=UpdatedDayResponse,  # <-- this is the simplified response
+        description="Update a single day's list of locations based on user feedback.",
+        instructions=dedent(f"""
+        You are a travel itinerary day editor for tourists visiting Singapore.
+
+        You are given:
+        - A list of locations for one day (arrival time, departure time, location names, etc.).
+        - Feedback from the user about what they want changed.
+
+        Your task:
+        - Modify the locations based on the feedback.
+        - Adjust arrival/departure times, transit types, durations, rest times as necessary.
+        - Maintain logical, feasible, realistic schedules (no teleporting or magical times).
+
+        Constraints:
+        - Each day MUST start and end at the hotel.
+        - Prefer replacing attractions with nearby alternatives if an attraction is removed.
+        - Try to keep about the same number of activities (unless feedback says otherwise).
+        - Only modify what is necessary to satisfy the feedback.
+        - Do not fabricate location names — use existing attractions or hawkers.
+
+        ✅ You MUST output ONLY the following JSON structure:
+
+        {{
+          "updated_locations": [
+            {{
+              "name": "...",
+              "type": "attraction | hawker | hotel",
+              "arrival_time": "HH:MM",
+              "departure_time": "HH:MM",
+              "lat": float,
+              "lng": float,
+              "transit_from_prev": "transit | drive | null",
+              "transit_duration": int,
+              "transit_cost": float,
+              "duration": int,
+              "satisfaction": float,
+              "cost": float,
+              "rest_duration": int,
+              "actual_arrival_time": "HH:MM | null",
+              "description": "optional",
+              "position": "optional",
+              "meal_type": "optional"
+            }}
+          ]
+        }}
+
+        ⚠️ DO NOT return full trip summaries or budgets. Only this day's updated locations.
+        ⚠️ DO NOT invent names, costs, or satisfaction scores without logical basis.
+        ✅ Output must be valid parsable JSON.
+        """),
+        debug_mode=debug_mode,
+        # markdown=True,
+        use_json_mode=True,
+    )
+
+    return update_day_agent
+
+def create_feedback_affected_poi_agent(model_id="gpt-4o", debug_mode=True):
+    affected_poi_agent = Agent(
+        name="Finding Affected POIs based on feedback",
+        agent_id="affected_poi_agent",
+        # model=OpenAIChat(id=model_id, 
+        #                  response_format="json",
+        #                  temperature=0.0,
+        #                  top_p=0.2,
+        #                  ), 
+        model=Groq(id="llama-3.3-70b-versatile",
+                   response_format={ "type": "json_object" }, 
+                   temperature=0.2),
+        response_model=AffectedPOIResponse,
+        structured_outputs=True,
+        description="You are an expert on building travel itineraries for Singapore. You just received feedback from the user. You need to find the points of interest that the users would like to change from the user's feedback.",
+        instructions=[
+            "You will receive an itinerary in a tabular format.",
+            "You will also receive a feedback on the known itinerary.",
+            "Your goal is to list the where and when of the itinerary does the user want to change.",
+            "For the POI name. Use the exact naming that the itinerary uses.",
+            "For the time, if there are arrival and departure time, use the arrival time.",
+            "If the user's feedback doesn't specify any places, speculate based from your understanding of these places.",
+            "If you think that no places are affected, return an empty list.",
+            "IMPORTANT: Return JUST THE JSON RESPONSE, DO NOT INCLUDE ANY OTHER THINGS.",
+        ],
+        debug_mode=debug_mode,
+        markdown=True
+    )
+
+    return affected_poi_agent
+
+
 def get_combine_json_data(path="./data/alns_inputs/POI_data.json", at_least_hawker=10, at_least_attraction=30):
     # Read the JSON file
     with open(path, "r", encoding="utf-8") as file:
@@ -600,6 +774,228 @@ def get_json_from_query(query="How to make a bomb?", debug_mode=True):
 
     return
 
+def update_itinerary_llm(known_itinerary, feedback_query, debug_mode=True):
+    update_day_agent = create_update_day_agent(debug_mode=debug_mode)
+
+    updated_days = []
+
+    for day_info in known_itinerary["days"]:
+        day = day_info["day"]
+        date = day_info["date"]
+        locations = day_info["locations"]
+
+        day_prompt = f"""
+        This is the itinerary for Day {day} ({date}):
+        {json.dumps(locations, indent=2)}
+        
+        User feedback: '{feedback_query}'
+        
+        Update only this day's list of locations based on the feedback.
+        """
+
+        agent_response = update_day_agent.run(day_prompt, stream=False).content.model_dump()
+        updated_day = UpdatedDayPlan(day=day, date=date, locations=agent_response["updated_locations"])
+        updated_days.append(updated_day)
+
+    return updated_days
+
+def rebuild_full_itinerary(updated_days: List[UpdatedDayPlan], known_itinerary: dict) -> UpdatedItineraryResponse:
+    """
+    Rebuilds a full UpdatedItineraryResponse from updated days and the original known itinerary.
+    """
+
+    # 1. Initialize accumulators
+    total_expenditure = 0.0
+    total_travel_time = 0
+    total_satisfaction = 0.0
+    total_rest_duration = 0
+    attractions_visited = []
+    attractions_cost = 0.0
+    meals_cost = 0.0
+    transportation_cost = 0.0
+
+    # 2. Loop through updated days
+    for day in updated_days:
+        previous_location = None
+
+        for loc in day.locations:
+            total_expenditure += loc.cost or 0
+            total_travel_time += loc.transit_duration or 0
+            total_satisfaction += loc.satisfaction or 0
+            total_rest_duration += loc.rest_duration or 0
+
+            if loc.type == "attraction":
+                attractions_visited.append(loc.name)
+                attractions_cost += loc.cost or 0
+            elif loc.type == "hawker":
+                meals_cost += loc.cost or 0
+
+            if loc.transit_cost:
+                transportation_cost += loc.transit_cost or 0
+
+            previous_location = loc
+
+    # 3. Calculate objective value (example: simple ratio based)
+    try:
+        budget = known_itinerary["trip_summary"]["total_budget"]
+        objective_value = (total_expenditure / budget) - (total_satisfaction / (5 * len(attractions_visited)))
+    except Exception:
+        objective_value = 0
+
+    # 4. Create UpdatedItineraryResponse
+    itinerary_response = UpdatedItineraryResponse(
+        trip_summary=UpdatedTripSummary(
+            duration=len(updated_days),
+            total_budget=budget,
+            actual_expenditure=round(total_expenditure, 2),
+            total_travel_time=total_travel_time,
+            total_satisfaction=round(total_satisfaction, 2),
+            objective_value=round(objective_value, 6),
+            is_feasible=True,  # Assume feasible if rebuilt correctly; later can validate
+            starting_hotel=known_itinerary["trip_summary"]["starting_hotel"],
+        ),
+        days=updated_days,
+        attractions_visited=list(sorted(set(attractions_visited))),
+        budget_breakdown=UpdatedBudgetBreakdown(
+            attractions=round(attractions_cost, 2),
+            meals=round(meals_cost, 2),
+            transportation=round(transportation_cost, 2),
+        ),
+        transport_summary=UpdatedTransportSummary(
+            total_duration=total_travel_time,
+            total_cost=round(transportation_cost, 2),
+        ),
+        rest_summary=UpdatedRestSummary(
+            total_rest_duration=total_rest_duration
+        )
+    )
+
+    return itinerary_response
+
+
+def find_alternative_of_affected_pois(itinerary_table, feedback_prompt, top_n=5, debug_mode=True):
+    affected_poi_agent = create_feedback_affected_poi_agent(debug_mode=debug_mode)
+    main_prompt = f"You have this itinerary currently in a tabular format:\n{itinerary_table.to_string()}\n" \
+        f"But this itinerary is not to the user's liking. In which their feedback is: '{feedback_prompt}'\n" \
+        "Find the affected points of interest (POIs)!"
+
+    agent_response = affected_poi_agent.run(main_prompt, stream=False).content.model_dump()
+    affected_pois = agent_response["AFFECTED_POI_DETAILS"]
+
+    # get tranport matrix & location types
+    transport_matrix = get_transport_matrix()
+    location_types = get_location_types()
+    blacklist_places = set(itinerary_table["Location"].values)
+    poi_suggestions = []
+
+    transport_keys = transport_matrix.keys()
+    # from the affected pois, find top N closest places from the transport matrix
+    for affected_poi in affected_pois:
+        poi = affected_poi["poi_affected"]
+        poi_loc_type = affected_poi["poi_type"]
+        if poi_loc_type == "hotel":
+            # WE CANNOT CHANGE THE HOTEL, so just skip. There's no alternative to this.
+            continue
+        poi_day = affected_poi["day_affected"]
+        poi_time = affected_poi["time_affected"]
+        poi_time_bracket = get_poi_time_bracket(poi_time)
+        possible_alternative_pois = [
+            (
+                transport_key[1], # destination name
+                location_types[transport_key[1]],
+                transport_matrix[transport_key]
+            )
+            for transport_key in transport_keys
+            if (transport_key[0] == poi) and \
+               (transport_key[1] not in blacklist_places) and \
+               (transport_key[2] == poi_time_bracket) and \
+               (location_types[transport_key[1]] == poi_loc_type)
+        ] # find possible routes from this place at this time for the exactly the same place type
+        # - find the 1st key that is affected poi
+        # - alternative poi must be not taken before
+        # - time bracket must be in the correct time bracket
+        # - location type of alternative poi must be the same as affected poi
+        # sort and pick only top 5, by shortest duration, let's say using driving
+        possible_alternative_pois.sort(key=lambda x: x[2]["drive"]["duration"])
+        poi_suggestions.append({
+            "affected_poi": poi,
+            "affected_day": poi_day,
+            "affected_time": poi_time,
+            "alternatives": possible_alternative_pois[:5]
+        })
+    
+    return poi_suggestions
+
+
+def update_itinerary_closest_alternatives(known_itinerary, feedback_prompt, poi_suggestions, debug_mode=True):
+    update_day_agent = create_update_day_agent(debug_mode=debug_mode)
+    updated_days = []
+
+    for day_info in known_itinerary["days"]:
+        # get poi suggestions that is for this specific days
+        day = day_info["day"]
+        date = day_info["date"]
+        locations = day_info["locations"]
+        this_days_affected_alternative = [
+            f"`{suggestion['affected_poi']}` at {suggestion['affected_time']}, alternatives: {json.dumps(suggestion['alternatives'], indent=2)}"
+            for suggestion in poi_suggestions
+            if suggestion["affected_day"] == str(day)
+        ]
+
+        poi_alternatives = '\n\nAlternatives for: '.join(this_days_affected_alternative)
+
+        day_prompt = f"""
+        This is the itinerary for Day {day} ({date}):
+        {json.dumps(locations, indent=2)}
+        
+        User feedback: '{feedback_prompt}'
+        """
+
+        if len(this_days_affected_alternative) > 0:
+            # if there's nothing to change from this day's itinerary,
+            # just use the exact same itinerary
+            day_prompt += dedent(f"""
+            Update only this day's list of locations based on the feedback using these possible alternatives:
+
+            {poi_alternatives}
+
+            Use the exact naming of the places that's provided in these lists.
+            Choose between driving or transit. The data is already provided. Driving is faster, but transit is cheaper.
+            """)
+        else:
+            day_prompt += dedent(f"""
+            Because there are no affected Points of Interests for Day {day}, Return the exact same itinerary in the given format.
+            """)
+
+        agent_response = update_day_agent.run(day_prompt, stream=False).content.model_dump()
+        updated_day = UpdatedDayPlan(day=day, date=date, locations=agent_response["updated_locations"])
+        updated_days.append(updated_day)
+
+    return updated_days
+
+def update_invalid_itinerary(updated_itinerary, feedback, debug_mode=True):
+    update_day_agent = create_update_day_agent(debug_mode=debug_mode)
+    updated_days = []
+    for day_info in updated_itinerary["days"]:
+        feasibility_prompt = dedent(f"""
+        This itinerary on day {day_info['day']} is not a feasible solution:
+        
+        {day_info['locations']}
+
+        The feedback is {feedback}.
+
+        Can you modify it so that it matches the feedback, please?
+        Don't forget to follow the necessary format.
+
+        IMPORTANT: If you think the feedback doesn't affect the itinerary of this day, skip and return the exact same itinerary.
+        """)
+
+        agent_response = update_day_agent.run(feasibility_prompt, stream=False).content.model_dump()
+        updated_day = UpdatedDayPlan(day=day_info['day'], date=day_info['date'], locations=agent_response["updated_locations"])
+        updated_days.append(updated_day)
+    
+    return updated_days
+
 
 #==================
 user_queries = {
@@ -727,10 +1123,3 @@ if __name__ == "__main__":
 
         print()
         break
-
-
-
-
-
-
-

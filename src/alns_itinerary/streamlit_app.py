@@ -21,7 +21,17 @@ from alns_main import alns_main
 import time
 import random
 
-from agentic.multiagent import get_json_from_query, get_combine_json_data
+from agentic.multiagent import (
+    get_json_from_query,
+    get_combine_json_data,
+    find_alternative_of_affected_pois,
+    update_itinerary_llm,
+    update_itinerary_closest_alternatives,
+    rebuild_full_itinerary,
+    update_invalid_itinerary,
+)
+
+from agentic.multiagent_utils import is_updated_itinerary_feasible
 
 
 st.set_page_config(page_title="Travel Itinerary Planner", layout="wide")
@@ -73,6 +83,15 @@ def display_itinerary():
                 })
         df = pd.DataFrame(all_days)
         st.dataframe(df, use_container_width=True)
+        st.session_state.messages.append({
+            "role": "assistant",
+            "content": [
+                (
+                    "dataframe",
+                    df
+                )
+            ]
+        })
     else:
         st.warning("No itinerary data found.")
 
@@ -82,23 +101,88 @@ def process_alns_data():
     if "trip_summary" in alns_data:
         st.subheader("Trip Summary")
         st.json(alns_data["trip_summary"])
+        st.session_state.messages.append({
+            "role": "assistant",
+            "content": [
+                (
+                    "markdown",
+                    "## Trip Summary"
+                ),
+                (
+                    "json",
+                    alns_data["trip_summary"]
+                )
+            ]
+        })
 
     if "attractions_visited" in alns_data:
         st.subheader("Attractions Visited")
         st.write(", ".join(alns_data["attractions_visited"]))
+        st.session_state.messages.append({
+            "role": "assistant",
+            "content": [
+                (
+                    "markdown",
+                    "## Attractions Visited"
+                ),
+                (
+                    "markdown",
+                    ", ".join(alns_data["attractions_visited"])
+                )
+            ]
+        })
 
     if "budget_breakdown" in alns_data:
         st.subheader("Budget Breakdown")
         budget_df = pd.DataFrame(list(alns_data["budget_breakdown"].items()), columns=["Category", "Cost"])
         st.table(budget_df)
+        st.session_state.messages.append({
+            "role": "assistant",
+            "content": [
+                (
+                    "markdown",
+                    "## Budget Breakdown"
+                ),
+                (
+                    "dataframe",
+                    budget_df
+                )
+            ]
+        })
 
     if "transport_summary" in alns_data:
         st.subheader("Transport Summary")
         st.json(alns_data["transport_summary"])
+        st.session_state.messages.append({
+            "role": "assistant",
+            "content": [
+                (
+                    "markdown",
+                    "## Transport Summary"
+                ),
+                (
+                    "json",
+                    alns_data["transport_summary"]
+                )
+            ]
+        })
 
     if "rest_summary" in alns_data:
         st.subheader("Rest Summary")
         st.json(alns_data["rest_summary"])
+        st.session_state.messages.append({
+            "role": "assistant",
+            "content": [
+                (
+                    "markdown",
+                    "## Rest Summary"
+                ),
+                (
+                    "json",
+                    alns_data["rest_summary"]
+                )
+            ]
+        })
 
 #==================
 
@@ -155,30 +239,7 @@ def display_map():
     else:
         st.warning("No location data available for mapping.")
 
-# Function to create map
-def generate_itinerary(user_input):
-    start_time = time.time()
-    # exports out the data/POI_data.json based on the given query from streamlit otherwise, its a default "how to make a bomb"
-    get_json_from_query(query=user_input['description'], debug_mode=True)
-
-    # aggregation between kb and recommendations, deduplicates, and randomnisation
-    get_combine_json_data()
-
-    multiagent_time = time.time()
-    multiagent_runtime = multiagent_time - start_time
-    logger.info(f"Multi-Agent runs for {multiagent_runtime:.2f} s")
-
-    alns_data = alns_main(user_input=user_input, 
-                        #   alns_input=alns_input,
-                          llm_path="./data/alns_inputs/")
-    alns_time = time.time()
-    alns_runtime = alns_time - multiagent_time
-    total_runtime = alns_time - start_time
-
-    logger.info(f"ALNS runs for {alns_runtime:.2f} s")
-    logger.info(f"MultiAgent + ALNS Solution runs for {total_runtime:.2f} s")
-    logger.info("Itinerary data loaded successfully!")
-    
+def prepare_map(alns_data):
     # Prepare locations and map
     locations = []
     for day in alns_data["days"]:
@@ -218,15 +279,112 @@ def generate_itinerary(user_input):
         Cost: ${loc.get('cost', 0)}
         """
         folium.Marker([loc["lat"], loc["lng"]], popup=popup_text).add_to(marker_cluster)
+    
+    return m
+
+
+# Function to create map
+def generate_itinerary(user_input):
+    start_time = time.time()
+    # exports out the data/POI_data.json based on the given query from streamlit otherwise, its a default "how to make a bomb"
+    # get_json_from_query(query=user_input['description'], debug_mode=True)
+
+    # aggregation between kb and recommendations, deduplicates, and randomnisation
+    get_combine_json_data()
+
+    multiagent_time = time.time()
+    multiagent_runtime = multiagent_time - start_time
+    logger.info(f"Multi-Agent runs for {multiagent_runtime:.2f} s")
+
+    alns_data = alns_main(user_input=user_input, 
+                        #   alns_input=alns_input,
+                          llm_path="./data/alns_inputs/")
+    alns_time = time.time()
+    alns_runtime = alns_time - multiagent_time
+    total_runtime = alns_time - start_time
+
+    logger.info(f"ALNS runs for {alns_runtime:.2f} s")
+    logger.info(f"MultiAgent + ALNS Solution runs for {total_runtime:.2f} s")
+    logger.info("Itinerary data loaded successfully!")
+
+    m = prepare_map(alns_data)
 
     st.session_state["itinerary_ready"] = True
     st.session_state["route_map"], st.session_state["alns_data"] = m, alns_data
+
+
+def make_content_to_string(content):
+    content_type, content_value = content
+
+    if content_type == "dataframe":
+        return content_value.to_string()
+    elif content_type == "markdown":
+        return str(content_value)
+    elif content_type == "json":
+        return json.dumps(content_value, indent=4)
+    
+    raise ValueError(f"Content Type '{content_type}' not handled.")
+
+
+def update_itinerary(user_input, feedback_prompt, itinerary_table, approach=0):
+    if approach == 0:
+        # 2B: using LLM only, try to update the itinerary in the same table
+        updated_days = update_itinerary_llm(st.session_state["alns_data"], feedback_prompt)
+        updated_itinerary = rebuild_full_itinerary(updated_days, st.session_state["alns_data"]).model_dump()
+        logger.info(f"Updated Itinerary: {updated_itinerary}")
+
+    else: # 2C and 2D
+        # 2C: find affected POIs, find alternatives of the POIs
+        #     update the itinerary afterwards
+        poi_suggestions = find_alternative_of_affected_pois(itinerary_table, feedback_prompt, top_n=5)
+
+        logger.info("Affected POIs and their Alternatives:")
+        logger.info(json.dumps(poi_suggestions, indent=4, default=str))
+
+        updated_days = update_itinerary_closest_alternatives(st.session_state["alns_data"], feedback_prompt, poi_suggestions)
+        updated_itinerary = rebuild_full_itinerary(updated_days, st.session_state["alns_data"]).model_dump()
+
+        if approach == 2: # use 2D on top of 2C result
+            # 2D: Using the updated itinerary, try to check feasibility, rerun if not feasible.
+            is_valid = is_updated_itinerary_feasible(updated_itinerary, budget=budget, num_of_days=num_days)
+            logging.info(f"CHECKING UPDATED ITINERARY FEASIBILITY: {is_valid}")
+            if is_valid != "valid":
+                # retry until valid
+                MAX_RETRIES = 5
+                num_retry = 0
+                while num_retry < MAX_RETRIES and is_valid != "valid":
+                    print("IS_VALID: ", is_valid)
+                    num_retry += 1
+                    
+                    updated_days = update_itinerary_closest_alternatives(updated_itinerary, feedback_prompt, poi_suggestions)
+                    # re-update itinerary.
+                    updated_itinerary = rebuild_full_itinerary(updated_days, updated_itinerary).model_dump()
+
+                    # update is_valid with re-updated itinerary
+                    is_valid = is_updated_itinerary_feasible(updated_itinerary, budget=budget, num_of_days=num_days)
+
+                    logger.info(f"{is_valid}\nRetry Number {num_retry}")
+
+                # if still invalid, throw error
+                if is_valid != "valid":
+                    st.error("Unable to recreate itinerary from feedback. Please try again.")
+
+    logger.info("Itinerary data loaded successfully!")
+    m = prepare_map(updated_itinerary)
+    
+    print(feedback_prompt)
+    st.session_state["itinerary_ready"] = True
+    # st.session_state["route_map"], st.session_state["alns_data"] = m, alns_data
+    st.session_state["route_map"], st.session_state["alns_data"] = m, updated_itinerary
 
 G = load_graph()
 
 # State to track whether itinerary has been generated
 if "itinerary_ready" not in st.session_state:
     st.session_state["itinerary_ready"] = False
+
+if "messages" not in st.session_state:
+    st.session_state.messages = []
 
 # User Inputs
 st.sidebar.header("Trip Inputs")
@@ -254,7 +412,7 @@ if page == "Itinerary":
             "num_days": num_days,
             "budget": budget,
             "description": description
-        }  
+        }
         generate_itinerary(user_input)
     
     if st.session_state["itinerary_ready"]:
@@ -271,6 +429,34 @@ if st.session_state["itinerary_ready"]:
     elif page == "About":
         st.header("About")
         st.write("This app helps plan your optimized travel itineraries using ALNS algorithms.")
-        
+
+    # when itinerary is ready, have the feedback loop
+    feedback_prompt = st.chat_input("Any feedback about the result?")
+    if feedback_prompt:
+        st.chat_message("user").markdown(feedback_prompt)
+        st.session_state.messages.append({
+            "role": "user",
+            "content": [("markdown", feedback_prompt)]
+        })
+        user_input = { # for alns, regardless of feedback
+            "num_days": num_days,
+            "budget": budget,
+            "description": description
+        }
+
+        # get last tabular itinerary in messages
+        itinerary_table = None
+        for message in st.session_state.messages[::-1]:
+            for content in message["content"][::-1]:
+                if content[0] == "dataframe":
+                    itinerary_table = content[1]
+                    logging.info("masuk sini")
+                    break
+
+        update_itinerary(user_input, feedback_prompt, itinerary_table, approach=2) # only taking the last itinerary
+        if st.session_state["itinerary_ready"]:
+            display_itinerary()
+            # no need to re-show radio "Go to", will have duplicate otherwise
+
 st.sidebar.write("---")
 st.sidebar.write("Developed with ❤️ using Streamlit.")
