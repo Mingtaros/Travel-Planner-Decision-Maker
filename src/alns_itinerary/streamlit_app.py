@@ -353,17 +353,16 @@ def update_itinerary(user_input, feedback_prompt, itinerary_table, approach=0):
                 MAX_RETRIES = 5
                 num_retry = 0
                 while num_retry < MAX_RETRIES and is_valid != "valid":
-                    print("IS_VALID: ", is_valid)
                     num_retry += 1
                     
-                    updated_days = update_itinerary_closest_alternatives(updated_itinerary, feedback_prompt, poi_suggestions)
-                    # re-update itinerary.
+                    # re-update itinerary using `is_valid` as feedback.
+                    updated_days = update_invalid_itinerary(updated_itinerary, is_valid, poi_suggestions)
                     updated_itinerary = rebuild_full_itinerary(updated_days, updated_itinerary).model_dump()
 
                     # update is_valid with re-updated itinerary
                     is_valid = is_updated_itinerary_feasible(updated_itinerary, budget=budget, num_of_days=num_days)
 
-                    logger.info(f"{is_valid}\nRetry Number {num_retry}")
+                    logger.info(f"IS_VALID: {is_valid}\nRetry Number {num_retry}")
 
                 # if still invalid, throw error
                 if is_valid != "valid":
