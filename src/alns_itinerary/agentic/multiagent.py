@@ -1027,7 +1027,7 @@ user_queries = {
         "budget": 300,
     },
     "02": {
-        "query": "I'm a solo backpacker staying for 3 days. My budget is tight (~150 SGD total), and I'm mainly here to try spicy food and explore free attractions.",
+        "query": "I'm a solo backpacker. My budget is tight, and I'm mainly here to try spicy hawker food and explore cheap attraction.",
         "days": 3,
         "budget": 150,
     },
@@ -1037,7 +1037,7 @@ user_queries = {
         "budget": 180,
     },
     "04": {
-        "query": "I'm visiting Singapore for 3 days as a content creator. I'm looking for Instagrammable attractions and stylish food spots. Budget is 600 SGD.",
+        "query": "I'm a content creator. I'm looking for Instagrammable attractions and stylish food spots. I don't mind the trip to be expensive. I just want to visit as many places as possible!",
         "days": 3,
         "budget": 600,
     },

@@ -1,5 +1,6 @@
-% documentclass ecai
-%
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesClass{ecai}[2023/12/10 v04 ECAI document class]
+
 % This is file `ecai.cls', the recommended style file for ECAI
 % submission and camera-ready copy, for use with latex2e. 
 
@@ -35,14 +36,14 @@
 % 
 % ----------------------------------------------------------------------
 
-\ProvidesClass{ecai}
-              [2023/12/10 v04 ECAI document class]
-%             [2023/08/02 v03.009 ECAI document class]
-%             [2015/09/29 v02 ECAI document class]
-%             [2002/03/06 v01 ECAI-2004 document class]
+\LoadClass[twocolumn]{article}
 
 \usepackage{comment}
 \usepackage[switch]{lineno}
+\usepackage{times}
+\usepackage[T1]{fontenc}
+\usepackage[numbers]{natbib}
+\renewcommand{\bibfont}{\footnotesize}
 
 \newcommand\@ptsize{}
 \newif\if@restonecol
@@ -155,9 +156,6 @@
 \newcommand\LARGE{\@setfontsize\LARGE\@xivpt{18}}
 \newcommand\huge{\@setfontsize\huge\@xviipt{22}}
 \newcommand\Huge{\@setfontsize\Huge\@xxpt{25}}
-
-\usepackage{times}
-\usepackage[T1]{fontenc}
 
 \if@twocolumn
   \setlength\parindent{1em}
@@ -1322,7 +1320,6 @@
 \hbox to \textwidth{\noindent \@mycopyright \hfill}}}
 
 % bibliography style
-\usepackage[numbers]{natbib}
 \renewcommand{\bibfont}{\footnotesize}
 \bibliographystyle{abbrvnat}
 %\bibliographystyle{ecai}

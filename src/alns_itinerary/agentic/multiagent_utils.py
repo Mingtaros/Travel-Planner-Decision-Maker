@@ -167,11 +167,11 @@ def is_updated_itinerary_feasible(itinerary_response, budget, num_of_days, defau
         # check time of itinerary start and finish
         if day["locations"][0]["departure_time"] < START_TIME:
             # both in string
-            return f"Day {day['day']} must start at {START_TIME}. Got {day['locations'][0]['departure_time']} instead."
+            return f"Day {day['day']} must start at {START_TIME} at the earliest. Got {day['locations'][0]['departure_time']} instead."
 
         if day["locations"][-1]["departure_time"] > HARD_LIMIT_END_TIME:
             # both in string
-            return f"Day {day['day']} must end at {HARD_LIMIT_END_TIME}. Got {day['locations'][-1]['departure_time']} instead."
+            return f"Day {day['day']} must end at {HARD_LIMIT_END_TIME} at the latest. Got {day['locations'][-1]['departure_time']} instead."
         
         lunch_visits = 0
         dinner_visits = 0
